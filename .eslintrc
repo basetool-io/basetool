@@ -1,0 +1,139 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jest": true
+  },
+  "extends": [
+    // "airbnb-base",
+    "plugin:@typescript-eslint/recommended",
+    // "plugin:cypress/recommended",
+    "next",
+    "next/core-web-vitals"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    // "sort-imports-es6-autofix",
+    "react-hooks",
+    "unused-imports"
+  ],
+  "rules": {
+    "import/order": 0,
+    // "sort-imports-es6-autofix/sort-imports-es6": [
+    //   2,
+    //   {
+    //     "ignoreCase": false,
+    //     "ignoreMemberSort": false,
+    //     "memberSyntaxSortOrder": [
+    //       "none",
+    //       "all",
+    //       "multiple",
+    //       "single"
+    //     ]
+    //   }
+    // ],
+    // "sort-imports": ["error"],
+    // "semi": [
+    //   "error",
+    //   "never"
+    // ],
+    // "no-empty": [
+    //   "error",
+    //   {
+    //     "allowEmptyCatch": true
+    //   }
+    // ],
+    // "no-multi-spaces": 0,
+    // "no-shadow": 0,
+    // "no-plusplus": 0,
+    // "no-param-reassign": 0,
+    // "import/prefer-default-export": 0,
+    // "camelcase": [
+    //   "error",
+    //   {
+    //     "ignoreDestructuring": true
+    //   }
+    // ],
+    "newline-before-return": 1,
+    // "max-len": [
+    //   "error",
+    //   {
+    //     "code": 480
+    //   }
+    // ],
+    // "class-methods-use-this": 0,
+    // "no-use-before-define": 0,
+    // "@typescript-eslint/ban-types": 0,
+    // "consistent-return": 0,
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "unused-imports/no-unused-imports": "error",
+    // "unused-imports/no-unused-vars": [
+    //   "warn",
+    //   {
+    //     "vars": "all",
+    //     "varsIgnorePattern": "^_",
+    //     "args": "after-used",
+    //     "argsIgnorePattern": "^_"
+    //   }
+    // ],
+    // "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    // "react-hooks/exhaustive-deps": 0,
+    "react/no-unescaped-entities": 0,
+    // "react/no-children-prop": 0,
+    // "react/jsx-key": [
+    //   0, // disable this for now because we use rect-table and spread the key from that
+    //   {
+    //     "checkFragmentShorthand": true,
+    //     "checkKeyMustBeforeSpread": false
+    //   }
+    // ],
+    // "import/extensions": ["error", {
+    //   "tsx": "never"
+    // }]
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          [
+            "@/src/hooks",
+            "./src/hooks"
+          ],
+          [
+            "@/components/",
+            "./components"
+          ],
+          [
+            "@",
+            "."
+          ],
+          [
+            "@/",
+            "./"
+          ],
+          [
+            "~/",
+            "./node_modules"
+          ]
+        ],
+        "extensions": [
+          ".ts",
+          ".tsx",
+          ".d.ts",
+          ".js",
+          ".json"
+        ]
+      }
+    }
+  }
+}

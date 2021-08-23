@@ -1,0 +1,145 @@
+import { joiResolver } from "@hookform/resolvers/joi";
+import { schema } from "../schema";
+// import { useApi } from "@/src/hooks";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
+// import Button from "@/components/Button";
+import React, { useState } from "react";
+// import TextField from "@/components/TextField";
+import {
+  FormControl,
+  FormLabel,
+  FormHelperText,
+  Input,
+  Select,
+  Button,
+} from "@chakra-ui/react";
+import {
+  useAddDataSourceMutation,
+  useUpdateDataSourceMutation,
+} from "@/features/data-sources/api-slice";
+
+export interface IFormFields {
+  id?: number;
+  name: string;
+  options: {
+    url: string;
+  };
+  type: "postgresql";
+}
+
+function Form({ data }: { data?: IFormFields }) {
+  const whenCreating = !data?.id;
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const [addDataSource, { isLoading: isCreating, error: creatingError }] =
+    useAddDataSourceMutation();
+  const [updateDataSource, { isLoading: isUpdating, error: updatingError }] =
+    useUpdateDataSourceMutation();
+  // const api = useApi();
+
+  const onSubmit = async (formData: IFormFields) => {
+    console.log("onSubmit->", formData);
+    // formData.type = "postgresql";
+    setIsLoading(true);
+    let response;
+    console.log("whenCreating->", whenCreating);
+    try {
+      if (whenCreating) {
+        response = await addDataSource({ body: formData }).unwrap();
+      } else {
+        if (!data?.id) {
+          setIsLoading(false);
+
+          return;
+        }
+
+        response = await updateDataSource(data?.id, formData).unwrap();
+      }
+    } catch (error) {
+      setIsLoading(false);
+    }
+
+    console.log("response->", response);
+
+    setIsLoading(false);
+
+    if (response && response.ok && whenCreating) {
+      router.push(`/data-sources/${response.data.id}`);
+    }
+  };
+
+  const { register, handleSubmit, formState } = useForm({
+    resolver: joiResolver(schema),
+  });
+
+  return (
+    <div className="bg-white overflow-hidden shadow rounded-lg">
+      <pre>{JSON.stringify(formState, null, 2)}</pre>
+      <div className="px-4 py-5 sm:p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <FormControl id="name">
+            <FormLabel>Name</FormLabel>
+            <Input
+              type="string"
+              placeholder="My Postgres DB"
+              {...register("name")}
+            />
+            <FormHelperText>The name of your data source.</FormHelperText>
+          </FormControl>
+
+          <FormControl id="url">
+            <FormLabel>URL</FormLabel>
+            <Input
+              type="string"
+              placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
+              {...register("options.url")}
+            />
+            <FormHelperText>The URL of your Postgres DB.</FormHelperText>
+          </FormControl>
+
+          <FormControl id="type">
+            <FormLabel>Type</FormLabel>
+            <Select {...register("type")}>
+              <option disabled>Select data source</option>
+              <option value="postgresql">postgresql</option>
+            </Select>
+          </FormControl>
+
+          {/* <form onSubmit={handleSubmit(onSubmit)}>
+        <Container className="flex flex-col space-y-2 justify-center items-center">
+          <Button type="submit">Create</Button>
+        </Container>
+      </form> */}
+          {/* <TextField
+            placeholder="My Postgres DB"
+            defaultValue={data?.name}
+            isLoading={isLoading}
+            formState={formState}
+            register={register("name")}
+          />
+          <TextField
+            placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
+            defaultValue={data?.url}
+            isLoading={isLoading}
+            formState={formState}
+            register={register("url")}
+          /> */}
+          {/* <SelectField
+            defaultValue={data?.type}
+            options={availableDataSourceTypes}
+            formState={formState}
+            register={register('type')}
+          /> */}
+          <pre>{JSON.stringify(isLoading, null, 2)}</pre>
+          <input type="submit" />
+          <Button className="mt-4" type="submit" disabled={isLoading}>
+            {whenCreating ? "Create" : "Update"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Form;

@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+
+html,
+body,
+#__next {
+  @apply w-full h-full relative;
+}
+
+.CodeMirror {
+  height: auto !important;
+
+  .CodeMirror-code {
+    @apply bg-blue-50 rounded border border-gray-400;
+  }
+
+  &.CodeMirror-focused {
+    .CodeMirror-code {
+      @apply bg-blue-100;
+    }
+  }
+}
+
+.table-widget {
+  position: relative;
+
+  .resizer {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    right: -6px;
+    top: 0;
+    left: auto;
+    z-index: 1;
+    /* prevents from scrolling while dragging on touch devices */
+    touch-action: none;
+
+    &.isResizing {
+      .resizer-bar {
+        @apply bg-gray-400;
+      }
+    }
+
+    .resizer-bar {
+      @apply relative top-0 left-1/2 block w-px h-full bg-gray-200 -ml-px;
+    }
+  }
+}
+
+.cm-content {
+
+  padding: 0;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+
+  width: 100%;
+  min-width: 0px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  transition-property: var(--chakra-transition-property-common);
+  transition-duration: var(--chakra-transition-duration-normal);
+  /* padding-bottom: 1px; */
+  line-height: var(--chakra-lineHeights-normal);
+  font-size: var(--chakra-fontSizes-md);
+  -webkit-padding-start: var(--chakra-space-4);
+  padding-inline-start: var(--chakra-space-4);
+  -webkit-padding-end: 2rem;
+  padding-inline-end: 2rem;
+  /* height: var(--chakra-sizes-10); */
+  border-radius: var(--chakra-radii-md);
+  border: 1px solid;
+  border-color: inherit;
+  background: inherit;
+
+  @apply text-sm;
+
+  &:focus{
+  }
+}
+.cm-focused {
+  outline: none !important;
+  .cm-content{
+
+    border-color: #3182ce;
+    /* border-width: 2px; */
+    z-index: 1;
+    box-shadow: 0 0 0 1px #3182ce !important;
+
+  }
+}
+
+/* .select__value-container {
+  @apply scrollbar-hide;
+} */
+
+/* @todo: fix hack 👇 */
+.react-datepicker {
+  width: 328px;
+}
+
+@tailwind utilities;
