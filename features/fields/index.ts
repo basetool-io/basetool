@@ -1,6 +1,7 @@
 import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue, Record } from "./types";
 import {
+  AnnotationIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
@@ -30,16 +31,16 @@ export const getColumnOptions = (
       label: "Number",
     },
     {
-      id: "Textarea",
-      label: "Textarea",
-    },
-    {
       id: "Boolean",
       label: "Boolean",
     },
     {
       id: "DateTime",
       label: "Date time",
+    },
+    {
+      id: "Textarea",
+      label: "Text area",
     },
   ];
 
@@ -82,12 +83,12 @@ export const iconForField = (field: Column): ElementType => {
       return TextIcon;
     case "Number":
       return HashtagIcon;
-    case "Textarea":
-      return AlignLeftIcon;
     case "Boolean":
       return CheckCircleIcon;
     case "DateTime":
       return CalendarIcon;
+    case "Textarea":
+      return AnnotationIcon;
   }
 };
 

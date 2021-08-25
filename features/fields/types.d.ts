@@ -3,11 +3,11 @@ import { Views } from "./enums";
 export type FieldType =
   | "Id"
   | "Text"
-  | "Textarea"
   | "Number"
   | "Select"
   | "Boolean"
-  | "DateTime";
+  | "DateTime"
+  | "Textarea";
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;
@@ -42,6 +42,7 @@ export type Column = {
   foreignKey?: ForeignKey;
   nullable: boolean;
   required: boolean;
+  rows: number;
 };
 
 export type RawColumn = {
