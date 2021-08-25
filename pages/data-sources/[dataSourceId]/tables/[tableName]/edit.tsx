@@ -96,7 +96,7 @@ const ColumnEditor = ({
                 ))}
             </Select>
           </FormControl>
-          {column.fieldType === "Textarea" &&
+          {column.fieldType === "Textarea" && <>
             <FormControl id="rows">
               <FormLabel>Rows</FormLabel>
               <Input
@@ -114,7 +114,24 @@ const ColumnEditor = ({
                 }
               />
             </FormControl>
-          }
+            <FormControl id="placeholder">
+              <FormLabel>Placeholder</FormLabel>
+              <Input
+                type="text"
+                name="placeholder"
+                placeholder="Placeholder"
+                required={false}
+                value={column.placeholder}
+                onChange={(e) =>
+                  setColumnOption(
+                    column,
+                    "placeholder",
+                    e.currentTarget.value
+                  )
+                }
+              />
+            </FormControl>
+            </>}
           <CheckboxGroup
             value={column.visibility}
             onChange={(value) => setColumnOption(column, "visibility", value)}
@@ -179,6 +196,7 @@ const FieldsEditor = ({
             // Force visibility because the diff package does a weird diff on arrays.
             visibility: column.visibility,
             rows: column.rows,
+            placeholder: column.placeholder,
           };
 
           return [column.name, changesObject];

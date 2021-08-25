@@ -3,7 +3,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  Input,
   Textarea,
 } from "@chakra-ui/react";
 import { fieldId } from "@/features/fields";
@@ -23,6 +22,7 @@ const Edit = ({
 
   // options
   const rows = field.column.rows;
+  const placeholder = field.column.placeholder;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
@@ -31,7 +31,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        <Textarea rows={rows} id={fieldId(field)} {...register} />
+        <Textarea rows={rows} placeholder={placeholder} id={fieldId(field)} {...register} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

@@ -43,6 +43,7 @@ export type Column = {
   nullable: boolean;
   required: boolean;
   rows: number;
+  placeholder: string;
 };
 
 export type RawColumn = {
