@@ -19,10 +19,12 @@ export interface IApiResponse {
   messages?: Array<string | ApiResponseMessage>;
   data?: any;
   metadata?: any;
-  status?: 'success' | 'error' | 'validation_error';
+  status?: "success" | "error" | "validation_error";
   joiPayload?: ValidationResult;
   redirectTo?: string;
   reload?: boolean;
+  ok?: boolean;
+  error?: boolean;
 }
 
 class ApiResponse {

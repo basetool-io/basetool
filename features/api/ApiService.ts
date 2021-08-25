@@ -1,6 +1,9 @@
 import { apiUrl, baseUrl } from "@/features/api/urls";
 import { toast } from "react-toastify";
-import ApiResponse, { ApiResponseMessage } from "@/features/api/ApiResponse";
+import ApiResponse, {
+  ApiResponseMessage,
+  IApiResponse,
+} from "@/features/api/ApiResponse";
 import Router from "next/router";
 import axios from "axios";
 import DataQuery from "../data-sources/types";
@@ -12,14 +15,22 @@ const appArgs = {
   },
 };
 
-export const reactToResponse = (data: any) => {
+export const reactToResponse = (data: IApiResponse) => {
   if (data) {
-    const { messages, redirectTo, reload } = data;
+    const { messages, redirectTo, reload, ok } = data;
 
     if (messages) {
-      (data?.messages as ApiResponseMessage[]).map((message) =>
-        message.type ? toast[message.type](message.message) : toast(message)
-      );
+      if (ok) {
+        (data?.messages as ApiResponseMessage[]).map((message) =>
+          message.type ? toast[message.type](message.message) : toast(message)
+        );
+      } else {
+        (data?.messages as ApiResponseMessage[]).map((message) =>
+          message.type
+            ? toast[message.type](message.message)
+            : toast.error(message)
+        );
+      }
     }
     if (reload) {
       Router.reload();
@@ -31,6 +42,7 @@ export const reactToResponse = (data: any) => {
 };
 
 export const reactToError = (data: any) => {
+  console.log("reactToError->", data);
   if (data) {
     const { messages } = data;
 

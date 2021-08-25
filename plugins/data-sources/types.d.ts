@@ -1,22 +1,26 @@
 import type DataQuery from '@/prisma'
+import type { Column, ListTable } from "@/features/fields/types";
 
 export type QueryResponse = {
-  data: object,
-  metadata: object,
-  dataSourceType: DataSourceTypes
-}
+  data: unknown;
+  metadata: unknown;
+  dataSourceType: DataSourceTypes;
+};
 
 export interface AbstractQueryService {
-  public dataSource: DataSource | undefined;
-  public dataQuery: DataQuery | undefined;
-  public queryResult: any;
+  dataSource: DataSource | undefined;
+  dataQuery: DataQuery | undefined;
+  queryResult: unknown;
 
-  public setQuery(dataQuery: DataQuery): this
-  public setOptions(options: object): this
-  public toJson(): QueryResponse
-  public async runQuery(dataQuery: DataQuery): Promise<this>
-  public async toApiResponse(): Promise<IApiResponse>
-  public async disconnect?(): Promise<void>
+  // new (public payload: { dataSource: DataSource });
+  public getTables(): Promise<ListTable[]>;
+  public getColumns(tableName: string, storedColumns?: Column[]): Promise<[]>;
+  public setQuery(dataQuery: DataQuery): this;
+  public setOptions(options: Record<string, unknown>): this;
+  public toJson(): QueryResponse;
+  public runQuery(dataQuery: DataQuery): Promise<this>;
+  public toApiResponse(): Promise<IApiResponse>;
+  public disconnect?(): Promise<void>;
 }
 
 export interface DataSourcePlugin {

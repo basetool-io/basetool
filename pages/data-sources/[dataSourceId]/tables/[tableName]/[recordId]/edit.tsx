@@ -1,36 +1,43 @@
-import {
-  Column,
-} from '@/components/fields/types'
-import { Views } from '@/components/fields/enums'
-import { useGetColumnsQuery } from '@/features/tables/tables-api-slice'
-import {
-  useGetRecordQuery,
-} from '@/features/records/records-api-slice'
-import { useRouter } from 'next/router'
-import Form from '@/features/records/components/Form'
-import Layout from '@/components/layouts/NewAppLayout'
-import React, { useMemo } from 'react'
-import isArray from 'lodash/isArray'
+import { Views } from "@/features/fields/enums";
+import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetRecordQuery } from "@/features/records/records-api-slice";
+import { useRouter } from "next/router";
+import Form from "@/features/records/components/Form";
+import React, { useMemo } from "react";
+import isArray from "lodash/isArray";
+import { Column } from "@/features/fields/types";
+import Layout from "@/components/Layout";
 
 function RecordsEdit() {
-  const router = useRouter()
-  const dataSourceId = router.query.dataSourceId as string
-  const tableName = router.query.tableName as string
-  const recordId = router.query.recordId as string
-  const {
-    data, error, isLoading,
-  } = useGetRecordQuery({
-    dataSourceId,
-    tableName,
-    recordId,
-  }, { skip: !dataSourceId || !tableName || !recordId })
-  const { data: columnsResponse } = useGetColumnsQuery({
-    dataSourceId,
-    tableName,
-  }, { skip: !dataSourceId || !tableName })
+  const router = useRouter();
+  const dataSourceId = router.query.dataSourceId as string;
+  const tableName = router.query.tableName as string;
+  const recordId = router.query.recordId as string;
+  const { data, error, isLoading } = useGetRecordQuery(
+    {
+      dataSourceId,
+      tableName,
+      recordId,
+    },
+    { skip: !dataSourceId || !tableName || !recordId }
+  );
+  const { data: columnsResponse } = useGetColumnsQuery(
+    {
+      dataSourceId,
+      tableName,
+    },
+    { skip: !dataSourceId || !tableName }
+  );
 
-  const columns = useMemo(() => (isArray(columnsResponse?.data) ? columnsResponse?.data.filter((column: Column) => column?.visibility?.includes(Views.edit)) : []
-  ), [columnsResponse?.data]) as Column[]
+  const columns = useMemo(
+    () =>
+      isArray(columnsResponse?.data)
+        ? columnsResponse?.data.filter((column: Column) =>
+            column?.visibility?.includes(Views.edit)
+          )
+        : [],
+    [columnsResponse?.data]
+  ) as Column[];
 
   return (
     <Layout>
@@ -40,7 +47,7 @@ function RecordsEdit() {
         <Form record={data.data} columns={columns} />
       )}
     </Layout>
-  )
+  );
 }
 
-export default RecordsEdit
+export default RecordsEdit;

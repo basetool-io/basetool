@@ -1,65 +1,86 @@
-import { PostgresDataSource } from '@/src/data-sources/postgresql/types'
-import { PrismaClient } from '@prisma/client'
-import { first } from 'lodash'
-import { getDataSourceFromRequest } from '@/src/utils/ApiUtils'
-import { idColumns } from '@/components/fields'
-import { withSentry } from '@sentry/nextjs'
-import ApiResponse from '@/src/services/ApiResponse'
-import IsSignedIn from '@/pages/api/middleware/IsSignedIn'
-import OwnsDataSource from '@/pages/api/middleware/OwnsDataSource'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { withSentry } from "@sentry/nextjs";
+import IsSignedIn from "@/pages/api/middleware/IsSignedIn";
+import OwnsDataSource from "@/pages/api/middleware/OwnsDataSource";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getDataSourceFromRequest } from "@/features/api";
+import { idColumns } from "@/features/fields";
+import ApiResponse from "@/features/api/ApiResponse";
+import getQueryService from "@/plugins/data-sources/getQueryService";
 
 const handle = async (
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ): Promise<void> => {
   switch (req.method) {
-    case 'GET':
-      return handleGET(req, res)
-    case 'PUT':
-      return handlePUT(req, res)
+    case "GET":
+      return handleGET(req, res);
+    case "PUT":
+      return handlePUT(req, res);
     default:
-      return res.status(404).send('')
+      return res.status(404).send("");
   }
-}
+};
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = await getDataSourceFromRequest(req) as PostgresDataSource | null
+  const dataSource = await getDataSourceFromRequest(req);
 
-  if (dataSource && dataSource?.options?.url) {
-    const prs = new PrismaClient({
-      datasources: { db: { url: dataSource.options.url } },
-    })
-    const query = `SELECT * FROM ${req.query.tableName} where id = ${req.query.recordId}`
-    const data = await prs.$queryRaw(query)
-    await prs.$disconnect()
-    res.json(ApiResponse.withData(first(data)))
+  if (!dataSource) return res.status(404).send("");
+
+  const QueryService = await getQueryService(dataSource);
+
+  if (!QueryService) {
+    return res.status(404).send("");
+  }
+
+  if (dataSource?.options?.url) {
+    const service = new QueryService({ dataSource });
+
+    await service.connect();
+
+    const record = await service.getRecord(
+      req.query.tableName as string,
+      req.query.recordId as string
+    );
+
+    await service.disconnect();
+
+    res.json(ApiResponse.withData(record));
   } else {
-    res.status(404).send('')
+    res.status(404).send("");
   }
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  if (!req?.body?.changes || Object.keys(req.body.changes).length === 0) return res.send(ApiResponse.withError('No changes sent.'))
+  if (!req?.body?.changes || Object.keys(req.body.changes).length === 0)
+    return res.send(ApiResponse.withError("No changes sent."));
+  const dataSource = await getDataSourceFromRequest(req);
 
-  const dataSource = await getDataSourceFromRequest(req) as PostgresDataSource | null
+  if (!dataSource) return res.status(404).send("");
 
-  if (dataSource && dataSource?.options?.url) {
-    const prs = new PrismaClient({
-      datasources: { db: { url: dataSource?.options?.url } },
-    })
+  const QueryService = await getQueryService(dataSource);
 
-    const set = Object.entries(req.body.changes)
-      .filter(([column]) => !idColumns.includes(column))
-      .map(([column, value]) => `${column} = '${value}'`).join(',')
-
-    const query = `UPDATE ${req.query.tableName} SET ${set} WHERE id = ${req.query.recordId}`
-    const data = await prs.$queryRaw(query)
-    await prs.$disconnect()
-    res.json(ApiResponse.withData(data, { message: 'Updated' }))
-  } else {
-    res.status(404).send('')
+  if (!QueryService) {
+    return res.status(404).send("");
   }
+
+  const service = new QueryService({ dataSource });
+
+  await service.connect();
+
+  const payload = Object.entries(req.body.changes)
+    .filter(([column]) => !idColumns.includes(column))
+    .map(([column, value]) => `${column} = '${value}'`)
+    .join(",");
+
+  const data = await service.updateRecord(
+    req.query.tableName as string,
+    req.query.recordId as string,
+    payload
+  );
+
+  await service.disconnect();
+
+  res.json(ApiResponse.withData(data, { message: "Updated" }));
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)))
+export default withSentry(IsSignedIn(OwnsDataSource(handle)));

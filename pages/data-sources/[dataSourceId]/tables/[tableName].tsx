@@ -1,25 +1,24 @@
-import { Column } from '@/components/fields/types'
-import { Column as ReactTableColumn } from 'react-table'
-import { Views } from '@/components/fields/enums'
-import { isArray } from 'lodash'
-import { useGetColumnsQuery } from '@/features/tables/tables-api-slice'
-import {
-  useGetTableRecordsQuery,
-} from '@/features/records/records-api-slice'
-import { useRouter } from 'next/router'
-import Layout from '@/components/layouts/NewAppLayout'
-import Link from 'next/link'
-import MenuItem from '@/components/fields/common/MenuItem'
-import React, { useMemo } from 'react'
-import RecordsTable from '@/features/tables/components/RecordsTable'
+import { Column } from "@/features/fields/types";
+import { Column as ReactTableColumn } from "react-table";
+import { Views } from "@/features/fields/enums";
+import { isArray } from "lodash";
+import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetTableRecordsQuery } from "@/features/records/records-api-slice";
+import { useRouter } from "next/router";
+import Layout from "@/components/Layout";
+import Link from "next/link";
+import MenuItem from "@/features/fields/components/MenuItem";
+import React, { useMemo } from "react";
+import RecordsTable from "@/features/tables/components/RecordsTable";
 
-const parseColumns = (columns: Column[]): ReactTableColumn[] => columns.map((column) => ({
-  Header: column.name,
-  accessor: column.name,
-  meta: {
-    ...column,
-  },
-}))
+const parseColumns = (columns: Column[]): ReactTableColumn[] =>
+  columns.map((column) => ({
+    Header: column.name,
+    accessor: column.name,
+    meta: {
+      ...column,
+    },
+  }));
 
 const TableEditor = ({
   dataSourceId,
@@ -33,9 +32,9 @@ const TableEditor = ({
   const { data, error, isLoading } = useGetTableRecordsQuery({
     dataSourceId,
     tableName,
-  })
-  const parsedColumns = parseColumns(columns)
-  const router = useRouter()
+  });
+  const parsedColumns = parseColumns(columns);
+  const router = useRouter();
 
   return (
     <>
@@ -46,13 +45,13 @@ const TableEditor = ({
           <div className="flex flex-col flex-1 overflow-auto">
             <div className="flex justify-end space-x-4">
               <Link
-                href={`/new/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
                 passHref
               >
                 <MenuItem>Edit columns</MenuItem>
               </Link>
               <Link
-                href={`/new/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                 passHref
               >
                 <MenuItem>Create</MenuItem>
@@ -70,20 +69,34 @@ const TableEditor = ({
         </>
       )}
     </>
-  )
-}
+  );
+};
 
 function TablesShow() {
-  const router = useRouter()
-  const dataSourceId = router.query.dataSourceId as string
-  const tableName = router.query.tableName as string
-  const { data: columnsResponse, error, isLoading } = useGetColumnsQuery({
-    dataSourceId,
-    tableName,
-  }, { skip: !dataSourceId || !tableName })
+  const router = useRouter();
+  const dataSourceId = router.query.dataSourceId as string;
+  const tableName = router.query.tableName as string;
+  const {
+    data: columnsResponse,
+    error,
+    isLoading,
+  } = useGetColumnsQuery(
+    {
+      dataSourceId,
+      tableName,
+    },
+    { skip: !dataSourceId || !tableName }
+  );
 
-  const columns = useMemo(() => (isArray(columnsResponse?.data) ? columnsResponse?.data.filter((column: Column) => column?.visibility?.includes(Views.index)) : []
-  ), [columnsResponse?.data]) as Column[]
+  const columns = useMemo(
+    () =>
+      isArray(columnsResponse?.data)
+        ? columnsResponse?.data.filter((column: Column) =>
+            column?.visibility?.includes(Views.index)
+          )
+        : [],
+    [columnsResponse?.data]
+  ) as Column[];
 
   return (
     <Layout>
@@ -97,7 +110,7 @@ function TablesShow() {
         />
       )}
     </Layout>
-  )
+  );
 }
 
-export default TablesShow
+export default TablesShow;

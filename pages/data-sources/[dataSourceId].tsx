@@ -11,17 +11,9 @@ function DataSourcesShow() {
     dataSourceId ?? skipToken
   );
 
-  if (error)
-    return (
-      <div>
-        failed to load <pre>{JSON.stringify(error, null, 2)}</pre>
-      </div>
-    );
-  if (!data) return <div>loading...</div>;
-
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <div>loading data sources...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && "Please select a table"}
     </Layout>

@@ -1,11 +1,11 @@
-import { Column as BaseToolColumn } from '@/components/fields/types'
-import { Button } from '@chakra-ui/react'
+import { Column as BaseToolColumn } from "@/features/fields/types";
+import { Button } from "@chakra-ui/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   SortAscendingIcon,
   SortDescendingIcon,
-} from '@heroicons/react/outline'
+} from "@heroicons/react/outline";
 import {
   Column,
   Row,
@@ -16,21 +16,16 @@ import {
   useResizeColumns,
   useSortBy,
   useTable,
-} from 'react-table'
-import { Views } from '@/components/fields/enums'
-import { getField } from '@/components/fields/factory'
-import { iconForField } from '@/components/fields/utils'
-import { isUndefined } from 'lodash'
-import {
-  makeField,
-} from '@/components/fields'
-import { prettifyData } from '@/src/widgets/Table/components/Widget'
-import {
-  usePrefetch,
-} from '@/features/records/records-api-slice'
-import Link from 'next/link'
-import React, { memo, useMemo, useState } from 'react'
-import classNames from 'classnames'
+} from "react-table";
+import { Views } from "@/features/fields/enums";
+import { getField } from "@/features/fields/factory";
+import { iconForField, prettifyData } from "@/features/fields";
+import { isUndefined } from "lodash";
+import { makeField } from "@/features/fields";
+import { usePrefetch } from "@/features/records/records-api-slice";
+import Link from "next/link";
+import React, { memo, useMemo, useState } from "react";
+import classNames from "classnames";
 
 const Cell = ({
   row,
@@ -39,13 +34,17 @@ const Cell = ({
 }: {
   row: Row;
   column: { meta: BaseToolColumn };
-  tableName: string,
+  tableName: string;
 }) => {
-  const field = makeField({ record: row.original, column: column.meta, tableName })
-  const Element = getField(column.meta, Views.index)
+  const field = makeField({
+    record: row.original,
+    column: column.meta,
+    tableName,
+  });
+  const Element = getField(column.meta, Views.index);
 
-  return <Element field={field} />
-}
+  return <Element field={field} />;
+};
 
 const RecordsTable = ({
   dataSourceId,
@@ -58,27 +57,27 @@ const RecordsTable = ({
   data: [];
   tableName: string;
 }) => {
-  const prettyData = useMemo(() => prettifyData(data), [data])
+  const prettyData = useMemo(() => prettifyData(data), [data]);
 
   const defaultColumn = {
     Cell,
-  }
+  };
   const initialState = useMemo(() => {
-    let sortBy: SortingRule<string>[] = []
+    let sortBy: SortingRule<string>[] = [];
 
     sortBy = [
       {
-        id: 'id',
+        id: "id",
         desc: true,
       },
-    ]
+    ];
 
     return {
       pageIndex: 0,
       pageSize: 12,
       sortBy,
-    }
-  }, [])
+    };
+  }, []);
 
   const {
     getTableProps,
@@ -108,8 +107,8 @@ const RecordsTable = ({
     useBlockLayout,
     useResizeColumns,
     useSortBy,
-    usePagination,
-  )
+    usePagination
+  );
 
   const { pageIndex, pageSize, columnResizing } = useMemo(
     () => ({
@@ -117,13 +116,13 @@ const RecordsTable = ({
       pageSize: state.pageSize,
       columnResizing: state.columnResizing,
     }),
-    [state],
-  )
-  const [isLoading, setIsLoading] = useState(false)
-  const [isValid, setIsValid] = useState(true)
-  const [hasColumns, setHasColumns] = useState(true)
-  const [tableIsVisible, setTableIsVisible] = useState(true)
-  const prefetchRecord = usePrefetch('getRecord')
+    [state]
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [isValid, setIsValid] = useState(true);
+  const [hasColumns, setHasColumns] = useState(true);
+  const [tableIsVisible, setTableIsVisible] = useState(true);
+  const prefetchRecord = usePrefetch("getRecord");
 
   return (
     <div className="relative flex flex-col justify-between overflow-auto h-full">
@@ -142,7 +141,7 @@ const RecordsTable = ({
         <div className="flex-1 flex">
           <div
             className={
-              'table-widget relative block min-w-full divide-y divide-gray-200 overflow-auto'
+              "table-widget relative block min-w-full divide-y divide-gray-200 overflow-auto"
             }
             {...getTableProps()}
           >
@@ -150,7 +149,7 @@ const RecordsTable = ({
               {headerGroups.map((headerGroup) => (
                 <div {...headerGroup.getHeaderGroupProps()} className="tr">
                   {headerGroup.headers.map((column: any) => {
-                    const IconElement = iconForField(column.meta)
+                    const IconElement = iconForField(column.meta);
 
                     return (
                       <div
@@ -163,7 +162,7 @@ const RecordsTable = ({
                         >
                           <IconElement className="h-3 inline-block mr-2" />
                           <span className="h-4 inline-block">
-                            {column.render('Header')}
+                            {column.render("Header")}
                             {column.isSorted ? (
                               <>
                                 {column.isSortedDesc ? (
@@ -173,18 +172,20 @@ const RecordsTable = ({
                                 )}
                               </>
                             ) : (
-                              ''
+                              ""
                             )}
                           </span>
                         </div>
                         <div
                           {...column.getResizerProps()}
-                          className={classNames('resizer', { isResizing: column.isResizing })}
+                          className={classNames("resizer", {
+                            isResizing: column.isResizing,
+                          })}
                         >
                           <div className="resizer-bar" />
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               ))}
@@ -192,24 +193,25 @@ const RecordsTable = ({
 
             <div {...getTableBodyProps()}>
               {page.map((row: Row<any>, i) => {
-                prepareRow(row)
+                prepareRow(row);
 
-                const hasId = !isUndefined(row?.original?.id)
-                const link = `/new/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`
+                const hasId = !isUndefined(row?.original?.id);
+                const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
 
                 const rowContent = (
                   <div
                     {...row.getRowProps()}
-                    onMouseOver={() => prefetchRecord({
-                      dataSourceId,
-                      tableName,
-                      recordId: row.original.id.toString(),
-                    })
+                    onMouseOver={() =>
+                      prefetchRecord({
+                        dataSourceId,
+                        tableName,
+                        recordId: row.original.id.toString(),
+                      })
                     }
-                    className={classNames('tr hover:bg-gray-100', {
-                      'bg-white': i % 2 === 0,
-                      'bg-gray-50': i % 2 !== 0,
-                      'cursor-pointer': hasId,
+                    className={classNames("tr hover:bg-gray-100", {
+                      "bg-white": i % 2 === 0,
+                      "bg-gray-50": i % 2 !== 0,
+                      "cursor-pointer": hasId,
                     })}
                   >
                     {row.cells.map((cell) => (
@@ -217,21 +219,21 @@ const RecordsTable = ({
                         {...cell.getCellProps()}
                         className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate"
                       >
-                        {cell.render('Cell')}
+                        {cell.render("Cell")}
                       </div>
                     ))}
                   </div>
-                )
+                );
 
                 if (hasId) {
                   return (
                     <Link href={link} key={i}>
                       {rowContent}
                     </Link>
-                  )
+                  );
                 }
 
-                return rowContent
+                return rowContent;
               })}
             </div>
           </div>
@@ -242,7 +244,7 @@ const RecordsTable = ({
         aria-label="Pagination"
       >
         <div className="inline-block text-gray-500 text-sm">
-          {data?.length ? `${data?.length} results` : ''}
+          {data?.length ? `${data?.length} results` : ""}
         </div>
         <div className="flex justify-between sm:justify-end">
           <Button
@@ -272,7 +274,7 @@ const RecordsTable = ({
         </div>
       </nav>
     </div>
-  )
-}
+  );
+};
 
-export default memo(RecordsTable)
+export default memo(RecordsTable);

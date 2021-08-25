@@ -1,7 +1,7 @@
 import { HttpDataQuery } from './types'
 import { flatten } from 'lodash'
 import { schema } from './schema'
-import QueryService from './QueryService'
+// import QueryService from './QueryService'
 import formComponent from './form'
 import queryEditorComponent from './editor'
 

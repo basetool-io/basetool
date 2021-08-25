@@ -6,7 +6,7 @@ import {
   isEmpty,
   isEqual, isFunction, isNull, isString, isUndefined,
 } from 'lodash'
-import URI from 'urijs'
+// import URI from 'urijs'
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios'
 import pick from 'lodash/pick'
 import type { AbstractQueryService, QueryResponse } from '../types'

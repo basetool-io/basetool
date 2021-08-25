@@ -6,6 +6,11 @@ export type AxiosErrorWithMessage = {
   message: string
 }
 
+export type ListTable = {
+  name: string;
+  schemaname: string;
+};
+
 export type Table = {
   columns?: {
     [columnName: string]: Column
