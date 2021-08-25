@@ -109,7 +109,7 @@ const ColumnEditor = ({
                   setColumnOption(
                     column,
                     "rows",
-                    e.currentTarget.value as number
+                    parseInt(e.currentTarget.value)
                   )
                 }
               />

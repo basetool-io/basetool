@@ -20,7 +20,9 @@ const Edit = ({
   const register = registerMethod(field.column.name);
   const { errors } = formState;
   const { name } = register;
-  const { rows } = register;
+
+  // options
+  const rows = field.column.rows;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
@@ -29,7 +31,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        <Textarea rows={20} id={fieldId(field)} {...register} />
+        <Textarea rows={rows} id={fieldId(field)} {...register} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
