@@ -99,6 +99,7 @@ const ColumnEditor = ({
             value={column.visibility}
             onChange={(value) => setColumnOption(column, "visibility", value)}
           >
+            <FormLabel>Visibility</FormLabel>
             <HStack>
               <Checkbox value="index">Index</Checkbox>
               <Checkbox value="show">Show</Checkbox>
