@@ -1,16 +1,17 @@
-import { Column, Record } from '../types'
-import Joi from 'joi'
+import { Column } from "@/features/fields/types";
+import Joi from "joi";
+import type { Record } from '@/features/records/types'
 
 const schema = (record: Record, column: Column) => {
-  let rule = Joi.date().iso()
+  let rule = Joi.date().iso();
 
-  if (column.nullable && !column.required) {
-    rule = rule.allow('')
+  if (column.baseOptions.nullable && !column.baseOptions.required) {
+    rule = rule.allow("");
   } else {
-    rule = rule.required()
+    rule = rule.required();
   }
 
-  return rule
-}
+  return rule;
+};
 
-export default schema
+export default schema;

@@ -1,8 +1,8 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
-import prisma from "@/prisma";
 import bcrypt from "bcrypt";
+import prisma from "@/prisma";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options

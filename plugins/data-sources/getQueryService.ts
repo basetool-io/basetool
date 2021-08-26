@@ -1,14 +1,22 @@
 import { DataSource } from "@prisma/client";
-import { AbstractQueryService } from "./types";
+import { IQueryService } from "./types"
+import NullQueryService from "./NullQueryService"
 
-const getQueryService = async (
-  dataSource: DataSource
-): Promise<AbstractQueryService | undefined> => {
+const getQueryService = async (payload: {
+  dataSource: DataSource;
+}): Promise<IQueryService> => {
+  let queryService;
+  const {dataSource} = payload
+
   try {
-    return (
+    queryService = (
       await import(`@/plugins/data-sources/${dataSource.type}/QueryService.ts`)
     ).default;
-  } catch (error) {}
+
+    return new queryService(payload);
+  } catch (error) {
+    return new NullQueryService(payload)
+  }
 };
 
 export default getQueryService;

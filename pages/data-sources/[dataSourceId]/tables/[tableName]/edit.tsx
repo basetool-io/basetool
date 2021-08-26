@@ -19,9 +19,9 @@ import { useGetTableRecordsQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import Link from "next/link";
+import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
-import MenuItem from "@/features/fields/components/MenuItem";
 
 type ChangesObject = Record<string, unknown>;
 
@@ -48,7 +48,8 @@ const ColumnListItem = ({
         <span className="border p-1 inline-flex justify-center align-middle text-xs w-6 h-6">
           {<IconElement className="inline h-3" />}
         </span>{" "}
-        {column.name} {column.required && <sup className="text-red-600">*</sup>}
+        {column.name}{" "}
+        {column.baseOptions.required && <sup className="text-red-600">*</sup>}
       </div>
     )
   );
@@ -96,8 +97,10 @@ const ColumnEditor = ({
             </Select>
           </FormControl>
           <CheckboxGroup
-            value={column.visibility}
-            onChange={(value) => setColumnOption(column, "visibility", value)}
+            value={column.baseOptions.visibility}
+            onChange={(value) =>
+              setColumnOption(column, "baseOptions.visibility", value)
+            }
           >
             <FormLabel>Visibility</FormLabel>
             <HStack>
@@ -109,9 +112,13 @@ const ColumnEditor = ({
           </CheckboxGroup>
           <FormControl id="required">
             <Checkbox
-              isChecked={column.required === true}
+              isChecked={column.baseOptions.required === true}
               onChange={() =>
-                setColumnOption(column, "required", !column.required)
+                setColumnOption(
+                  column,
+                  "baseOptions.required",
+                  !column.baseOptions.required
+                )
               }
             >
               Required
@@ -158,7 +165,10 @@ const FieldsEditor = ({
           const changesObject = {
             ...changes,
             // Force visibility because the diff package does a weird diff on arrays.
-            visibility: column.visibility,
+            baseOptions: {
+              ...changes.baseOptions,
+              visibility: column.baseOptions.visibility,
+            },
           };
 
           return [column.name, changesObject];
@@ -173,10 +183,32 @@ const FieldsEditor = ({
 
   const setColumnOption = (column: Column, name: string, value: any) => {
     const newColumns = [...columns];
-    const newColumn = {
-      ...column,
-      [name]: value,
-    };
+    let namespace: "baseOptions" | "fieldOptions" | undefined;
+    let newColumn: Column;
+
+    const segments = name.split(".");
+    if (segments && segments.length === 2) {
+      namespace = segments[0] as "baseOptions" | "fieldOptions";
+      name = segments[1];
+    }
+
+    if (namespace) {
+      console.log(1)
+      newColumn = {
+        ...column,
+        [namespace]: {
+          ...column[namespace],
+          [name]: value,
+        },
+      };
+    } else {
+      console.log(2)
+      newColumn = {
+        ...column,
+        [name]: value,
+      };
+    }
+
     const index = newColumns.findIndex((c: Column) => c.name === column.name);
 
     if (index > -1) {
@@ -254,13 +286,16 @@ const FieldsEditor = ({
 };
 
 function TablesShow() {
-  const router = useRouter()
-  const dataSourceId = router.query.dataSourceId as string
-  const tableName = router.query.tableName as string
-  const { data, error, isLoading } = useGetColumnsQuery({
-    dataSourceId,
-    tableName,
-  }, { skip: !dataSourceId || !tableName })
+  const router = useRouter();
+  const dataSourceId = router.query.dataSourceId as string;
+  const tableName = router.query.tableName as string;
+  const { data, error, isLoading } = useGetColumnsQuery(
+    {
+      dataSourceId,
+      tableName,
+    },
+    { skip: !dataSourceId || !tableName }
+  );
 
   return (
     <Layout>
@@ -274,7 +309,7 @@ function TablesShow() {
         />
       )}
     </Layout>
-  )
+  );
 }
 
-export default TablesShow
+export default TablesShow;

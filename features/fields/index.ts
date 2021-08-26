@@ -1,5 +1,6 @@
 import isPlainObject from "lodash/isPlainObject";
-import type { Column, Field, FieldType, FieldValue, Record } from "./types";
+import type { Column, Field, FieldType, FieldValue } from "./types";
+import type { Record } from '@/features/records/types'
 import {
   CalendarIcon,
   CheckCircleIcon,
@@ -10,6 +11,7 @@ import { ElementType } from "react";
 import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
+import { Views } from "./enums"
 
 export const idColumns = ["id", "_id"];
 
@@ -110,3 +112,9 @@ export const prettifyData = (rawData: any[]): any[] =>
 
     return newItem;
   });
+
+export const getBaseOptions = () => ({
+  visibility: [Views.index, Views.show, Views.edit, Views.new],
+  required: false,
+  nullable: false,
+})

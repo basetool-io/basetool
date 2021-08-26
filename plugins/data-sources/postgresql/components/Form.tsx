@@ -1,23 +1,20 @@
-import { joiResolver } from "@hookform/resolvers/joi";
-import { schema } from "../schema";
-// import { useApi } from "@/src/hooks";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
-// import Button from "@/components/Button";
-import React, { useState } from "react";
-// import TextField from "@/components/TextField";
 import {
+  Button,
   FormControl,
-  FormLabel,
   FormHelperText,
+  FormLabel,
   Input,
   Select,
-  Button,
 } from "@chakra-ui/react";
+import { joiResolver } from "@hookform/resolvers/joi";
+import { schema } from "../schema";
 import {
   useAddDataSourceMutation,
   useUpdateDataSourceMutation,
 } from "@/features/data-sources/api-slice";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 
 export interface IFormFields {
   id?: number;
@@ -36,12 +33,11 @@ function Form({ data }: { data?: IFormFields }) {
     useAddDataSourceMutation();
   const [updateDataSource, { isLoading: isUpdating, error: updatingError }] =
     useUpdateDataSourceMutation();
-  // const api = useApi();
 
   const onSubmit = async (formData: IFormFields) => {
     console.log("onSubmit->", formData);
-    // formData.type = "postgresql";
     setIsLoading(true);
+
     let response;
     console.log("whenCreating->", whenCreating);
     try {
@@ -54,7 +50,7 @@ function Form({ data }: { data?: IFormFields }) {
           return;
         }
 
-        response = await updateDataSource(data?.id, formData).unwrap();
+        response = await updateDataSource({dataSourceId: data?.id.toString(), tableName: router.query.tableName as string, body: formData}).unwrap();
       }
     } catch (error) {
       setIsLoading(false);

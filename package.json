@@ -27,6 +27,7 @@
     "deep-object-diff": "^1.1.0",
     "framer-motion": "^4",
     "joi": "^17.4.2",
+    "knex": "^0.95.10",
     "lodash": "^4.17.21",
     "mysql": "^2.18.1",
     "next": "11.1.0",
