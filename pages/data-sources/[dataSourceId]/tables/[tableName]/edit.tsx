@@ -161,7 +161,6 @@ const ColumnEditor = ({
                   required={false}
                   value={column.options}
                   onChange={(e) => {
-                    console.log('onChange->', (e.currentTarget.value))
                     setColumnOption(column, "options", e.currentTarget.value)
                     setTags(JSON.parse(e.currentTarget.value))
                   }}
