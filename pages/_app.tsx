@@ -1,4 +1,5 @@
 import "../lib/globals.css";
+import "../lib/reactTags.css";
 import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
 import type { AppProps } from "next/app";
