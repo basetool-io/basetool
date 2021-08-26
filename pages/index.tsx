@@ -17,7 +17,7 @@ const Home: NextPage = () => {
 
   if (!isLoading) {
     if (dataSourcesResponse?.ok && !isEmpty(dataSourcesResponse?.data)) {
-      router.push(`/data-sources/`);
+      router.push(`/data-sources`);
     } else {
       router.push(`/data-sources/new`);
     }
