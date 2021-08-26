@@ -2,7 +2,7 @@ import { isEmpty } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import React, { useEffect } from "react";
+import React from "react";
 import type { NextPage } from "next";
 
 const Home: NextPage = () => {
@@ -15,15 +15,15 @@ const Home: NextPage = () => {
     error,
   } = useGetDataSourcesQuery();
 
-  useEffect(() => {
+  if (!isLoading) {
     if (dataSourcesResponse?.ok && !isEmpty(dataSourcesResponse?.data)) {
-      router.push(`/data-sources/${dataSourcesResponse?.data.id}`);
+      router.push(`/data-sources/`);
     } else {
       router.push(`/data-sources/new`);
     }
-  }, []);
+  }
 
-  return <>{isLoading && <div>loading...</div>}</>;
+  return <>{isLoading && <div>Loading data sources...</div>}</>;
 };
 
 export default Home;
