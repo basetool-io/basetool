@@ -1,12 +1,12 @@
+import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
 import { useGetRecordQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
+import Layout from "@/components/Layout";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
-import { Column } from "@/features/fields/types";
-import Layout from "@/components/Layout";
 
 function RecordsEdit() {
   const router = useRouter();

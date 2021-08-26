@@ -1,9 +1,9 @@
-import Layout from "@/components/Layout";
-import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { DataSource } from "@prisma/client";
+import { ListItem, OrderedList } from "@chakra-ui/react";
+import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import Layout from "@/components/Layout";
 import Link from "next/link";
 import React from "react";
-import { ListItem, OrderedList } from "@chakra-ui/react";
 
 function Index() {
   const {

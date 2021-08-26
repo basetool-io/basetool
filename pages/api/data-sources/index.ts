@@ -25,12 +25,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  // const session = await getSession({ req });
   const data = req.body;
-
-  // if (!session) {
-  //   return res.status(404).send("");
-  // }
 
   const schema = await getSchema(req.body.type);
   if (schema) {

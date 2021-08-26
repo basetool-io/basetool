@@ -1,13 +1,13 @@
 import "../lib/globals.css";
-import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
-import type { AppProps } from "next/app";
-import { Provider as ReduxProvider } from "react-redux";
+import "react-toastify/dist/ReactToastify.css";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
-import store from "@/lib/store";
-import React from "react";
-import { ToastContainer } from "react-toastify";
 import { Provider as NextAuthProvider } from "next-auth/client";
+import { Provider as ReduxProvider } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import React from "react";
+import store from "@/lib/store";
+import type { AppProps } from "next/app";
 
 Tooltip.defaultProps = {
   hasArrow: true,

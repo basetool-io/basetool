@@ -1,9 +1,9 @@
-import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { isEmpty } from "lodash";
-import type { NextPage } from "next";
-import { useSession } from "next-auth/client";
+import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/client";
 import React, { useEffect } from "react";
+import type { NextPage } from "next";
 
 const Home: NextPage = () => {
   const [session, loading] = useSession();

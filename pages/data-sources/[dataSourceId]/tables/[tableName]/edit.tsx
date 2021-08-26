@@ -19,9 +19,9 @@ import { useGetTableRecordsQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import Link from "next/link";
+import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
-import MenuItem from "@/features/fields/components/MenuItem";
 
 type ChangesObject = Record<string, unknown>;
 
