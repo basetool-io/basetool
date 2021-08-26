@@ -5,9 +5,9 @@ export type FieldType =
   | "Text"
   | "Textarea"
   | "Number"
-  | "Select"
   | "Boolean"
-  | "DateTime";
+  | "DateTime"
+  | "Select";
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;
@@ -42,6 +42,8 @@ export type Column = {
   foreignKey?: ForeignKey;
   nullable: boolean;
   required: boolean;
+  options: string;
+  placeholder: string;
 };
 
 export type RawColumn = {

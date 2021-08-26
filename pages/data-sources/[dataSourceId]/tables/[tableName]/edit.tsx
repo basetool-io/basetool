@@ -5,6 +5,7 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  Input,
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
@@ -95,6 +96,42 @@ const ColumnEditor = ({
                 ))}
             </Select>
           </FormControl>
+          {column.fieldType === "Select" && <>
+            <FormControl id="options">
+              <FormLabel>Options</FormLabel>
+              <Input
+                type="text"
+                name="rows"
+                placeholder="Options"
+                required={false}
+                value={column.options}
+                onChange={(e) =>
+                  setColumnOption(
+                    column,
+                    "options",
+                    e.currentTarget.value
+                  )
+                }
+              />
+            </FormControl>
+            <FormControl id="placeholder">
+              <FormLabel>Placeholder</FormLabel>
+              <Input
+                type="text"
+                name="placeholder"
+                placeholder="Placeholder"
+                required={false}
+                value={column.placeholder}
+                onChange={(e) =>
+                  setColumnOption(
+                    column,
+                    "placeholder",
+                    e.currentTarget.value
+                  )
+                }
+              />
+            </FormControl>
+            </>}
           <CheckboxGroup
             value={column.visibility}
             onChange={(value) => setColumnOption(column, "visibility", value)}
@@ -158,6 +195,8 @@ const FieldsEditor = ({
             ...changes,
             // Force visibility because the diff package does a weird diff on arrays.
             visibility: column.visibility,
+            options: column.options,
+            placeholder: column.placeholder,
           };
 
           return [column.name, changesObject];

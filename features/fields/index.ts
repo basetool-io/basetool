@@ -5,6 +5,7 @@ import {
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  SelectorIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
@@ -40,6 +41,10 @@ export const getColumnOptions = (
     {
       id: "DateTime",
       label: "Date time",
+    },
+    {
+      id: "Select",
+      label: "Select",
     },
   ];
 
@@ -88,6 +93,8 @@ export const iconForField = (field: Column): ElementType => {
       return CheckCircleIcon;
     case "DateTime":
       return CalendarIcon;
+    case "Select":
+      return SelectorIcon;
   }
 };
 
