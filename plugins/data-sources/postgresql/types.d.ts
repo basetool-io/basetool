@@ -21,7 +21,7 @@ export type Tables = {
   [tableName: string]: Table
 }
 
-export interface PostgresDataSource extends DataSource implements DataSource {
+export interface PostgresqlDataSource extends DataSource implements DataSource {
   options: {
     url?: string
     columns?: Column[]
@@ -29,4 +29,4 @@ export interface PostgresDataSource extends DataSource implements DataSource {
   }
 }
 
-export type PostgresColumnOptions = Knex.ColumnInfo
+export type PostgresqlColumnOptions = Knex.ColumnInfo

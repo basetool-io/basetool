@@ -1,4 +1,4 @@
-import { PostgresDataSource } from "@/plugins/data-sources/postgresql/types";
+import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -22,7 +22,7 @@ const handle = async (
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = (await getDataSourceFromRequest(
     req
-  )) as PostgresDataSource | null;
+  )) as PostgresqlDataSource | null;
   console.log("dataSource->", dataSource);
 
   if (!dataSource) return res.status(404).send("");

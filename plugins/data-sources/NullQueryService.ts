@@ -1,3 +1,4 @@
+import { Column } from "@/features/fields/types"
 import { DataSource } from "@prisma/client";
 import { IQueryService } from "./types";
 import logger from "@/lib/logger";

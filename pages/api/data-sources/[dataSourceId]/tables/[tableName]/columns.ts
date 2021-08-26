@@ -1,4 +1,4 @@
-import { PostgresDataSource } from "@/plugins/data-sources/postgresql/types";
+import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
@@ -53,7 +53,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = (await getDataSourceFromRequest(
     req
-  )) as PostgresDataSource | null;
+  )) as PostgresqlDataSource | null;
 
   if (!req.body.changes)
     return res.send(ApiResponse.withError("No changes sent."));

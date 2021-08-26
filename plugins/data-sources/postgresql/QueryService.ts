@@ -1,7 +1,7 @@
 import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IQueryService } from "../types";
-import { ListTable, PostgresColumnOptions } from "./types";
+import { ListTable, PostgresqlColumnOptions } from "./types";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isUndefined } from "lodash";
@@ -123,9 +123,12 @@ class QueryService implements IQueryService {
     data: unknown
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
+
+    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+
     const result = await this.client
       .table(tableName)
-      .update(data)
+      .update(data as any)
       .where(pk, recordId);
 
     return result;
@@ -261,7 +264,7 @@ class QueryService implements IQueryService {
         };
       });
 
-    const columns: Column<PostgresColumnOptions>[] =
+    const columns: Column<PostgresqlColumnOptions>[] =
       columnsWithStoredOptions.map((column) => ({
         ...column,
         label: getColumnLabel(column),

@@ -1,29 +1,30 @@
 import { DefaultSession } from "next-auth";
+import {
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  Input,
+} from "@chakra-ui/react";
 import { NextPageContext } from "next";
 import { getCsrfToken, getSession } from "next-auth/client";
+import { joiResolver } from "@hookform/resolvers/joi";
+import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import React from "react";
-import {
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  Input,
-  FormErrorMessage,
-} from "@chakra-ui/react";
-import { joiResolver } from "@hookform/resolvers/joi";
-import { schema } from "@/features/auth/signupSchema";
 
 export interface FormFields {
+  csrfToken: string;
   email: string;
   password: string;
   firstName?: string;
   lastName?: string;
 }
 
-function Register() {
+function Register({csrfToken}: {csrfToken: string}) {
   const api = useApi();
   const router = useRouter();
 

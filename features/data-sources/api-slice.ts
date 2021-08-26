@@ -7,7 +7,7 @@ export const dataSourcesApiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["dataSource"],
+  tagTypes: ["DataSource"],
   endpoints(builder) {
     return {
       // getTabledataSources: builder.query<ApiResponse, {dataSourceId: string, tableName: string}>({
@@ -32,7 +32,7 @@ export const dataSourcesApiSlice = createApi({
         query() {
           return "/data-sources";
         },
-        providesTags: [{ type: "dataSource", id: "LIST" }],
+        providesTags: [{ type: "DataSource", id: "LIST" }],
       }),
       //   getDataSource: builder.query<ApiResponse, {dataSourceId: string, tableName: string, dataSourceId?: string}>({
       //     query({ dataSourceId, tableName, dataSourceId }) {
@@ -46,7 +46,7 @@ export const dataSourcesApiSlice = createApi({
           method: "POST",
           body,
         }),
-        invalidatesTags: [{ type: "dataSource", id: "LIST" }],
+        invalidatesTags: [{ type: "DataSource", id: "LIST" }],
       }),
       updateDataSource: builder.mutation<
         ApiResponse,
@@ -57,12 +57,12 @@ export const dataSourcesApiSlice = createApi({
         }>
       >({
         query: ({ dataSourceId, tableName, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}/${schema}/tables/${tableName}/dataSources/${dataSourceId}`,
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/dataSources/${dataSourceId}`,
           method: "PUT",
           body,
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
-          { type: "dataSource", id: dataSourceId },
+          { type: "DataSource", id: dataSourceId },
         ],
       }),
     };

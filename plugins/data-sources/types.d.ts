@@ -26,20 +26,10 @@ export interface IQueryService {
     recordId: string,
     data: unknown
   ): Promise<number | string>;
-  // public abstract setQuery(dataQuery: DataQuery): this;
-  // public abstract setOptions(options: Record<string, unknown>): this;
-  // public toJson(): QueryResponse;
-  // public runQuery(dataQuery: DataQuery): Promise<this>;
-  // public toApiResponse(): Promise<IApiResponse>;
 }
 
 export interface DataSourcePlugin {
   id: string;
   name: string;
   description: string;
-  queryEditorComponent: ElementType;
-  queryService: any;
-  formComponent: any;
-  schema: ObjectSchema;
-  queryParams: (dataQuery) => string[];
 }

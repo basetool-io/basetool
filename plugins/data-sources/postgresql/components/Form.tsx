@@ -33,12 +33,11 @@ function Form({ data }: { data?: IFormFields }) {
     useAddDataSourceMutation();
   const [updateDataSource, { isLoading: isUpdating, error: updatingError }] =
     useUpdateDataSourceMutation();
-  // const api = useApi();
 
   const onSubmit = async (formData: IFormFields) => {
     console.log("onSubmit->", formData);
-    // formData.type = "postgresql";
     setIsLoading(true);
+
     let response;
     console.log("whenCreating->", whenCreating);
     try {
@@ -51,7 +50,7 @@ function Form({ data }: { data?: IFormFields }) {
           return;
         }
 
-        response = await updateDataSource(data?.id, formData).unwrap();
+        response = await updateDataSource({dataSourceId: data?.id.toString(), tableName: router.query.tableName as string, body: formData}).unwrap();
       }
     } catch (error) {
       setIsLoading(false);
