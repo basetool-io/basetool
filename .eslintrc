@@ -23,25 +23,25 @@
   },
   "plugins": [
     "@typescript-eslint",
-    // "sort-imports-es6-autofix",
+    "sort-imports-es6-autofix",
     "react-hooks",
     "unused-imports"
   ],
   "rules": {
     "import/order": 0,
-    // "sort-imports-es6-autofix/sort-imports-es6": [
-    //   2,
-    //   {
-    //     "ignoreCase": false,
-    //     "ignoreMemberSort": false,
-    //     "memberSyntaxSortOrder": [
-    //       "none",
-    //       "all",
-    //       "multiple",
-    //       "single"
-    //     ]
-    //   }
-    // ],
+    "sort-imports-es6-autofix/sort-imports-es6": [
+      2,
+      {
+        "ignoreCase": false,
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": [
+          "none",
+          "all",
+          "multiple",
+          "single"
+        ]
+      }
+    ],
     // "sort-imports": ["error"],
     // "semi": [
     //   "error",
@@ -90,13 +90,13 @@
     "react-hooks/exhaustive-deps": 0,
     "react/no-unescaped-entities": 0,
     // "react/no-children-prop": 0,
-    // "react/jsx-key": [
-    //   0, // disable this for now because we use rect-table and spread the key from that
-    //   {
-    //     "checkFragmentShorthand": true,
-    //     "checkKeyMustBeforeSpread": false
-    //   }
-    // ],
+    "react/jsx-key": [
+      0, // disable this for now because we use rect-table and spread the key from that
+      {
+        "checkFragmentShorthand": true,
+        "checkKeyMustBeforeSpread": false
+      }
+    ],
     // "import/extensions": ["error", {
     //   "tsx": "never"
     // }]
@@ -106,8 +106,8 @@
       "alias": {
         "map": [
           [
-            "@/src/hooks",
-            "./src/hooks"
+            "@/hooks",
+            "./hooks"
           ],
           [
             "@/components/",

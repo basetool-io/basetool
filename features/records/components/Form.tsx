@@ -21,7 +21,7 @@ import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
-import { Record, Column } from "@/features/fields/types";
+import { Column } from "@/features/fields/types";
 import ApiResponse from "@/features/api/ApiResponse";
 import MenuItem from "@/features/fields/components/MenuItem";
 import { getField } from "@/features/fields/factory";

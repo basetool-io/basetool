@@ -1,11 +1,11 @@
+import { PostgresDataSource } from "@/plugins/data-sources/postgresql/types";
+import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
+import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/pages/api/middleware/IsSignedIn";
 import OwnsDataSource from "@/pages/api/middleware/OwnsDataSource";
-import type { NextApiRequest, NextApiResponse } from "next";
-import { PostgresDataSource } from "@/plugins/data-sources/postgresql/types";
-import ApiResponse from "@/features/api/ApiResponse";
-import { getDataSourceFromRequest } from "@/features/api";
 import getQueryService from "@/plugins/data-sources/getQueryService";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 const handle = async (
   req: NextApiRequest,
@@ -27,25 +27,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const QueryService = await getQueryService(dataSource);
+  const service = await getQueryService({dataSource});
 
-  if (!QueryService) {
-    return res.status(404).send("");
-  }
+  await service.connect();
 
-  if (dataSource?.options?.url) {
-    const service = new QueryService({ dataSource });
+  const tables = await service.getTables();
 
-    await service.connect();
+  await service.disconnect();
 
-    const tables = await service.getTables();
-
-    await service.disconnect();
-
-    res.json(ApiResponse.withData(tables));
-  } else {
-    res.status(404).send("");
-  }
+  res.json(ApiResponse.withData(tables));
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));

@@ -1,6 +1,6 @@
+import { apiUrl } from "@/features/api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import ApiResponse from "@/features/api/ApiResponse";
-import { apiUrl } from "@/features/api/urls";
 
 export const dataSourcesApiSlice = createApi({
   reducerPath: "dataSources",
@@ -52,12 +52,11 @@ export const dataSourcesApiSlice = createApi({
         ApiResponse,
         Partial<{
           dataSourceId: string;
-          schema: string;
           tableName: string;
           body: unknown;
         }>
       >({
-        query: ({ dataSourceId, schema, tableName, body }) => ({
+        query: ({ dataSourceId, tableName, body }) => ({
           url: `${apiUrl}/data-sources/${dataSourceId}/${schema}/tables/${tableName}/dataSources/${dataSourceId}`,
           method: "PUT",
           body,
@@ -73,7 +72,6 @@ export const dataSourcesApiSlice = createApi({
 export const {
   // useGetTabledataSourcesQuery,
   useGetDataSourcesQuery,
-  useGetDataSourceQuery,
   useAddDataSourceMutation,
   useUpdateDataSourceMutation,
   usePrefetch,

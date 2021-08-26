@@ -1,7 +1,7 @@
-import { PostgresDataSource } from '@/src/data-sources/postgresql/types'
-import { getDataSourceFromRequest } from '@/src/utils/ApiUtils'
+import { DataSource } from '@prisma/client'
+import { getDataSourceFromRequest } from '@/features/api'
 import { withSentry } from '@sentry/nextjs'
-import ApiResponse from '@/src/services/ApiResponse'
+import ApiResponse from '@/features/api/ApiResponse'
 import IsSignedIn from '@/pages/api/middleware/IsSignedIn'
 import OwnsDataSource from '@/pages/api/middleware/OwnsDataSource'
 import prisma from '@/prisma'
@@ -20,18 +20,18 @@ const handle = async (
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = await getDataSourceFromRequest(req) as PostgresDataSource | null
+  const dataSource = await getDataSourceFromRequest(req) as DataSource | null
 
   if (!req.body.columns) return res.send(ApiResponse.withError('No columns sent.'))
 
-  if (dataSource && dataSource?.options?.url) {
+  if (dataSource && dataSource?.options) {
     const result = await prisma.dataSource.update({
       where: {
         id: parseInt(req.query.dataSourceId as string, 10),
       },
       data: {
         options: {
-          ...dataSource.options,
+          ...dataSource.options as Record<string, unknown>,
           columns: req.body.columns,
         },
       },

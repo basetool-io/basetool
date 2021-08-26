@@ -1,6 +1,6 @@
 import { DataSource } from '@prisma/client'
 import type { Column } from '@/components/fields/types'
-import type DataQuery from '@/types/app-state/DataQuery'
+import type { Knex } from 'knex'
 
 export type AxiosErrorWithMessage = {
   message: string
@@ -29,9 +29,4 @@ export interface PostgresDataSource extends DataSource implements DataSource {
   }
 }
 
-export interface PostgresDataQuery extends DataQuery implements DataQuery {
-  options: {
-    query: string
-    runOnPageLoad: boolean
-  }
-}
+export type PostgresColumnOptions = Knex.ColumnInfo

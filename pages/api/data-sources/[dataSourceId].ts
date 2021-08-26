@@ -1,6 +1,6 @@
-import { getSchema } from '@/src/data-sources'
+import { getSchema } from '@/plugins/data-sources'
 import { withSentry } from '@sentry/nextjs'
-import ApiResponse from '@/src/services/ApiResponse'
+import ApiResponse from '@/features/api/ApiResponse'
 import IsSignedIn from '../middleware/IsSignedIn'
 import OwnsDataSource from '../middleware/OwnsDataSource'
 import prisma from '@/prisma'

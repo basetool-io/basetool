@@ -33,7 +33,7 @@ function RecordsEdit() {
     () =>
       isArray(columnsResponse?.data)
         ? columnsResponse?.data.filter((column: Column) =>
-            column?.visibility?.includes(Views.edit)
+            column.baseOptions.visibility?.includes(Views.edit)
           )
         : [],
     [columnsResponse?.data]

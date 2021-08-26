@@ -1,4 +1,5 @@
 import { Views } from "./enums";
+import type { Record as BasetoolRecord } from "@/features/records";
 
 export type FieldType =
   | "Id"
@@ -8,6 +9,7 @@ export type FieldType =
   | "Select"
   | "Boolean"
   | "DateTime";
+
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;
@@ -20,55 +22,32 @@ export type ForeignKey = {
   /* eslint-enable camelcase */
 };
 
-export type NullableEntry = {
-  table_schema: string;
-  table_name: string;
-  column_name: string;
-  nullable: "is nullable" | "not nullable";
-};
-
-export type DefaultEntry = {
-  column_name: string;
-  column_default: string | null;
-};
-
-export type Column = {
-  name: string; // machine name
-  label: string; // Human readable name
-  fieldType: FieldType;
-  dataType: string;
+export type BaseOptions = {
   visibility: Views[];
-  primaryKey?: boolean;
-  foreignKey?: ForeignKey;
   nullable: boolean;
   required: boolean;
 };
 
-export type RawColumn = {
-  // eslint-disable-next-line camelcase
-  column_name: string;
-  // eslint-disable-next-line camelcase
-  data_type: string;
-  // eslint-disable-next-line camelcase
-  table_name: string;
-};
-
-export type IntermediateColumn = {
-  name: string;
+export type Column<
+  DataSourceColumnInfo = Record<string, unknown>,
+  FieldColumnOptions = Record<string, unknown>
+> = {
+  name: string; // machine name
+  label: string; // Human readable name
   fieldType: FieldType;
-  dataType: string;
+  primaryKey?: boolean;
+
+  baseOptions: BaseOptions;
+  dataSourceInfo: DataSourceColumnInfo;
+  fieldOptions: FieldColumnOptions;
 };
 
 export type FieldValue = string | number | undefined | boolean;
 
-export type Record = {
-  [key: string]: FieldValue;
-};
-
 export type Field = {
   value: FieldValue;
   column: Column;
-  record: Record;
+  record: BasetoolRecord;
   tableName: string;
 };
 
@@ -77,5 +56,5 @@ export type EditFieldProps = {
   formState: any;
   register: any;
   schema?: AnySchema;
-  setValue?: (name: string, value: unknown, config?: Object) => void;
+  setValue?: (name: string, value: unknown, config?: unknown) => void;
 };

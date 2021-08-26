@@ -1,13 +1,9 @@
 import { DataSourcePlugin } from './types'
 import { ElementType, useEffect, useState } from 'react'
-import { ObjectSchema } from 'joi'
-// import http from './http'
-import postgresql from './postgresql'
+import { ObjectSchema } from "joi";
+import postgresql from "./postgresql";
 
-const dataSources: DataSourcePlugin[] = [
-  postgresql,
-  // http,
-]
+const dataSources: DataSourcePlugin[] = [postgresql];
 
 export const getPluginById = (id: string): DataSourcePlugin | undefined => dataSources.find((dataSource) => dataSource.id === id)
 export const getEditorComponent = (id: string | undefined): ElementType | undefined => (id ? getPluginById(id)?.queryEditorComponent : undefined)
