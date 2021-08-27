@@ -193,7 +193,6 @@ const FieldsEditor = ({
     }
 
     if (namespace) {
-      console.log(1)
       newColumn = {
         ...column,
         [namespace]: {
@@ -202,7 +201,6 @@ const FieldsEditor = ({
         },
       };
     } else {
-      console.log(2)
       newColumn = {
         ...column,
         [name]: value,

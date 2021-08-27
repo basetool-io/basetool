@@ -9,7 +9,7 @@ export default class NullQueryService implements IQueryService {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(payload: any) {
-    logger.warn("NullQueryService instantiated.", payload);
+    logger.warn("NullQueryService instantiated.");
   }
 
   public async connect(): Promise<this> {
