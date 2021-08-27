@@ -7,7 +7,6 @@ function Authenticated({ children }: { children: ReactElement}): ReactElement {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("session->", session);
     if (!isLoading && !session) router.push("/auth/login");
   }, [isLoading, session]);
 

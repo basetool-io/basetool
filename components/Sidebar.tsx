@@ -18,9 +18,6 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="space-y-2">
-        <Link href={`/data-sources`}>Home</Link>
-      </div>
       {isLoading && <div>loading...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!router.query.dataSourceId && "Select a data source"}

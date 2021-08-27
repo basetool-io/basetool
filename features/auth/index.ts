@@ -1,4 +1,5 @@
 import { OrganizationUser, User } from "@prisma/client";
+import bcrypt from "bcrypt";
 import prisma from "@/prisma";
 
 export const createUser = async (data: {
@@ -80,3 +81,9 @@ export const randomString = (length = 12) => {
 
   return result;
 };
+
+export const hashPassword = async (password: string) => {
+  const salt = bcrypt.genSaltSync(10);
+
+  return await bcrypt.hashSync(password, salt);
+}
