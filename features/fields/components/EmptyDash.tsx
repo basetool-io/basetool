@@ -1,5 +1,6 @@
 import React from 'react'
+import { memo } from "react";
 
-const EmptyDash = () => <span>—</span>
+const EmptyDash = () => <span>—</span>;
 
-export default EmptyDash
+export default memo(EmptyDash);

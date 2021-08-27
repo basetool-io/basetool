@@ -92,7 +92,7 @@ function TablesShow() {
     () =>
       isArray(columnsResponse?.data)
         ? columnsResponse?.data.filter((column: Column) =>
-            column?.visibility?.includes(Views.index)
+            column?.baseOptions.visibility?.includes(Views.index)
           )
         : [],
     [columnsResponse?.data]

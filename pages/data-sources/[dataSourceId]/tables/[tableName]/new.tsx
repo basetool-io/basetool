@@ -1,11 +1,11 @@
+import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { isArray } from "lodash";
 import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
-import React, { useMemo } from "react";
 import Layout from "@/components/Layout";
-import { Column } from "@/features/fields/types";
+import React, { useMemo } from "react";
 
 function New() {
   const router = useRouter();
@@ -28,7 +28,7 @@ function New() {
       isArray(columnsResponse?.data)
         ? columnsResponse?.data.filter(
             (column: Column) =>
-              column?.visibility?.includes(Views.new) && !column.primaryKey
+              column.baseOptions.visibility?.includes(Views.new) && !column.primaryKey
           )
         : [],
     [columnsResponse?.data]

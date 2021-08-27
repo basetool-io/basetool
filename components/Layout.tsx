@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router'
+import Authenticated from "./Authenticated";
+import Head from 'next/head'
 import React, { ElementType, ReactNode, useMemo } from 'react'
 import Sidebar from './Sidebar'
-import Head from 'next/head'
-import Authenticated from "./Authenticated";
 
 function Layout({
   providedSidebarComponent,

@@ -1,8 +1,8 @@
-import { useSession } from "next-auth/client";
+import { ReactElement, useEffect } from "react";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect } from "react";
+import { useSession } from "next-auth/client";
 
-function Authenticated({ children }: { children: ReactNode | null }) {
+function Authenticated({ children }: { children: ReactElement}): ReactElement {
   const [session, isLoading] = useSession();
   const router = useRouter();
 
@@ -11,7 +11,7 @@ function Authenticated({ children }: { children: ReactNode | null }) {
     if (!isLoading && !session) router.push("/auth/login");
   }, [isLoading, session]);
 
-  if (isLoading) return "Loading...";
+  if (isLoading) <div>'Loading...'</div>
 
   return children;
 }

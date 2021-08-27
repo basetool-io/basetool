@@ -1,8 +1,6 @@
-import { OrganizationUser, User } from "@prisma/client";
-import { getSchema } from "@/plugins/data-sources";
-import { getSession } from "next-auth/client";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
+import getSchema from "@/plugins/data-sources/getSchema"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -27,14 +25,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  // const session = await getSession({ req });
   const data = req.body;
 
-  // if (!session) {
-  //   return res.status(404).send("");
-  // }
-
-  const schema = getSchema(req.body.type);
+  const schema = await getSchema(req.body.type);
   if (schema) {
     const validator = schema.validate(data, { abortEarly: false });
 

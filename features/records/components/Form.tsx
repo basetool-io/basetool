@@ -3,10 +3,13 @@ import {
   ClockIcon,
   XCircleIcon,
 } from "@heroicons/react/solid";
+import { Column } from "@/features/fields/types";
 import { SparklesIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
+import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
 import { updatedDiff } from "deep-object-diff";
 import {
@@ -16,16 +19,14 @@ import {
 import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
+import ApiResponse from "@/features/api/ApiResponse";
 import Joi, { ObjectSchema } from "joi";
 import Link from "next/link";
+import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
-import { Record, Column } from "@/features/fields/types";
-import ApiResponse from "@/features/api/ApiResponse";
-import MenuItem from "@/features/fields/components/MenuItem";
-import { getField } from "@/features/fields/factory";
-import { makeField } from "@/features/fields";
+import type { Record } from '@/features/records/types'
 
 const makeSchema = async (record: Record, columns: Column[]) => {
   const schema: { [columnName: string]: any } = {};

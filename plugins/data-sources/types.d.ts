@@ -1,5 +1,4 @@
-import type DataQuery from '@/prisma'
-import type { Column, ListTable } from "@/features/fields/types";
+import type { Column } from "@/features/fields/types";
 
 export type QueryResponse = {
   data: unknown;
@@ -7,29 +6,30 @@ export type QueryResponse = {
   dataSourceType: DataSourceTypes;
 };
 
-export interface AbstractQueryService {
+export interface IQueryService {
   dataSource: DataSource | undefined;
-  dataQuery: DataQuery | undefined;
   queryResult: unknown;
 
-  // new (public payload: { dataSource: DataSource });
-  public getTables(): Promise<ListTable[]>;
-  public getColumns(tableName: string, storedColumns?: Column[]): Promise<[]>;
-  public setQuery(dataQuery: DataQuery): this;
-  public setOptions(options: Record<string, unknown>): this;
-  public toJson(): QueryResponse;
-  public runQuery(dataQuery: DataQuery): Promise<this>;
-  public toApiResponse(): Promise<IApiResponse>;
-  public disconnect?(): Promise<void>;
+  connect(): Promise<this>;
+  disconnect(): Promise<this>;
+  getTables(): Promise<[]>;
+  getColumns(tableName: string, storedColumns?: Column[]): Promise<[]>;
+  getRecords(tableName: string): Promise<[]>;
+  getRecord(tableName: string, recordId: string): Promise<unknown>;
+  updateRecord(
+    tableName: string,
+    recordId: string,
+    data: unknown
+  ): Promise<unknown>;
+  createRecord(
+    tableName: string,
+    recordId: string,
+    data: unknown
+  ): Promise<number | string>;
 }
 
 export interface DataSourcePlugin {
   id: string;
   name: string;
   description: string;
-  queryEditorComponent: ElementType;
-  queryService: any;
-  formComponent: any;
-  schema: ObjectSchema;
-  queryParams: (dataQuery) => string[],
 }
