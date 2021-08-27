@@ -1,4 +1,3 @@
-import { DefaultSession } from "next-auth";
 import {
   FormControl,
   FormErrorMessage,
@@ -7,6 +6,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { NextPageContext } from "next";
+import { Session } from "next-auth"
 import { getCsrfToken, getSession } from "next-auth/client";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/features/auth/signupSchema";
@@ -178,7 +178,7 @@ function Register({csrfToken}: {csrfToken: string}) {
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-  const session: DefaultSession | null = await getSession(context);
+  const session: Session | null = await getSession(context);
 
   if (session) {
     return {
