@@ -26,6 +26,7 @@ export type BaseOptions = {
   visibility: Views[];
   nullable: boolean;
   required: boolean;
+  help: string;
 };
 
 export type Column<
