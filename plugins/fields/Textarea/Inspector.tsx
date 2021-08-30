@@ -18,7 +18,7 @@ function Inspector({column, setColumnOption}: {
         name="rows"
         placeholder="Rows"
         required={false}
-        value={rows}
+        value={rows as number}
         onChange={(e) =>
           setColumnOption(
             column,
