@@ -1,6 +1,6 @@
+import Form from "@/plugins/data-sources/postgresql/components/Form";
 import Layout from "@/components/Layout";
 import React from "react";
-import Form from "@/plugins/data-sources/postgresql/components/Form";
 
 function New() {
   return (

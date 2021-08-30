@@ -1,15 +1,16 @@
+import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
+import { getField } from "@/features/fields/factory";
+import { makeField } from "@/features/fields";
 import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
 import { useGetRecordQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
+import Layout from "@/components/Layout";
 import Link from "next/link";
+import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
-import { Column, Record } from "@/features/fields/types";
-import MenuItem from "@/features/fields/components/MenuItem";
-import { makeField } from "@/features/fields";
-import { getField } from "@/features/fields/factory";
-import Layout from "@/components/Layout";
+import type { Record } from '@/features/records/types'
 
 const RecordShow = ({
   record,
@@ -82,7 +83,7 @@ function RecordsShow() {
     () =>
       isArray(columnsResponse?.data)
         ? columnsResponse?.data.filter((column: Column) =>
-            column?.visibility?.includes(Views.show)
+            column.baseOptions.visibility?.includes(Views.show)
           )
         : [],
     [columnsResponse?.data]

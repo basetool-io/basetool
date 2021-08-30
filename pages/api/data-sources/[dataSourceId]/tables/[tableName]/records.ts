@@ -1,11 +1,10 @@
+import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
+import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/pages/api/middleware/IsSignedIn";
 import OwnsDataSource from "@/pages/api/middleware/OwnsDataSource";
-import isNull from "lodash/isNull";
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getDataSourceFromRequest } from "@/features/api";
-import ApiResponse from "@/features/api/ApiResponse";
 import getQueryService from "@/plugins/data-sources/getQueryService";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 const handle = async (
   req: NextApiRequest,
@@ -26,25 +25,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const QueryService = await getQueryService(dataSource);
+  const service = await getQueryService({ dataSource });
 
-  if (!QueryService) {
-    return res.status(404).send("");
-  }
+  await service.connect();
 
-  if (dataSource?.options?.url) {
-    const service = new QueryService({ dataSource });
+  const records = await service.getRecords(req.query.tableName as string);
 
-    await service.connect();
+  await service.disconnect();
 
-    const records = await service.getRecords(req.query.tableName as string);
-
-    await service.disconnect();
-
-    res.json(ApiResponse.withData(records));
-  } else {
-    res.status(404).send("");
-  }
+  res.json(ApiResponse.withData(records));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
@@ -54,37 +43,19 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const QueryService = await getQueryService(dataSource);
-
-  if (!QueryService) {
-    return res.status(404).send("");
-  }
-
-  const service = new QueryService({ dataSource });
+  const service = await getQueryService({dataSource});
 
   await service.connect();
 
-  const columns: string[] = [];
-  const values: any[] = [];
-  // @todo: fetch this value in a dynamic way
-  const primaryKey = "id";
-
   const { record } = req.body;
-  Object.entries(record).forEach(([name, value]) => {
-    columns.push(name);
-    values.push(isNull(value) ? "NULL" : `'${value}'`);
-  });
 
-  console.log(123);
   let data;
 
   try {
     data = await service.createRecord(
       req.query.tableName as string,
       req.query.recordId as string,
-      primaryKey,
-      columns,
-      values
+      record
     );
   } catch (error) {
     return res.json(ApiResponse.withError(error.message));
@@ -92,7 +63,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData(data, { message: "Record added" }));
+  res.json(ApiResponse.withData({id: data}, { message: "Record added" }));
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));
