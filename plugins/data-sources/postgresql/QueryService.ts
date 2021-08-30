@@ -241,6 +241,7 @@ class QueryService implements IQueryService {
     // add options stored in the database
     const columnsWithStoredOptions: ColumnWithStoredOptions[] =
       columnsWithFieldOptions.map((column) => {
+
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
@@ -251,7 +252,7 @@ class QueryService implements IQueryService {
           ? storedColumn?.fieldOptions
           : {};
 
-        return {
+        const newColumn = {
           ...column,
           baseOptions: {
             ...column.baseOptions,
@@ -262,7 +263,14 @@ class QueryService implements IQueryService {
             ...fieldOptions,
           },
         };
+
+        if (storedColumn?.fieldType) {
+          newColumn.fieldType = storedColumn.fieldType;
+        }
+
+        return newColumn;
       });
+
 
     const columns: Column<PostgresqlColumnOptions>[] =
       columnsWithStoredOptions.map((column) => ({
@@ -327,11 +335,15 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        return [
+        const t =  [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
+
+        console.log('fieldOptions->', t)
+
+        return t
       } catch (error) {
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({

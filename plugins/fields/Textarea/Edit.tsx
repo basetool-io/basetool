@@ -21,8 +21,8 @@ const Edit = ({
   const { name } = register;
 
   // options
-  const rows = field.column.rows;
-  const placeholder = field.column.placeholder;
+  const rows = field.column.fieldOptions.rows;
+  const placeholder = field.column.fieldOptions.placeholder;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;

@@ -5,7 +5,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Input,
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
@@ -23,6 +22,7 @@ import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
+import dynamic from 'next/dynamic'
 
 type ChangesObject = Record<string, unknown>;
 
@@ -56,6 +56,11 @@ const ColumnListItem = ({
   );
 };
 
+const getDynamicInspector = (fieldType: string) => dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
+  // eslint-disable-next-line react/display-name
+  loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
+});
+
 const ColumnEditor = ({
   column,
   setColumnOption,
@@ -67,6 +72,8 @@ const ColumnEditor = ({
     () => (column ? getColumnOptions(column) : []),
     [column]
   );
+
+  const InspectorComponent = getDynamicInspector(column?.fieldType)
 
   return (
     <>
@@ -98,24 +105,24 @@ const ColumnEditor = ({
             </Select>
           </FormControl>
           {column.fieldType === "Textarea" && <>
-            <FormControl id="rows">
+            {/* <FormControl id="rows">
               <FormLabel>Rows</FormLabel>
               <Input
                 type="number"
                 name="rows"
                 placeholder="Rows"
                 required={false}
-                value={column.rows}
+                value={column.fieldOptions.rows}
                 onChange={(e) =>
                   setColumnOption(
                     column,
-                    "rows",
+                    "fieldOptions.rows",
                     parseInt(e.currentTarget.value)
                   )
                 }
               />
-            </FormControl>
-            <FormControl id="placeholder">
+            </FormControl> */}
+            {/* <FormControl id="placeholder">
               <FormLabel>Placeholder</FormLabel>
               <Input
                 type="text"
@@ -131,7 +138,7 @@ const ColumnEditor = ({
                   )
                 }
               />
-            </FormControl>
+            </FormControl> */}
             </>}
           <CheckboxGroup
             value={column.baseOptions.visibility}
@@ -161,6 +168,7 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
+          <InspectorComponent column={column} setColumnOption={setColumnOption} />
           <pre>{JSON.stringify(column, null, 2)}</pre>
         </div>
       )}
