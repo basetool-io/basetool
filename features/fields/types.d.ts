@@ -8,7 +8,8 @@ export type FieldType =
   | "Number"
   | "Select"
   | "Boolean"
-  | "DateTime";
+  | "DateTime"
+  | "Json";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
