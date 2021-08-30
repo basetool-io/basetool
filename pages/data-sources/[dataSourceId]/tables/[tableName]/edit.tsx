@@ -5,11 +5,12 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  Input,
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { getColumnOptions, iconForField } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, isString, isUndefined } from "lodash";
 import { updatedDiff } from "deep-object-diff";
 import {
   useGetColumnsQuery,
@@ -22,7 +23,8 @@ import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
-import dynamic from 'next/dynamic'
+import MenuItem from "@/features/fields/components/MenuItem";
+import { WithContext as ReactTags } from "react-tag-input";
 
 type ChangesObject = Record<string, unknown>;
 
@@ -56,10 +58,12 @@ const ColumnListItem = ({
   );
 };
 
-const getDynamicInspector = (fieldType: string) => dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
-  // eslint-disable-next-line react/display-name
-  loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
-});
+// const KeyCodes = {
+//   comma: 188,
+//   enter: 13
+// };
+
+// const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const ColumnEditor = ({
   column,
@@ -73,7 +77,41 @@ const ColumnEditor = ({
     [column]
   );
 
-  const InspectorComponent = getDynamicInspector(column?.fieldType)
+  const initialOptions = useMemo(
+    () => (isString(column.options) ? JSON.parse(column.options) : []),
+    [column.options]
+  );
+
+  const [tags, setTags] = useState();
+
+  const handleDelete = (i) => {
+    setTags(tags.filter((tag, index) => index !== i));
+  };
+
+  const handleAddition = (tag) => {
+    setTags([...tags, tag]);
+  };
+
+  const handleDrag = (tag, currPos, newPos) => {
+    const newTags = tags.slice();
+
+    newTags.splice(currPos, 1);
+    newTags.splice(newPos, 0, tag);
+
+    // re-render
+    setTags(newTags);
+  };
+
+  useEffect(() => {
+    // Update the column options on tags update
+    if (!isUndefined(tags)) {
+      setColumnOption(column, "options", JSON.stringify(tags));
+    }
+  }, [tags]);
+
+  useEffect(() => {
+    setTags(initialOptions)
+  }, [initialOptions]);
 
   return (
     <>
@@ -104,6 +142,51 @@ const ColumnEditor = ({
                 ))}
             </Select>
           </FormControl>
+          {column.fieldType === "Select" && (
+            <>
+              <FormControl id="tags">
+                <FormLabel>Add options</FormLabel>
+                <ReactTags
+                  tags={tags}
+                  labelField={"label"}
+                  handleDelete={handleDelete}
+                  handleAddition={handleAddition}
+                  handleDrag={handleDrag}
+                />
+              </FormControl>
+              <FormControl id="options">
+                <FormLabel>Modify options</FormLabel>
+                <Input
+                  type="text"
+                  name="rows"
+                  placeholder="Options"
+                  required={false}
+                  value={column.options}
+                  onChange={(e) => {
+                    setColumnOption(column, "options", e.currentTarget.value)
+                    setTags(JSON.parse(e.currentTarget.value))
+                  }}
+                />
+              </FormControl>
+              <FormControl id="placeholder">
+                <FormLabel>Placeholder</FormLabel>
+                <Input
+                  type="text"
+                  name="placeholder"
+                  placeholder="Placeholder"
+                  required={false}
+                  value={column.placeholder}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "placeholder",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </>
+          )}
           <CheckboxGroup
             value={column.baseOptions.visibility}
             onChange={(value) =>
@@ -132,7 +215,6 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
-          <InspectorComponent column={column} setColumnOption={setColumnOption} />
           <pre>{JSON.stringify(column, null, 2)}</pre>
         </div>
       )}
