@@ -31,10 +31,13 @@ const Edit = ({
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
+  // options
+  const placeholder = field?.column?.baseOptions?.placeholder ? field.column.baseOptions.placeholder : ""
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        <Input type="number" id={fieldId(field)} {...register} />
+        <Input type="number" id={fieldId(field)} {...register} placeholder={placeholder} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

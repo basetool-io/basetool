@@ -54,9 +54,12 @@ const Edit = ({
     }
   };
 
+  // options
+  const placeholder = field?.column?.baseOptions?.placeholder ? field.column.baseOptions.placeholder : ""
+
   const CustomInput = forwardRef(
     ({ value, onClick }: { value: any; onClick: (e: any) => void }, ref) => (
-      <Input {...register} onClick={onClick} ref={ref} value={value} />
+      <Input {...register} onClick={onClick} ref={ref} value={value} placeholder={placeholder} />
     )
   );
   CustomInput.displayName = "CustomInput";
@@ -64,6 +67,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
+        {placeholder}
         <DatePicker
           selected={placeholderValue}
           onChange={handleOnChange}
@@ -72,7 +76,7 @@ const Edit = ({
           timeIntervals={15}
           timeCaption="time"
           dateFormat="MMMM d, yyyy h:mm aa"
-          customInput={<CustomInput {...register} />}
+          customInput={<CustomInput {...register}/>}
         />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

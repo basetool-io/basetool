@@ -5,6 +5,7 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  Input,
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
@@ -124,6 +125,25 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
+          {(column.fieldType === "Text" || column.fieldType === "Number" || column.fieldType === "DateTime") &&
+            <FormControl id="placeholder">
+              <FormLabel>Placeholder</FormLabel>
+              <Input
+                type="text"
+                name="placeholder value"
+                placeholder="Placeholder value"
+                required={false}
+                value={column.baseOptions.placeholder}
+                onChange={(e) =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.placeholder",
+                    e.currentTarget.value
+                  )
+                }
+              />
+            </FormControl>
+          }
           <pre>{JSON.stringify(column, null, 2)}</pre>
         </div>
       )}
