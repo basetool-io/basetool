@@ -67,7 +67,6 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        {placeholder}
         <DatePicker
           selected={placeholderValue}
           onChange={handleOnChange}
