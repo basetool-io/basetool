@@ -31,9 +31,12 @@ const Edit = ({
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
+  // options
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
+      <FormControl isInvalid={hasError && formState.isDirty} isDisabled={readonly}>
         <Input type="number" id={fieldId(field)} {...register} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (

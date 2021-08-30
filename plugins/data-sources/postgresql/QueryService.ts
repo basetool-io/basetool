@@ -251,7 +251,7 @@ class QueryService implements IQueryService {
           ? storedColumn?.fieldOptions
           : {};
 
-        return {
+        const newColumn = {
           ...column,
           baseOptions: {
             ...column.baseOptions,
@@ -262,7 +262,13 @@ class QueryService implements IQueryService {
             ...fieldOptions,
           },
         };
-      });
+
+        if (storedColumn?.fieldType) {
+          newColumn.fieldType = storedColumn.fieldType;
+        }
+
+        return newColumn;
+    });
 
     const columns: Column<PostgresqlColumnOptions>[] =
       columnsWithStoredOptions.map((column) => ({
