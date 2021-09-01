@@ -15,7 +15,6 @@ import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
 } from "@/features/tables/tables-api-slice";
-import { useGetTableRecordsQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -140,10 +139,10 @@ const FieldsEditor = ({
   tableName: string;
   columns: Column[];
 }) => {
-  const { data, error, isLoading } = useGetTableRecordsQuery({
-    dataSourceId,
-    tableName,
-  });
+  // const { data, error, isLoading } = useGetRecordsQuery({
+  //   dataSourceId,
+  //   tableName,
+  // });
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
@@ -232,9 +231,9 @@ const FieldsEditor = ({
 
   return (
     <>
-      {isLoading && <div>loading...</div>}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && (
+      {/* {isLoading && <div>loading...</div>}
+      {error && <div>Error: {JSON.stringify(error)}</div>} */}
+      {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="flex flex-col flex-1 overflow-auto">
             <div className="flex justify-between">
@@ -278,7 +277,7 @@ const FieldsEditor = ({
             </div>
           </div>
         </>
-      )}
+      {/* )} */}
     </>
   );
 };

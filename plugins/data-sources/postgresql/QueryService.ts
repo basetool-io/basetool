@@ -1,12 +1,13 @@
 import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
+import { Filter } from "@/components/FilterCondition";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isUndefined } from "lodash";
 import { knex } from "knex";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
 import type { Knex } from "knex";
 
 export type FieldOptions = Record<string, unknown>;
@@ -42,6 +43,63 @@ export interface PostgresqlDataSource extends DataSource {
     url: string;
   };
 }
+
+// is = "is",
+// is_not = "is_not",
+// contains = "contains",
+// not_contains = "not_contains",
+// starts_with = "starts_with",
+// ends_with = "ends_with",
+// is_empty = "is_empty",
+// is_not_empty = "is_not_empty",
+const getCondition = (filter: Filter) => {
+  switch (filter.condition) {
+    case "is":
+      return "=";
+    case "is_not":
+      return "!=";
+    case "contains":
+      return "LIKE";
+    case "not_contains":
+      return "LIKE";
+    case "starts_with":
+      return "LIKE";
+    case "ends_with":
+      return "LIKE";
+    case "is_empty":
+      return "LIKE";
+    case "is_not_empty":
+      return "LIKE";
+  }
+  console.log("getCondition->", filter);
+
+  return "=";
+};
+
+const getValue = (filter: Filter) => {
+  switch (filter.condition) {
+    case "is":
+    case "is_not":
+      return filter.value;
+    case "contains":
+    case "not_contains":
+      return `%${filter.value}%`;
+    case "starts_with":
+      return `%${filter.value}`;
+    case "ends_with":
+      return `${filter.value}%`;
+    case "is_not_empty":
+    case "is_empty":
+      return ``;
+  }
+  console.log("getCondition->", filter);
+
+  return "=";
+};
+const addFilterToQuery = (query: Knex, filter: Filter) => {
+  console.log('addFilterToQuery->', filter.columnName, getCondition(filter), getValue(filter))
+  query.where(filter.columnName, getCondition(filter), getValue(filter));
+};
 
 class QueryService implements IQueryService {
   public client: Knex;
@@ -80,8 +138,52 @@ class QueryService implements IQueryService {
     return this;
   }
 
-  public async getRecords(tableName: string): Promise<[]> {
-    return this.client.select().table(tableName) as unknown as [];
+  public async getRecords({
+    tableName,
+    filters,
+    limit,
+    offset,
+    orderBy,
+    orderDirection,
+  }: {
+    tableName: string,
+    filters: Filter[],
+    limit: number,
+    offset: number,
+    orderBy: string,
+    orderDirection: string,
+  }): Promise<[]> {
+    const f = [
+      {
+        columnName: "id",
+        columnLabel: "ID",
+        verb: "where",
+        condition: "is_not",
+        value: "3",
+      },
+    ];
+    console.log("filters->", f);
+    const query = this.client
+      .table(tableName)
+      .limit(limit)
+      .offset(offset)
+      .select();
+
+    f.forEach((filter) => {
+      addFilterToQuery(query, filter);
+    });
+
+    if (orderBy) {
+      query.orderBy(orderBy, orderDirection)
+    }
+
+    return query as unknown as [];
+  }
+
+  public async getRecordsCount(tableName: string): Promise<number> {
+    const [{ count }] = await this.client.count().table(tableName);
+
+    return parseInt(count as string, 10);
   }
 
   public async getRecord(
@@ -90,7 +192,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
       .select()
@@ -107,7 +210,8 @@ class QueryService implements IQueryService {
   ): Promise<number | string> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const [id] = await this.client
       .table(tableName)
@@ -124,7 +228,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const result = await this.client
       .table(tableName)
@@ -336,8 +441,8 @@ async function getDefaultFieldOptionsForFields(
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,
-            error}
-          );
+            error,
+          });
         }
       }
     })

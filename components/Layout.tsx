@@ -68,7 +68,7 @@ function Layout({
             </div>
           </nav>
           <div className="flex flex-1">
-            <div className="w-1/4 border">
+            <div className="min-w-[14rem] border">
               <SidebarComponent />
             </div>
             <div className="flex-1 border h-full overflow-auto">{children}</div>
