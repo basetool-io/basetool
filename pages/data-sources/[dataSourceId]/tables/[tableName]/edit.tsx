@@ -131,18 +131,10 @@ const ColumnEditor = ({
 };
 
 const FieldsEditor = ({
-  dataSourceId,
-  tableName,
   columns: initialColumns,
 }: {
-  dataSourceId: string;
-  tableName: string;
   columns: Column[];
 }) => {
-  // const { data, error, isLoading } = useGetRecordsQuery({
-  //   dataSourceId,
-  //   tableName,
-  // });
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
@@ -300,9 +292,7 @@ function TablesShow() {
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && (
         <FieldsEditor
-          tableName={tableName}
           columns={data?.data}
-          dataSourceId={dataSourceId}
         />
       )}
     </Layout>

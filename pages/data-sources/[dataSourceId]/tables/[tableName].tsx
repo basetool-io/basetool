@@ -2,10 +2,8 @@ import { Column } from "@/features/fields/types";
 import { Column as ReactTableColumn } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { isArray } from "lodash";
-import { useBoolean } from "react-use";
 import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
 import { useRouter } from "next/router";
-import FilterCondition, { Filter, FilterConditions } from "@/components/FilterCondition"
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
@@ -21,58 +19,7 @@ const parseColumns = (columns: Column[]): ReactTableColumn[] =>
     },
   }));
 
-
-const FiltersPanel = memo(({
-  columns,
-  filters,
-  setFilters,
-}: {
-  columns: Column[];
-  filters: Filter[];
-  setFilters: (filters: Filter[]) => void;
-}) => {
-  console.log(1);
-
-  const addFilter = () => {
-    console.log("addFilter");
-    const filter: Filter = {
-      columnName: columns[0].name,
-      columnLabel: columns[0].label,
-      verb: filters.length === 0 ? "where" : "and",
-      condition: FilterConditions.contains,
-      value: "",
-    };
-
-    setFilters([...filters, filter]);
-  };
-
-  const updateFilter = (idx: number, filter: Filter) => {
-    const newFilters = [...filters]
-    newFilters.splice(idx, 1)
-    newFilters[idx] = filter
-    setFilters(newFilters)
-  }
-
-  return (
-    <div className="absolute border shadow-lg bg-white z-20 min-w-full min-h-[6rem] mt-4">
-      <pre>{JSON.stringify(filters, null, 2)}</pre>
-      {filters &&
-        filters.map((filter, idx) => (
-          <FilterCondition
-            key={idx}
-            idx={idx}
-            columns={columns}
-            filter={filter}
-            filters={filters}
-            onChange={(filter: Filter) => updateFilter(idx, filter)}
-          />
-        ))}
-      <MenuItem onClick={addFilter}>Add filter</MenuItem>
-    </div>
-  );
-});
-
-FiltersPanel.displayName = 'FiltersPanel'
+export type OrderDirection = "" | "asc" | "desc";
 
 const ResourcesEditor = memo(
   ({
@@ -86,10 +33,10 @@ const ResourcesEditor = memo(
   }) => {
     const parsedColumns = parseColumns(columns);
     const router = useRouter();
-    const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-    const [filters, setFilters] = useState<Filter[]>([]);
-    const [orderBy, setOrderBy] = useState('');
-    const [orderDirection, setOrderDirection] = useState<'' | 'asc' | 'desc'>('');
+    const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
+    const [orderDirection, setOrderDirection] = useState<OrderDirection>(
+      router.query.orderDirection as OrderDirection
+    );
 
     return (
       <>
@@ -97,18 +44,6 @@ const ResourcesEditor = memo(
         <>
           <div className="relative flex flex-col flex-1 overflow-auto">
             <div className="flex justify-between w-full">
-              {filtersPanelVisible && (
-                <FiltersPanel
-                  columns={columns}
-                  filters={filters}
-                  setFilters={setFilters}
-                />
-              )}
-              <div className="flex space-x-4">
-                <MenuItem onClick={() => toggleFiltersPanelVisible()}>
-                  Filter
-                </MenuItem>
-              </div>
               <div className="flex space-x-4">
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
@@ -127,7 +62,6 @@ const ResourcesEditor = memo(
             <div className="relative flex-1 max-w-full w-full">
               <RecordsTable
                 columns={parsedColumns}
-                filters={filters}
                 orderBy={orderBy}
                 setOrderBy={setOrderBy}
                 orderDirection={orderDirection}
@@ -188,4 +122,4 @@ function TablesShow() {
   );
 }
 
-export default memo(TablesShow)
+export default memo(TablesShow);

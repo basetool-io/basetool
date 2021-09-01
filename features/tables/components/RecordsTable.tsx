@@ -9,13 +9,12 @@ import {
 import {
   Column,
   Row,
-  SortingRule,
   useBlockLayout,
   useColumnOrder,
   useResizeColumns,
   useTable,
 } from "react-table";
-import { Filter } from "@/components/FilterCondition";
+import { OrderDirection } from "@/pages/data-sources/[dataSourceId]/tables/[tableName]"
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
@@ -96,7 +95,6 @@ const usePagination = ({ perPage }: { perPage: number }) => {
 const RecordsTable = ({
   dataSourceId,
   columns,
-  filters,
   tableName,
   orderBy,
   orderDirection,
@@ -105,22 +103,16 @@ const RecordsTable = ({
 }: {
   dataSourceId: string;
   columns: Column[];
-  filters: Filter;
   tableName: string;
   orderBy: string;
   setOrderBy: (by: string) => void;
-  orderDirection: "" | "asc" | "desc";
-  setOrderDirection: (direction: "" | "asc" | "desc") => void;
+  orderDirection: OrderDirection;
+  setOrderDirection: (direction: OrderDirection) => void;
 }) => {
   const router = useRouter()
-  const encodedFilters = useMemo(
-    () => (filters ? btoa("filters") : ""),
-    [filters]
-  );
   // @todo: per page selector
   const [perPage, setPerPage] = useState(24)
-  const { page, limit, offset, nextPage, previousPage } =
-    usePagination({
+  const { page, limit, offset, nextPage, previousPage } = usePagination({
       perPage,
     });
 
@@ -131,11 +123,11 @@ const RecordsTable = ({
   } = useGetRecordsQuery({
     dataSourceId,
     tableName,
-    filters: encodedFilters,
+    filters: '',
     limit: limit.toString(),
     offset: offset.toString(),
-    orderBy: orderBy,
-    orderDirection: orderDirection,
+    orderBy: orderBy ? orderBy : '',
+    orderDirection: orderDirection ? orderDirection : '',
   });
 
   const meta = useMemo(() => recordsResponse?.meta, [recordsResponse?.meta]);
@@ -158,22 +150,6 @@ const RecordsTable = ({
   const defaultColumn = {
     Cell,
   };
-  const initialState = useMemo(() => {
-    let orderBy: SortingRule<string>[] = [];
-
-    orderBy = [
-      // {
-      //   id: "id",
-      //   desc: true,
-      // },
-    ];
-
-    return {
-      pageIndex: 0,
-      pageSize: 10,
-      orderBy,
-    };
-  }, []);
 
   const {
     getTableProps,
@@ -184,7 +160,6 @@ const RecordsTable = ({
     state,
   } = useTable(
     {
-      initialState,
       columns,
       data,
       defaultColumn,
@@ -208,7 +183,7 @@ const RecordsTable = ({
   const prefetchRecord = usePrefetch("getRecord");
 
   const handleOrder = (columnName: string) => {
-    let newOrderDirection: '' | 'asc' | 'desc' = ''
+    let newOrderDirection: OrderDirection = ''
     let newOrderBy = ''
 
     if (orderBy !== columnName) {
@@ -252,6 +227,7 @@ const RecordsTable = ({
       query,
     });
   };
+  console.log('RecordsTalbw->', orderBy, orderDirection)
 
   return (
     <div className="relative flex flex-col justify-between overflow-auto h-full">

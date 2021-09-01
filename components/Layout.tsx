@@ -1,5 +1,4 @@
 import { signOut, useSession } from 'next-auth/client'
-import { useRouter } from 'next/router'
 import Authenticated from "./Authenticated";
 import Head from 'next/head'
 import Link from 'next/link'
@@ -13,17 +12,11 @@ function Layout({
   providedSidebarComponent?: ElementType;
   children: ReactNode;
 }) {
-  const router = useRouter();
   const [session, sessionLoading] = useSession()
   const SidebarComponent: ElementType = useMemo(
     () => providedSidebarComponent || Sidebar,
     [providedSidebarComponent]
   );
-
-  // if (typeof window !== 'undefined' && loading) return null
-
-  // If no session exists, redirect to login
-  // if (!session) { return <Unauthenticated /> }
 
   return (
     <Authenticated>
