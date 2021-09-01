@@ -5,16 +5,14 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { NextPageContext } from "next";
-import { Session } from "next-auth"
-import { getCsrfToken, getSession } from "next-auth/client";
+import { getCsrfToken, useSession } from "next-auth/client";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export interface FormFields {
   csrfToken: string;
@@ -24,9 +22,29 @@ export interface FormFields {
   lastName?: string;
 }
 
-function Register({csrfToken}: {csrfToken: string}) {
+const useCsrfToken = () => {
+  const [csrfToken, setCsrfToken] = useState("");
+
+  useEffect(() => {
+    const setTheToken = async () => {
+      console.log(2);
+      const token = (await getCsrfToken()) as string;
+      console.log(3, token);
+      setCsrfToken(token);
+    };
+    console.log(1);
+    setTheToken();
+  }, []);
+
+  return csrfToken;
+};
+
+function Register() {
   const api = useApi();
   const router = useRouter();
+  const [session] = useSession();
+
+  if (session) router.push('/')
 
   const onSubmit = async (formData: FormFields) => {
     const response = await api.createUser(formData);
@@ -36,9 +54,16 @@ function Register({csrfToken}: {csrfToken: string}) {
     }
   };
 
-  const { register, handleSubmit, formState } = useForm<FormFields>({
+  const { register, handleSubmit, formState, setValue } = useForm<FormFields>({
     resolver: joiResolver(schema),
   });
+  const { isDirty, errors, isValid } = formState;
+
+  const csrfToken = useCsrfToken()
+
+  useEffect(() => {
+    setValue('csrfToken', csrfToken)
+  }, [csrfToken])
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -54,11 +79,12 @@ function Register({csrfToken}: {csrfToken: string}) {
             <input
               type="hidden"
               {...register("csrfToken")}
-              defaultValue={csrfToken}
+              value={csrfToken}
+              onChange={() => ''}
             />
             <FormControl
               id="email"
-              isInvalid={formState.errors?.email && formState.isDirty}
+              isInvalid={errors?.email && isDirty}
             >
               <FormLabel>Email address</FormLabel>
               <Input
@@ -69,13 +95,13 @@ function Register({csrfToken}: {csrfToken: string}) {
               />
               <FormHelperText>We'll never share your email.</FormHelperText>
               <FormErrorMessage>
-                {formState.errors?.email?.message}
+                {errors?.email?.message}
               </FormErrorMessage>
             </FormControl>
 
             <FormControl
               id="password"
-              isInvalid={formState.errors?.password && formState.isDirty}
+              isInvalid={errors?.password && isDirty}
             >
               <FormLabel>Password</FormLabel>
               <Input
@@ -86,7 +112,7 @@ function Register({csrfToken}: {csrfToken: string}) {
               />
               <FormHelperText>Something strong.</FormHelperText>
               <FormErrorMessage>
-                {formState.errors?.password?.message}
+                {errors?.password?.message}
               </FormErrorMessage>
             </FormControl>
 
@@ -105,7 +131,7 @@ function Register({csrfToken}: {csrfToken: string}) {
               <div className="w-1/2">
                 <FormControl
                   id="firstName"
-                  isInvalid={formState.errors?.firstName && formState.isDirty}
+                  isInvalid={errors?.firstName && isDirty}
                 >
                   <FormLabel>First name</FormLabel>
                   <Input
@@ -114,14 +140,14 @@ function Register({csrfToken}: {csrfToken: string}) {
                     {...register("firstName")}
                   />
                   <FormErrorMessage>
-                    {formState.errors?.firstName?.message}
+                    {errors?.firstName?.message}
                   </FormErrorMessage>
                 </FormControl>
               </div>
               <div className="w-1/2">
                 <FormControl
                   id="lastName"
-                  isInvalid={formState.errors?.lastName && formState.isDirty}
+                  isInvalid={errors?.lastName && isDirty}
                 >
                   <FormLabel>First name</FormLabel>
                   <Input
@@ -130,7 +156,7 @@ function Register({csrfToken}: {csrfToken: string}) {
                     {...register("lastName")}
                   />
                   <FormErrorMessage>
-                    {formState.errors?.lastName?.message}
+                    {errors?.lastName?.message}
                   </FormErrorMessage>
                 </FormControl>
               </div>
@@ -175,25 +201,6 @@ function Register({csrfToken}: {csrfToken: string}) {
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps(context: NextPageContext) {
-  const session: Session | null = await getSession(context);
-
-  if (session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      csrfToken: await getCsrfToken(context),
-    },
-  };
 }
 
 export default Register;
