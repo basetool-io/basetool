@@ -1,4 +1,4 @@
 const fieldOptions = {
-  rows: 100
+  rows: 5
 }
 export default fieldOptions

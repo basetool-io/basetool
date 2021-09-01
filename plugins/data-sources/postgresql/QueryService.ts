@@ -278,6 +278,8 @@ class QueryService implements IQueryService {
         label: getColumnLabel(column),
       }));
 
+    console.log('columns->', columns)
+
     // @todo: fetch foreign keys before responding
     return columns as [];
   }

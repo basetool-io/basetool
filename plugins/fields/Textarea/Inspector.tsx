@@ -1,14 +1,23 @@
 import { Column } from '@/features/fields/types'
 import { FormControl, FormLabel, Input } from '@chakra-ui/react'
-import React from 'react'
+import React, { useEffect } from 'react'
+import fieldOptions from './fieldOptions'
 
 function Inspector({column, setColumnOption}: {
   column: Column;
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) {
 
-  // todo get default options and set defaults
-  const rows = column.fieldOptions.rows ? column.fieldOptions.rows : 521
+  const rows = column.fieldOptions.rows ? column.fieldOptions.rows : fieldOptions.rows
+
+  // when changing the field type to this one, the new options are not automatically passed to the column
+  useEffect(() => {
+    setColumnOption(
+      column,
+      "fieldOptions.rows",
+      rows
+    )
+  },[])
 
   return (
     <FormControl id="rows">
@@ -18,7 +27,7 @@ function Inspector({column, setColumnOption}: {
         name="rows"
         placeholder="Rows"
         required={false}
-        value={rows as number}
+        defaultValue={rows as number}
         onChange={(e) =>
           setColumnOption(
             column,

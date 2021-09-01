@@ -84,6 +84,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
+    console.log('------------------result->', result)
+
     return res.json(ApiResponse.withData(result, { message: "Updated" }));
   }
 

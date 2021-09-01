@@ -10,7 +10,7 @@ import {
 import { Column, FieldType } from "@/features/fields/types";
 import { getColumnOptions, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { updatedDiff } from "deep-object-diff";
+import { diff as difference } from "deep-object-diff";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -73,7 +73,10 @@ const ColumnEditor = ({
     [column]
   );
 
-  const InspectorComponent = getDynamicInspector(column?.fieldType)
+  const InspectorComponent = useMemo(
+    () => (getDynamicInspector(column?.fieldType)),
+    [column?.fieldType]
+  );
 
   return (
     <>
@@ -87,13 +90,19 @@ const ColumnEditor = ({
             <FormLabel>Field Type</FormLabel>
             <Select
               value={column.fieldType}
-              onChange={(e) =>
+              onChange={(e) => {
+                // setColumnOption(
+                //   column,
+                //   "fieldOptions",
+                //   {}
+                // )
                 setColumnOption(
                   column,
                   "fieldType",
                   e.currentTarget.value as FieldType
                 )
-              }
+                console.log('column.fieldOptions->', column.fieldOptions)
+              }}
             >
               <option disabled>Select field type</option>
               {columnOptions &&
@@ -104,42 +113,6 @@ const ColumnEditor = ({
                 ))}
             </Select>
           </FormControl>
-          {column.fieldType === "Textarea" && <>
-            {/* <FormControl id="rows">
-              <FormLabel>Rows</FormLabel>
-              <Input
-                type="number"
-                name="rows"
-                placeholder="Rows"
-                required={false}
-                value={column.fieldOptions.rows}
-                onChange={(e) =>
-                  setColumnOption(
-                    column,
-                    "fieldOptions.rows",
-                    parseInt(e.currentTarget.value)
-                  )
-                }
-              />
-            </FormControl> */}
-            {/* <FormControl id="placeholder">
-              <FormLabel>Placeholder</FormLabel>
-              <Input
-                type="text"
-                name="placeholder"
-                placeholder="Placeholder"
-                required={false}
-                value={column.placeholder}
-                onChange={(e) =>
-                  setColumnOption(
-                    column,
-                    "placeholder",
-                    e.currentTarget.value
-                  )
-                }
-              />
-            </FormControl> */}
-            </>}
           <CheckboxGroup
             value={column.baseOptions.visibility}
             onChange={(value) =>
@@ -193,33 +166,43 @@ const FieldsEditor = ({
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
   const diff = useMemo(
-    () => updatedDiff(initialColumns, columns),
-    [initialColumns, columns]
+    () => {
+      console.log('initialColumns, columns->', initialColumns, columns)
+      console.log('difference(initialColumns, columns)->', difference(initialColumns, columns))
+
+      return difference(initialColumns, columns)
+    }, [initialColumns, columns]
   );
   const isDirty = useMemo(() => !isEmpty(diff), [diff]);
   const changes: ChangesObject = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
-          // get the column
-          const column = columns[parseInt(columnIndex, 10)];
+    () => {
+      return Object.fromEntries(
+              Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
+                // get the column
+                const column = columns[parseInt(columnIndex, 10)];
 
-          if (!column) return [];
+                if (!column) return [];
 
-          // create the changes object
-          const changesObject = {
-            ...changes,
-            // Force visibility because the diff package does a weird diff on arrays.
-            baseOptions: {
-              ...changes.baseOptions,
-              visibility: column.baseOptions.visibility,
-            },
-          };
+                // create the changes object
+                const changesObject = {
+                  ...changes,
+                  // fieldType: column.fieldType,
+                  // Force visibility because the diff package does a weird diff on arrays.
+                  baseOptions: {
+                    ...changes.baseOptions,
+                    visibility: column.baseOptions.visibility,
+                  },
+                  fieldOptions: {
+                    ...changes.fieldOptions,
+                  }
+                };
 
-          return [column.name, changesObject];
-        })
-      ),
-    [columns, diff]
+                console.log('changesObject->', changesObject)
+
+                return [column.name, changesObject];
+              })
+            )
+    }, [columns, diff]
   );
   const [
     updateTable, // This is the mutation trigger
@@ -248,6 +231,7 @@ const FieldsEditor = ({
       };
     } else {
       console.log(2)
+      console.log('name, value->', name, value)
       newColumn = {
         ...column,
         [name]: value,
@@ -288,6 +272,12 @@ const FieldsEditor = ({
               <div className="text-xs inline-flex">
                 {isDirty && "Dirty"}
                 {!isDirty && "Clean"}
+                <pre>
+                  {JSON.stringify(diff, null, 2)}
+                </pre>
+                <pre>
+                  {JSON.stringify(changes, null, 2)}
+                </pre>
               </div>
               <div className="flex justify-end space-x-4">
                 <Link
