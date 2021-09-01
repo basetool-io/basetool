@@ -1,4 +1,4 @@
-import { Column } from "@/features/fields/types"
+import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IQueryService } from "./types";
 import logger from "@/lib/logger";
@@ -27,9 +27,15 @@ export default class NullQueryService implements IQueryService {
   ): Promise<[]> {
     return [];
   }
-  public async getRecords(tableName: string): Promise<[]> {
+
+  public async getRecords(payload: any): Promise<[]> {
     return [];
   }
+
+  public async getRecordsCount(tableName: string): Promise<number> {
+    return 0;
+  }
+
   public async getRecord(
     tableName: string,
     recordId: string
