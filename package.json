@@ -44,13 +44,10 @@
     "prisma": "^2.30.0",
     "react": "17.0.2",
     "react-datepicker": "^4.2.1",
-    "react-dnd": "^14.0.3",
-    "react-dnd-html5-backend": "^14.0.1",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.13.0",
     "react-redux": "^7.2.4",
     "react-table": "^7.7.0",
-    "react-tag-input": "^6.7.3",
     "react-toastify": "^7.0.4",
     "react-use": "^17.2.4",
     "tailwindcss": "^2.2.7"
