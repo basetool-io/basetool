@@ -120,7 +120,7 @@ export default NextAuth({
   callbacks: {
     // async signIn(user, account, profile) {},
     async redirect(url, baseUrl) {
-      return `${baseUrl}/`;
+      return baseUrl;
     },
     async session(session, token: { user?: Record<string, unknown> }) {
       session.user = {

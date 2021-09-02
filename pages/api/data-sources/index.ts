@@ -1,4 +1,5 @@
 import { OrganizationUser, User } from "@prisma/client"
+import { encrypt } from "@/lib/crypto"
 import { getSession } from "next-auth/client"
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -59,11 +60,9 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!session) return res.status(404).send('')
 
-  const data = req.body;
-
   const schema = await getSchema(req.body.type);
   if (schema) {
-    const validator = schema.validate(data, { abortEarly: false });
+    const validator = schema.validate(req.body, { abortEarly: false });
 
     if (validator.error) {
       return res.json(ApiResponse.withValidation(validator));
@@ -89,11 +88,18 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const [firstOrganizationPivot] = organizations;
   const organizationId = firstOrganizationPivot.id;
 
+  // encrypt the credentials
+  const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials))
+  const data = {
+    id: req.body.id,
+    name: req.body.name,
+    type: req.body.type,
+    organizationId,
+    encryptedCredentials
+  }
+
   const dataSource = await prisma.dataSource.create({
-    data: {
-      ...data,
-      organizationId: organizationId,
-    },
+    data,
   });
 
   return res.json(

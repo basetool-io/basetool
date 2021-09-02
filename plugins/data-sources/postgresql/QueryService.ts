@@ -2,6 +2,7 @@ import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
+import { decrypt } from "@/lib/crypto"
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isUndefined, merge } from "lodash";
@@ -37,11 +38,10 @@ export interface ColumnWithFieldOptions extends ColumnWithBaseOptions {
 
 export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
-export interface PostgresqlDataSource extends DataSource {
-  options: {
-    url: string;
-    useSsl: string;
-  };
+export type PostgresqlDataSource = DataSource
+export type PostgresCredentials = {
+  url: string
+  useSsl: boolean
 }
 
 class QueryService implements IQueryService {
@@ -58,12 +58,28 @@ class QueryService implements IQueryService {
   };
 
   constructor({ dataSource }: { dataSource: PostgresqlDataSource }) {
-    const connectionString = dataSource?.options?.url;
+    if (!dataSource || !dataSource.encryptedCredentials) throw new Error('No data source provided.')
+
+    const credentialsAsAString = decrypt(dataSource.encryptedCredentials);
+
+    if (!credentialsAsAString) throw new Error('No credentials on record.')
+
+    let credentials: PostgresCredentials | null
+
+    try {
+      credentials = JSON.parse(credentialsAsAString)
+    } catch (error) {
+      throw new Error('Failed to parse encrypted credentials')
+    }
+
+    if (!credentials || !credentials.url) throw new Error('No credentials on record.')
+
+    const connectionString = credentials.url
     const connection: Knex.StaticConnectionConfig = {
       connectionString,
     }
 
-    if (dataSource.options.useSsl) {
+    if (credentials.useSsl) {
       connection.ssl = { rejectUnauthorized: false }
     }
 
@@ -90,7 +106,6 @@ class QueryService implements IQueryService {
 
   public async getRecords({
     tableName,
-    filters,
     limit,
     offset,
     orderBy,

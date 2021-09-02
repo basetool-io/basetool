@@ -30,7 +30,9 @@ const useCsrfToken = () => {
       const token = (await getCsrfToken()) as string;
       setCsrfToken(token);
     };
-    setTheToken();
+    if (csrfToken === '') {
+      setTheToken();
+    }
   }, []);
 
   return csrfToken;
@@ -47,7 +49,7 @@ function Register() {
     const response = await api.createUser(formData);
 
     if (response.ok) {
-      router.push("/api/auth/signin");
+      router.push("/auth/login");
     }
   };
 
