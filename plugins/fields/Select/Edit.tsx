@@ -3,7 +3,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  Input,
   Select,
 } from "@chakra-ui/react";
 import { fieldId } from "@/features/fields";
@@ -22,9 +21,9 @@ const Edit = ({
   const { name } = register;
 
   // options
-  const options = JSON.parse(field.column.options);
-  const placeholder = field.column.placeholder;
-  console.log('options->', options)
+  const optionsString = field.column.fieldOptions.options as string;
+  const options = optionsString.split(',');
+  options.forEach((option, index) => options[index] = option.trim());
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
@@ -33,24 +32,15 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        {/* <Input type="text" id={fieldId(field)} {...register} /> */}
         <Select
           id={fieldId(field)} {...register}
-          placeholder={placeholder}
-          // value={column.fieldType}
-          // onChange={(e) =>
-          //   setColumnOption(
-          //     column,
-          //     "fieldType",
-          //     e.currentTarget.value as FieldType
-          //   )
-          // }
+          // placeholder={placeholder}
         >
           {/* {placeholder && <option disabled>{placeholder}</option> } */}
           {options &&
-            options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            options.map((option: string, index: number) => (
+              <option key={index} value={option}>
+                {option}
               </option>
             ))}
         </Select>

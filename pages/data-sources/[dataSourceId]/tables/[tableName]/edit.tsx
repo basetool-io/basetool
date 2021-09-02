@@ -5,13 +5,12 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Input,
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
 import { getColumnOptions, iconForField } from "@/features/fields";
-import { isEmpty, isString, isUndefined } from "lodash";
+import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -22,8 +21,6 @@ import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
-import MenuItem from "@/features/fields/components/MenuItem";
-import { WithContext as ReactTags } from "react-tag-input";
 import dynamic from 'next/dynamic'
 
 type ChangesObject = Record<string, unknown>;
@@ -75,42 +72,6 @@ const ColumnEditor = ({
     [column]
   );
 
-  const initialOptions = useMemo(
-    () => (isString(column.options) ? JSON.parse(column.options) : []),
-    [column.options]
-  );
-
-  const [tags, setTags] = useState();
-
-  const handleDelete = (i) => {
-    setTags(tags.filter((tag, index) => index !== i));
-  };
-
-  const handleAddition = (tag) => {
-    setTags([...tags, tag]);
-  };
-
-  const handleDrag = (tag, currPos, newPos) => {
-    const newTags = tags.slice();
-
-    newTags.splice(currPos, 1);
-    newTags.splice(newPos, 0, tag);
-
-    // re-render
-    setTags(newTags);
-  };
-
-  useEffect(() => {
-    // Update the column options on tags update
-    if (!isUndefined(tags)) {
-      setColumnOption(column, "options", JSON.stringify(tags));
-    }
-  }, [tags]);
-
-  useEffect(() => {
-    setTags(initialOptions)
-  }, [initialOptions]);
-
   const InspectorComponent = useMemo(
     () => (getDynamicInspector(column?.fieldType) as React.ComponentType<{
       column: Column;
@@ -148,51 +109,6 @@ const ColumnEditor = ({
                 ))}
             </Select>
           </FormControl>
-          {column.fieldType === "Select" && (
-            <>
-              <FormControl id="tags">
-                <FormLabel>Add options</FormLabel>
-                <ReactTags
-                  tags={tags}
-                  labelField={"label"}
-                  handleDelete={handleDelete}
-                  handleAddition={handleAddition}
-                  handleDrag={handleDrag}
-                />
-              </FormControl>
-              <FormControl id="options">
-                <FormLabel>Modify options</FormLabel>
-                <Input
-                  type="text"
-                  name="rows"
-                  placeholder="Options"
-                  required={false}
-                  value={column.options}
-                  onChange={(e) => {
-                    setColumnOption(column, "options", e.currentTarget.value)
-                    setTags(JSON.parse(e.currentTarget.value))
-                  }}
-                />
-              </FormControl>
-              <FormControl id="placeholder">
-                <FormLabel>Placeholder</FormLabel>
-                <Input
-                  type="text"
-                  name="placeholder"
-                  placeholder="Placeholder"
-                  required={false}
-                  value={column.placeholder}
-                  onChange={(e) =>
-                    setColumnOption(
-                      column,
-                      "placeholder",
-                      e.currentTarget.value
-                    )
-                  }
-                />
-              </FormControl>
-            </>
-          )}
           <CheckboxGroup
             value={column.baseOptions.visibility}
             onChange={(value) =>
