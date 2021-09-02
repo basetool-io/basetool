@@ -192,7 +192,6 @@ const Form = ({
             <div className="flex justify-between">
               <MenuItem
                 onClick={() => {
-                  console.log(formState, getValues());
                   handleSubmit(onSubmit)();
                 }}
               >

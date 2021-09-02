@@ -27,12 +27,9 @@ const useCsrfToken = () => {
 
   useEffect(() => {
     const setTheToken = async () => {
-      console.log(2);
       const token = (await getCsrfToken()) as string;
-      console.log(3, token);
       setCsrfToken(token);
     };
-    console.log(1);
     setTheToken();
   }, []);
 
