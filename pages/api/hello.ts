@@ -9,6 +9,6 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  throw new Error('Api error.')
+  if (req.query.error) throw new Error('Api error.')
   res.status(200).json({ name: 'John Doe' })
 }

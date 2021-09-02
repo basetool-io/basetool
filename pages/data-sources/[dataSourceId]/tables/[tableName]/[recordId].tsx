@@ -10,7 +10,7 @@ import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
-import type { Record } from '@/features/records/types'
+import type { Record } from "@/features/records/types";
 
 const RecordShow = ({
   record,
@@ -88,9 +88,9 @@ function RecordsShow() {
         : [],
     [columnsResponse?.data]
   ) as Column[];
-  throw new Error('Api error.')
+  if (router.query.error) throw new Error("Client error.");
 
-return (
+  return (
     <Layout>
       {isLoading && <div>loading...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
