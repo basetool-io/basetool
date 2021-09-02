@@ -9,8 +9,7 @@
     "lint": "next lint",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",
-    "postinstall": "prisma generate",
-    "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.6.6",
@@ -22,7 +21,7 @@
     "@next-auth/prisma-adapter": "^0.5.4",
     "@prisma/client": "^2.30.0",
     "@reduxjs/toolkit": "^1.6.1",
-    "@sentry/nextjs": "^6.11.0",
+    "@sentry/nextjs": "^6.12.0",
     "@types/bcrypt": "^5.0.0",
     "autoprefixer": "^10.3.2",
     "axios": "^0.21.1",
