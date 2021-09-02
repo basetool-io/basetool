@@ -95,7 +95,7 @@ return (
       {isLoading && <div>loading...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && columnsResponse?.ok && (
-        <RecordShow record={data.data} columns={columns} />
+        <RecordShow record={data?.data} columns={columns} />
       )}
     </Layout>
   );
