@@ -8,9 +8,9 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { diff as difference } from "deep-object-diff";
 import { getColumnOptions, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { diff as difference } from "deep-object-diff";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -91,17 +91,11 @@ const ColumnEditor = ({
             <Select
               value={column.fieldType}
               onChange={(e) => {
-                // setColumnOption(
-                //   column,
-                //   "fieldOptions",
-                //   {}
-                // )
                 setColumnOption(
                   column,
                   "fieldType",
                   e.currentTarget.value as FieldType
                 )
-                console.log('column.fieldOptions->', column.fieldOptions)
               }}
             >
               <option disabled>Select field type</option>
@@ -167,9 +161,6 @@ const FieldsEditor = ({
   const router = useRouter();
   const diff = useMemo(
     () => {
-      console.log('initialColumns, columns->', initialColumns, columns)
-      console.log('difference(initialColumns, columns)->', difference(initialColumns, columns))
-
       return difference(initialColumns, columns)
     }, [initialColumns, columns]
   );
@@ -197,8 +188,6 @@ const FieldsEditor = ({
                   }
                 };
 
-                console.log('changesObject->', changesObject)
-
                 return [column.name, changesObject];
               })
             )
@@ -221,7 +210,6 @@ const FieldsEditor = ({
     }
 
     if (namespace) {
-      console.log(1)
       newColumn = {
         ...column,
         [namespace]: {
@@ -230,8 +218,6 @@ const FieldsEditor = ({
         },
       };
     } else {
-      console.log(2)
-      console.log('name, value->', name, value)
       newColumn = {
         ...column,
         [name]: value,
@@ -272,12 +258,6 @@ const FieldsEditor = ({
               <div className="text-xs inline-flex">
                 {isDirty && "Dirty"}
                 {!isDirty && "Clean"}
-                <pre>
-                  {JSON.stringify(diff, null, 2)}
-                </pre>
-                <pre>
-                  {JSON.stringify(changes, null, 2)}
-                </pre>
               </div>
               <div className="flex justify-end space-x-4">
                 <Link

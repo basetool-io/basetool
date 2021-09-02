@@ -1,5 +1,5 @@
 import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
-import { get } from "lodash";
+import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -74,17 +74,12 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
           ...dataSource.options,
           tables: {
             [req.query.tableName as string]: {
-              columns: {
-                ...tableOptions,
-                ...req.body.changes,
-              },
+              columns: merge(tableOptions, req.body.changes),
             },
           },
         },
       },
     });
-
-    console.log('------------------result->', result)
 
     return res.json(ApiResponse.withData(result, { message: "Updated" }));
   }

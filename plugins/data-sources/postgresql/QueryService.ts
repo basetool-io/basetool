@@ -4,9 +4,9 @@ import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty, isUndefined, merge } from "lodash";
 import { knex } from "knex";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
 import type { Knex } from "knex";
 
 export type FieldOptions = Record<string, unknown>;
@@ -90,7 +90,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
       .select()
@@ -107,7 +108,8 @@ class QueryService implements IQueryService {
   ): Promise<number | string> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const [id] = await this.client
       .table(tableName)
@@ -124,7 +126,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const result = await this.client
       .table(tableName)
@@ -225,23 +228,9 @@ class QueryService implements IQueryService {
       columnsWithBaseOptions
     );
 
-    // add default field options for each type of field
-    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
-      columnsWithBaseOptions.map((column) => {
-        const fieldOptions = fieldOptionsByFieldName[column.name]
-          ? fieldOptionsByFieldName[column.name]
-          : {};
-
-        return {
-          ...column,
-          fieldOptions: fieldOptions,
-        };
-      });
-
     // add options stored in the database
     const columnsWithStoredOptions: ColumnWithStoredOptions[] =
-      columnsWithFieldOptions.map((column) => {
-
+      columnsWithBaseOptions.map((column) => {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
@@ -271,14 +260,24 @@ class QueryService implements IQueryService {
         return newColumn;
       });
 
+    // add default field options for each type of field
+    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
+      columnsWithStoredOptions.map((column) => {
+        const fieldOptions = fieldOptionsByFieldName[column.name]
+          ? fieldOptionsByFieldName[column.name]
+          : {};
+
+        return {
+          ...column,
+          fieldOptions: merge(fieldOptions, column.fieldOptions),
+        };
+      });
 
     const columns: Column<PostgresqlColumnOptions>[] =
-      columnsWithStoredOptions.map((column) => ({
+      columnsWithFieldOptions.map((column) => ({
         ...column,
         label: getColumnLabel(column),
       }));
-
-    console.log('columns->', columns)
 
     // @todo: fetch foreign keys before responding
     return columns as [];
@@ -337,21 +336,19 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        const t =  [
+        const t = [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
 
-        console.log('fieldOptions->', t)
-
-        return t
+        return t;
       } catch (error) {
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,
-            error}
-          );
+            error,
+          });
         }
       }
     })
