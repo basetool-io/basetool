@@ -88,8 +88,9 @@ function RecordsShow() {
         : [],
     [columnsResponse?.data]
   ) as Column[];
+  throw new Error('Api error.')
 
-  return (
+return (
     <Layout>
       {isLoading && <div>loading...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
