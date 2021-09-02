@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
 
-function Unauthenticated() {
+function UnauthenticatedView() {
   const router = useRouter()
   useEffect(() => { router.push('/auth/login') }, [])
 
@@ -13,4 +13,4 @@ function Unauthenticated() {
   )
 }
 
-export default Unauthenticated
+export default UnauthenticatedView

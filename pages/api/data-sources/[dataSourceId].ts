@@ -1,3 +1,5 @@
+import { getDataSourceFromRequest } from '@/features/api'
+import { pick } from 'lodash'
 import { withSentry } from '@sentry/nextjs'
 import ApiResponse from '@/features/api/ApiResponse'
 import IsSignedIn from '../middleware/IsSignedIn'
@@ -20,13 +22,9 @@ const handle = async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 }
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = await prisma.dataSource.findFirst({
-    where: {
-      id: parseInt(req.query.id as string, 10),
-    },
-  })
+  const dataSource = await getDataSourceFromRequest(req)
 
-  res.json(ApiResponse.withData(dataSource))
+  res.json(ApiResponse.withData(pick(dataSource, ['name', 'id'])))
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {

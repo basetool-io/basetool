@@ -4,9 +4,9 @@ import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty, isUndefined, merge } from "lodash";
 import { knex } from "knex";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
 import type { Knex } from "knex";
 
 export type FieldOptions = Record<string, unknown>;
@@ -40,6 +40,7 @@ export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 export interface PostgresqlDataSource extends DataSource {
   options: {
     url: string;
+    useSsl: string;
   };
 }
 
@@ -57,11 +58,18 @@ class QueryService implements IQueryService {
   };
 
   constructor({ dataSource }: { dataSource: PostgresqlDataSource }) {
-    const connection = dataSource?.options?.url;
+    const connectionString = dataSource?.options?.url;
+    const connection: Knex.StaticConnectionConfig = {
+      connectionString,
+    }
+
+    if (dataSource.options.useSsl) {
+      connection.ssl = { rejectUnauthorized: false }
+    }
 
     this.client = knex({
       client: "pg",
-      connection: connection,
+      connection,
     });
 
     this.dataSource = dataSource;
@@ -80,8 +88,38 @@ class QueryService implements IQueryService {
     return this;
   }
 
-  public async getRecords(tableName: string): Promise<[]> {
-    return this.client.select().table(tableName) as unknown as [];
+  public async getRecords({
+    tableName,
+    filters,
+    limit,
+    offset,
+    orderBy,
+    orderDirection,
+  }: {
+    tableName: string,
+    filters: [],
+    limit: number,
+    offset: number,
+    orderBy: string,
+    orderDirection: string,
+  }): Promise<[]> {
+    const query = this.client
+      .table(tableName)
+      .limit(limit)
+      .offset(offset)
+      .select();
+
+    if (orderBy) {
+      query.orderBy(orderBy, orderDirection)
+    }
+
+    return query as unknown as [];
+  }
+
+  public async getRecordsCount(tableName: string): Promise<number> {
+    const [{ count }] = await this.client.count().table(tableName);
+
+    return parseInt(count as string, 10);
   }
 
   public async getRecord(
@@ -90,7 +128,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
       .select()
@@ -107,7 +146,8 @@ class QueryService implements IQueryService {
   ): Promise<number | string> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const [id] = await this.client
       .table(tableName)
@@ -124,7 +164,8 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
-    if (!pk) throw new Error(`Can't find a primary key for table ${tableName}.`)
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const result = await this.client
       .table(tableName)
@@ -225,22 +266,9 @@ class QueryService implements IQueryService {
       columnsWithBaseOptions
     );
 
-    // add default field options for each type of field
-    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
-      columnsWithBaseOptions.map((column) => {
-        const fieldOptions = fieldOptionsByFieldName[column.name]
-          ? fieldOptionsByFieldName[column.name]
-          : {};
-
-        return {
-          ...column,
-          fieldOptions: fieldOptions,
-        };
-      });
-
     // add options stored in the database
     const columnsWithStoredOptions: ColumnWithStoredOptions[] =
-      columnsWithFieldOptions.map((column) => {
+      columnsWithBaseOptions.map((column) => {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
@@ -251,21 +279,39 @@ class QueryService implements IQueryService {
           ? storedColumn?.fieldOptions
           : {};
 
-        return {
+        const newColumn = {
           ...column,
           baseOptions: {
             ...column.baseOptions,
             ...baseOptions,
           },
           fieldOptions: {
-            ...column.fieldOptions,
             ...fieldOptions,
           },
+        };
+
+        if (storedColumn?.fieldType) {
+          newColumn.fieldType = storedColumn.fieldType;
+        }
+
+        return newColumn;
+      });
+
+    // add default field options for each type of field
+    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
+      columnsWithStoredOptions.map((column) => {
+        const fieldOptions = fieldOptionsByFieldName[column.name]
+          ? fieldOptionsByFieldName[column.name]
+          : {};
+
+        return {
+          ...column,
+          fieldOptions: merge(fieldOptions, column.fieldOptions),
         };
       });
 
     const columns: Column<PostgresqlColumnOptions>[] =
-      columnsWithStoredOptions.map((column) => ({
+      columnsWithFieldOptions.map((column) => ({
         ...column,
         label: getColumnLabel(column),
       }));
@@ -327,17 +373,19 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        return [
+        const t = [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
+
+        return t;
       } catch (error) {
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,
-            error}
-          );
+            error,
+          });
         }
       }
     })

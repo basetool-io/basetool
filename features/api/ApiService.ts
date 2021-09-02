@@ -42,7 +42,6 @@ export const reactToResponse = (data: IApiResponse) => {
 };
 
 export const reactToError = (data: any) => {
-  console.log("reactToError->", data);
   if (data) {
     const { messages } = data;
 

@@ -29,11 +29,22 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
-  const records = await service.getRecords(req.query.tableName as string);
+  const records = await service.getRecords({
+    tableName: req.query.tableName as string,
+    filters: 'atob(req.query.filters as string)',
+    limit: parseInt(req.query.limit as string, 10),
+    offset: parseInt(req.query.offset as string, 10),
+    orderBy: req.query.orderBy as string,
+    orderDirection: req.query.orderDirection as string,}
+  );
+
+  const count = await service.getRecordsCount(
+    req.query.tableName as string
+  );
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData(records));
+  res.json(ApiResponse.withData(records, {meta: {count}}));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
@@ -43,7 +54,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({dataSource});
+  const service = await getQueryService({ dataSource });
 
   await service.connect();
 
@@ -63,7 +74,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData({id: data}, { message: "Record added" }));
+  res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));
