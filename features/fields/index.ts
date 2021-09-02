@@ -4,6 +4,7 @@ import {
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  SelectorIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums"
@@ -39,6 +40,10 @@ export const getColumnOptions = (
     {
       id: "DateTime",
       label: "Date time",
+    },
+    {
+      id: "Select",
+      label: "Select",
     },
     {
       id: "Textarea",
@@ -89,6 +94,8 @@ export const iconForField = (field: Column): ElementType => {
       return CheckCircleIcon;
     case "DateTime":
       return CalendarIcon;
+    case "Select":
+      return SelectorIcon;
     case "Textarea":
       return AnnotationIcon;
   }

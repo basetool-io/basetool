@@ -5,10 +5,11 @@ export type FieldType =
   | "Id"
   | "Text"
   | "Number"
-  | "Select"
   | "Boolean"
   | "DateTime"
+  | "Select"
   | "Textarea";
+
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;

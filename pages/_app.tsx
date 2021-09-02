@@ -1,5 +1,4 @@
 import "../lib/fonts.css";
-
 import "../lib/globals.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
