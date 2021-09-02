@@ -55,10 +55,16 @@ const ColumnListItem = ({
   );
 };
 
-const getDynamicInspector = (fieldType: string) => dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
-  // eslint-disable-next-line react/display-name
-  loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
-});
+const getDynamicInspector = (fieldType: string) => {
+  try {
+    return dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
+      // eslint-disable-next-line react/display-name
+      loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
+    });
+  } catch (error) {
+    return () => ''
+  }
+}
 
 const ColumnEditor = ({
   column,
