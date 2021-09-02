@@ -15,6 +15,9 @@ import NumberShowField from "@/plugins/fields/Number/Show";
 import TextEditField from "@/plugins/fields/Text/Edit";
 import TextIndexField from "@/plugins/fields/Text/Index";
 import TextShowField from "@/plugins/fields/Text/Show";
+import TextareaEditField from "@/plugins/fields/Textarea/Edit";
+import TextareaIndexField from "@/plugins/fields/Textarea/Index";
+import TextareaShowField from "@/plugins/fields/Textarea/Show";
 import type { Column } from "./types";
 
 // export const getFieldForEdit = (column: Column) => {
@@ -68,6 +71,8 @@ export const getFieldForEdit = (column: Column) => {
       return BooleanEditField;
     case "DateTime":
       return DateTimeEditField;
+    case "Textarea":
+      return TextareaEditField;
   }
 };
 
@@ -84,6 +89,8 @@ export const getFieldForShow = (column: Column) => {
       return BooleanShowField;
     case "DateTime":
       return DateTimeShowField;
+    case "Textarea":
+      return TextareaShowField;
   }
 };
 
@@ -100,6 +107,8 @@ export const getFieldForIndex = (column: Column) => {
       return BooleanIndexField;
     case "DateTime":
       return DateTimeIndexField;
+    case "Textarea":
+      return TextareaIndexField;
   }
 };
 

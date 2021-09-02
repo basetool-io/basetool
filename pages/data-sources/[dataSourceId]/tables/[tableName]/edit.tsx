@@ -8,9 +8,9 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { diff as difference } from "deep-object-diff";
 import { getColumnOptions, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { updatedDiff } from "deep-object-diff";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -21,6 +21,7 @@ import Link from "next/link";
 import MenuItem from "@/features/fields/components/MenuItem";
 import React, { useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
+import dynamic from 'next/dynamic'
 
 type ChangesObject = Record<string, unknown>;
 
@@ -54,6 +55,11 @@ const ColumnListItem = ({
   );
 };
 
+const getDynamicInspector = (fieldType: string) => dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
+  // eslint-disable-next-line react/display-name
+  loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
+});
+
 const ColumnEditor = ({
   column,
   setColumnOption,
@@ -64,6 +70,14 @@ const ColumnEditor = ({
   const columnOptions = useMemo(
     () => (column ? getColumnOptions(column) : []),
     [column]
+  );
+
+  const InspectorComponent = useMemo(
+    () => (getDynamicInspector(column?.fieldType) as React.ComponentType<{
+      column: Column;
+      setColumnOption: (c: Column, name: string, value: any) => void;
+    }>),
+    [column?.fieldType]
   );
 
   return (
@@ -78,13 +92,13 @@ const ColumnEditor = ({
             <FormLabel>Field Type</FormLabel>
             <Select
               value={column.fieldType}
-              onChange={(e) =>
+              onChange={(e) => {
                 setColumnOption(
                   column,
                   "fieldType",
                   e.currentTarget.value as FieldType
                 )
-              }
+              }}
             >
               <option disabled>Select field type</option>
               {columnOptions &&
@@ -123,6 +137,7 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
+          <InspectorComponent column={column} setColumnOption={setColumnOption} />
           <pre>{JSON.stringify(column, null, 2)}</pre>
         </div>
       )}
@@ -139,33 +154,38 @@ const FieldsEditor = ({
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
   const diff = useMemo(
-    () => updatedDiff(initialColumns, columns),
-    [initialColumns, columns]
+    () => {
+      return difference(initialColumns, columns)
+    }, [initialColumns, columns]
   );
   const isDirty = useMemo(() => !isEmpty(diff), [diff]);
   const changes: ChangesObject = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
-          // get the column
-          const column = columns[parseInt(columnIndex, 10)];
+    () => {
+      return Object.fromEntries(
+              Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
+                // get the column
+                const column = columns[parseInt(columnIndex, 10)];
 
-          if (!column) return [];
+                if (!column) return [];
 
-          // create the changes object
-          const changesObject = {
-            ...changes,
-            // Force visibility because the diff package does a weird diff on arrays.
-            baseOptions: {
-              ...changes.baseOptions,
-              visibility: column.baseOptions.visibility,
-            },
-          };
+                // create the changes object
+                const changesObject = {
+                  ...changes,
+                  // fieldType: column.fieldType,
+                  // Force visibility because the diff package does a weird diff on arrays.
+                  baseOptions: {
+                    ...changes.baseOptions,
+                    visibility: column.baseOptions.visibility,
+                  },
+                  fieldOptions: {
+                    ...changes.fieldOptions,
+                  }
+                };
 
-          return [column.name, changesObject];
-        })
-      ),
-    [columns, diff]
+                return [column.name, changesObject];
+              })
+            )
+    }, [columns, diff]
   );
   const [
     updateTable, // This is the mutation trigger

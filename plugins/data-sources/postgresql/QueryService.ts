@@ -4,7 +4,7 @@ import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty, isUndefined, merge } from "lodash";
 import { knex } from "knex";
 import logger from "@/lib/logger";
 import type { Knex } from "knex";
@@ -266,22 +266,9 @@ class QueryService implements IQueryService {
       columnsWithBaseOptions
     );
 
-    // add default field options for each type of field
-    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
-      columnsWithBaseOptions.map((column) => {
-        const fieldOptions = fieldOptionsByFieldName[column.name]
-          ? fieldOptionsByFieldName[column.name]
-          : {};
-
-        return {
-          ...column,
-          fieldOptions: fieldOptions,
-        };
-      });
-
     // add options stored in the database
     const columnsWithStoredOptions: ColumnWithStoredOptions[] =
-      columnsWithFieldOptions.map((column) => {
+      columnsWithBaseOptions.map((column) => {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
@@ -292,21 +279,39 @@ class QueryService implements IQueryService {
           ? storedColumn?.fieldOptions
           : {};
 
-        return {
+        const newColumn = {
           ...column,
           baseOptions: {
             ...column.baseOptions,
             ...baseOptions,
           },
           fieldOptions: {
-            ...column.fieldOptions,
             ...fieldOptions,
           },
+        };
+
+        if (storedColumn?.fieldType) {
+          newColumn.fieldType = storedColumn.fieldType;
+        }
+
+        return newColumn;
+      });
+
+    // add default field options for each type of field
+    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
+      columnsWithStoredOptions.map((column) => {
+        const fieldOptions = fieldOptionsByFieldName[column.name]
+          ? fieldOptionsByFieldName[column.name]
+          : {};
+
+        return {
+          ...column,
+          fieldOptions: merge(fieldOptions, column.fieldOptions),
         };
       });
 
     const columns: Column<PostgresqlColumnOptions>[] =
-      columnsWithStoredOptions.map((column) => ({
+      columnsWithFieldOptions.map((column) => ({
         ...column,
         label: getColumnLabel(column),
       }));
@@ -368,11 +373,13 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        return [
+        const t = [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
+
+        return t;
       } catch (error) {
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({

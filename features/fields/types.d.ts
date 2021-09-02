@@ -4,12 +4,11 @@ import type { Record as BasetoolRecord } from "@/features/records";
 export type FieldType =
   | "Id"
   | "Text"
-  | "Textarea"
   | "Number"
   | "Select"
   | "Boolean"
-  | "DateTime";
-
+  | "DateTime"
+  | "Textarea";
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;
