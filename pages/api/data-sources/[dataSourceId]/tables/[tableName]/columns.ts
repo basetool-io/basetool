@@ -90,4 +90,4 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withSentry(IsSignedIn(OwnsDataSource(handle)))

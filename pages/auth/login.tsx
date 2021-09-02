@@ -4,15 +4,16 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { NextPageContext } from "next";
-import { getCsrfToken, useSession } from "next-auth/client";
+import { signIn, useSession } from "next-auth/client";
 import { useRouter } from "next/router";
-import Link from "next/link";
-import React, { useEffect } from "react";
+import Link from "next/link"
+import React, { useEffect, useState } from "react";
 
-export default function SignIn({ csrfToken }: { csrfToken: string }) {
+export default function SignIn() {
   const [session] = useSession();
   const router = useRouter();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
     if (session) {
@@ -31,11 +32,8 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form
-            method="post"
-            action="/api/auth/callback/credentials"
             className="space-y-6"
           >
-            <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input
@@ -43,6 +41,8 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
                 name="email"
                 placeholder="ted@lasso.com"
                 required={true}
+                value={email}
+                onChange={(e) => setEmail(e.currentTarget.value)}
               />
               <FormHelperText>We'll never share your email.</FormHelperText>
             </FormControl>
@@ -54,6 +54,8 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
                 name="password"
                 placeholder="your strong password"
                 required={true}
+                value={password}
+                onChange={(e) => setPassword(e.currentTarget.value)}
               />
               <FormHelperText>Something strong.</FormHelperText>
             </FormControl>
@@ -86,7 +88,13 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
 
             <div>
               <button
-                type="submit"
+                onClick={(e) =>{
+                  e.preventDefault()
+                  signIn('credentials', {
+                    redirect: false,
+                    email,
+                    password,
+                  })}}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Sign in
@@ -97,13 +105,4 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
       </div>
     </div>
   );
-}
-
-// This is the recommended way for Next.js 9.3 or newer
-export async function getServerSideProps(context: NextPageContext) {
-  return {
-    props: {
-      csrfToken: await getCsrfToken(context),
-    },
-  };
 }

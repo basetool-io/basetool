@@ -1,6 +1,9 @@
 import Joi from "joi";
 
 export const schema = Joi.object({
+  csrfToken: Joi.string()
+    .label("CSRF Token")
+    .required(),
   email: Joi.string()
     .label("Email")
     .email({ tlds: { allow: false } })

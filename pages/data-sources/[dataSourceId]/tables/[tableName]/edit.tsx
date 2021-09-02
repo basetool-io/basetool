@@ -15,7 +15,6 @@ import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
 } from "@/features/tables/tables-api-slice";
-import { useGetTableRecordsQuery } from "@/features/records/records-api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -132,18 +131,10 @@ const ColumnEditor = ({
 };
 
 const FieldsEditor = ({
-  dataSourceId,
-  tableName,
   columns: initialColumns,
 }: {
-  dataSourceId: string;
-  tableName: string;
   columns: Column[];
 }) => {
-  const { data, error, isLoading } = useGetTableRecordsQuery({
-    dataSourceId,
-    tableName,
-  });
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
@@ -193,7 +184,6 @@ const FieldsEditor = ({
     }
 
     if (namespace) {
-      console.log(1)
       newColumn = {
         ...column,
         [namespace]: {
@@ -202,7 +192,6 @@ const FieldsEditor = ({
         },
       };
     } else {
-      console.log(2)
       newColumn = {
         ...column,
         [name]: value,
@@ -234,9 +223,9 @@ const FieldsEditor = ({
 
   return (
     <>
-      {isLoading && <div>loading...</div>}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && (
+      {/* {isLoading && <div>loading...</div>}
+      {error && <div>Error: {JSON.stringify(error)}</div>} */}
+      {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="flex flex-col flex-1 overflow-auto">
             <div className="flex justify-between">
@@ -280,7 +269,7 @@ const FieldsEditor = ({
             </div>
           </div>
         </>
-      )}
+      {/* )} */}
     </>
   );
 };
@@ -303,9 +292,7 @@ function TablesShow() {
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && (
         <FieldsEditor
-          tableName={tableName}
           columns={data?.data}
-          dataSourceId={dataSourceId}
         />
       )}
     </Layout>

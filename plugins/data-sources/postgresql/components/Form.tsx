@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -21,6 +22,7 @@ export interface IFormFields {
   name: string;
   options: {
     url: string;
+    useSsl: boolean;
   };
   type: "postgresql";
 }
@@ -100,6 +102,13 @@ function Form({ data }: { data?: IFormFields }) {
               <option disabled>Select data source</option>
               <option value="postgresql">postgresql</option>
             </Select>
+          </FormControl>
+
+          <FormControl id="type">
+            <FormLabel>Use SSL</FormLabel>
+            <Checkbox
+              {...register("options.useSsl")}
+            />
           </FormControl>
 
           {/* <form onSubmit={handleSubmit(onSubmit)}>

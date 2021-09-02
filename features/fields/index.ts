@@ -1,6 +1,3 @@
-import isPlainObject from "lodash/isPlainObject";
-import type { Column, Field, FieldType, FieldValue } from "./types";
-import type { Record } from '@/features/records/types'
 import {
   CalendarIcon,
   CheckCircleIcon,
@@ -8,10 +5,13 @@ import {
   KeyIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
+import { Views } from "./enums"
 import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
-import { Views } from "./enums"
+import isPlainObject from "lodash/isPlainObject";
+import type { Column, Field, FieldType, FieldValue } from "./types";
+import type { Record } from '@/features/records/types'
 
 export const idColumns = ["id", "_id"];
 

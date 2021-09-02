@@ -1,4 +1,4 @@
-import { Column } from "@/features/fields/types"
+import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IQueryService } from "./types";
 import logger from "@/lib/logger";
@@ -9,7 +9,7 @@ export default class NullQueryService implements IQueryService {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(payload: any) {
-    logger.warn("NullQueryService instantiated.", payload);
+    logger.warn("NullQueryService instantiated.");
   }
 
   public async connect(): Promise<this> {
@@ -27,9 +27,15 @@ export default class NullQueryService implements IQueryService {
   ): Promise<[]> {
     return [];
   }
-  public async getRecords(tableName: string): Promise<[]> {
+
+  public async getRecords(payload: any): Promise<[]> {
     return [];
   }
+
+  public async getRecordsCount(tableName: string): Promise<number> {
+    return 0;
+  }
+
   public async getRecord(
     tableName: string,
     recordId: string
