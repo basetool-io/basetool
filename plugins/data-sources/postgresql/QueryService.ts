@@ -40,6 +40,7 @@ export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 export interface PostgresqlDataSource extends DataSource {
   options: {
     url: string;
+    useSsl: string;
   };
 }
 
@@ -57,11 +58,18 @@ class QueryService implements IQueryService {
   };
 
   constructor({ dataSource }: { dataSource: PostgresqlDataSource }) {
-    const connection = dataSource?.options?.url;
+    const connectionString = dataSource?.options?.url;
+    const connection: Knex.StaticConnectionConfig = {
+      connectionString,
+    }
+
+    if (dataSource.options.useSsl) {
+      connection.ssl = { rejectUnauthorized: false }
+    }
 
     this.client = knex({
       client: "pg",
-      connection: connection,
+      connection,
     });
 
     this.dataSource = dataSource;
