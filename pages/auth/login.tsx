@@ -10,13 +10,13 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react";
 
 export default function SignIn() {
-  const [session] = useSession();
+  const [session, isLoading] = useSession();
   const router = useRouter();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   useEffect(() => {
-    if (session) {
+    if (!isLoading && session) {
       router.push("/");
     }
   }, [session]);
