@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",
     "postinstall": "prisma generate",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'"
@@ -27,6 +28,7 @@
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "classnames": "^2.3.1",
+    "crypto": "^1.0.1",
     "deep-object-diff": "^1.1.0",
     "framer-motion": "^4",
     "joi": "^17.4.2",

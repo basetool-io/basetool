@@ -97,6 +97,7 @@
         "checkKeyMustBeforeSpread": false
       }
     ],
+    "no-console": "warn",
     // "import/extensions": ["error", {
     //   "tsx": "never"
     // }]
