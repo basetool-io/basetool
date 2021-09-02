@@ -74,7 +74,10 @@ const ColumnEditor = ({
   );
 
   const InspectorComponent = useMemo(
-    () => (getDynamicInspector(column?.fieldType)),
+    () => (getDynamicInspector(column?.fieldType) as React.ComponentType<{
+      column: Column;
+      setColumnOption: (c: Column, name: string, value: any) => void;
+    }>),
     [column?.fieldType]
   );
 

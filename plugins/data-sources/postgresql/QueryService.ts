@@ -248,7 +248,6 @@ class QueryService implements IQueryService {
             ...baseOptions,
           },
           fieldOptions: {
-            ...column.fieldOptions,
             ...fieldOptions,
           },
         };
