@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/client";
 import { useRouter } from "next/router";
+import { useToggle } from "react-use"
 import Link from "next/link"
 import React, { useEffect, useState } from "react";
 
@@ -14,6 +15,7 @@ export default function SignIn() {
   const router = useRouter();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isDisabled, setIsDisabled] = useToggle(false)
 
   useEffect(() => {
     if (!isLoading && session) {
@@ -88,9 +90,11 @@ export default function SignIn() {
 
             <div>
               <button
-                onClick={(e) =>{
+                disabled={isDisabled}
+                onClick={async (e) =>{
                   e.preventDefault()
-                  signIn('credentials', {
+                  setIsDisabled(true)
+                  await signIn('credentials', {
                     redirect: false,
                     email,
                     password,
