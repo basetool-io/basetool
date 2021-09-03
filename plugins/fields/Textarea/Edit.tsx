@@ -23,6 +23,7 @@ const Edit = ({
   // options
   const rows = field.column.fieldOptions.rows;
   const placeholder = field.column.fieldOptions.placeholder;
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
@@ -30,7 +31,7 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
+      <FormControl isInvalid={hasError && formState.isDirty} isDisabled={readonly}>
         <Textarea rows={rows} placeholder={placeholder} id={fieldId(field)} {...register} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
