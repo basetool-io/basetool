@@ -22,7 +22,7 @@ const Edit = ({
 
   // options
   const rows = field.column.fieldOptions.rows;
-  const placeholder = field.column.fieldOptions.placeholder;
+  const placeholder = field?.column?.baseOptions?.placeholder ? field.column.baseOptions.placeholder : ""
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;

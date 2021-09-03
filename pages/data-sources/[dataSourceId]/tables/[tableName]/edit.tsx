@@ -144,7 +144,7 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
-          {(column.fieldType === "Text" || column.fieldType === "Number" || column.fieldType === "DateTime") &&
+          {(column.fieldType === "Text" || column.fieldType === "Number" || column.fieldType === "DateTime" || column.fieldType === "Select" || column.fieldType === "Textarea") &&
             <FormControl id="placeholder">
               <FormLabel>Placeholder</FormLabel>
               <Input

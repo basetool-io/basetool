@@ -24,6 +24,7 @@ const Edit = ({
   const optionsString = field.column.fieldOptions.options as string;
   const options = optionsString.split(',');
   options.forEach((option, index) => options[index] = option.trim());
+  const placeholder = field?.column?.baseOptions?.placeholder ? field.column.baseOptions.placeholder : ""
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
@@ -34,7 +35,7 @@ const Edit = ({
       <FormControl isInvalid={hasError && formState.isDirty}>
         <Select
           id={fieldId(field)} {...register}
-          // placeholder={placeholder}
+          placeholder={placeholder}
         >
           {/* {placeholder && <option disabled>{placeholder}</option> } */}
           {options &&
