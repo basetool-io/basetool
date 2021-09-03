@@ -18,6 +18,13 @@ import NumberShowField from "@/plugins/fields/Number/Show";
 import TextEditField from "@/plugins/fields/Text/Edit";
 import TextIndexField from "@/plugins/fields/Text/Index";
 import TextShowField from "@/plugins/fields/Text/Show";
+import TextareaEditField from "@/plugins/fields/Textarea/Edit";
+import TextareaIndexField from "@/plugins/fields/Textarea/Index";
+import TextareaShowField from "@/plugins/fields/Textarea/Show";
+import SelectEditField from "@/plugins/fields/Select/Edit";
+import SelectIndexField from "@/plugins/fields/Select/Index";
+import SelectShowField from "@/plugins/fields/Select/Show";
+
 import type { Column } from "./types";
 
 // export const getFieldForEdit = (column: Column) => {
@@ -71,6 +78,10 @@ export const getFieldForEdit = (column: Column) => {
       return BooleanEditField;
     case "DateTime":
       return DateTimeEditField;
+    case "Select":
+      return SelectEditField;
+    case "Textarea":
+      return TextareaEditField;
     case "Json":
       return JsonEditField;
   }
@@ -89,6 +100,10 @@ export const getFieldForShow = (column: Column) => {
       return BooleanShowField;
     case "DateTime":
       return DateTimeShowField;
+    case "Select":
+      return SelectShowField;
+    case "Textarea":
+      return TextareaShowField;    
     case "Json":
       return JsonShowField;
   }
@@ -107,6 +122,10 @@ export const getFieldForIndex = (column: Column) => {
       return BooleanIndexField;
     case "DateTime":
       return DateTimeIndexField;
+    case "Select":
+      return SelectIndexField;
+    case "Textarea":
+      return TextareaIndexField;
     case "Json":
       return JsonIndexField;
   }

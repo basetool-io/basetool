@@ -1,5 +1,9 @@
+import { OrganizationUser, User } from "@prisma/client"
+import { encrypt } from "@/lib/crypto"
+import { getSession } from "next-auth/client"
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
+import IsSignedIn from "../middleware/IsSignedIn"
 import getSchema from "@/plugins/data-sources/getSchema"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -19,49 +23,83 @@ const handle = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSources = await prisma.dataSource.findMany({});
+  const session = await getSession({ req })
+
+  if (!session) return res.status(404).send('')
+
+  const user = (await prisma.user.findUnique({
+    where: {
+      email: session?.user?.email as string,
+    },
+    include: {
+      organizations: {
+        include: {
+          organization: true,
+        },
+      },
+    },
+  })) as User & {
+    organizations: OrganizationUser[];
+  };
+
+  const { organizations } = user;
+  const [firstOrganizationPivot] = organizations;
+  const organizationId = firstOrganizationPivot.id;
+
+  const dataSources = await prisma.dataSource.findMany({
+    where: {
+      organizationId
+    }
+  });
 
   res.json(ApiResponse.withData(dataSources));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  const data = req.body;
+  const session = await getSession({ req })
+
+  if (!session) return res.status(404).send('')
 
   const schema = await getSchema(req.body.type);
   if (schema) {
-    const validator = schema.validate(data, { abortEarly: false });
+    const validator = schema.validate(req.body, { abortEarly: false });
 
     if (validator.error) {
       return res.json(ApiResponse.withValidation(validator));
     }
   }
 
-  // const user = (await prisma.user.findUnique({
-  //   where: {
-  //     email: session?.user?.email as string,
-  //   },
-  //   include: {
-  //     organizations: {
-  //       include: {
-  //         organization: true,
-  //       },
-  //     },
-  //   },
-  // })) as User & {
-  //   organizations: OrganizationUser[];
-  // };
+  const user = (await prisma.user.findUnique({
+    where: {
+      email: session?.user?.email as string,
+    },
+    include: {
+      organizations: {
+        include: {
+          organization: true,
+        },
+      },
+    },
+  })) as User & {
+    organizations: OrganizationUser[];
+  };
 
-  // const { organizations } = user;
-  // const [firstOrganizationPivot] = organizations;
-  // const firstOrganizationPivot = 1;
-  const organizationId = 1;
-  console.log("data->", data);
+  const { organizations } = user;
+  const [firstOrganizationPivot] = organizations;
+  const organizationId = firstOrganizationPivot.id;
+
+  // encrypt the credentials
+  const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials))
+  const data = {
+    id: req.body.id,
+    name: req.body.name,
+    type: req.body.type,
+    organizationId,
+    encryptedCredentials
+  }
 
   const dataSource = await prisma.dataSource.create({
-    data: {
-      ...data,
-      organizationId: organizationId,
-    },
+    data,
   });
 
   return res.json(
@@ -69,4 +107,4 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   );
 }
 
-export default withSentry(handle);
+export default withSentry(IsSignedIn(handle));

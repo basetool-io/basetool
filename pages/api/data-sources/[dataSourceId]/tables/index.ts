@@ -23,7 +23,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = (await getDataSourceFromRequest(
     req
   )) as PostgresqlDataSource | null;
-  console.log("dataSource->", dataSource);
 
   if (!dataSource) return res.status(404).send("");
 
