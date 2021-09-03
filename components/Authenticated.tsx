@@ -1,17 +1,12 @@
-import { ReactElement, useEffect } from "react";
-import { useRouter } from "next/router";
+import { ReactElement } from "react";
 import { useSession } from "next-auth/client";
+import UnauthenticatedView from "./UnauthenticatedView"
 
 function Authenticated({ children }: { children: ReactElement}): ReactElement {
   const [session, isLoading] = useSession();
-  const router = useRouter();
 
-  useEffect(() => {
-    console.log("session->", session);
-    if (!isLoading && !session) router.push("/auth/login");
-  }, [isLoading, session]);
-
-  if (isLoading) <div>'Loading...'</div>
+  if (isLoading) <div>Loading...</div>
+  if (!isLoading && !session) return <UnauthenticatedView />
 
   return children;
 }

@@ -1,17 +1,19 @@
-import isPlainObject from "lodash/isPlainObject";
-import type { Column, Field, FieldType, FieldValue } from "./types";
-import type { Record } from '@/features/records/types'
 import {
+  AnnotationIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  SelectorIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
+import { Views } from "./enums"
 import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
-import { Views } from "./enums"
+import isPlainObject from "lodash/isPlainObject";
+import type { Column, Field, FieldType, FieldValue } from "./types";
+import type { Record } from '@/features/records/types'
 
 export const idColumns = ["id", "_id"];
 
@@ -32,16 +34,20 @@ export const getColumnOptions = (
       label: "Number",
     },
     {
-      id: "Textarea",
-      label: "Textarea",
-    },
-    {
       id: "Boolean",
       label: "Boolean",
     },
     {
       id: "DateTime",
       label: "Date time",
+    },
+    {
+      id: "Select",
+      label: "Select",
+    },
+    {
+      id: "Textarea",
+      label: "Text area",
     },
   ];
 
@@ -84,12 +90,14 @@ export const iconForField = (field: Column): ElementType => {
       return TextIcon;
     case "Number":
       return HashtagIcon;
-    case "Textarea":
-      return AlignLeftIcon;
     case "Boolean":
       return CheckCircleIcon;
     case "DateTime":
       return CalendarIcon;
+    case "Select":
+      return SelectorIcon;
+    case "Textarea":
+      return AnnotationIcon;
   }
 };
 

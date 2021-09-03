@@ -18,7 +18,7 @@ export interface ApiResponseMessage {
 export interface IApiResponse {
   messages?: Array<string | ApiResponseMessage>;
   data?: any;
-  metadata?: any;
+  meta?: any;
   status?: "success" | "error" | "validation_error";
   joiPayload?: ValidationResult;
   redirectTo?: string;
@@ -96,7 +96,7 @@ class ApiResponse {
 
   public data: IApiResponse['data'];
 
-  public metadata: IApiResponse['metadata'];
+  public meta: IApiResponse['meta'];
 
   public messages: IApiResponse['messages'];
 
@@ -109,7 +109,7 @@ class ApiResponse {
   constructor({
     messages,
     data,
-    metadata,
+    meta,
     status,
     joiPayload,
     redirectTo,
@@ -117,7 +117,7 @@ class ApiResponse {
   }: IApiResponse) {
     this.status = status || 'success'
     this.data = data
-    this.metadata = metadata
+    this.meta = meta
     this.messages = messages || []
     this.joiPayload = joiPayload
     this.redirectTo = redirectTo
