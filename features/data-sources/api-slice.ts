@@ -28,6 +28,12 @@ export const dataSourcesApiSlice = createApi({
       //     return [{ type: 'dataSource', id: 'LIST' }]
       //   },
       // }),
+      getDataSource: builder.query<ApiResponse, Partial<{dataSourceId: string}>>({
+        query({dataSourceId}) {
+          return `/data-sources/${dataSourceId}`;
+        },
+        providesTags: (result, error, { dataSourceId }) => [{ type: "DataSource", id: dataSourceId }],
+      }),
       getDataSources: builder.query<ApiResponse, void>({
         query() {
           return "/data-sources";
@@ -71,6 +77,7 @@ export const dataSourcesApiSlice = createApi({
 
 export const {
   // useGetTabledataSourcesQuery,
+  useGetDataSourceQuery,
   useGetDataSourcesQuery,
   useAddDataSourceMutation,
   useUpdateDataSourceMutation,

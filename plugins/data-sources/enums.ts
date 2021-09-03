@@ -1,4 +1,3 @@
 export enum DataSourceTypes {
-  postgresql = 'postgresql',
-  http = 'http',
+  postgresql = "postgresql",
 }
