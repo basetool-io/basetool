@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
-import { createUser } from "@/features/auth";
+import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import bcrypt from "bcrypt";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -31,9 +30,8 @@ const handle = async (
     return res.send(ApiResponse.withMessage(successMessage));
   }
 
-  const salt = bcrypt.genSaltSync(10);
   const { password } = payload;
-  const hashedPassword = await bcrypt.hashSync(password, salt);
+  const hashedPassword = await hashPassword(password)
   const data = {
     email: payload.email,
     password: hashedPassword,

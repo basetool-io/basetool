@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -19,27 +20,26 @@ import React, { useState } from "react";
 export interface IFormFields {
   id?: number;
   name: string;
-  options: {
-    url: string;
-  };
   type: "postgresql";
+  credentials: {
+    url: string;
+    useSsl: boolean;
+  }
 }
 
 function Form({ data }: { data?: IFormFields }) {
   const whenCreating = !data?.id;
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [addDataSource, { isLoading: isCreating, error: creatingError }] =
+  const [addDataSource] =
     useAddDataSourceMutation();
-  const [updateDataSource, { isLoading: isUpdating, error: updatingError }] =
+  const [updateDataSource] =
     useUpdateDataSourceMutation();
 
   const onSubmit = async (formData: IFormFields) => {
-    console.log("onSubmit->", formData);
     setIsLoading(true);
 
     let response;
-    console.log("whenCreating->", whenCreating);
     try {
       if (whenCreating) {
         response = await addDataSource({ body: formData }).unwrap();
@@ -55,8 +55,6 @@ function Form({ data }: { data?: IFormFields }) {
     } catch (error) {
       setIsLoading(false);
     }
-
-    console.log("response->", response);
 
     setIsLoading(false);
 
@@ -89,7 +87,7 @@ function Form({ data }: { data?: IFormFields }) {
             <Input
               type="string"
               placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
-              {...register("options.url")}
+              {...register("credentials.url")}
             />
             <FormHelperText>The URL of your Postgres DB.</FormHelperText>
           </FormControl>
@@ -100,6 +98,13 @@ function Form({ data }: { data?: IFormFields }) {
               <option disabled>Select data source</option>
               <option value="postgresql">postgresql</option>
             </Select>
+          </FormControl>
+
+          <FormControl id="type">
+            <FormLabel>Use SSL</FormLabel>
+            <Checkbox
+              {...register("credentials.useSsl")}
+            />
           </FormControl>
 
           {/* <form onSubmit={handleSubmit(onSubmit)}>

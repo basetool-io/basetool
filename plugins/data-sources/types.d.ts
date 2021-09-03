@@ -2,7 +2,7 @@ import type { Column } from "@/features/fields/types";
 
 export type QueryResponse = {
   data: unknown;
-  metadata: unknown;
+  meta: unknown;
   dataSourceType: DataSourceTypes;
 };
 
@@ -14,7 +14,15 @@ export interface IQueryService {
   disconnect(): Promise<this>;
   getTables(): Promise<[]>;
   getColumns(tableName: string, storedColumns?: Column[]): Promise<[]>;
-  getRecords(tableName: string): Promise<[]>;
+  getRecords({
+    tableName: string,
+    filters: string,
+    limit: number,
+    offset: number,
+    orderBy: string,
+    orderDirection: string,
+  }): Promise<[]>;
+  getRecordsCount(tableName: string): Promise<number>;
   getRecord(tableName: string, recordId: string): Promise<unknown>;
   updateRecord(
     tableName: string,
