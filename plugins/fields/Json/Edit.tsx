@@ -5,7 +5,7 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import { fieldId } from "@/features/fields";
-import { isEmpty, isNull } from "lodash";
+import { isEmpty, isNull, isUndefined } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
 import dynamic from 'next/dynamic'
@@ -25,45 +25,49 @@ const Edit = ({
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
-  const DynamicReactJson = dynamic(import('react-json-view'), { ssr: false });
-
   let initialValue
   try {
-    initialValue = JSON.parse(field.value as string)
+    initialValue = isUndefined(field.value) ? {} : JSON.parse(field.value as string)
   } catch (e) {
     initialValue = {}
   }
-  initialValue = isEmpty(field.value) ? {} : initialValue;
-  const [jsonValue, setJsonValue] = React.useState(initialValue);
 
-  const changeValue = (e: any) => {
-    if (setValue) {
-      setJsonValue(e.updated_src);
+  const DynamicMonacoEditor = dynamic(import('react-monaco-editor'), { ssr: false });
 
-      setValue(register.name, JSON.stringify(e.updated_src), {
+  function onChange(newValue: string) {
+    setValue(register.name, JSON.parse(newValue), {
         shouldValidate: true,
         shouldDirty: true,
         shouldTouch: true,
       });
-    }
-    console.log(e);
   }
+
+  const options = {
+    selectOnLineNumbers: true
+  };
+
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty} id={fieldId(field)}>
-        <DynamicReactJson
-          src={jsonValue}
-          // theme="monokai"
-          name={false}
-          collapsed={false}
-          displayObjectSize={true}
-          displayDataTypes={true}
-          enableClipboard={false}
-          onEdit={e => changeValue(e)}
-          onDelete={e => changeValue(e)}
-          onAdd={e => changeValue(e)}
+        <DynamicMonacoEditor
+          width="800"
+          height="600"
+          language="javascript"
+          theme="vs-dark"
+          value={JSON.stringify(initialValue, null, '\t')}
+          options={options}
+          onChange={onChange}
+          // editorDidMount={::this.editorDidMount}
         />
+        {/* <AceEditor
+          name={'json-editor-'+fieldId(field)}
+          placeholder={''}
+          defaultValue={JSON.stringify(initialValue, null, '\t')}
+          readOnly={false}
+          onChange={onChange}
+          editorProps={{ $blockScrolling: true }}
+        /> */}
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

@@ -227,7 +227,6 @@ const RecordsTable = ({
       query,
     });
   };
-  console.log('RecordsTalbw->', orderBy, orderDirection)
 
   return (
     <div className="relative flex flex-col justify-between overflow-auto h-full">

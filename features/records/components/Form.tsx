@@ -6,12 +6,12 @@ import {
 import { Column } from "@/features/fields/types";
 import { SparklesIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
+import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
-import { updatedDiff } from "deep-object-diff";
 import {
   useAddRecordMutation,
   useUpdateRecordMutation,
@@ -84,7 +84,8 @@ const Form = ({
     });
 
   const formData = watch();
-  const diff = updatedDiff(record, formData);
+  console.log('record, formData->', record, formData)
+  const diff = difference(record, formData);
 
   const showLink = useMemo(
     () =>
@@ -159,6 +160,12 @@ const Form = ({
         <div className="flex justify-between">
           <div>
             <div className="flex">
+              {/* <pre>
+                {JSON.stringify(formData, null, 2)}
+              </pre> */}
+              <pre>
+                {JSON.stringify(diff, null, 2)}
+              </pre>
               {formState.isDirty || (
                 <span className="text-xs text-gray-600">
                   <SparklesIcon className="inline h-4" /> Clean
