@@ -120,57 +120,50 @@ function Form({ data }: { data?: IFormFields }) {
 
   return (
     <PageWrapper heading="Add data source">
-      <div className="bg-white overflow-hidden shadow rounded-lg">
-        {/* <pre>{JSON.stringify(formState, null, 2)}</pre> */}
-        <div className="px-4 py-5 sm:p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormControl id="name">
-              <FormLabel>Name</FormLabel>
-              <Input
-                type="string"
-                placeholder="My Postgres DB"
-                {...register("name")}
-              />
-              <FormHelperText>The name of your data source.</FormHelperText>
-            </FormControl>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <FormControl id="name">
+          <FormLabel>Name</FormLabel>
+          <Input
+            type="string"
+            placeholder="My Postgres DB"
+            {...register("name")}
+          />
+          <FormHelperText>The name of your data source.</FormHelperText>
+        </FormControl>
 
-            <FormControl id="url">
-              <FormLabel>URL</FormLabel>
-              <Input
-                type="string"
-                placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
-                {...register("credentials.url")}
-              />
-              <FormHelperText>The URL of your Postgres DB.</FormHelperText>
-            </FormControl>
+        <FormControl id="url">
+          <FormLabel>URL</FormLabel>
+          <Input
+            type="string"
+            placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
+            {...register("credentials.url")}
+          />
+          <FormHelperText>The URL of your Postgres DB.</FormHelperText>
+        </FormControl>
 
-            <FormControl id="type">
-              <FormLabel>Data source type</FormLabel>
-              <Select {...register("type")}>
-                <option disabled>Select data source</option>
-                {options.map(({ id, label, enabled }) => (
-                  <option
-                    key={id}
-                    value={id}
-                    disabled={!enabled}
-                  >
-                    {label}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+        <FormControl id="type">
+          <FormLabel>Data source type</FormLabel>
+          <Select {...register("type")}>
+            <option disabled>Select data source</option>
+            {options.map(({ id, label, enabled }) => (
+              <option key={id} value={id} disabled={!enabled}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
 
-            <FormControl id="credentials_useSsl">
-              <FormLabel>Use SSL</FormLabel>
-              <Checkbox {...register("credentials.useSsl")} />
-            </FormControl>
+        <FormControl id="credentials_useSsl">
+          <FormLabel>Use SSL</FormLabel>
+          <Checkbox {...register("credentials.useSsl")} />
+        </FormControl>
 
-            {/* <form onSubmit={handleSubmit(onSubmit)}>
+        {/* <form onSubmit={handleSubmit(onSubmit)}>
         <Container className="flex flex-col space-y-2 justify-center items-center">
           <Button type="submit">Create</Button>
         </Container>
       </form> */}
-            {/* <TextField
+        {/* <TextField
             placeholder="My Postgres DB"
             defaultValue={data?.name}
             isLoading={isLoading}
@@ -184,20 +177,18 @@ function Form({ data }: { data?: IFormFields }) {
             formState={formState}
             register={register("url")}
           /> */}
-            {/* <SelectField
+        {/* <SelectField
             defaultValue={data?.type}
             options={availableDataSourceTypes}
             formState={formState}
             register={register('type')}
           /> */}
-            {/* <pre>{JSON.stringify(isLoading, null, 2)}</pre> */}
-            <input type="submit" className="hidden invisible" />
-            <Button className="mt-4" type="submit" disabled={isLoading}>
-              {whenCreating ? "Create" : "Update"}
-            </Button>
-          </form>
-        </div>
-      </div>
+        {/* <pre>{JSON.stringify(isLoading, null, 2)}</pre> */}
+        <input type="submit" className="hidden invisible" />
+        <Button className="mt-4" type="submit" disabled={isLoading}>
+          {whenCreating ? "Create" : "Update"}
+        </Button>
+      </form>
     </PageWrapper>
   );
 }
