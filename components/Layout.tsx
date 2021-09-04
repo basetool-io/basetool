@@ -1,3 +1,4 @@
+import { HomeIcon } from "@heroicons/react/outline";
 import { signOut, useSession } from "next-auth/client";
 import Authenticated from "./Authenticated";
 import Head from "next/head";
@@ -11,7 +12,12 @@ const Nav = () => {
   return (
     <nav className="relative flex justify-between w-full py-2 px-2 shadow z-20">
       <div>
-        <Link href={`/data-sources`}>Home</Link>
+        <Link href={`/data-sources`} passHref>
+          <div className="flex items-center space-x-1 text-gray-700 cursor-pointer group">
+            <HomeIcon className="h-6 inline-block" />{" "}
+            <span className="hidden group-hover:inline-block ">Home</span>
+          </div>
+        </Link>
       </div>
       <div>
         {sessionLoading && (
