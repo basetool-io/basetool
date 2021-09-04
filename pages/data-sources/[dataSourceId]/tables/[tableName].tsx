@@ -1,13 +1,18 @@
+import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import { FilterIcon, PencilAltIcon, PlusIcon, XIcon } from "@heroicons/react/outline";
+import { OrderDirection } from "@/features/tables/types";
 import { Column as ReactTableColumn } from "react-table";
 import { Views } from "@/features/fields/enums";
-import { isArray } from "lodash";
+import { isArray, isEmpty } from "lodash";
+import { useBoolean, useClickAway } from "react-use";
+import { useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
 import { useRouter } from "next/router";
+import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
-import MenuItem from "@/features/fields/components/MenuItem";
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
 const parseColumns = (columns: Column[]): ReactTableColumn[] =>
@@ -19,9 +24,7 @@ const parseColumns = (columns: Column[]): ReactTableColumn[] =>
     },
   }));
 
-export type OrderDirection = "" | "asc" | "desc";
-
-const ResourcesEditor = memo(
+const ResourcesIndex = memo(
   ({
     dataSourceId,
     tableName,
@@ -31,37 +34,86 @@ const ResourcesEditor = memo(
     tableName: string;
     columns: Column[];
   }) => {
-    const parsedColumns = parseColumns(columns);
     const router = useRouter();
+    const parsedColumns = parseColumns(columns);
     const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
     const [orderDirection, setOrderDirection] = useState<OrderDirection>(
       router.query.orderDirection as OrderDirection
     );
+    const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
+    const { appliedFilters, resetFilters } = useFilters();
+
+    useEffect(() => {
+      resetFilters();
+    }, [tableName]);
+
+    const filtersButton = useRef(null);
+    const filtersPanel = useRef(null);
+    useClickAway(filtersPanel, (e) => {
+      // When a user click the filters button to close the filters panel, the button is still outside,
+      // so the action triggers twice closing and opening the filters panel.
+      if (e.target !== filtersButton.current) {
+        toggleFiltersPanelVisible(false);
+      }
+    });
 
     return (
       <>
         {/* {!isLoading && data?.ok && ( */}
         <>
-          <div className="relative flex flex-col flex-1 overflow-auto">
-            <div className="flex justify-between w-full">
+          <div className="relative flex flex-col flex-1 w-full h-full">
+            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20">
+              {filtersPanelVisible && (
+                <FiltersPanel ref={filtersPanel} columns={columns} />
+              )}
+              <div className="flex flex-shrink-0">
+                <Button
+                  onClick={() => toggleFiltersPanelVisible()}
+                  variant="link"
+                  ref={filtersButton}
+                >
+                  <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
+                </Button>
+                <div className="text-sm text-gray-600">
+                  {!isEmpty(appliedFilters) && (
+                    <div>
+                      ({appliedFilters.length} applied){" "}
+                      <Button size="xs" onClick={resetFilters}>
+                        <XIcon className="h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="flex space-x-4">
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
                   passHref
                 >
-                  <MenuItem>Edit columns</MenuItem>
+                  <Button
+                    variant="link"
+                    leftIcon={<PencilAltIcon className="h-4" />}
+                  >
+                    Edit columns
+                  </Button>
                 </Link>
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                   passHref
                 >
-                  <MenuItem>Create</MenuItem>
+                  <Button
+                    variant="link"
+                    leftIcon={<PlusIcon className="h-4" />}
+                  >
+                    Create record
+                  </Button>
                 </Link>
               </div>
             </div>
-            <div className="relative flex-1 max-w-full w-full">
+            <div className="relative flex-1 flex h-full max-w-full w-full">
               <RecordsTable
                 columns={parsedColumns}
+                // filters={filters}
                 orderBy={orderBy}
                 setOrderBy={setOrderBy}
                 orderDirection={orderDirection}
@@ -79,7 +131,7 @@ const ResourcesEditor = memo(
   }
 );
 
-ResourcesEditor.displayName = "ResourcesEditor";
+ResourcesIndex.displayName = "ResourcesIndex";
 
 function TablesShow() {
   const router = useRouter();
@@ -112,7 +164,7 @@ function TablesShow() {
       {isLoading && <div>loading...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
-        <ResourcesEditor
+        <ResourcesIndex
           tableName={tableName}
           columns={columns}
           dataSourceId={dataSourceId}

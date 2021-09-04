@@ -132,4 +132,5 @@ export const getBaseOptions = () => ({
   visibility: [Views.index, Views.show, Views.edit, Views.new],
   required: false,
   nullable: false,
+  readonly: false,
 })

@@ -61,9 +61,12 @@ const Edit = ({
   );
   CustomInput.displayName = "CustomInput";
 
+  // options
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
+      <FormControl isInvalid={hasError && formState.isDirty} isDisabled={readonly}>
         <DatePicker
           selected={placeholderValue}
           onChange={handleOnChange}
