@@ -38,11 +38,13 @@ const Edit = ({
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty} id={fieldId(field)}>
       <Textarea rows={10} placeholder={placeholder as string} id={fieldId(field)} value={initialValue} onChange={(e) =>  {
+        if (setValue) {
           setValue(register.name, JSON.parse(e.currentTarget.value), {
               shouldValidate: true,
               shouldDirty: true,
               shouldTouch: true,
             });
+        }
         }} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (

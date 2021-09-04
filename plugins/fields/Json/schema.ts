@@ -3,10 +3,10 @@ import Joi from "joi";
 import type { Record } from '@/features/records/types'
 
 const schema = (record: Record, column: Column) => {
-  let rule = Joi.object();
+  let rule = Joi.string();
 
   if (column.baseOptions.nullable && !column.baseOptions.required) {
-    rule = rule.allow({});
+    rule = rule.allow("");
   } else {
     rule = rule.required();
   }
