@@ -1,8 +1,9 @@
 import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
+import { Filter } from "@/features/tables/components/FilterRow";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
-import { decrypt } from "@/lib/crypto"
+import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isUndefined, merge } from "lodash";
@@ -38,11 +39,80 @@ export interface ColumnWithFieldOptions extends ColumnWithBaseOptions {
 
 export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
-export type PostgresqlDataSource = DataSource
+export type PostgresqlDataSource = DataSource;
 export type PostgresCredentials = {
-  url: string
-  useSsl: boolean
-}
+  url: string;
+  useSsl: boolean;
+};
+
+// is = "is",
+// is_not = "is_not",
+// contains = "contains",
+// not_contains = "not_contains",
+// starts_with = "starts_with",
+// ends_with = "ends_with",
+// is_empty = "is_empty",
+// is_not_empty = "is_not_empty",
+const getCondition = (filter: Filter) => {
+  switch (filter.condition) {
+    case "is":
+      return "=";
+    case "is_not":
+      return "!=";
+    case "contains":
+      return "LIKE";
+    case "not_contains":
+      return "NOT LIKE";
+    case "starts_with":
+      return "LIKE";
+    case "ends_with":
+      return "LIKE";
+    case "is_empty":
+      return "LIKE";
+    case "is_not_empty":
+      return "LIKE";
+    case ">":
+      return ">";
+    case ">=":
+      return ">=";
+    case "<":
+      return "<";
+    case "<=":
+      return "<=";
+  }
+
+  return "=";
+};
+
+const getValue = (filter: Filter) => {
+  switch (filter.condition) {
+    case "is":
+    case "is_not":
+    default:
+      return filter.value;
+    case "contains":
+    case "not_contains":
+      return `%${filter.value}%`;
+    case "starts_with":
+      return `%${filter.value}`;
+    case "ends_with":
+      return `${filter.value}%`;
+    case "is_not_empty":
+    case "is_empty":
+      return ``;
+  }
+
+  return "=";
+};
+const addFilterToQuery = (query: Knex, filter: Filter) => {
+  console.log(
+    "addFilterToQuery->",
+    filter.columnName,
+    getCondition(filter),
+    getValue(filter)
+  );
+  query.where(filter.columnName, getCondition(filter), getValue(filter));
+};
 
 class QueryService implements IQueryService {
   public client: Knex;
@@ -58,29 +128,31 @@ class QueryService implements IQueryService {
   };
 
   constructor({ dataSource }: { dataSource: PostgresqlDataSource }) {
-    if (!dataSource || !dataSource.encryptedCredentials) throw new Error('No data source provided.')
+    if (!dataSource || !dataSource.encryptedCredentials)
+      throw new Error("No data source provided.");
 
     const credentialsAsAString = decrypt(dataSource.encryptedCredentials);
 
-    if (!credentialsAsAString) throw new Error('No credentials on record.')
+    if (!credentialsAsAString) throw new Error("No credentials on record.");
 
-    let credentials: PostgresCredentials | null
+    let credentials: PostgresCredentials | null;
 
     try {
-      credentials = JSON.parse(credentialsAsAString)
+      credentials = JSON.parse(credentialsAsAString);
     } catch (error) {
-      throw new Error('Failed to parse encrypted credentials')
+      throw new Error("Failed to parse encrypted credentials");
     }
 
-    if (!credentials || !credentials.url) throw new Error('No credentials on record.')
+    if (!credentials || !credentials.url)
+      throw new Error("No credentials on record.");
 
-    const connectionString = credentials.url
+    const connectionString = credentials.url;
     const connection: Knex.StaticConnectionConfig = {
       connectionString,
-    }
+    };
 
     if (credentials.useSsl) {
-      connection.ssl = { rejectUnauthorized: false }
+      connection.ssl = { rejectUnauthorized: false };
     }
 
     this.client = knex({
@@ -108,15 +180,16 @@ class QueryService implements IQueryService {
     tableName,
     limit,
     offset,
+    filters,
     orderBy,
     orderDirection,
   }: {
-    tableName: string,
-    filters: [],
-    limit: number,
-    offset: number,
-    orderBy: string,
-    orderDirection: string,
+    tableName: string;
+    filters: [];
+    limit: number;
+    offset: number;
+    orderBy: string;
+    orderDirection: string;
   }): Promise<[]> {
     const query = this.client
       .table(tableName)
@@ -124,8 +197,13 @@ class QueryService implements IQueryService {
       .offset(offset)
       .select();
 
+    console.log("filers->", filters);
+
+    filters.forEach((filter) => {
+      addFilterToQuery(query, filter);
+    });
     if (orderBy) {
-      query.orderBy(orderBy, orderDirection)
+      query.orderBy(orderBy, orderDirection);
     }
 
     return query as unknown as [];
