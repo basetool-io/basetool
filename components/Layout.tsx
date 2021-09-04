@@ -1,9 +1,9 @@
-import { HomeIcon } from "@heroicons/react/outline";
 import { signOut, useSession } from "next-auth/client";
+import { useRouter } from "next/router";
 import Authenticated from "./Authenticated";
+import DataSourcesSidebar from "./DataSourcesSidebar";
 import Head from "next/head";
-import Link from "next/link";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo } from "react";
 import Sidebar from "./Sidebar";
 
 const Nav = () => {
@@ -12,12 +12,6 @@ const Nav = () => {
   return (
     <nav className="relative flex justify-between w-full py-2 px-2 shadow z-20">
       <div>
-        <Link href={`/data-sources`} passHref>
-          <div className="flex items-center space-x-1 text-gray-700 cursor-pointer group">
-            <HomeIcon className="h-6 inline-block" />{" "}
-            <span className="hidden group-hover:inline-block ">Home</span>
-          </div>
-        </Link>
       </div>
       <div>
         {sessionLoading && (
@@ -56,22 +50,35 @@ const Nav = () => {
 };
 
 function Layout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const tablesSidebarVisible = useMemo(() => {
+    if (router.pathname === "/data-sources") return false;
+    if (router.pathname === "/data-sources/new") return false;
+
+    return true;
+  }, [router.pathname]);
+
   return (
     <Authenticated>
       <>
         <Head>
-          <title>Basetool.io</title>
+          <title>hi.io</title>
           <meta name="description" content="The Airtable to your database" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="flex flex-col w-full h-full">
           <div className="flex flex-1">
-            <div className="flex min-w-[14rem] max-w-[14rem] border">
-              <Sidebar />
+            <div className="flex min-w-[4rem] max-w-[4rem] border">
+              <DataSourcesSidebar />
             </div>
-            <div className="flex flex-col w-full h-full overflow-auto">
+            {tablesSidebarVisible && (
+              <div className="flex min-w-[14rem] max-w-[14rem] border">
+                <Sidebar />
+              </div>
+            )}
+            <div className="flex-1 flex flex-col w-full h-full overflow-auto">
               <Nav />
-              <div className="flex flex-1 border w-full max-h-full bg-gray-100">
+              <div className="flex flex-1 w-full max-h-full bg-gray-100">
                 {children}
               </div>
             </div>

@@ -1,8 +1,7 @@
-import { DataSource } from "@prisma/client";
-import { ListItem, OrderedList } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { useSession } from "next-auth/client";
 import Layout from "@/components/Layout";
-import Link from "next/link";
+import PageWrapper from "@/features/records/components/PageWrapper";
 import React from "react";
 
 function Index() {
@@ -11,25 +10,22 @@ function Index() {
     isLoading,
     error,
   } = useGetDataSourcesQuery();
+  const [session, sessionIsLoading] = useSession();
 
   return (
     <Layout>
-      {isLoading && <div>loading data sources...</div>}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && dataSourcesResponse?.ok && (
-        <div>
-          <div className="text-2xl">All data sources:</div>
-          <OrderedList>
-            {!isLoading &&
-              dataSourcesResponse?.ok &&
-              dataSourcesResponse.data.map((ds: DataSource) => (
-                <ListItem key={ds.id}>
-                  <Link href={`/data-sources/${ds.id}`}>{ds.name}</Link>
-                </ListItem>
-              ))}
-          </OrderedList>
-        </div>
-      )}
+      <PageWrapper
+        heading={`Welcome ${sessionIsLoading ? "" : session?.user?.firstName}`}
+      >
+        <>
+          {error && <div>Error: {JSON.stringify(error)}</div>}
+          {dataSourcesResponse?.ok && (
+            <div>
+              👈 You have {isLoading ? '🤷‍♂️ ⏳' : dataSourcesResponse.data.length} data sources available. Pick one from the  left sidebar.
+            </div>
+          )}
+        </>
+      </PageWrapper>
     </Layout>
   );
 }

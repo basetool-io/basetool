@@ -15,7 +15,7 @@ function DataSourcesShow() {
     <Layout>
       {isLoading && <div>loading data sources...</div>}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && "Please select a table"}
+      {!isLoading && data?.ok && <div className="p-4">👈 Please select a table</div>}
     </Layout>
   );
 }
