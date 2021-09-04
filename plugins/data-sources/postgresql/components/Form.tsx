@@ -7,6 +7,7 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
+import { availableDataSources } from "../.."
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "../schema";
 import {
@@ -70,54 +71,6 @@ function Form({ data }: { data?: IFormFields }) {
     resolver: joiResolver(schema),
   });
 
-  const options = [
-    {
-      id: "postgresql",
-      label: "PostgreSQL",
-      enabled: true,
-    },
-    // {
-    //   id: "mssql",
-    //   label: "MSSQL (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "my_sql",
-    //   label: "MySQL (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "maria_db",
-    //   label: "MariaDB (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "sq_lite3",
-    //   label: "SQLite3 (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "oracle",
-    //   label: "Oracle (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "amazon_redshift",
-    //   label: "Amazon Redshift (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "airtable",
-    //   label: "Airtable (coming soon)",
-    //   enabled: false,
-    // },
-    // {
-    //   id: "google_sheets",
-    //   label: "Google Sheets (coming soon)",
-    //   enabled: false,
-    // },
-  ];
-
   return (
     <PageWrapper heading="Add data source">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -145,7 +98,7 @@ function Form({ data }: { data?: IFormFields }) {
           <FormLabel>Data source type</FormLabel>
           <Select {...register("type")}>
             <option disabled>Select data source</option>
-            {options.map(({ id, label, enabled }) => (
+            {availableDataSources.map(({ id, label, enabled }) => (
               <option key={id} value={id} disabled={!enabled}>
                 {label}
               </option>
