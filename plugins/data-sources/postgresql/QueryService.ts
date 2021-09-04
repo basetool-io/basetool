@@ -3,6 +3,7 @@ import { DataSource } from "@prisma/client";
 import { Filter } from "@/features/tables/components/FilterRow";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
+import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent"
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
@@ -57,19 +58,19 @@ const getCondition = (filter: Filter) => {
   switch (filter.condition) {
     case "is":
       return "=";
-    case "is_not":
+    case StringFilterConditions.is_not:
       return "!=";
     case "contains":
       return "LIKE";
-    case "not_contains":
+    case StringFilterConditions.not_contains:
       return "NOT LIKE";
-    case "starts_with":
+    case StringFilterConditions.starts_with:
       return "LIKE";
-    case "ends_with":
+    case StringFilterConditions.ends_with:
       return "LIKE";
-    case "is_empty":
+    case StringFilterConditions.is_empty:
       return "LIKE";
-    case "is_not_empty":
+    case StringFilterConditions.is_not_empty:
       return "LIKE";
     case ">":
       return ">";
@@ -87,24 +88,24 @@ const getCondition = (filter: Filter) => {
 const getValue = (filter: Filter) => {
   switch (filter.condition) {
     case "is":
-    case "is_not":
+    case StringFilterConditions.is_not:
     default:
       return filter.value;
     case "contains":
-    case "not_contains":
+    case StringFilterConditions.not_contains:
       return `%${filter.value}%`;
-    case "starts_with":
+    case StringFilterConditions.starts_with:
       return `%${filter.value}`;
-    case "ends_with":
+    case StringFilterConditions.ends_with:
       return `${filter.value}%`;
-    case "is_not_empty":
-    case "is_empty":
+    case StringFilterConditions.is_not_empty:
+    case StringFilterConditions.is_empty:
       return ``;
   }
 
   return "=";
 };
-const addFilterToQuery = (query: Knex, filter: Filter) => {
+const addFilterToQuery = (query: Knex.QueryBuilder, filter: Filter) => {
   console.log(
     "addFilterToQuery->",
     filter.columnName,
@@ -473,7 +474,7 @@ async function getDefaultFieldOptionsForFields(
         ];
 
         return t;
-      } catch (error) {
+      } catch (error: any) {
         if (!error.message.includes("Error: Cannot find module")) {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,

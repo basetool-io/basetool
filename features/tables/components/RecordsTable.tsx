@@ -228,9 +228,7 @@ const RecordsTable = ({
       query,
     });
   };
-
-  console.log("RecordsTable->", orderBy, orderDirection);
-
+  
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
       {/* <pre>{JSON.stringify([orderBy, orderDirection], null, 2)}</pre> */}
