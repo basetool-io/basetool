@@ -15,11 +15,11 @@ export const recordsApiSlice = createApi({
         {
           dataSourceId: string;
           tableName: string;
-          filters: string;
-          limit: string;
-          offset: string;
-          orderBy: string;
-          orderDirection: string;
+          filters?: string;
+          limit?: string;
+          offset?: string;
+          orderBy?: string;
+          orderDirection?: string;
         }
       >({
         query: ({

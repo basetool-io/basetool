@@ -6,8 +6,9 @@ import {
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
-import { recordsApiSlice } from "@/features/records/records-api-slice";
+import { recordsApiSlice } from "@/features/records/api-slice";
 import { tablesApiSlice } from "@/features/tables/tables-api-slice";
+import recordsReducer from "@/features/records/state-slice";
 
 /**
  * Show a toast.
@@ -33,6 +34,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 
 const store = configureStore({
   reducer: {
+    recordsState: recordsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
