@@ -9,15 +9,17 @@ const Home: NextPage = () => {
   const [session, sessionIsLoading] = useSession();
   const router = useRouter();
 
-  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const { data: dataSourcesResponse, isLoading: dataSourcesLoading } = useGetDataSourcesQuery();
 
   useEffect(() => {
     if (!sessionIsLoading) {
       if (session) {
-        if (dataSourcesResponse?.ok && !isEmpty(dataSourcesResponse?.data)) {
-          router.push(`/data-sources`);
-        } else {
-          router.push(`/data-sources/new`);
+        if (!dataSourcesLoading) {
+          if (dataSourcesResponse?.ok && !isEmpty(dataSourcesResponse?.data)) {
+            router.push(`/data-sources`);
+          } else {
+            router.push(`/data-sources/new`);
+          }
         }
       } else {
         router.push("/auth/login");
@@ -25,7 +27,7 @@ const Home: NextPage = () => {
     }
   }, [session, sessionIsLoading, dataSourcesResponse]);
 
-  return <>{(sessionIsLoading || isLoading) && <div>Loading...</div>}</>;
+  return <>{(sessionIsLoading || dataSourcesLoading) && <div>Loading...</div>}</>;
 };
 
 export default Home;
