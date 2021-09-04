@@ -8,7 +8,7 @@ import {
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useState } from "react";
 
 const Edit = ({
   field,
@@ -21,35 +21,64 @@ const Edit = ({
   const { errors } = formState;
   const { name } = register;
 
+  const [jsonError, setJsonError] = useState<string | null>(null);
+
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
   const placeholder = field.column.fieldOptions.placeholder;
 
+
   let initialValue = '{}'
   try {
-    initialValue = isUndefined(field.value) ? '{}' : JSON.stringify(field.value as string)
+    initialValue = isUndefined(field.value) ? '{}' : JSON.stringify(JSON.parse(field.value as string), null, 2)
   } catch (e) {
     initialValue = '{}'
   }
 
+  const handleOnChange = (value: string) => {
+    if(isEmpty(value)) {
+      if (setValue) {
+        setValue(register.name, {}, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    } else {
+      if (setValue) {
+        let parsedValue
+        try {
+          parsedValue = JSON.parse(value)
+          setJsonError(null)
+        } catch(e) {
+          setJsonError("Error parsing the JSON!")
+        }
+        if(parsedValue) {
+          setValue(register.name, parsedValue, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        }
+      }
+    }
+  }
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty} id={fieldId(field)}>
-      <Textarea rows={10} placeholder={placeholder as string} id={fieldId(field)} value={initialValue} onChange={(e) =>  {
-        if (setValue) {
-          setValue(register.name, JSON.parse(e.currentTarget.value), {
-              shouldValidate: true,
-              shouldDirty: true,
-              shouldTouch: true,
-            });
-        }
-        }} />
+      <pre>
+        {JSON.stringify(this, null, 2)}
+      </pre>
+      <FormControl isInvalid={(hasError && formState.isDirty) || !isNull(jsonError)} id={fieldId(field)}>
+      <Textarea rows={10}
+        placeholder={placeholder as string}
+        id={fieldId(field)}
+        defaultValue={initialValue}
+        onChange={(e) =>  { handleOnChange(e.currentTarget.value) }}/>
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
-        {hasError && (
-          <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
-        )}
+        <FormErrorMessage>{errors[name]?.message || jsonError}</FormErrorMessage>
       </FormControl>
     </EditFieldWrapper>
   );
