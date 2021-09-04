@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
@@ -161,7 +162,7 @@ function TablesShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(columnsResponse?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
         <ResourcesIndex

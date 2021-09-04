@@ -62,7 +62,7 @@ function Layout({ children }: { children: ReactNode }) {
     <Authenticated>
       <>
         <Head>
-          <title>hi.io</title>
+          <title>👋 Hi!</title>
           <meta name="description" content="The Airtable to your database" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -78,7 +78,7 @@ function Layout({ children }: { children: ReactNode }) {
             )}
             <div className="flex-1 flex flex-col w-full h-full overflow-auto">
               <Nav />
-              <div className="flex flex-1 w-full max-h-full bg-gray-100">
+              <div className="relative flex flex-1 w-full max-h-full bg-gray-100">
                 {children}
               </div>
             </div>

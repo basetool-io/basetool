@@ -3,8 +3,10 @@ import { toast } from "react-toastify";
 import { useGetDataSourceQuery, useRemoveDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/tables-api-slice";
 import { useRouter } from "next/router";
+import LoadingOverlay from "./LoadingOverlay"
 import React, { memo } from "react";
 import SidebarItem from "./SidebarItem";
+import isEmpty from "lodash/isEmpty"
 
 const Sidebar = () => {
   const router = useRouter();
@@ -50,9 +52,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="py-2 px-2">
+    <div className="relative py-2 px-2">
       {!router.query.dataSourceId && "Select a data source"}
-      <div className="space-y-x w-full">
+      <div className="relative space-y-x w-full h-full overflow-auto">
         {dataSourceResponse?.ok && (
           <div className="my-2 mt-4 px-4 font-bold uppercase text-sm leading-none">
             {dataSourceIsLoading ? (
@@ -69,7 +71,7 @@ const Sidebar = () => {
           </div>
         )}
         {error && <div>Error: {(error as any).error}</div>}
-        {isLoading && <div>loading...</div>}
+        {isLoading && <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} />}
         {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
         {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
         {tablesResponse?.ok &&

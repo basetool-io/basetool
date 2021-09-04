@@ -9,9 +9,11 @@ import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton"
 import Layout from "@/components/Layout";
 import Link from "next/link";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import PageWrapper from "@/features/records/components/PageWrapper";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
+import isEmpty from "lodash/isEmpty"
 import type { Record } from "@/features/records/types";
 
 const RecordShow = ({
@@ -94,7 +96,7 @@ function RecordsShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && columnsResponse?.ok && (
         <RecordShow record={data.data} columns={columns} />
