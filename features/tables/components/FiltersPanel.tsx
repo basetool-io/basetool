@@ -4,10 +4,10 @@ import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, ReceiptRefundIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
 import FilterRow, { Filter } from "@/features/tables/components/FilterRow";
-import React, { forwardRef } from "react";
+import React, { RefObject, forwardRef } from "react";
 import isEmpty from "lodash/isEmpty"
 
-const FiltersPanel = ({ columns }: { columns: Column[] }, ref) => {
+const FiltersPanel = ({ columns }: { columns: Column[] }, ref: RefObject<HTMLDivElement>) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {

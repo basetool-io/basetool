@@ -68,7 +68,7 @@ const Sidebar = () => {
             </a>
           </div>
         )}
-        {error && <div>Error: {error?.error}</div>}
+        {error && <div>Error: {(error as any).error}</div>}
         {isLoading && <div>loading...</div>}
         {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
         {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}

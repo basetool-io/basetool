@@ -4,7 +4,6 @@ import { IntFilterConditions } from "@/features/tables/components/IntConditionCo
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent"
 import { XIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import { useRouter } from "next/router"
 import ConditionComponent from "@/features/tables/components/ConditionComponent"
 import React, { useMemo } from "react";
 
