@@ -1,12 +1,15 @@
+import { ReactNode } from "react"
 import LoadingComponent from "./LoadingComponent";
 import classNames from "classnames";
 
 const LoadingOverlay = ({
   label,
   transparent = false,
+  children
 }: {
   label?: string;
   transparent?: boolean;
+  children?: ReactNode
 }) => {
   return (
     <div
@@ -15,7 +18,7 @@ const LoadingOverlay = ({
         { "bg-white": !transparent }
       )}
     >
-      <LoadingComponent label={label} />
+      <LoadingComponent label={label}>{children}</LoadingComponent>
     </div>
   );
 };

@@ -1,4 +1,12 @@
-const LoadingComponent = ({label = 'Loading...'}: {label?: string}) => {
+import { ReactNode } from "react";
+
+const LoadingComponent = ({
+  label = "Loading...",
+  children,
+}: {
+  label?: string;
+  children?: ReactNode;
+}) => {
   return (
     <div className="flex flex-col items-center justify-center p-4 text-gray-700 ">
       <svg
@@ -43,9 +51,12 @@ const LoadingComponent = ({label = 'Loading...'}: {label?: string}) => {
           strokeLinejoin="round"
         ></path>
       </svg>
-      <div className="font-bold mt-2">{label}</div>
+      <div className="font-bold mt-2">
+        {children && children}
+        {!children && label}
+      </div>
     </div>
   );
 };
 
-export default LoadingComponent
+export default LoadingComponent;
