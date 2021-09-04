@@ -143,6 +143,22 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
+          {column.fieldType !== "Id" &&
+            <FormControl id="readonly">
+              <Checkbox
+                isChecked={column.baseOptions.readonly === true}
+                onChange={() =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.readonly",
+                    !column.baseOptions.readonly
+                  )
+                }
+              >
+                Readonly
+              </Checkbox>
+            </FormControl>
+         }
           <InspectorComponent column={column} setColumnOption={setColumnOption} />
           <pre>{JSON.stringify(column, null, 2)}</pre>
         </div>
