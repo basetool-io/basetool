@@ -7,7 +7,7 @@ import FilterRow, { Filter } from "@/features/tables/components/FilterRow";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty"
 
-const FiltersPanel = ({ columns }: { columns: Column[] }, ref) => {
+const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
