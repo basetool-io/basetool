@@ -3,12 +3,12 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
+  Textarea,
 } from "@chakra-ui/react";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
-import dynamic from 'next/dynamic'
 
 const Edit = ({
   field,
@@ -25,49 +25,25 @@ const Edit = ({
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
-  let initialValue
+  const placeholder = field.column.fieldOptions.placeholder;
+
+  let initialValue = '{}'
   try {
-    initialValue = isUndefined(field.value) ? {} : JSON.parse(field.value as string)
+    initialValue = isUndefined(field.value) ? '{}' : JSON.stringify(field.value as string)
   } catch (e) {
-    initialValue = {}
+    initialValue = '{}'
   }
-
-  const DynamicMonacoEditor = dynamic(import('react-monaco-editor'), { ssr: false });
-
-  function onChange(newValue: string) {
-    setValue(register.name, JSON.parse(newValue), {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-  }
-
-  const options = {
-    selectOnLineNumbers: true
-  };
-
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty} id={fieldId(field)}>
-        <DynamicMonacoEditor
-          width="800"
-          height="600"
-          language="javascript"
-          theme="vs-dark"
-          value={JSON.stringify(initialValue, null, '\t')}
-          options={options}
-          onChange={onChange}
-          // editorDidMount={::this.editorDidMount}
-        />
-        {/* <AceEditor
-          name={'json-editor-'+fieldId(field)}
-          placeholder={''}
-          defaultValue={JSON.stringify(initialValue, null, '\t')}
-          readOnly={false}
-          onChange={onChange}
-          editorProps={{ $blockScrolling: true }}
-        /> */}
+      <Textarea rows={10} placeholder={placeholder as string} id={fieldId(field)} value={initialValue} onChange={(e) =>  {
+          setValue(register.name, JSON.parse(e.currentTarget.value), {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            });
+        }} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
