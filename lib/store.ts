@@ -7,7 +7,7 @@ import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
-import { tablesApiSlice } from "@/features/tables/tables-api-slice";
+import { tablesApiSlice } from "@/features/tables/api-slice";
 import { toast } from "react-toastify"
 import recordsReducer from "@/features/records/state-slice";
 

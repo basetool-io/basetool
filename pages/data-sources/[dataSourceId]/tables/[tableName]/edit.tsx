@@ -16,7 +16,7 @@ import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
-} from "@/features/tables/tables-api-slice";
+} from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/features/tables/components/ColumnListItem";

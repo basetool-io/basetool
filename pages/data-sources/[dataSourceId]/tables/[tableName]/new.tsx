@@ -1,7 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";

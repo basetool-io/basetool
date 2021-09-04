@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton"

@@ -1,4 +1,3 @@
-import { isEmpty } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
@@ -16,12 +15,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (!sessionIsLoading) {
       if (session) {
-        if (!dataSourcesLoading) {
-          if (dataSourcesResponse?.ok && !isEmpty(dataSourcesResponse?.data)) {
-            router.push(`/data-sources`);
-          } else {
-            router.push(`/data-sources/new`);
-          }
+        if (!dataSourcesLoading && dataSourcesResponse?.ok) {
+          router.push(`/data-sources`);
         }
       } else {
         router.push("/auth/login");

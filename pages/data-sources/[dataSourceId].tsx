@@ -1,5 +1,5 @@
 import { skipToken } from "@reduxjs/toolkit/dist/query";
-import { useGetTablesQuery } from "@/features/tables/tables-api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay"

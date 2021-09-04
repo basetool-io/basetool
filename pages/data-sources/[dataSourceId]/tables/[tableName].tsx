@@ -7,7 +7,7 @@ import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useFilters } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";

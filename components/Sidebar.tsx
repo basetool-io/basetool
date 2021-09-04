@@ -1,7 +1,7 @@
 import { TrashIcon } from "@heroicons/react/outline";
 import { toast } from "react-toastify";
 import { useGetDataSourceQuery, useRemoveDataSourceMutation } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery } from "@/features/tables/tables-api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "./LoadingOverlay"
 import React, { memo } from "react";
