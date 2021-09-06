@@ -128,33 +128,6 @@ function Form({ data = {} }: { data?: IFormFields }) {
           <FormLabel>Use SSL</FormLabel>
           <Checkbox {...register("credentials.useSsl")} defaultIsChecked />
         </FormControl>
-
-        {/* <form onSubmit={handleSubmit(onSubmit)}>
-        <Container className="flex flex-col space-y-2 justify-center items-center">
-          <Button type="submit">Create</Button>
-        </Container>
-      </form> */}
-        {/* <TextField
-            placeholder="My Postgres DB"
-            defaultValue={data?.name}
-            isLoading={isLoading}
-            formState={formState}
-            register={register("name")}
-          />
-          <TextField
-            placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
-            defaultValue={data?.url}
-            isLoading={isLoading}
-            formState={formState}
-            register={register("url")}
-          /> */}
-        {/* <SelectField
-            defaultValue={data?.type}
-            options={availableDataSourceTypes}
-            formState={formState}
-            register={register('type')}
-          /> */}
-        {/* <pre>{JSON.stringify(isLoading, null, 2)}</pre> */}
         <input type="submit" className="hidden invisible" />
         <Button className="mt-4" type="submit" disabled={isLoading}>
           {whenCreating ? "Create" : "Update"}
