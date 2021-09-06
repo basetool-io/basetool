@@ -1,3 +1,4 @@
+import { ListTable } from "@/plugins/data-sources/postgresql/types";
 import { TrashIcon } from "@heroicons/react/outline";
 import { toast } from "react-toastify";
 import {
@@ -56,9 +57,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative py-2 px-2">
+    <div className="relative py-2 px-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
-      <div className="relative space-y-x w-full h-full overflow-auto">
+      <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
         {dataSourceResponse?.ok && (
           <div className="my-2 mt-4 px-4 font-bold uppercase text-sm leading-none">
             {dataSourceIsLoading ? (
@@ -82,13 +83,15 @@ const Sidebar = () => {
         {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
         {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
         {tablesResponse?.ok &&
-          tablesResponse.data.map((table: { name: string }) => (
-            <SidebarItem
-              active={table.name === tableName}
-              label={table.name}
-              link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-            />
-          ))}
+          tablesResponse.data
+            .filter((table: ListTable) => table.schemaname === "public")
+            .map((table: { name: string }) => (
+              <SidebarItem
+                active={table.name === tableName}
+                label={table.name}
+                link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+              />
+            ))}
       </div>
     </div>
   );
