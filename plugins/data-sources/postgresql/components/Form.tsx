@@ -7,7 +7,7 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { availableDataSources } from "../.."
+import { availableDataSources } from "../..";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "../schema";
 import {
@@ -17,7 +17,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import PageWrapper from "@/features/records/components/PageWrapper";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export interface IFormFields {
   id?: number;
@@ -29,7 +29,7 @@ export interface IFormFields {
   };
 }
 
-function Form({ data }: { data?: IFormFields }) {
+function Form({ data = {} }: { data?: IFormFields }) {
   const whenCreating = !data?.id;
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -67,9 +67,27 @@ function Form({ data }: { data?: IFormFields }) {
     }
   };
 
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState, setValue } = useForm({
     resolver: joiResolver(schema),
   });
+
+  useEffect(() => {
+    if (whenCreating && router.query.credentials) {
+      // If we get the credentials in a params, set it in the form
+      setValue("name", router.query.name as string);
+      setValue("credentials.url", router.query.credentials as string);
+      // reset the URL for added security
+      router.push(
+        {
+          pathname: router.pathname,
+        },
+        router.pathname,
+        {
+          shallow: true,
+        }
+      );
+    }
+  }, []);
 
   return (
     <PageWrapper heading="Add data source">
@@ -108,7 +126,7 @@ function Form({ data }: { data?: IFormFields }) {
 
         <FormControl id="credentials_useSsl">
           <FormLabel>Use SSL</FormLabel>
-          <Checkbox {...register("credentials.useSsl")} />
+          <Checkbox {...register("credentials.useSsl")} defaultIsChecked />
         </FormControl>
 
         {/* <form onSubmit={handleSubmit(onSubmit)}>
