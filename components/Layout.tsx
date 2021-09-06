@@ -27,7 +27,7 @@ const Nav = () => {
             <div className="min-w-32 flex items-center space-x-2">
               <div className="rounded-full bg-blue-400 h-6 w-6 flex-shrink-0"></div>
               {session?.user && (
-                <div className="h-6 rounded text-sm">
+                <div className="h-6 rounded text-sm" title={session.user.email}>
                   {session.user.firstName} {session.user.lastName}
                 </div>
               )}
