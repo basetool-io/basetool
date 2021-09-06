@@ -16,7 +16,7 @@ function PageWrapper({
 }) {
   return (
     <>
-      <div className="flex flex-col flex-1 px-4 py-4">
+      <div className="flex flex-col flex-1 px-4 py-4 w-full">
         <div className="flex justify-between mb-4">
           <div className="flex flex-col justify-between">
             {heading && <div className="text-xl text-gray-800">{heading}</div>}
