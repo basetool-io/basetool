@@ -11,6 +11,7 @@ import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFiel
 import React, { forwardRef, memo, useMemo, useState } from "react";
 import isEmpty from "lodash/isEmpty";
 import isNull from "lodash/isNull";
+import parse from 'html-react-parser';
 
 const Edit = ({
   field,
@@ -24,7 +25,7 @@ const Edit = ({
   const name = useMemo(() => register.name, [register?.name]);
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
 
-  const helpText = null;
+  const helpText = field?.column?.baseOptions?.help ? field.column.baseOptions.help : null
   const hasHelp = !isNull(helpText);
   const [placeholderValue, setPlaceholderValue] = useState<Date | null>(
     field.value ? new Date(field.value as string) : null
@@ -77,7 +78,7 @@ const Edit = ({
           dateFormat="MMMM d, yyyy h:mm aa"
           customInput={<CustomInput {...register} />}
         />
-        {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
+        {hasHelp && <FormHelperText>{parse(helpText || '')}</FormHelperText>}
         <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
       </FormControl>
     </EditFieldWrapper>
