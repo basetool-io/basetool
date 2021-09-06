@@ -29,6 +29,7 @@ export type BaseOptions = {
   required: boolean;
   readonly: boolean;
   placeholder: string;
+  help: string;
 };
 
 export type Column<

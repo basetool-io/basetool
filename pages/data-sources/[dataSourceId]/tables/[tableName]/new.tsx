@@ -1,10 +1,11 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
-import { isArray } from "lodash";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { isArray, isEmpty } from "lodash";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import React, { useMemo } from "react";
 
 function New() {
@@ -36,10 +37,10 @@ function New() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(columnsResponse?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
-        <Form record={{}} isCreating={true} columns={columns} />
+        <Form record={{}} formForCreate={true} columns={columns} />
       )}
     </Layout>
   );

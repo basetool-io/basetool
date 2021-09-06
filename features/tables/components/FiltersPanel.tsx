@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, ReceiptRefundIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import FilterRow, { Filter } from "@/features/tables/components/FilterRow";
+import Filter, { IFilter } from "@/features/tables/components/Filter";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty"
 
@@ -11,7 +11,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
-    const filter: Filter = {
+    const filter: IFilter = {
       columnName: columns[0].name,
       columnLabel: columns[0].label,
       column: columns[0],
@@ -30,11 +30,11 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
           {/* <pre>{JSON.stringify(appliedFilters, null, 2)}</pre> */}
           {isEmpty(filters) && <div>
             No filters applied to this view
-            <div className="text-sm text-gray-600">Add a filter below</div>
+            <div className="text-sm text-gray-600">Add a filter from the button below</div>
           </div>}
           {isEmpty(filters) ||
             filters.map((filter, idx) => (
-              <FilterRow
+              <Filter
                 key={idx}
                 idx={idx}
                 columns={columns}
@@ -49,7 +49,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
             onClick={addFilter}
             leftIcon={<PlusIcon className="h-4" />}
           >
-            Add filter
+            Add a filter
           </Button>
           <Button
             size="sm"

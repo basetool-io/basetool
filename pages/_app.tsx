@@ -3,12 +3,15 @@ import "../lib/globals.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
+import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import React from "react";
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
+
+const INTERCOM_APP_ID = "u5el90h1";
 
 Tooltip.defaultProps = {
   hasArrow: true,
@@ -26,7 +29,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     >
       <ReduxProvider store={store}>
         <ChakraProvider resetCSS={false}>
-          <Component {...pageProps} />
+          <IntercomProvider appId={INTERCOM_APP_ID}>
+            <Component {...pageProps} />
+          </IntercomProvider>
           <ToastContainer
             position="top-center"
             autoClose={3000}

@@ -9,6 +9,7 @@ import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
+import parse from 'html-react-parser';
 
 const Edit = ({
   field,
@@ -21,7 +22,7 @@ const Edit = ({
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
-  const helpText = null;
+  const helpText = field?.column?.baseOptions?.help ? field.column.baseOptions.help : null
   const hasHelp = !isNull(helpText);
 
   // options
@@ -30,9 +31,9 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
-        <Input type="text" id={fieldId(field)} {...register} placeholder={placeholder} isDisabled={readonly} />
-        {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
+      <FormControl isInvalid={hasError && formState.isDirty} placeholder={placeholder} isDisabled={readonly}>
+        <Input type="text" id={fieldId(field)} {...register} />
+        {hasHelp && <FormHelperText>{parse(helpText || '')}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
         )}

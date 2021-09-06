@@ -1,10 +1,12 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { isEmpty } from "lodash"
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
 
@@ -41,7 +43,7 @@ function RecordsEdit() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && columnsResponse?.ok && (
         <Form record={data.data} columns={columns} />

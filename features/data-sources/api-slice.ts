@@ -54,6 +54,13 @@ export const dataSourcesApiSlice = createApi({
         }),
         invalidatesTags: [{ type: "DataSource", id: "LIST" }],
       }),
+      removeDataSource: builder.mutation<ApiResponse, Partial<{ dataSourceId: string }>>({
+        query: ({ dataSourceId }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { dataSourceId }) => [{ type: "DataSource", id: "LIST" }, { type: "DataSource", id: dataSourceId }, ],
+      }),
       updateDataSource: builder.mutation<
         ApiResponse,
         Partial<{
@@ -80,6 +87,7 @@ export const {
   useGetDataSourceQuery,
   useGetDataSourcesQuery,
   useAddDataSourceMutation,
+  useRemoveDataSourceMutation,
   useUpdateDataSourceMutation,
   usePrefetch,
 } = dataSourcesApiSlice;

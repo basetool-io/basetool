@@ -135,6 +135,8 @@ export default NextAuth({
         token.user = {
           firstName: user.firstName,
           lastName: user.lastName,
+          name: `${user.firstName} ${user.lastName}`,
+          createdAt: (user.createdAt as Date).getTime(),
         };
       }
 

@@ -1,4 +1,4 @@
-import { Filter, FilterConditions } from "@/features/tables/components/FilterRow";
+import { FilterConditions, IFilter } from "@/features/tables/components/Filter";
 import IntConditionComponent from "./IntConditionComponent";
 import StringConditionComponent from "./StringConditionComponent";
 
@@ -7,7 +7,7 @@ function ConditionComponent({
   onChange,
   ...rest
 }: {
-  filter: Filter;
+  filter: IFilter;
   onChange: (condition: FilterConditions) => void;
 }) {
   let Component;

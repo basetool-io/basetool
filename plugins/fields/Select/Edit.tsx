@@ -9,6 +9,7 @@ import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
+import parse from 'html-react-parser';
 
 const Edit = ({
   field,
@@ -28,7 +29,7 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
-  const helpText = null;
+  const helpText = field?.column?.baseOptions?.help ? field.column.baseOptions.help : null
   const hasHelp = !isNull(helpText);
 
   return (
@@ -46,7 +47,7 @@ const Edit = ({
               </option>
             ))}
         </Select>
-        {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
+        {hasHelp && <FormHelperText>{parse(helpText || '')}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
         )}
