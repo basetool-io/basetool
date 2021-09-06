@@ -25,6 +25,7 @@ const Edit = ({
   const optionsString = field.column.fieldOptions.options as string;
   const options = optionsString.split(',');
   options.forEach((option, index) => options[index] = option.trim());
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   const helpText = field?.column?.baseOptions?.help ? field.column.baseOptions.help : null
@@ -32,7 +33,7 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
+      <FormControl isInvalid={hasError && formState.isDirty} isDisabled={readonly}>
         <Select
           id={fieldId(field)} {...register}
           // placeholder={placeholder}

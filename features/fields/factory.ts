@@ -9,6 +9,9 @@ import DateTimeShowField from "@/plugins/fields/DateTime/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
 import IdIndexField from "@/plugins/fields/Id/Index";
 import IdShowField from "@/plugins/fields/Id/Show";
+import JsonEditField from "@/plugins/fields/Json/Edit";
+import JsonIndexField from "@/plugins/fields/Json/Index";
+import JsonShowField from "@/plugins/fields/Json/Show";
 import NumberEditField from "@/plugins/fields/Number/Edit";
 import NumberIndexField from "@/plugins/fields/Number/Index";
 import NumberShowField from "@/plugins/fields/Number/Show";
@@ -79,6 +82,8 @@ export const getFieldForEdit = (column: Column) => {
       return SelectEditField;
     case "Textarea":
       return TextareaEditField;
+    case "Json":
+      return JsonEditField;
   }
 };
 
@@ -98,7 +103,9 @@ export const getFieldForShow = (column: Column) => {
     case "Select":
       return SelectShowField;
     case "Textarea":
-      return TextareaShowField;
+      return TextareaShowField;    
+    case "Json":
+      return JsonShowField;
   }
 };
 
@@ -119,6 +126,8 @@ export const getFieldForIndex = (column: Column) => {
       return SelectIndexField;
     case "Textarea":
       return TextareaIndexField;
+    case "Json":
+      return JsonIndexField;
   }
 };
 

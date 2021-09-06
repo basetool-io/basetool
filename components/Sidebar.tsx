@@ -30,7 +30,7 @@ const Sidebar = () => {
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!router.query.dataSourceId && "Select a data source"}
       {tablesResponse?.ok &&
-        <div className="space-y-x">
+        <div className="space-y-x w-full">
           {isLoading && <div>loading...</div>}
           {error && <div>Error: {JSON.stringify(error)}</div>}
           {dataSourceResponse?.ok && <div className="my-2 mt-4 px-4 font-bold uppercase text-sm leading-none">{dataSourceResponse?.data?.name}</div>}
@@ -41,7 +41,7 @@ const Sidebar = () => {
             >
               <a
                 className={classNames(
-                  "hover:bg-blue-gray-100",
+                  "hover:bg-blue-gray-100 overflow-hidden overflow-ellipsis w-full",
                   // text-gray-800 py-2 px-4 block font-normal hover:bg-gray-100 rounded-md mb-1 mx-3 text-sm leading-none
                   "block text-gray-800 font-normal cursor-pointer text-sm py-2 px-4 rounded-md leading-none",
                   { 'bg-blue-gray-200 hover:bg-gray-200': table.name === tableName },

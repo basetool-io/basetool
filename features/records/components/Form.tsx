@@ -1,3 +1,4 @@
+import { Button, ButtonGroup } from "@chakra-ui/button";
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -6,27 +7,27 @@ import {
 import { Column } from "@/features/fields/types";
 import { SparklesIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
+import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
-import { updatedDiff } from "deep-object-diff";
 import {
   useAddRecordMutation,
   useUpdateRecordMutation,
-} from "@/features/records/records-api-slice";
+} from "@/features/records/api-slice";
 import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
+import BackButton from "./BackButton"
 import Joi, { ObjectSchema } from "joi";
-import Link from "next/link";
-import MenuItem from "@/features/fields/components/MenuItem";
+import PageWrapper from "./PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
-import type { Record } from '@/features/records/types'
+import type { Record } from "@/features/records/types";
 
 const makeSchema = async (record: Record, columns: Column[]) => {
   const schema: { [columnName: string]: any } = {};
@@ -84,11 +85,17 @@ const Form = ({
     });
 
   const formData = watch();
-  const diff = updatedDiff(record, formData);
+  console.log('record, formData->', record, formData)
+  const diff = difference(record, formData);
 
-  const showLink = useMemo(
-    () =>
-      `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/`,
+  const backLink = useMemo(
+    () =>{
+      if (isCreating) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+      } else {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+      }
+    },
     [router.query.dataSourceId, router.query.tableName]
   );
 
@@ -142,7 +149,7 @@ const Form = ({
           toast.success(`Updated: ${updates}`);
         }
 
-        router.push(showLink);
+        router.push(backLink);
       } else {
         toast.error("Not enough data.");
       }
@@ -155,52 +162,57 @@ const Form = ({
 
   return (
     <>
-      <div className="flex flex-col">
-        <div className="flex justify-between">
-          <div>
-            <div className="flex">
-              {formState.isDirty || (
-                <span className="text-xs text-gray-600">
-                  <SparklesIcon className="inline h-4" /> Clean
-                </span>
-              )}
-              {formState.isDirty && (
-                <>
-                  {formState.isValid && (
-                    <span className="text-xs text-green-600">
-                      <CheckCircleIcon className="inline h-4" /> Valid
-                    </span>
-                  )}
-                  {formState.isValid || (
-                    <span className="text-xs text-red-600">
-                      <XCircleIcon className="inline h-4" /> Invalid
-                    </span>
-                  )}
-                </>
-              )}
-              {isLoading && (
-                <span className="text-xs text-gray-600">
-                  <ClockIcon className="inline h-4" /> Loading
-                </span>
-              )}
+      <PageWrapper
+        heading="Edit record"
+        status={
+          <>
+            <div>
+              <div className="flex">
+                {formState.isDirty || (
+                  <span className="text-xs text-gray-600">
+                    <SparklesIcon className="inline h-4" /> Clean
+                  </span>
+                )}
+                {formState.isDirty && (
+                  <>
+                    {formState.isValid && (
+                      <span className="text-xs text-green-600">
+                        <CheckCircleIcon className="inline h-4" /> Valid
+                      </span>
+                    )}
+                    {formState.isValid || (
+                      <span className="text-xs text-red-600">
+                        <XCircleIcon className="inline h-4" /> Invalid
+                      </span>
+                    )}
+                  </>
+                )}
+                {isLoading && (
+                  <span className="text-xs text-gray-600">
+                    <ClockIcon className="inline h-4" /> Loading
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex space-x-4">
-            <Link href={showLink} passHref>
-              <MenuItem>Back</MenuItem>
-            </Link>
-            <div className="flex justify-between">
-              <MenuItem
+          </>
+        }
+        buttons={
+          <>
+            <ButtonGroup size="sm">
+              <BackButton href={backLink} />
+              <Button
+                colorScheme="blue"
                 onClick={() => {
                   handleSubmit(onSubmit)();
                 }}
               >
                 {isCreating ? "Create" : "Save"}
-              </MenuItem>
-            </div>
-          </div>
-        </div>
-        <div>
+              </Button>
+            </ButtonGroup>
+          </>
+        }
+      >
+        <>
           <form onSubmit={handleSubmit(onSubmit)}>
             {columns &&
               columns.map((column: Column) => {
@@ -232,8 +244,8 @@ const Form = ({
             {isUpdating && "Is updating"}
             <input type="submit" value="Submit" className="hidden" />
           </form>
-        </div>
-      </div>
+        </>
+      </PageWrapper>
 
       {/* <pre>{JSON.stringify(diff, null, 2)}</pre> */}
       {/* <pre>{JSON.stringify(record, null, 2)}</pre> */}
@@ -243,4 +255,4 @@ const Form = ({
   );
 };
 
-export default Form
+export default Form;
