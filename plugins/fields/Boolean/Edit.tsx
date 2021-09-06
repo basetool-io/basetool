@@ -18,12 +18,17 @@ const Edit = ({
   const helpText = null;
   const hasHelp = !isNull(helpText);
 
-  const isChecked = useMemo(() => field.value === true, [field.value]);
+  const isChecked = useMemo(() => {
+    field.value === true
+  }, [field.value]);
+
+  // options
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false
 
   return (
     <EditFieldWrapper field={field}>
       <div className="h-8 flex items-center">
-        <Checkbox isChecked={isChecked} {...register} />
+        <Checkbox isChecked={isChecked} {...register} isDisabled={readonly}/>
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

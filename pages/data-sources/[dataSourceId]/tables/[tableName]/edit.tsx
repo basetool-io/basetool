@@ -144,8 +144,24 @@ const ColumnEditor = ({
               Required
             </Checkbox>
           </FormControl>
-          {(column.fieldType === "Text" || column.fieldType === "Number" || column.fieldType === "DateTime" || column.fieldType === "Select" || column.fieldType === "Textarea") &&
-            <FormControl id="placeholder">
+          {column.fieldType !== "Id" &&
+            <FormControl id="readonly">
+              <Checkbox
+                isChecked={column.baseOptions.readonly === true}
+                onChange={() =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.readonly",
+                    !column.baseOptions.readonly
+                  )
+                }
+              >
+                Readonly
+              </Checkbox>
+            </FormControl>
+         }
+         {(column.fieldType === "Text" || column.fieldType === "Number" || column.fieldType === "DateTime" || column.fieldType === "Select" || column.fieldType === "Textarea") &&
+           <FormControl id="placeholder">
               <FormLabel>Placeholder</FormLabel>
               <Input
                 type="text"

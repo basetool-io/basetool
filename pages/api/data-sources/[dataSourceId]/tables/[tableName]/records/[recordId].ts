@@ -40,6 +40,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
+  // return res.send(ApiResponse.withError("Hamburger."));
+  console.log('req?.body?.changes->', req?.body?.changes)
+
   if (!req?.body?.changes || Object.keys(req.body.changes).length === 0)
     return res.send(ApiResponse.withError("No changes sent."));
   const dataSource = await getDataSourceFromRequest(req);

@@ -9,7 +9,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ```bash
 yarn install
 cp .env.sample .env
-# edit your .env and set your DATABASE_URL
+# edit your .env and
+# set your DATABASE_URL
+# generate a SECRET with openssl rand -hex 32
 yarn prisma migrate dev
 ```
 

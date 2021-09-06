@@ -33,11 +33,12 @@ const Edit = ({
 
   // options
   const placeholder = field?.column?.baseOptions?.placeholder ? field.column.baseOptions.placeholder : ""
+  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError && formState.isDirty}>
-        <Input type="number" id={fieldId(field)} {...register} placeholder={placeholder} />
+        <Input type="number" id={fieldId(field)} {...register} placeholder={placeholder} isDisabled={readonly} />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>

@@ -9,3 +9,5 @@ export type Table = {
 export type Tables = {
   [tableName: string]: Table;
 };
+
+export type OrderDirection = '' | 'asc' | 'desc'
