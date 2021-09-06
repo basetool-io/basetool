@@ -6,6 +6,9 @@ import BooleanShowField from "@/plugins/fields/Boolean/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
+import ForeignKeyEditField from "@/plugins/fields/ForeignKey/Edit";
+import ForeignKeyIndexField from "@/plugins/fields/ForeignKey/Index";
+import ForeignKeyShowField from "@/plugins/fields/ForeignKey/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
 import IdIndexField from "@/plugins/fields/Id/Index";
 import IdShowField from "@/plugins/fields/Id/Show";
@@ -15,15 +18,15 @@ import JsonShowField from "@/plugins/fields/Json/Show";
 import NumberEditField from "@/plugins/fields/Number/Edit";
 import NumberIndexField from "@/plugins/fields/Number/Index";
 import NumberShowField from "@/plugins/fields/Number/Show";
+import SelectEditField from "@/plugins/fields/Select/Edit";
+import SelectIndexField from "@/plugins/fields/Select/Index";
+import SelectShowField from "@/plugins/fields/Select/Show";
 import TextEditField from "@/plugins/fields/Text/Edit";
 import TextIndexField from "@/plugins/fields/Text/Index";
 import TextShowField from "@/plugins/fields/Text/Show";
 import TextareaEditField from "@/plugins/fields/Textarea/Edit";
 import TextareaIndexField from "@/plugins/fields/Textarea/Index";
 import TextareaShowField from "@/plugins/fields/Textarea/Show";
-import SelectEditField from "@/plugins/fields/Select/Edit";
-import SelectIndexField from "@/plugins/fields/Select/Index";
-import SelectShowField from "@/plugins/fields/Select/Show";
 
 import type { Column } from "./types";
 
@@ -84,6 +87,8 @@ export const getFieldForEdit = (column: Column) => {
       return TextareaEditField;
     case "Json":
       return JsonEditField;
+    case "ForeignKey":
+      return ForeignKeyEditField;
   }
 };
 
@@ -103,9 +108,11 @@ export const getFieldForShow = (column: Column) => {
     case "Select":
       return SelectShowField;
     case "Textarea":
-      return TextareaShowField;    
+      return TextareaShowField;
     case "Json":
       return JsonShowField;
+    case "ForeignKey":
+      return ForeignKeyShowField;
   }
 };
 
@@ -128,6 +135,8 @@ export const getFieldForIndex = (column: Column) => {
       return TextareaIndexField;
     case "Json":
       return JsonIndexField;
+    case "ForeignKey":
+      return ForeignKeyIndexField;
   }
 };
 

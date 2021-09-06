@@ -80,7 +80,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       req.query.recordId as string,
       record
     );
-  } catch (error) {
+  } catch (error: any) {
     return res.json(ApiResponse.withError(error.message));
   }
 

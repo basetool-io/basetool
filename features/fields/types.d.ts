@@ -9,7 +9,8 @@ export type FieldType =
   | "DateTime"
   | "Select"
   | "Textarea"
-  | "Json";
+  | "Json"
+  | "ForeignKey";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
@@ -44,6 +45,7 @@ export type Column<
   baseOptions: BaseOptions;
   dataSourceInfo: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
+  foreignKeyInfo?: CamelCaseForeignKeyInfo;
 };
 
 export type FieldValue = string | number | undefined | boolean;

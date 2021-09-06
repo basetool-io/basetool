@@ -85,19 +85,24 @@ const Form = ({
     });
 
   const formData = watch();
-  console.log('record, formData->', record, formData)
+
   const diff = difference(record, formData);
 
-  const backLink = useMemo(
-    () =>{
-      if (formForCreate) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
-      } else {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+  const backLink = useMemo(() => {
+    if (router.query.fromTable) {
+      if (router.query.fromRecord) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
+      }else{
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
       }
-    },
-    [router.query.dataSourceId, router.query.tableName]
-  );
+    }
+
+    if (formForCreate) {
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+    } else {
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+    }
+  }, [router.query])
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();

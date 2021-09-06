@@ -1,7 +1,7 @@
 import { isString } from 'lodash'
 import isObject from 'lodash/isObject'
 
-type ObjectType = [] | Record<string, any>
+type ObjectType = [] | Record<string, any> | undefined
 
 export const encodeObject = (payload: ObjectType): string => {
   let toEncode = ''
@@ -11,7 +11,7 @@ export const encodeObject = (payload: ObjectType): string => {
 }
 
 export const decodeObject = (text: string): ObjectType => {
-  if (!isString(text)) return {}
+  if (!isString(text)) return
 
   const decodedString = Buffer.from(text, 'base64').toString()
 

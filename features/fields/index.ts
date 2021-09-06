@@ -1,5 +1,6 @@
 import {
   AnnotationIcon,
+  ArrowRightIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
@@ -53,6 +54,10 @@ export const getColumnOptions = (
       id: "Json",
       label: "Json",
     },
+    {
+      id: "ForeignKey",
+      label: "ForeignKey",
+    },
   ];
 
   return options;
@@ -104,6 +109,8 @@ export const iconForField = (field: Column): ElementType => {
       return AnnotationIcon;
     case "Json":
       return VariableIcon;
+    case "ForeignKey":
+      return ArrowRightIcon;
   }
 };
 
