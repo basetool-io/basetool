@@ -19,7 +19,7 @@
     "@heroicons/react": "^1.0.4",
     "@hookform/resolvers": "^2.8.0",
     "@next-auth/prisma-adapter": "^0.5.4",
-    "@prisma/client": "^2.30.0",
+    "@prisma/client": "^2.30.3",
     "@reduxjs/toolkit": "^1.6.1",
     "@sentry/nextjs": "^6.12.0",
     "@types/bcrypt": "^5.0.0",
@@ -43,8 +43,9 @@
     "postcss": "^8.3.6",
     "postcss-nested": "^5.0.6",
     "postcss-nested-ancestors": "^2.0.0",
-    "prisma": "^2.30.0",
+    "prisma": "^2.30.3",
     "react": "17.0.2",
+    "react-avatar": "^3.10.0",
     "react-datepicker": "^4.2.1",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.13.0",
@@ -53,6 +54,7 @@
     "react-table": "^7.7.0",
     "react-toastify": "^7.0.4",
     "react-use": "^17.2.4",
+    "react-use-intercom": "^1.4.0",
     "tailwindcss": "^2.2.7"
   },
   "devDependencies": {

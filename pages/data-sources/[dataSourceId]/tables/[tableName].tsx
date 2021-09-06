@@ -1,17 +1,24 @@
-import { Button } from "@chakra-ui/react";
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { FilterIcon, PencilAltIcon, PlusIcon, XIcon } from "@heroicons/react/outline";
+import {
+  FilterIcon,
+  PencilAltIcon,
+  PlusIcon,
+  XIcon,
+} from "@heroicons/react/outline";
 import { OrderDirection } from "@/features/tables/types";
 import { Column as ReactTableColumn } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useFilters } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import PageWrapper from "@/features/records/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
@@ -58,7 +65,39 @@ const ResourcesIndex = memo(
     });
 
     return (
-      <>
+      <PageWrapper
+        heading="Browse records"
+        flush={true}
+        buttons={
+          <>
+            <ButtonGroup size="sm">
+              <Link
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
+                passHref
+              >
+                <Button
+                  colorScheme="blue"
+                  variant="outline"
+                  leftIcon={<PencilAltIcon className="h-4" />}
+                >
+                  Edit columns
+                </Button>
+              </Link>
+              <Link
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                passHref
+              >
+                <Button
+                  colorScheme="blue"
+                  leftIcon={<PlusIcon className="h-4" />}
+                >
+                  Create record
+                </Button>
+              </Link>
+            </ButtonGroup>
+          </>
+        }
+      >
         {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="relative flex flex-col flex-1 w-full h-full">
@@ -85,30 +124,6 @@ const ResourcesIndex = memo(
                   )}
                 </div>
               </div>
-              <div className="flex space-x-4">
-                <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
-                  passHref
-                >
-                  <Button
-                    variant="link"
-                    leftIcon={<PencilAltIcon className="h-4" />}
-                  >
-                    Edit columns
-                  </Button>
-                </Link>
-                <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
-                  passHref
-                >
-                  <Button
-                    variant="link"
-                    leftIcon={<PlusIcon className="h-4" />}
-                  >
-                    Create record
-                  </Button>
-                </Link>
-              </div>
             </div>
             <div className="relative flex-1 flex h-full max-w-full w-full">
               <RecordsTable
@@ -126,7 +141,7 @@ const ResourcesIndex = memo(
           </div>
         </>
         {/* )} */}
-      </>
+      </PageWrapper>
     );
   }
 );
@@ -161,7 +176,9 @@ function TablesShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && (
+        <LoadingOverlay transparent={isEmpty(columnsResponse?.data)} />
+      )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
         <ResourcesIndex

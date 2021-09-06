@@ -1,17 +1,16 @@
-import { Button, FormControl, Input, Select } from "@chakra-ui/react";
+import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent"
-import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent"
+import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import { useRouter } from "next/router"
-import ConditionComponent from "@/features/tables/components/ConditionComponent"
-import React, { useMemo } from "react";
+import ConditionComponent from "@/features/tables/components/ConditionComponent";
+import React, { memo, useMemo } from "react";
 
-export type FilterConditions = IntFilterConditions | StringFilterConditions
+export type FilterConditions = IntFilterConditions | StringFilterConditions;
 export type FilterVerbs = "where" | "and" | "or";
 
-export type Filter = {
+export type IFilter = {
   column: Column;
   columnName: string;
   columnLabel: string;
@@ -19,20 +18,20 @@ export type Filter = {
   value: string;
 };
 
-const FilterRow = ({
+const Filter = ({
   columns,
   filter,
   idx,
 }: {
   columns: Column[];
-  filter: Filter;
+  filter: IFilter;
   idx: number;
 }) => {
   const { removeFilter, updateFilter } = useFilters();
   const verb = useMemo(() => (idx === 0 ? "where" : "and"), [idx]);
 
   const changeFilterColumn = (columnName: string) => {
-    const column = columns.find(c => c.name === columnName) as Column
+    const column = columns.find((c) => c.name === columnName) as Column;
     updateFilter(idx, {
       ...filter,
       column,
@@ -57,16 +56,16 @@ const FilterRow = ({
   return (
     <>
       <div className="flex w-full items-center space-x-4">
-        {/* <pre>{JSON.stringify(filter, null, 2)}</pre> */}
-        <Button size="xs" onClick={() => removeFilter(idx)}>
-          <XIcon className="h-12" />
-        </Button>
-        <div className="min-w-[50px]">
-          {verb}
-        </div>
+        <Tooltip label="Remove fitler">
+          <Button size="xs" variant="link" onClick={() => removeFilter(idx)}>
+            <XIcon className="h-4" />
+          </Button>
+        </Tooltip>
+        <div className="min-w-[50px]">{verb}</div>
         <FormControl id="columns">
           <Select
             size="sm"
+            className="font-mono"
             value={filter.columnName}
             onChange={(e) => changeFilterColumn(e.currentTarget.value)}
           >
@@ -78,11 +77,15 @@ const FilterRow = ({
               ))}
           </Select>
         </FormControl>
-        <ConditionComponent filter={filter} onChange={(value: FilterConditions) => changeFilterCondition(value)} />
+        <ConditionComponent
+          filter={filter}
+          onChange={(value: FilterConditions) => changeFilterCondition(value)}
+        />
         <FormControl id="value">
           <Input
             size="sm"
             value={filter.value}
+            className="font-mono"
             onChange={(e) => changeFilterValue(e.currentTarget.value)}
           />
         </FormControl>
@@ -91,4 +94,4 @@ const FilterRow = ({
   );
 };
 
-export default FilterRow;
+export default memo(Filter);

@@ -18,12 +18,13 @@ import { OrderDirection } from "../types"
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
-import { isUndefined } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { makeField } from "@/features/fields";
 import { useFilters } from "@/hooks";
 import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import React, { memo, useMemo, useState } from "react";
 import classNames from "classnames";
 import numeral from "numeral";
@@ -235,7 +236,7 @@ const RecordsTable = ({
       {/* <pre>{JSON.stringify({
         page
       }, null, 2)}</pre> */}
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && !isValid && (
         <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">

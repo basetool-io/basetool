@@ -13,16 +13,17 @@ import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
+import { useBoolean } from "react-use";
 import {
-  useAddRecordMutation,
+  useCreateRecordMutation,
   useUpdateRecordMutation,
 } from "@/features/records/api-slice";
-import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
 import BackButton from "./BackButton"
 import Joi, { ObjectSchema } from "joi";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import PageWrapper from "./PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
@@ -59,13 +60,12 @@ const makeSchema = async (record: Record, columns: Column[]) => {
 const Form = ({
   record,
   columns,
-  isCreating,
+  formForCreate = false,
 }: {
   record: Record;
   columns: Column[];
-  isCreating?: boolean;
+  formForCreate?: boolean;
 }) => {
-  isCreating = !isUndefined(isCreating); // default to false
   const router = useRouter();
   const [isLoading, setIsLoading] = useBoolean(false);
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
@@ -90,7 +90,7 @@ const Form = ({
 
   const backLink = useMemo(
     () =>{
-      if (isCreating) {
+      if (formForCreate) {
         return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
       } else {
         return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
@@ -99,7 +99,7 @@ const Form = ({
     [router.query.dataSourceId, router.query.tableName]
   );
 
-  const [addRecord, { isLoading: isAdding }] = useAddRecordMutation();
+  const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
 
   const onSubmit = async (formData: any) => {
@@ -107,8 +107,8 @@ const Form = ({
 
     setIsLoading(true);
     try {
-      if (isCreating) {
-        response = await addRecord({
+      if (formForCreate) {
+        response = await createRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           body: {
@@ -206,7 +206,7 @@ const Form = ({
                   handleSubmit(onSubmit)();
                 }}
               >
-                {isCreating ? "Create" : "Save"}
+                {formForCreate ? "Create" : "Save"}
               </Button>
             </ButtonGroup>
           </>
@@ -241,7 +241,8 @@ const Form = ({
                   />
                 );
               })}
-            {isUpdating && "Is updating"}
+            {isCreating && <LoadingOverlay label="Creating..." />}
+            {isUpdating && <LoadingOverlay label="Updating..." />}
             <input type="submit" value="Submit" className="hidden" />
           </form>
         </>

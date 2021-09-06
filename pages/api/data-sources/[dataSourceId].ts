@@ -52,11 +52,11 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   await prisma.dataSource.delete({
     where: {
-      id: parseInt(req.query.id as string, 10),
+      id: parseInt(req.query.dataSourceId as string, 10),
     },
   })
 
-  return res.json(ApiResponse.withMessage('Deleted'))
+  return res.json(ApiResponse.withMessage('Data source removed.'))
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)))

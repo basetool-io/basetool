@@ -1,11 +1,11 @@
-import { Filter } from "@/features/tables/components/FilterRow";
+import { IFilter } from "@/features/tables/components/Filter";
 import { OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 
 interface AppState {
   records: [];
-  filters: Filter[];
-  appliedFilters: Filter[];
+  filters: IFilter[];
+  appliedFilters: IFilter[];
   orderBy: string;
   orderDirection: OrderDirection;
   filtersPanelVisible: boolean;
@@ -29,13 +29,13 @@ const recordsStateSlice = createSlice({
     },
 
     /* Filters */
-    addFilter(state, action: PayloadAction<Filter>) {
+    addFilter(state, action: PayloadAction<IFilter>) {
       state.filters.push(action.payload);
     },
-    setFilters(state, action: PayloadAction<Filter[]>) {
+    setFilters(state, action: PayloadAction<IFilter[]>) {
       state.filters = [...action.payload];
     },
-    setAppliedFilters(state, action: PayloadAction<Filter[]>) {
+    setAppliedFilters(state, action: PayloadAction<IFilter[]>) {
       state.appliedFilters = [...action.payload];
     },
     removeFilter(state, action: PayloadAction<number>) {
@@ -44,7 +44,7 @@ const recordsStateSlice = createSlice({
     },
     updateFilter(
       state,
-      action: PayloadAction<{ idx: number; filter: Filter }>
+      action: PayloadAction<{ idx: number; filter: IFilter }>
     ) {
       const { idx, filter } = action.payload;
       state.filters[idx] = filter;

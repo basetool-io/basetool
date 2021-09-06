@@ -1,71 +1,49 @@
 import {
   Button,
+  ButtonGroup,
   Checkbox,
   CheckboxGroup,
   FormControl,
   FormLabel,
-  HStack,
   Input,
   Select,
+  Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
-import { getColumnOptions, iconForField } from "@/features/fields";
+import { getColumnOptions } from "@/features/fields";
+import { inDevelopment } from "@/lib/environment";
 import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
-} from "@/features/tables/tables-api-slice";
+} from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import BackButton from "@/features/records/components/BackButton";
+import ColumnListItem from "@/features/tables/components/ColumnListItem";
 import Layout from "@/components/Layout";
-import Link from "next/link";
-import MenuItem from "@/features/fields/components/MenuItem";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import PageWrapper from "@/features/records/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
-import classNames from "classnames";
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
 type ChangesObject = Record<string, unknown>;
 
-const ColumnListItem = ({
-  column,
-  selectedColumn,
-  setColumn,
-}: {
-  column: Column;
-  selectedColumn?: Column;
-  setColumn: (c: Column) => void;
-}) => {
-  const IconElement = useMemo(() => iconForField(column), [column.fieldType]);
-
-  return (
-    column && (
-      <div
-        className={classNames(
-          "cursor-pointer uppercase text-sm font-semibold",
-          { underline: selectedColumn && column.name === selectedColumn.name }
-        )}
-        onClick={() => setColumn(column)}
-      >
-        <span className="border p-1 inline-flex justify-center align-middle text-xs w-6 h-6">
-          {<IconElement className="inline h-3" />}
-        </span>{" "}
-        {column.name}{" "}
-        {column.baseOptions.required && <sup className="text-red-600">*</sup>}
-      </div>
-    )
-  );
-};
-
 const getDynamicInspector = (fieldType: string) => {
   try {
-    return dynamic(() => import(`@/plugins/fields/${fieldType}/Inspector.tsx`), {
-      // eslint-disable-next-line react/display-name
-      loading: ({isLoading}: {isLoading?: boolean}) => isLoading ? <p>Loading...</p> : null,
-    });
+    return dynamic(
+      () => import(`@/plugins/fields/${fieldType}/Inspector.tsx`),
+      {
+        // eslint-disable-next-line react/display-name
+        loading: ({ isLoading }: { isLoading?: boolean }) =>
+          isLoading ? <p>Loading...</p> : null,
+      }
+    );
   } catch (error) {
-    return () => ''
+    return () => "";
   }
-}
+};
 
 const ColumnEditor = ({
   column,
@@ -80,153 +58,158 @@ const ColumnEditor = ({
   );
 
   const InspectorComponent = useMemo(
-    () => (getDynamicInspector(column?.fieldType) as React.ComponentType<{
-      column: Column;
-      setColumnOption: (c: Column, name: string, value: any) => void;
-    }>),
+    () =>
+      getDynamicInspector(column?.fieldType) as React.ComponentType<{
+        column: Column;
+        setColumnOption: (c: Column, name: string, value: any) => void;
+      }>,
     [column?.fieldType]
   );
 
   return (
     <>
-      {!column?.name && "Please select a column"}
+      {!column?.name && "👈 Please select a field"}
       {column?.name && (
-        <div className="space-y-4">
+        <div className="w-full">
           <div>
-            <h3 className="uppercase text-sm font-semibold">{column.name}</h3>
+            <h3 className="uppercase text-md font-semibold">{column.name}</h3>
           </div>
-          <FormControl id="country">
-            <FormLabel>Field Type</FormLabel>
-            <Select
-              value={column.fieldType}
-              onChange={(e) => {
-                setColumnOption(
-                  column,
-                  "fieldType",
-                  e.currentTarget.value as FieldType
-                )
-              }}
+          <div className="divide-y">
+            <OptionWrapper
+              helpText="We try to infer the type of field from your data source.
+                Sometimes we make mistakes. Choose the appropiate type of field
+                from these options"
             >
-              <option disabled>Select field type</option>
-              {columnOptions &&
-                columnOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-            </Select>
-          </FormControl>
-          <CheckboxGroup
-            value={column.baseOptions.visibility}
-            onChange={(value) =>
-              setColumnOption(column, "baseOptions.visibility", value)
-            }
-          >
-            <FormLabel>Visibility</FormLabel>
-            <HStack>
-              <Checkbox value="index">Index</Checkbox>
-              <Checkbox value="show">Show</Checkbox>
-              <Checkbox value="edit">Edit</Checkbox>
-              <Checkbox value="new">New</Checkbox>
-            </HStack>
-          </CheckboxGroup>
-          <FormControl id="required">
-            <Checkbox
-              isChecked={column.baseOptions.required === true}
-              onChange={() =>
-                setColumnOption(
-                  column,
-                  "baseOptions.required",
-                  !column.baseOptions.required
-                )
-              }
+              <FormControl id="country">
+                <FormLabel>Field Type</FormLabel>
+                <Select
+                  value={column.fieldType}
+                  onChange={(e) => {
+                    setColumnOption(
+                      column,
+                      "fieldType",
+                      e.currentTarget.value as FieldType
+                    );
+                  }}
+                >
+                  <option disabled>Select field type</option>
+                  {columnOptions &&
+                    columnOptions.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.label}
+                      </option>
+                    ))}
+                </Select>
+              </FormControl>
+            </OptionWrapper>
+
+            <OptionWrapper
+              helpText={`By default, all fields are visible in all views.
+But maybe some shouldn't be? 🤔
+You can control where the field is visible here.`}
             >
-              Required
-            </Checkbox>
-          </FormControl>
-          {column.fieldType !== "Id" &&
-            <FormControl id="readonly">
-              <Checkbox
-                isChecked={column.baseOptions.readonly === true}
-                onChange={() =>
-                  setColumnOption(
-                    column,
-                    "baseOptions.readonly",
-                    !column.baseOptions.readonly
-                  )
+              <CheckboxGroup
+                value={column.baseOptions.visibility}
+                onChange={(value) =>
+                  setColumnOption(column, "baseOptions.visibility", value)
                 }
               >
-                Readonly
-              </Checkbox>
-            </FormControl>
-         }
-         <FormControl id="help">
-            <FormLabel>Help text</FormLabel>
-            <Input
-              type="text"
-              name="help value"
-              placeholder="Help text value"
-              required={false}
-              value={column.baseOptions.help}
-              onChange={(e) =>
-                setColumnOption(
-                  column,
-                  "baseOptions.help",
-                  e.currentTarget.value
-                )
-              }
+                <FormLabel>Visibility</FormLabel>
+                <Stack direction="column">
+                  <Checkbox value="index">Index</Checkbox>
+                  <Checkbox value="show">Show</Checkbox>
+                  <Checkbox value="edit">Edit</Checkbox>
+                  <Checkbox value="new">New</Checkbox>
+                </Stack>
+              </CheckboxGroup>
+            </OptionWrapper>
+
+            <OptionWrapper helpText={`Should this field be required in forms?`}>
+              <FormControl id="required">
+                <FormLabel>Required</FormLabel>
+                <Checkbox
+                  id="required"
+                  isChecked={column.baseOptions.required === true}
+                  onChange={() =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.required",
+                      !column.baseOptions.required
+                    )
+                  }
+                >
+                  Required
+                </Checkbox>
+              </FormControl>
+            </OptionWrapper>
+
+            <OptionWrapper
+              helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
+            >
+              <FormControl id="help">
+                <FormLabel>Help text</FormLabel>
+                <Input
+                  type="text"
+                  name="help value"
+                  placeholder="Help text value"
+                  required={false}
+                  value={column.baseOptions.help}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.help",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+
+            <InspectorComponent
+              column={column}
+              setColumnOption={setColumnOption}
             />
-          </FormControl>
-          <InspectorComponent column={column} setColumnOption={setColumnOption} />
-          <pre>{JSON.stringify(column, null, 2)}</pre>
+          </div>
         </div>
       )}
     </>
   );
 };
 
-const FieldsEditor = ({
-  columns: initialColumns,
-}: {
-  columns: Column[];
-}) => {
+const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
-  const diff = useMemo(
-    () => {
-      return difference(initialColumns, columns)
-    }, [initialColumns, columns]
-  );
+  const diff = useMemo(() => {
+    return difference(initialColumns, columns);
+  }, [initialColumns, columns]);
   const isDirty = useMemo(() => !isEmpty(diff), [diff]);
-  const changes: ChangesObject = useMemo(
-    () => {
-      return Object.fromEntries(
-              Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
-                // get the column
-                const column = columns[parseInt(columnIndex, 10)];
+  const changes: ChangesObject = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(diff).map(([columnIndex, changes]: [string, any]) => {
+        // get the column
+        const column = columns[parseInt(columnIndex, 10)];
 
-                if (!column) return [];
+        if (!column) return [];
 
-                // create the changes object
-                const changesObject = {
-                  ...changes,
-                  // fieldType: column.fieldType,
-                  // Force visibility because the diff package does a weird diff on arrays.
-                  baseOptions: {
-                    ...changes.baseOptions,
-                    visibility: column.baseOptions.visibility,
-                  },
-                  fieldOptions: {
-                    ...changes.fieldOptions,
-                  }
-                };
+        // create the changes object
+        const changesObject = {
+          ...changes,
+          // fieldType: column.fieldType,
+          // Force visibility because the diff package does a weird diff on arrays.
+          baseOptions: {
+            ...changes.baseOptions,
+            visibility: column.baseOptions.visibility,
+          },
+          fieldOptions: {
+            ...changes.fieldOptions,
+          },
+        };
 
-                return [column.name, changesObject];
-              })
-            )
-    }, [columns, diff]
-  );
+        return [column.name, changesObject];
+      })
+    );
+  }, [columns, diff]);
   const [
     updateTable, // This is the mutation trigger
     { isLoading: isUpdating }, // This is the destructured mutation result
@@ -281,60 +264,64 @@ const FieldsEditor = ({
     if (columns.length > 0) setColumn(columns[0]);
   }, []);
 
+  const backLink = `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
+
   return (
     <>
-      {/* {isLoading && <div>loading...</div>}
-      {error && <div>Error: {JSON.stringify(error)}</div>} */}
-      {/* {!isLoading && data?.ok && ( */}
-        <>
-          <div className="flex flex-col flex-1 overflow-auto">
-            <div className="flex justify-between">
+      <PageWrapper
+        heading={`Edit '${router.query.tableName}' table`}
+        status={
+          <>
+            {inDevelopment && (
               <div className="text-xs inline-flex">
                 {isDirty && "Dirty"}
                 {!isDirty && "Clean"}
               </div>
-              <div className="flex justify-end space-x-4">
-                <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
-                  passHref
-                >
-                  <MenuItem>Back</MenuItem>
-                </Link>
-                <Button disabled={!isDirty} onClick={saveTableSettings}>
-                  Save
-                </Button>
-              </div>
-            </div>
-            <div className="relative flex-1 max-w-full w-full flex">
-              <div className="w-1/4 space-y-2 px-2">
-                {columns &&
-                  columns.map((c) => (
-                    <ColumnListItem
-                      key={c.name}
-                      column={c}
-                      selectedColumn={column}
-                      setColumn={setColumn}
-                    />
-                  ))}
-              </div>
-              <div>
-                {isUpdating && <div>updating...</div>}
-                {!isUpdating && column && (
-                  <ColumnEditor
-                    column={column}
-                    setColumnOption={setColumnOption}
+            )}
+          </>
+        }
+        buttons={
+          <ButtonGroup size="sm">
+            <BackButton href={backLink} />
+            <Button
+              colorScheme="blue"
+              disabled={!isDirty}
+              onClick={saveTableSettings}
+            >
+              Save
+            </Button>
+          </ButtonGroup>
+        }
+        flush={true}
+      >
+        <div className="relative flex-1 max-w-full w-full flex">
+          <div className="flex flex-shrink-0 w-1/4 border-r">
+            <div className="w-full relative p-4">
+              <div className="mb-2">Fields</div>
+              {columns &&
+                columns.map((c) => (
+                  <ColumnListItem
+                    key={c.name}
+                    column={c}
+                    selectedColumn={column}
+                    setColumn={setColumn}
                   />
-                )}
-              </div>
+                ))}
             </div>
           </div>
-        </>
-      {/* )} */}
+          <div className="flex-1 p-4">
+            {isUpdating && <LoadingOverlay />}
+            {column && (
+              <ColumnEditor column={column} setColumnOption={setColumnOption} />
+            )}
+          </div>
+        </div>
+      </PageWrapper>
     </>
   );
 };
 
-function TablesShow() {
+function TablesEdit() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
@@ -348,15 +335,11 @@ function TablesShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={true} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && (
-        <FieldsEditor
-          columns={data?.data}
-        />
-      )}
+      {data?.ok && <FieldsEditor columns={data?.data} />}
     </Layout>
   );
 }
 
-export default TablesShow;
+export default TablesEdit;

@@ -7,13 +7,19 @@ import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
-import { tablesApiSlice } from "@/features/tables/tables-api-slice";
+import { tablesApiSlice } from "@/features/tables/api-slice";
+import { toast } from "react-toastify"
 import recordsReducer from "@/features/records/state-slice";
 
 /**
  * Show a toast.
  */
 export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
+  // Added for when fetching the data fails with 500
+  if (action.type.includes("/rejected") && action?.payload?.originalStatus && action?.payload?.originalStatus === 500) {
+    toast.error(action.payload.error)
+  }
+
   if (action.type.includes("/fulfilled")) {
     const requiredKeys = ["error", "messages", "ok", "status"];
     const hasRequiredKeys = requiredKeys.every((key) =>

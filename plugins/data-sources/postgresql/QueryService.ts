@@ -1,6 +1,6 @@
 import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { Filter } from "@/features/tables/components/FilterRow";
+import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent"
@@ -54,7 +54,7 @@ export type PostgresCredentials = {
 // ends_with = "ends_with",
 // is_empty = "is_empty",
 // is_not_empty = "is_not_empty",
-const getCondition = (filter: Filter) => {
+const getCondition = (filter: IFilter) => {
   switch (filter.condition) {
     case "is":
       return "=";
@@ -85,7 +85,7 @@ const getCondition = (filter: Filter) => {
   return "=";
 };
 
-const getValue = (filter: Filter) => {
+const getValue = (filter: IFilter) => {
   switch (filter.condition) {
     case "is":
     case StringFilterConditions.is_not:
@@ -105,7 +105,7 @@ const getValue = (filter: Filter) => {
 
   return "=";
 };
-const addFilterToQuery = (query: Knex.QueryBuilder, filter: Filter) => {
+const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   console.log(
     "addFilterToQuery->",
     filter.columnName,
@@ -494,7 +494,7 @@ async function getDefaultFieldOptionsForFields(
 
         return t;
       } catch (error: any) {
-        if (!error.message.includes("Error: Cannot find module")) {
+        if (error.code !== "MODULE_NOT_FOUND") {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,
             error,

@@ -1,4 +1,4 @@
-import { Filter } from "@/features/tables/components/FilterRow";
+import { IFilter } from "@/features/tables/components/Filter";
 import ConditionSelect from "./ConditionSelect";
 import React from "react";
 
@@ -17,7 +17,7 @@ function StringConditionComponent({
   filter,
   onChange,
 }: {
-  filter: Filter;
+  filter: IFilter;
   onChange: (condition: StringFilterConditions) => void;
 }) {
   return (
