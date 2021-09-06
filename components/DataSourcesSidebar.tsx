@@ -75,7 +75,7 @@ const DataSourcesSidebar = () => {
                     )}
                     icon={
                       <Avatar
-                        name={dataSource.name}
+                        name={dataSource.name == dataSource.name.toUpperCase() ? dataSource.name.split('').join(' ') : dataSource.name }
                         maxInitials={3}
                         round={true}
                         size="40"
