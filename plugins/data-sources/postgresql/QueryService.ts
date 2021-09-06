@@ -442,21 +442,40 @@ const getFieldTypeFromColumnInfo = (
   column: Knex.ColumnInfo
 ): FieldType => {
   switch (column.type) {
-    default:
     case "boolean":
+    case "bit":
       return "Boolean";
     case "timestamp without time zone":
+    case "timestamp with time zone":
+    case "time without time zone":
+    case "time with time zone":
+    case "date":
       return "DateTime";
+    case "character":
     case "character varying":
+    case "interval":
+    case "name":
       return "Text";
     case "json":
+    case "jsonb":
+      return "Json";
     case "text":
+    case "xml":
+    case "bytea":
       return "Textarea";
     case "integer":
     case "bigint":
+    case "numeric":
+    case "smallint":
+    case "oid":
+    case "uuid":
+    case "real":
+    case "double precision":
+    case "money":
       if (idColumns.includes(name)) return "Id";
-
-      return "Number";
+      else return "Number";
+    default:
+      return "Text";
   }
 };
 

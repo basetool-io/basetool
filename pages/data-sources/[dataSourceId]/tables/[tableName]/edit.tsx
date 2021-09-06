@@ -5,6 +5,7 @@ import {
   CheckboxGroup,
   FormControl,
   FormLabel,
+  Input,
   Select,
   Stack,
 } from "@chakra-ui/react";
@@ -142,6 +143,23 @@ You can control where the field is visible here.`}
               </FormControl>
             </OptionWrapper>
 
+            <FormControl id="help">
+              <FormLabel>Help text</FormLabel>
+              <Input
+                type="text"
+                name="help value"
+                placeholder="Help text value"
+                required={false}
+                value={column.baseOptions.help}
+                onChange={(e) =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.help",
+                    e.currentTarget.value
+                  )
+                }
+              />
+            </FormControl>
             <InspectorComponent
               column={column}
               setColumnOption={setColumnOption}
