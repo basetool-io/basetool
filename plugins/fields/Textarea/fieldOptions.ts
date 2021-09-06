@@ -1,4 +1,4 @@
 const fieldOptions = {
-  rows: 5
-}
-export default fieldOptions
+  rows: 5,
+};
+export default fieldOptions;
