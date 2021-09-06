@@ -11,14 +11,14 @@ function Inspector({
   column: Column;
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) {
-  const defaultRows = fieldOptions.rows ? fieldOptions.rows : 5;
-  const initialRows = column.fieldOptions.rows
+  const defaultValue = fieldOptions.rows ? fieldOptions.rows : 5;
+  const initialValue = column.fieldOptions.rows
     ? column.fieldOptions.rows
-    : defaultRows;
+    : defaultValue;
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
-    setColumnOption(column, "fieldOptions.rows", initialRows);
+    setColumnOption(column, "fieldOptions.rows", initialValue);
   }, []);
 
   return (
@@ -30,14 +30,14 @@ function Inspector({
           name="rows"
           placeholder="Rows"
           required={false}
-          defaultValue={initialRows as number}
+          defaultValue={initialValue as number}
           onChange={(e) => {
             setColumnOption(
               column,
               "fieldOptions.rows",
               parseInt(e.currentTarget.value) > 0
                 ? parseInt(e.currentTarget.value)
-                : initialRows
+                : initialValue
             );
           }}
         />
