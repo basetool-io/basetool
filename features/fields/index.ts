@@ -9,7 +9,6 @@ import {
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums"
-import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isPlainObject from "lodash/isPlainObject";
@@ -133,5 +132,6 @@ export const getBaseOptions = () => ({
   required: false,
   nullable: false,
   readonly: false,
+  placeholder: "",
   help: '',
 })

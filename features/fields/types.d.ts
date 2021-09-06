@@ -28,6 +28,7 @@ export type BaseOptions = {
   nullable: boolean;
   required: boolean;
   readonly: boolean;
+  placeholder: string;
   help: string;
 };
 

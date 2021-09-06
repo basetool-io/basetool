@@ -124,6 +124,28 @@ You can control where the field is visible here.`}
               </CheckboxGroup>
             </OptionWrapper>
 
+            <OptionWrapper
+              helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
+            >
+            <FormControl id="placeholder">
+                <FormLabel>Placeholder</FormLabel>
+                <Input
+                  type="text"
+                  name="placeholder value"
+                  placeholder="Placeholder value"
+                  required={false}
+                  value={column.baseOptions.placeholder}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.placeholder",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+
             <OptionWrapper helpText={`Should this field be required in forms?`}>
               <FormControl id="required">
                 <FormLabel>Required</FormLabel>

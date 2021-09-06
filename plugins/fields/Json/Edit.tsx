@@ -29,33 +29,38 @@ const Edit = ({
 
   const placeholder = field.column.fieldOptions.placeholder;
 
-
-  let initialValue = '{}'
+  let initialValue = "{}";
   try {
-    initialValue = isUndefined(field.value) ? '{}' : JSON.stringify(JSON.parse(field.value as string), null, 2)
+    initialValue = isUndefined(field.value)
+      ? "{}"
+      : JSON.stringify(JSON.parse(field.value as string), null, 2);
   } catch (e) {
-    initialValue = '{}'
+    initialValue = "{}";
   }
 
   const handleOnChange = (value: string) => {
-    if(isEmpty(value)) {
+    if (isEmpty(value)) {
       if (setValue) {
-        setValue(register.name, {}, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
+        setValue(
+          register.name,
+          {},
+          {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          }
+        );
       }
     } else {
       if (setValue) {
-        let parsedValue
+        let parsedValue;
         try {
-          parsedValue = JSON.parse(value)
-          setJsonError(null)
-        } catch(e) {
-          setJsonError("Error parsing the JSON!")
+          parsedValue = JSON.parse(value);
+          setJsonError(null);
+        } catch (e) {
+          setJsonError("Error parsing the JSON!");
         }
-        if(parsedValue) {
+        if (parsedValue) {
           setValue(register.name, parsedValue, {
             shouldValidate: true,
             shouldDirty: true,
@@ -64,21 +69,28 @@ const Edit = ({
         }
       }
     }
-  }
+  };
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <pre>
-        {JSON.stringify(this, null, 2)}
-      </pre>
-      <FormControl isInvalid={(hasError && formState.isDirty) || !isNull(jsonError)} id={fieldId(field)}>
-      <Textarea rows={10}
-        placeholder={placeholder as string}
+      <pre>{JSON.stringify(this, null, 2)}</pre>
+      <FormControl
+        isInvalid={(hasError && formState.isDirty) || !isNull(jsonError)}
         id={fieldId(field)}
-        defaultValue={initialValue}
-        onChange={(e) =>  { handleOnChange(e.currentTarget.value) }}/>
+      >
+        <Textarea
+          rows={10}
+          placeholder={placeholder as string}
+          id={fieldId(field)}
+          defaultValue={initialValue}
+          onChange={(e) => {
+            handleOnChange(e.currentTarget.value);
+          }}
+        />
         {hasHelp && <FormHelperText>{helpText}</FormHelperText>}
-        <FormErrorMessage>{errors[name]?.message || jsonError}</FormErrorMessage>
+        <FormErrorMessage>
+          {errors[name]?.message || jsonError}
+        </FormErrorMessage>
       </FormControl>
     </EditFieldWrapper>
   );

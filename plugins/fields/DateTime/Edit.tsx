@@ -11,7 +11,7 @@ import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFiel
 import React, { forwardRef, memo, useMemo, useState } from "react";
 import isEmpty from "lodash/isEmpty";
 import isNull from "lodash/isNull";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 
 const Edit = ({
   field,
@@ -25,7 +25,9 @@ const Edit = ({
   const name = useMemo(() => register.name, [register?.name]);
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
 
-  const helpText = field?.column?.baseOptions?.help ? field.column.baseOptions.help : null
+  const helpText = field?.column?.baseOptions?.help
+    ? field.column.baseOptions.help
+    : null;
   const hasHelp = !isNull(helpText);
   const [placeholderValue, setPlaceholderValue] = useState<Date | null>(
     field.value ? new Date(field.value as string) : null
@@ -55,19 +57,35 @@ const Edit = ({
     }
   };
 
+  // options
+  const placeholder = field?.column?.baseOptions?.placeholder
+    ? field.column.baseOptions.placeholder
+    : "";
+
   const CustomInput = forwardRef(
     ({ value, onClick }: { value: any; onClick: (e: any) => void }, ref) => (
-      <Input {...register} onClick={onClick} ref={ref} value={value} />
+      <Input
+        {...register}
+        onClick={onClick}
+        ref={ref}
+        value={value}
+        placeholder={placeholder}
+      />
     )
   );
   CustomInput.displayName = "CustomInput";
 
   // options
-  const readonly = field?.column?.baseOptions?.readonly ? field.column.baseOptions.readonly : false
+  const readonly = field?.column?.baseOptions?.readonly
+    ? field.column.baseOptions.readonly
+    : false;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl isInvalid={hasError && formState.isDirty} isDisabled={readonly}>
+      <FormControl
+        isInvalid={hasError && formState.isDirty}
+        isDisabled={readonly}
+      >
         <DatePicker
           selected={placeholderValue}
           onChange={handleOnChange}
@@ -76,9 +94,9 @@ const Edit = ({
           timeIntervals={15}
           timeCaption="time"
           dateFormat="MMMM d, yyyy h:mm aa"
-          customInput={<CustomInput {...register} />}
+          customInput={<CustomInput {...register} placeholder={placeholder} />}
         />
-        {hasHelp && <FormHelperText>{parse(helpText || '')}</FormHelperText>}
+        {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
       </FormControl>
     </EditFieldWrapper>
