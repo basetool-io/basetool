@@ -21,7 +21,7 @@ import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/features/tables/components/ColumnListItem";
 import Layout from "@/components/Layout";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import PageWrapper from "@/features/records/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
@@ -273,7 +273,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">
-            <div className="flex-1 p-4">
+            <div className="w-full relative p-4">
               <div className="mb-2">Fields</div>
               {columns &&
                 columns.map((c) => (
@@ -297,7 +297,6 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     </>
   );
 };
-
 
 function TablesEdit() {
   const router = useRouter();

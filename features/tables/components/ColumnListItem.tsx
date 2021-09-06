@@ -18,7 +18,7 @@ const ColumnListItem = ({
     column && (
       <div
         className={classNames(
-          "cursor-pointer uppercase text-sm font-semibold rounded flex items-center p-1",
+          "w-full cursor-pointer uppercase text-sm font-semibold rounded flex items-center p-1",
           {
             "bg-blue-500 text-white":
               selectedColumn && column.name === selectedColumn.name,
