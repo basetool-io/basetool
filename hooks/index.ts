@@ -1,5 +1,5 @@
 import { AppDispatch, RootState } from "@/lib/store";
-import { Filter } from "@/features/tables/components/FilterRow";
+import { IFilter } from "@/features/tables/components/Filter";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
@@ -20,13 +20,13 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const useFilters = (initialFilters?: string | undefined): {
-  filters: Filter[];
-  setFilters: (filters: Filter[]) => void;
-  appliedFilters: Filter[];
-  applyFilters: (filters: Filter[]) => void;
+  filters: IFilter[];
+  setFilters: (filters: IFilter[]) => void;
+  appliedFilters: IFilter[];
+  applyFilters: (filters: IFilter[]) => void;
   allFiltersApplied: boolean;
   removeFilter: (idx: number) => void;
-  updateFilter: (idx: number, filter: Filter) => void;
+  updateFilter: (idx: number, filter: IFilter) => void;
   resetFilters: () => void;
   encodedFilters: string
 } => {
@@ -52,7 +52,7 @@ export const useFilters = (initialFilters?: string | undefined): {
 
   // }, [])
 
-  const setTheFilters = (filters: Filter[]) => {
+  const setTheFilters = (filters: IFilter[]) => {
     store.dispatch(setFilters(filters));
   };
 
@@ -60,7 +60,7 @@ export const useFilters = (initialFilters?: string | undefined): {
     store.dispatch(removeFilter(idx));
   };
 
-  const updateTheFilter = (idx: number, filter: Filter) => {
+  const updateTheFilter = (idx: number, filter: IFilter) => {
     store.dispatch(updateFilter({ idx, filter }));
   };
 
@@ -82,7 +82,7 @@ export const useFilters = (initialFilters?: string | undefined): {
   }, [appliedFilters]);
   // console.log('encodedFilters->', encodedFilters)
 
-  const applyFilters = (filters: Filter[]) => {
+  const applyFilters = (filters: IFilter[]) => {
     // router.push({
     //   pathname: router.pathname,
     //   query: {
