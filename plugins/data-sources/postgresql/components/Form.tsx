@@ -29,7 +29,7 @@ export interface IFormFields {
   };
 }
 
-function Form({ data = {} }: { data?: IFormFields }) {
+function Form({ data }: { data?: IFormFields }) {
   const whenCreating = !data?.id;
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();

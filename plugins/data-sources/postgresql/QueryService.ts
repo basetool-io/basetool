@@ -475,7 +475,7 @@ async function getDefaultFieldOptionsForFields(
 
         return t;
       } catch (error: any) {
-        if (!error.message.includes("Error: Cannot find module")) {
+        if (error.code !== "MODULE_NOT_FOUND") {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,
             error,
