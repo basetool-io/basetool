@@ -143,23 +143,28 @@ You can control where the field is visible here.`}
               </FormControl>
             </OptionWrapper>
 
-            <FormControl id="help">
-              <FormLabel>Help text</FormLabel>
-              <Input
-                type="text"
-                name="help value"
-                placeholder="Help text value"
-                required={false}
-                value={column.baseOptions.help}
-                onChange={(e) =>
-                  setColumnOption(
-                    column,
-                    "baseOptions.help",
-                    e.currentTarget.value
-                  )
-                }
-              />
-            </FormControl>
+            <OptionWrapper
+              helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
+            >
+              <FormControl id="help">
+                <FormLabel>Help text</FormLabel>
+                <Input
+                  type="text"
+                  name="help value"
+                  placeholder="Help text value"
+                  required={false}
+                  value={column.baseOptions.help}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.help",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+
             <InspectorComponent
               column={column}
               setColumnOption={setColumnOption}
