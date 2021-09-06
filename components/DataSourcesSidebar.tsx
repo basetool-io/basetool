@@ -1,4 +1,4 @@
-import { DataSource } from "@prisma/client";
+import { DataSource } from "@prisma/client"
 import { HomeIcon, PlusIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
@@ -70,6 +70,7 @@ const DataSourcesSidebar = () => {
                 dataSourcesResponse?.ok &&
                 dataSourcesResponse.data.map((dataSource: DataSource) => (
                   <DataSourceItem
+                    key={dataSource.id}
                     active={router.asPath.includes(
                       `/data-sources/${dataSource.id}`
                     )}

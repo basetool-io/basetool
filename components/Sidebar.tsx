@@ -85,8 +85,9 @@ const Sidebar = () => {
         {tablesResponse?.ok &&
           tablesResponse.data
             .filter((table: ListTable) => table.schemaname === "public")
-            .map((table: { name: string }) => (
+            .map((table: { name: string }, idx: number) => (
               <SidebarItem
+                key={idx}
                 active={table.name === tableName}
                 label={table.name}
                 link={`/data-sources/${dataSourceId}/tables/${table.name}`}
