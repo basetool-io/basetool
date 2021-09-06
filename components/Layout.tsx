@@ -1,9 +1,11 @@
+import { inProduction } from "@/lib/environment"
 import { signOut, useSession } from "next-auth/client";
+import { useIntercom } from "react-use-intercom";
 import { useRouter } from "next/router";
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
 import Head from "next/head";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useEffect, useMemo } from "react";
 import Sidebar from "./Sidebar";
 
 const Nav = () => {
@@ -11,8 +13,7 @@ const Nav = () => {
 
   return (
     <nav className="relative flex justify-between w-full py-2 px-2 shadow z-20">
-      <div>
-      </div>
+      <div></div>
       <div>
         {sessionLoading && (
           <div className="">
@@ -51,12 +52,32 @@ const Nav = () => {
 
 function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const [session, sessionIsLoading] = useSession();
   const tablesSidebarVisible = useMemo(() => {
     if (router.pathname === "/data-sources") return false;
     if (router.pathname === "/data-sources/new") return false;
 
     return true;
   }, [router.pathname]);
+  const { boot, update } = useIntercom();
+
+  useEffect(() => {
+    // Boot up the Intercom widget
+    if (inProduction) boot();
+  }, []);
+
+  useEffect(() => {
+    // Update Intercom with the user's info
+    if (inProduction && !sessionIsLoading && session) {
+      update({
+        name: session.user.name,
+        email: session.user.email,
+        createdAt: session.user.createdAt.toString(),
+        customAttributes: {
+        },
+      });
+    }
+  }, [sessionIsLoading, session]);
 
   return (
     <Authenticated>
