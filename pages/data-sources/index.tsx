@@ -18,8 +18,7 @@ function Index() {
   >([
     {
       name: "Car rental",
-      credentials: process.env
-        .NEXT_PUBLIC_DUMMY_1_DB_CREDENTIALS as string,
+      credentials: process.env.NEXT_PUBLIC_DUMMY_1_DB_CREDENTIALS as string,
       isVisible: false,
     },
     {
@@ -52,7 +51,7 @@ function Index() {
               <div>
                 👈 You have{" "}
                 {isLoading ? "🤷‍♂️ ⏳" : dataSourcesResponse?.data?.length} data
-                sources available. Pick one from the left sidebar.
+                sources available.
               </div>
             )}
             {hasDataSources || (
@@ -79,7 +78,7 @@ function Index() {
                   Object.values(genericProjects).map(
                     ({ name, credentials, isVisible }, idx) => {
                       return (
-                        <div className="block py-4">
+                        <div className="block py-4" key={idx}>
                           <span className="text-xl font-extralight">
                             {idx + 1}. {name}
                           </span>

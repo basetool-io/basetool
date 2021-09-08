@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev -p 3099",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3099",
     "lint": "next lint",
+    "try": "yarn build && yarn start -p 3099",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",
     "postinstall": "prisma generate"

@@ -33,6 +33,7 @@ function Error({ statusCode }: any) {
         name: session?.user?.name,
         email: session?.user?.email,
         createdAt: session?.user?.createdAt?.toString(),
+        userHash: session?.user?.intercomUserHash,
       });
     }
   }, [sessionIsLoading, session]);
