@@ -101,7 +101,7 @@ const ResourcesIndex = memo(
         {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="relative flex flex-col flex-1 w-full h-full">
-            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20">
+            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
               {filtersPanelVisible && (
                 <FiltersPanel ref={filtersPanel} columns={columns} />
               )}

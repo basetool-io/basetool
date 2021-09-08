@@ -1,14 +1,15 @@
 import {
   AnnotationIcon,
+  ArrowRightIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
   SelectorIcon,
-  VariableIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums"
+import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon"
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isPlainObject from "lodash/isPlainObject";
@@ -52,6 +53,10 @@ export const getColumnOptions = (
     {
       id: "Json",
       label: "Json",
+    },
+    {
+      id: "Association",
+      label: "Association",
     },
   ];
 
@@ -103,7 +108,9 @@ export const iconForField = (field: Column): ElementType => {
     case "Textarea":
       return AnnotationIcon;
     case "Json":
-      return VariableIcon;
+      return BracketsCurlyIcon;
+    case "Association":
+      return ArrowRightIcon;
   }
 };
 

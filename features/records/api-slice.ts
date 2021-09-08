@@ -1,6 +1,7 @@
 import { apiUrl } from "../api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import ApiResponse from "../api/ApiResponse";
+import URI from "urijs";
 
 export const recordsApiSlice = createApi({
   reducerPath: "records",
@@ -30,7 +31,20 @@ export const recordsApiSlice = createApi({
           offset,
           orderBy,
           orderDirection,
-        }) => `/data-sources/${dataSourceId}/tables/${tableName}/records?limit=${limit}&offset=${offset}&filters=${filters}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
+        }) => {
+          const queryParams = URI()
+            .query({
+              filters,
+              limit,
+              offset,
+              orderBy,
+              orderDirection,
+            })
+            .query()
+            .toString();
+
+          return `/data-sources/${dataSourceId}/tables/${tableName}/records?${queryParams}`;
+        },
         providesTags: (response) => {
           // is result available?
           if (response && response?.data) {

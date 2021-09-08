@@ -37,8 +37,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     records = await service.getRecords({
       tableName: req.query.tableName as string,
       filters,
-      limit: parseInt(req.query.limit as string, 10),
-      offset: parseInt(req.query.offset as string, 10),
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : null,
+      offset: req.query.offset ? parseInt(req.query.offset as string, 10) : null,
       orderBy: req.query.orderBy as string,
       orderDirection: req.query.orderDirection as string,}
     );
@@ -80,7 +80,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       req.query.recordId as string,
       record
     );
-  } catch (error) {
+  } catch (error: any) {
     return res.json(ApiResponse.withError(error.message));
   }
 

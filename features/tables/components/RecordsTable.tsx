@@ -229,7 +229,7 @@ const RecordsTable = ({
       query,
     });
   };
-  
+
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
       {/* <pre>{JSON.stringify([orderBy, orderDirection], null, 2)}</pre> */}
@@ -356,7 +356,7 @@ const RecordsTable = ({
         </div>
       )}
       <nav
-        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-sm"
+        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b"
         aria-label="Pagination"
       >
         <div className="inline-block text-gray-500 text-sm">

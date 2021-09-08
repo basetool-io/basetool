@@ -17,19 +17,19 @@ function Index() {
     { name: string; credentials: string; isVisible: boolean }[]
   >([
     {
-      name: "Personal website",
+      name: "Car rental",
       credentials: process.env
-        .NEXT_PUBLIC_PERSONAL_WEBSITE_DB_CREDENTIALS as string,
+        .NEXT_PUBLIC_DUMMY_1_DB_CREDENTIALS as string,
       isVisible: false,
     },
     {
       name: "CRM",
-      credentials: process.env.NEXT_PUBLIC_CRM_DB_CREDENTIALS as string,
+      credentials: process.env.NEXT_PUBLIC_DUMMY_2_DB_CREDENTIALS as string,
       isVisible: false,
     },
     {
-      name: "CMS",
-      credentials: process.env.NEXT_PUBLIC_CMS_DB_CREDENTIALS as string,
+      name: "Ticketing",
+      credentials: process.env.NEXT_PUBLIC_DUMMY_3_DB_CREDENTIALS as string,
       isVisible: false,
     },
   ]);

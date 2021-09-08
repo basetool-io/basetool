@@ -24,6 +24,17 @@ const RecordShow = ({
   columns: Column[];
 }) => {
   const router = useRouter();
+  const backLink = useMemo(() => {
+    if (router.query.fromTable) {
+      if (router.query.fromRecord) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
+      }else{
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+      }
+    }
+
+    return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+  }, [router.query])
 
   return (
     <>
@@ -32,7 +43,7 @@ const RecordShow = ({
         buttons={
           <>
             <ButtonGroup size="sm">
-              <BackButton href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`} />
+              <BackButton href={backLink} />
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref

@@ -3,11 +3,11 @@ import { DataSource } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
-import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent"
+import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
+import { camelCase, isEmpty, isUndefined } from "lodash";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
-import { isEmpty, isUndefined, merge } from "lodash";
 import { knex } from "knex";
 import logger from "@/lib/logger";
 import type { Knex } from "knex";
@@ -22,19 +22,47 @@ export type KnexColumnInfo = {
   defaultValue: string;
 };
 
+export type DBForeignKeyInfo = {
+  table_schema: string;
+  constraint_name: string;
+  table_name: string;
+  column_name: string;
+  foreign_table_schema: string;
+  foreign_table_name: string;
+  foreign_column_name: string;
+};
+
+// Removed the schema bc we can't access information_schema.constraint_column_usage on supabase
+export type ForeignKeyInfo = {
+  // tableSchema: string;
+  constraintName: string;
+  tableName: string;
+  columnName: string;
+  // foreignTableSchema: string;
+  foreignTableName: string;
+  foreignColumnName: string;
+};
+
 export type ColumnWithSourceInfo = {
   name: string;
   label: string;
-  fieldType: FieldType;
   dataSourceInfo: Knex.ColumnInfo;
   primaryKey: boolean;
 };
 
-export interface ColumnWithBaseOptions extends ColumnWithSourceInfo {
+export interface ColumnWithForeignKeyInfo extends ColumnWithSourceInfo {
+  foreignKeyInfo?: ForeignKeyInfo;
+}
+
+export interface ColumnWithBaseOptions extends ColumnWithForeignKeyInfo {
   baseOptions: BaseOptions;
 }
 
-export interface ColumnWithFieldOptions extends ColumnWithBaseOptions {
+export interface ColumnWithFieldType extends ColumnWithBaseOptions {
+  fieldType: FieldType;
+}
+
+export interface ColumnWithFieldOptions extends ColumnWithFieldType {
   fieldOptions: FieldOptions;
 }
 
@@ -106,12 +134,12 @@ const getValue = (filter: IFilter) => {
   return "=";
 };
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
-  console.log(
-    "addFilterToQuery->",
-    filter.columnName,
-    getCondition(filter),
-    getValue(filter)
-  );
+  // console.log(
+  //   "addFilterToQuery->",
+  //   filter.columnName,
+  //   getCondition(filter),
+  //   getValue(filter)
+  // );
   query.where(filter.columnName, getCondition(filter), getValue(filter));
 };
 
@@ -192,19 +220,19 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
   }): Promise<[]> {
-    const query = this.client
-      .table(tableName)
-      .limit(limit)
-      .offset(offset)
-      .select();
+    const query = this.client.table(tableName);
+    // @todo: bring in joins
 
-    console.log("filers->", filters);
+    if (limit && offset) {
+      query.limit(limit).offset(offset).select();
+    }
 
-    filters.forEach((filter) => {
-      addFilterToQuery(query, filter);
-    });
+    if (filters) {
+      filters.forEach((filter) => addFilterToQuery(query, filter));
+    }
+
     if (orderBy) {
-      query.orderBy(orderBy, orderDirection);
+      query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
     return query as unknown as [];
@@ -335,6 +363,10 @@ class QueryService implements IQueryService {
   ): Promise<[]> {
     const rawColumns = await this.client.table(tableName).columnInfo();
     const primaryKeyColumn = await this.getPrimaryKeyColumn(tableName);
+    const foreignKeys = await this.getForeignKeys(tableName);
+    const foreignKeysByColumnName = Object.fromEntries(
+      foreignKeys.map((fk: ForeignKeyInfo) => [fk.columnName, fk])
+    );
 
     // turn knex column info to intermediate column (add dataSourceInfo)
     const columnsWithDataSourceInfo: ColumnWithSourceInfo[] = Object.entries(
@@ -342,27 +374,51 @@ class QueryService implements IQueryService {
     ).map(([name, columnInfo]: [string, Knex.ColumnInfo]) => ({
       name,
       label: name, // this is dummy. We'll set the proper one later
-      fieldType: getFieldTypeFromColumnInfo(name, columnInfo),
       dataSourceInfo: columnInfo,
       primaryKey: primaryKeyColumn === name,
     }));
+
+    const columnsWithForeignKeyInfo: ColumnWithForeignKeyInfo[] =
+      columnsWithDataSourceInfo.map((column: ColumnWithSourceInfo) => ({
+        ...column,
+        foreignKeyInfo: foreignKeysByColumnName[column.name],
+      }));
 
     const baseOptions = getBaseOptions();
 
     // add default base options
     const columnsWithBaseOptions: ColumnWithBaseOptions[] =
-      columnsWithDataSourceInfo.map((column) => ({
+      columnsWithForeignKeyInfo.map((column) => ({
         ...column,
         baseOptions,
       }));
 
+    const columnsWithFieldType: ColumnWithFieldType[] =
+      columnsWithBaseOptions.map((column) => ({
+        ...column,
+        fieldType: getFieldTypeFromColumnInfo(column),
+      }));
+
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
-      columnsWithBaseOptions
+      columnsWithFieldType
     );
+
+    // add default field options for each type of field
+    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
+      columnsWithFieldType.map((column) => {
+        const fieldOptions = fieldOptionsByFieldName[column.name]
+          ? fieldOptionsByFieldName[column.name]
+          : {};
+
+        return {
+          ...column,
+          fieldOptions,
+        };
+      });
 
     // add options stored in the database
     const columnsWithStoredOptions: ColumnWithStoredOptions[] =
-      columnsWithBaseOptions.map((column) => {
+      columnsWithFieldOptions.map((column) => {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
@@ -380,6 +436,7 @@ class QueryService implements IQueryService {
             ...baseOptions,
           },
           fieldOptions: {
+            ...column.fieldOptions,
             ...fieldOptions,
           },
         };
@@ -391,21 +448,8 @@ class QueryService implements IQueryService {
         return newColumn;
       });
 
-    // add default field options for each type of field
-    const columnsWithFieldOptions: ColumnWithFieldOptions[] =
-      columnsWithStoredOptions.map((column) => {
-        const fieldOptions = fieldOptionsByFieldName[column.name]
-          ? fieldOptionsByFieldName[column.name]
-          : {};
-
-        return {
-          ...column,
-          fieldOptions: merge(fieldOptions, column.fieldOptions),
-        };
-      });
-
     const columns: Column<PostgresqlColumnOptions>[] =
-      columnsWithFieldOptions.map((column) => ({
+      columnsWithStoredOptions.map((column) => ({
         ...column,
         label: getColumnLabel(column),
       }));
@@ -417,17 +461,74 @@ class QueryService implements IQueryService {
   private async getPrimaryKeyColumn(
     tableName: string
   ): Promise<string | undefined> {
-    const { rows } = await this.client
-      .raw(`SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
-  FROM   pg_index i
-  JOIN   pg_attribute a ON a.attrelid = i.indrelid
-                       AND a.attnum = ANY(i.indkey)
-  WHERE  i.indrelid = '${tableName}'::regclass
-  AND    i.indisprimary;`);
+    const query = `SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+    FROM   pg_index i
+    JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                         AND a.attnum = ANY(i.indkey)
+    WHERE  i.indrelid = ?::regclass
+    AND    i.indisprimary;`;
+    const { rows } = await this.client.raw(query, [tableName]);
+    console.log("rows->", rows);
 
     if (!isEmpty(rows)) {
       return rows[0].attname;
     }
+  }
+
+  private async getForeignKeys(tableName: string): Promise<ForeignKeyInfo[]> {
+    // We can't use this query bc we can't accss information_schema.constraint_column_usage in supabase
+    //     const query = `SELECT
+    //     tc.table_schema,
+    //     tc.constraint_name,
+    //     tc.table_name,
+    //     kcu.column_name,
+    //     ccu.table_schema AS foreign_table_schema,
+    //     ccu.table_name AS foreign_table_name,
+    //     ccu.column_name AS foreign_column_name
+    // FROM
+    //     information_schema.table_constraints AS tc
+    //     JOIN information_schema.key_column_usage AS kcu
+    //       ON tc.constraint_name = kcu.constraint_name
+    //       AND tc.table_schema = kcu.table_schema
+    //     JOIN information_schema.constraint_column_usage AS ccu
+    //       ON ccu.constraint_name = tc.constraint_name
+    //       AND ccu.table_schema = tc.table_schema
+    // WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=?;
+    // `;
+
+    const query = `
+    WITH unnested_confkey AS (
+      SELECT oid, unnest(confkey) as confkey
+      FROM pg_constraint
+    ),
+    unnested_conkey AS (
+      SELECT oid, unnest(conkey) as conkey
+      FROM pg_constraint
+    )
+    select
+      c.conname                   AS constraint_name,
+      c.contype                   AS constraint_type,
+      tbl.relname                 AS table_name,
+      col.attname                 AS column_name,
+      referenced_tbl.relname      AS foreign_table_name,
+      referenced_field.attname    AS foreign_column_name,
+      pg_get_constraintdef(c.oid) AS definition
+    FROM pg_constraint c
+    LEFT JOIN unnested_conkey con ON c.oid = con.oid
+    LEFT JOIN pg_class tbl ON tbl.oid = c.conrelid
+    LEFT JOIN pg_attribute col ON (col.attrelid = tbl.oid AND col.attnum = con.conkey)
+    LEFT JOIN pg_class referenced_tbl ON c.confrelid = referenced_tbl.oid
+    LEFT JOIN unnested_confkey conf ON c.oid = conf.oid
+    LEFT JOIN pg_attribute referenced_field ON (referenced_field.attrelid = c.confrelid AND referenced_field.attnum = conf.confkey)
+    WHERE c.contype = 'f' and tbl.relname = ?;
+`;
+    const { rows } = await this.client.raw(query, [tableName]);
+
+    return rows.map((fk: ForeignKeyInfo) =>
+      Object.fromEntries(
+        Object.entries(fk).map(([key, value]) => [camelCase(key), value])
+      )
+    );
   }
 }
 
@@ -438,10 +539,20 @@ const getColumnLabel = (column: { name: string }) => {
 };
 
 const getFieldTypeFromColumnInfo = (
-  name: string,
-  column: Knex.ColumnInfo
+  column: ColumnWithBaseOptions
 ): FieldType => {
-  switch (column.type) {
+  if (column.foreignKeyInfo) {
+    return "Association";
+  }
+
+  const { name } = column;
+  switch (column.dataSourceInfo.type) {
+    default:
+    case "character":
+    case "character varying":
+    case "interval":
+    case "name":
+      return "Text";
     case "boolean":
     case "bit":
       return "Boolean";
@@ -451,11 +562,6 @@ const getFieldTypeFromColumnInfo = (
     case "time with time zone":
     case "date":
       return "DateTime";
-    case "character":
-    case "character varying":
-    case "interval":
-    case "name":
-      return "Text";
     case "json":
     case "jsonb":
       return "Json";
@@ -474,8 +580,6 @@ const getFieldTypeFromColumnInfo = (
     case "money":
       if (idColumns.includes(name)) return "Id";
       else return "Number";
-    default:
-      return "Text";
   }
 };
 

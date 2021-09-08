@@ -48,7 +48,6 @@ body,
 }
 
 .cm-content {
-
   padding: 0;
   line-height: inherit;
   color: inherit;
@@ -80,18 +79,16 @@ body,
 
   @apply text-sm;
 
-  &:focus{
+  &:focus {
   }
 }
 .cm-focused {
   outline: none !important;
-  .cm-content{
-
+  .cm-content {
     border-color: #3182ce;
     /* border-width: 2px; */
     z-index: 1;
     box-shadow: 0 0 0 1px #3182ce !important;
-
   }
 }
 
@@ -237,6 +234,41 @@ svg.tea #steamR {
   100% {
     stroke-dashoffset: 27;
     opacity: 0;
+  }
+}
+
+.content-line {
+  display: inline-block;
+  height: 1rem;
+  border-radius: 4px;
+}
+
+.shimmer-bg {
+  animation-duration: 2.2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  background: #ddd;
+  background: linear-gradient(to right, #ecebeb 8%, #e8e8e8 18%, #f6f6f6 33%);
+  background-size: 1200px 100%;
+}
+
+@-webkit-keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1200px 0;
+  }
+  100% {
+    background-position: 1200px 0;
   }
 }
 
