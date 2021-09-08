@@ -14,7 +14,7 @@ import {
   useResizeColumns,
   useTable,
 } from "react-table";
-import { OrderDirection } from "../types"
+import { OrderDirection } from "../types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
@@ -24,10 +24,12 @@ import { useFilters } from "@/hooks";
 import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useMemo, useState } from "react";
 import classNames from "classnames";
 import numeral from "numeral";
+
+const DEFAULT_PER_PAGE = 24;
 
 const Cell = ({
   row,
@@ -113,7 +115,7 @@ const RecordsTable = ({
   // @todo: Get filters from the URL param
   const { encodedFilters } = useFilters();
   // @todo: per page selector
-  const [perPage, setPerPage] = useState(24);
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
   const { page, limit, offset, nextPage, previousPage } = usePagination({
     perPage,
   });
@@ -121,7 +123,7 @@ const RecordsTable = ({
   const {
     data: recordsResponse,
     error,
-    isLoading,
+    isFetching,
   } = useGetRecordsQuery({
     dataSourceId,
     tableName,
@@ -232,13 +234,11 @@ const RecordsTable = ({
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
-      {/* <pre>{JSON.stringify([orderBy, orderDirection], null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify({
-        page
-      }, null, 2)}</pre> */}
-      {isLoading && <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />}
+      {isFetching && (
+        <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />
+      )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && !isValid && (
+      {!isFetching && !isValid && (
         <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
           No rows found
         </div>
@@ -361,8 +361,8 @@ const RecordsTable = ({
       >
         <div className="inline-block text-gray-500 text-sm">
           {/* @todo: show a pretty numebr (2.7K in total) */}
-          Showing {offset + 1}-{perPage * page} of{" "}
-          {meta?.count ? `${meta.count} in total` : ""}
+          Showing {offset + 1}-{perPage * page} {meta?.count && 'of '}
+          {meta?.count ? `${meta.count < 1000 ? meta.count : numeral(meta.count).format("0.0a")} in total` : ""}
         </div>
         <div className="flex justify-between sm:justify-end">
           <Button
@@ -382,16 +382,7 @@ const RecordsTable = ({
             <ChevronRightIcon className="h-4 text-gray-600" />
           </Button>
         </div>
-        <div>
-          {/* {dataQuery && (
-            <Tooltip label="Reload query" aria-label="Reload query">
-              <Button size="sm" onClick={() => reloadQuery()}>
-                <RefreshIcon className="h-4" />
-              </Button>
-            </Tooltip> */}
-          {/* ) */}
-          {/* } */}
-        </div>
+        <div></div>
       </nav>
     </div>
   );
