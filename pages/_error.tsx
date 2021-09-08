@@ -30,10 +30,9 @@ function Error({ statusCode }: any) {
     // Update Intercom with the user's info
     if (inProduction && !sessionIsLoading && session) {
       update({
-        name: session.user.name,
-        email: session.user.email,
-        createdAt: session.user.createdAt.toString(),
-        customAttributes: {},
+        name: session?.user?.name,
+        email: session?.user?.email,
+        createdAt: session?.user?.createdAt?.toString(),
       });
     }
   }, [sessionIsLoading, session]);
