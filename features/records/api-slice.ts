@@ -15,11 +15,11 @@ export const recordsApiSlice = createApi({
         {
           dataSourceId: string;
           tableName: string;
-          filters: string;
-          limit: string;
-          offset: string;
-          orderBy: string;
-          orderDirection: string;
+          filters?: string;
+          limit?: string;
+          offset?: string;
+          orderBy?: string;
+          orderDirection?: string;
         }
       >({
         query: ({
@@ -59,7 +59,7 @@ export const recordsApiSlice = createApi({
           { type: "Record", id: recordId },
         ],
       }),
-      addRecord: builder.mutation<
+      createRecord: builder.mutation<
         ApiResponse,
         Partial<{ dataSourceId: string; tableName: string; body: object }>
       >({
@@ -95,7 +95,7 @@ export const recordsApiSlice = createApi({
 export const {
   useGetRecordsQuery,
   useGetRecordQuery,
-  useAddRecordMutation,
+  useCreateRecordMutation,
   useUpdateRecordMutation,
   usePrefetch,
 } = recordsApiSlice;

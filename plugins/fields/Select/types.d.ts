@@ -1,3 +1,3 @@
 export type SelectFieldOptions = {
-  options: string
-}
+  options: string;
+};

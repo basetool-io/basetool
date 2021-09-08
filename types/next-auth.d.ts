@@ -10,6 +10,8 @@ declare module "next-auth" {
       firstName: string
       lastName: string
       image: string
+      name: string
+      createdAt: number
     }
   }
 }

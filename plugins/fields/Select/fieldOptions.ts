@@ -1,4 +1,4 @@
 const fieldOptions = {
-  options: '',
-}
-export default fieldOptions
+  options: "",
+};
+export default fieldOptions;

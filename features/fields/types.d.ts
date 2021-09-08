@@ -8,7 +8,8 @@ export type FieldType =
   | "Boolean"
   | "DateTime"
   | "Select"
-  | "Textarea";
+  | "Textarea"
+  | "Json";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
@@ -26,6 +27,9 @@ export type BaseOptions = {
   visibility: Views[];
   nullable: boolean;
   required: boolean;
+  readonly: boolean;
+  placeholder: string;
+  help: string;
 };
 
 export type Column<

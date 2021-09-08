@@ -5,10 +5,10 @@ import {
   HashtagIcon,
   KeyIcon,
   SelectorIcon,
+  VariableIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums"
-import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isPlainObject from "lodash/isPlainObject";
@@ -48,6 +48,10 @@ export const getColumnOptions = (
     {
       id: "Textarea",
       label: "Text area",
+    },
+    {
+      id: "Json",
+      label: "Json",
     },
   ];
 
@@ -98,6 +102,8 @@ export const iconForField = (field: Column): ElementType => {
       return SelectorIcon;
     case "Textarea":
       return AnnotationIcon;
+    case "Json":
+      return VariableIcon;
   }
 };
 
@@ -125,4 +131,7 @@ export const getBaseOptions = () => ({
   visibility: [Views.index, Views.show, Views.edit, Views.new],
   required: false,
   nullable: false,
+  readonly: false,
+  placeholder: "",
+  help: '',
 })

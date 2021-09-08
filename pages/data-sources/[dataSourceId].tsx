@@ -1,8 +1,10 @@
 import { skipToken } from "@reduxjs/toolkit/dist/query";
-import { useGetTablesQuery } from "@/features/tables/tables-api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
+import LoadingOverlay from "@/components/LoadingOverlay"
 import React from "react";
+import isEmpty from "lodash/isEmpty"
 
 function DataSourcesShow() {
   const router = useRouter();
@@ -13,9 +15,9 @@ function DataSourcesShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading data sources...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && "Please select a table"}
+      {!isLoading && data?.ok && <div className="p-4">👈  &nbsp;Select a table to get started.</div>}
     </Layout>
   );
 }
