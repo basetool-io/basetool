@@ -211,7 +211,6 @@ const Form = ({
         }
       >
         <>
-        <pre>{JSON.stringify(diff, null, 2)}</pre>
           <form onSubmit={handleSubmit(onSubmit)}>
             {columns &&
               columns.map((column: Column) => {
