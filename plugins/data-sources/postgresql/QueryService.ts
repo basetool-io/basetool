@@ -468,7 +468,6 @@ class QueryService implements IQueryService {
     WHERE  i.indrelid = ?::regclass
     AND    i.indisprimary;`;
     const { rows } = await this.client.raw(query, [tableName]);
-    console.log("rows->", rows);
 
     if (!isEmpty(rows)) {
       return rows[0].attname;
