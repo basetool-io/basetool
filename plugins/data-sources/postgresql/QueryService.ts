@@ -22,7 +22,7 @@ export type KnexColumnInfo = {
   defaultValue: string;
 };
 
-export type ForeignKeyInfo = {
+export type DBForeignKeyInfo = {
   table_schema: string;
   constraint_name: string;
   table_name: string;
@@ -32,12 +32,13 @@ export type ForeignKeyInfo = {
   foreign_column_name: string;
 };
 
-export type CamelCaseForeignKeyInfo = {
-  tableSchema: string;
+// Removed the schema bc we can't access information_schema.constraint_column_usage on supabase
+export type ForeignKeyInfo = {
+  // tableSchema: string;
   constraintName: string;
   tableName: string;
   columnName: string;
-  foreignTableSchema: string;
+  // foreignTableSchema: string;
   foreignTableName: string;
   foreignColumnName: string;
 };
@@ -50,7 +51,7 @@ export type ColumnWithSourceInfo = {
 };
 
 export interface ColumnWithForeignKeyInfo extends ColumnWithSourceInfo {
-  foreignKeyInfo?: CamelCaseForeignKeyInfo;
+  foreignKeyInfo?: ForeignKeyInfo;
 }
 
 export interface ColumnWithBaseOptions extends ColumnWithForeignKeyInfo {
@@ -219,18 +220,19 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
   }): Promise<[]> {
-    const query = this.client
-      .table(tableName)
-      .limit(limit)
-      .offset(offset)
-      .select();
+    const query = this.client.table(tableName);
+    // @todo: bring in joins
+
+    if (limit && offset) {
+      query.limit(limit).offset(offset).select();
+    }
 
     if (filters) {
       filters.forEach((filter) => addFilterToQuery(query, filter));
     }
 
     if (orderBy) {
-      query.orderBy(orderBy, orderDirection);
+      query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
     return query as unknown as [];
@@ -361,14 +363,9 @@ class QueryService implements IQueryService {
   ): Promise<[]> {
     const rawColumns = await this.client.table(tableName).columnInfo();
     const primaryKeyColumn = await this.getPrimaryKeyColumn(tableName);
-    const foreignKeys = (await this.getForeignKeys(tableName)).map(
-      (fk: ForeignKeyInfo) =>
-        Object.fromEntries(
-          Object.entries(fk).map(([key, value]) => [camelCase(key), value])
-        )
-    );
+    const foreignKeys = await this.getForeignKeys(tableName);
     const foreignKeysByColumnName = Object.fromEntries(
-      foreignKeys.map((fk: CamelCaseForeignKeyInfo) => [fk.columnName, fk])
+      foreignKeys.map((fk: ForeignKeyInfo) => [fk.columnName, fk])
     );
 
     // turn knex column info to intermediate column (add dataSourceInfo)
@@ -464,41 +461,74 @@ class QueryService implements IQueryService {
   private async getPrimaryKeyColumn(
     tableName: string
   ): Promise<string | undefined> {
-    const { rows } = await this.client
-      .raw(`SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
-  FROM   pg_index i
-  JOIN   pg_attribute a ON a.attrelid = i.indrelid
-                       AND a.attnum = ANY(i.indkey)
-  WHERE  i.indrelid = '${tableName}'::regclass
-  AND    i.indisprimary;`);
+    const query = `SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+    FROM   pg_index i
+    JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                         AND a.attnum = ANY(i.indkey)
+    WHERE  i.indrelid = ?::regclass
+    AND    i.indisprimary;`;
+    const { rows } = await this.client.raw(query, [tableName]);
+    console.log("rows->", rows);
 
     if (!isEmpty(rows)) {
       return rows[0].attname;
     }
   }
 
-  private async getForeignKeys(tableName: string) {
-    const query = `SELECT
-    tc.table_schema,
-    tc.constraint_name,
-    tc.table_name,
-    kcu.column_name,
-    ccu.table_schema AS foreign_table_schema,
-    ccu.table_name AS foreign_table_name,
-    ccu.column_name AS foreign_column_name
-FROM
-    information_schema.table_constraints AS tc
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-      AND tc.table_schema = kcu.table_schema
-    JOIN information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-      AND ccu.table_schema = tc.table_schema
-WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=?;
+  private async getForeignKeys(tableName: string): Promise<ForeignKeyInfo[]> {
+    // We can't use this query bc we can't accss information_schema.constraint_column_usage in supabase
+    //     const query = `SELECT
+    //     tc.table_schema,
+    //     tc.constraint_name,
+    //     tc.table_name,
+    //     kcu.column_name,
+    //     ccu.table_schema AS foreign_table_schema,
+    //     ccu.table_name AS foreign_table_name,
+    //     ccu.column_name AS foreign_column_name
+    // FROM
+    //     information_schema.table_constraints AS tc
+    //     JOIN information_schema.key_column_usage AS kcu
+    //       ON tc.constraint_name = kcu.constraint_name
+    //       AND tc.table_schema = kcu.table_schema
+    //     JOIN information_schema.constraint_column_usage AS ccu
+    //       ON ccu.constraint_name = tc.constraint_name
+    //       AND ccu.table_schema = tc.table_schema
+    // WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=?;
+    // `;
+
+    const query = `
+    WITH unnested_confkey AS (
+      SELECT oid, unnest(confkey) as confkey
+      FROM pg_constraint
+    ),
+    unnested_conkey AS (
+      SELECT oid, unnest(conkey) as conkey
+      FROM pg_constraint
+    )
+    select
+      c.conname                   AS constraint_name,
+      c.contype                   AS constraint_type,
+      tbl.relname                 AS table_name,
+      col.attname                 AS column_name,
+      referenced_tbl.relname      AS foreign_table_name,
+      referenced_field.attname    AS foreign_column_name,
+      pg_get_constraintdef(c.oid) AS definition
+    FROM pg_constraint c
+    LEFT JOIN unnested_conkey con ON c.oid = con.oid
+    LEFT JOIN pg_class tbl ON tbl.oid = c.conrelid
+    LEFT JOIN pg_attribute col ON (col.attrelid = tbl.oid AND col.attnum = con.conkey)
+    LEFT JOIN pg_class referenced_tbl ON c.confrelid = referenced_tbl.oid
+    LEFT JOIN unnested_confkey conf ON c.oid = conf.oid
+    LEFT JOIN pg_attribute referenced_field ON (referenced_field.attrelid = c.confrelid AND referenced_field.attnum = conf.confkey)
+    WHERE c.contype = 'f' and tbl.relname = ?;
 `;
     const { rows } = await this.client.raw(query, [tableName]);
 
-    return rows;
+    return rows.map((fk: ForeignKeyInfo) =>
+      Object.fromEntries(
+        Object.entries(fk).map(([key, value]) => [camelCase(key), value])
+      )
+    );
   }
 }
 
@@ -511,9 +541,8 @@ const getColumnLabel = (column: { name: string }) => {
 const getFieldTypeFromColumnInfo = (
   column: ColumnWithBaseOptions
 ): FieldType => {
-  // console.log("column->", column);
   if (column.foreignKeyInfo) {
-    return "ForeignKey";
+    return "Association";
   }
 
   const { name } = column;

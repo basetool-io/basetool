@@ -1,14 +1,14 @@
 import { ElementType } from "react";
 import { Views } from "./enums";
+import AssociationEditField from "@/plugins/fields/Association/Edit";
+import AssociationIndexField from "@/plugins/fields/Association/Index";
+import AssociationShowField from "@/plugins/fields/Association/Show";
 import BooleanEditField from "@/plugins/fields/Boolean/Edit";
 import BooleanIndexField from "@/plugins/fields/Boolean/Index";
 import BooleanShowField from "@/plugins/fields/Boolean/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
-import ForeignKeyEditField from "@/plugins/fields/ForeignKey/Edit";
-import ForeignKeyIndexField from "@/plugins/fields/ForeignKey/Index";
-import ForeignKeyShowField from "@/plugins/fields/ForeignKey/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
 import IdIndexField from "@/plugins/fields/Id/Index";
 import IdShowField from "@/plugins/fields/Id/Show";
@@ -87,8 +87,8 @@ export const getFieldForEdit = (column: Column) => {
       return TextareaEditField;
     case "Json":
       return JsonEditField;
-    case "ForeignKey":
-      return ForeignKeyEditField;
+    case "Association":
+      return AssociationEditField;
   }
 };
 
@@ -111,8 +111,8 @@ export const getFieldForShow = (column: Column) => {
       return TextareaShowField;
     case "Json":
       return JsonShowField;
-    case "ForeignKey":
-      return ForeignKeyShowField;
+    case "Association":
+      return AssociationShowField;
   }
 };
 
@@ -135,8 +135,8 @@ export const getFieldForIndex = (column: Column) => {
       return TextareaIndexField;
     case "Json":
       return JsonIndexField;
-    case "ForeignKey":
-      return ForeignKeyIndexField;
+    case "Association":
+      return AssociationIndexField;
   }
 };
 

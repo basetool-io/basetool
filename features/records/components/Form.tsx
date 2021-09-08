@@ -1,11 +1,5 @@
 import { Button, ButtonGroup } from "@chakra-ui/button";
-import {
-  CheckCircleIcon,
-  ClockIcon,
-  XCircleIcon,
-} from "@heroicons/react/solid";
 import { Column } from "@/features/fields/types";
-import { SparklesIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
@@ -42,8 +36,8 @@ const makeSchema = async (record: Record, columns: Column[]) => {
       fieldSchema = (
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
-    } catch (error) {
-      logger.info("Error importing field schema->", error);
+    } catch (error: any) {
+      if (error.code !== 'MODULE_NOT_FOUND') logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
     }
     if (isFunction(fieldSchema)) {
@@ -151,7 +145,6 @@ const Form = ({
         if ("data" in response && response?.data?.ok) {
           // @todo: make these updates into a pretty message
           const updates = JSON.stringify(diff);
-          toast.success(`Updated: ${updates}`);
         }
 
         router.push(backLink);
@@ -172,7 +165,7 @@ const Form = ({
         status={
           <>
             <div>
-              <div className="flex">
+              {/* <div className="flex">
                 {formState.isDirty || (
                   <span className="text-xs text-gray-600">
                     <SparklesIcon className="inline h-4" /> Clean
@@ -197,7 +190,7 @@ const Form = ({
                     <ClockIcon className="inline h-4" /> Loading
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
           </>
         }
@@ -218,6 +211,7 @@ const Form = ({
         }
       >
         <>
+        <pre>{JSON.stringify(diff, null, 2)}</pre>
           <form onSubmit={handleSubmit(onSubmit)}>
             {columns &&
               columns.map((column: Column) => {

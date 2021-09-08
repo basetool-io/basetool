@@ -18,6 +18,6 @@ export const decodeObject = (text: string): ObjectType => {
   try {
     return JSON.parse(decodedString)
   } catch (error) {
-    return {}
+    return
   }
 }

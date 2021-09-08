@@ -10,7 +10,7 @@ export type FieldType =
   | "Select"
   | "Textarea"
   | "Json"
-  | "ForeignKey";
+  | "Association";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
@@ -45,7 +45,7 @@ export type Column<
   baseOptions: BaseOptions;
   dataSourceInfo: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
-  foreignKeyInfo?: CamelCaseForeignKeyInfo;
+  foreignKeyInfo?: ForeignKeyInfo;
 };
 
 export type FieldValue = string | number | undefined | boolean;

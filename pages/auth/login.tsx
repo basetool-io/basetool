@@ -6,16 +6,16 @@ import {
 } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/client";
 import { useRouter } from "next/router";
-import { useToggle } from "react-use"
-import Link from "next/link"
+import { useToggle } from "react-use";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 export default function SignIn() {
   const [session, isLoading] = useSession();
   const router = useRouter();
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isDisabled, setIsDisabled] = useToggle(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isDisabled, setIsDisabled] = useToggle(false);
 
   useEffect(() => {
     if (!isLoading && session) {
@@ -33,9 +33,7 @@ export default function SignIn() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form
-            className="space-y-6"
-          >
+          <form className="space-y-6">
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input
@@ -91,14 +89,16 @@ export default function SignIn() {
             <div>
               <button
                 disabled={isDisabled}
-                onClick={async (e) =>{
-                  e.preventDefault()
-                  setIsDisabled(true)
-                  await signIn('credentials', {
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setIsDisabled(true);
+                  await signIn("credentials", {
                     redirect: false,
                     email,
                     password,
-                  })}}
+                  });
+                  setIsDisabled(false);
+                }}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Sign in
