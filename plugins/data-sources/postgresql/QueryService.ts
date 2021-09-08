@@ -4,7 +4,7 @@ import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { ListTable, PostgresqlColumnOptions } from "./types";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
-import { camelCase, isEmpty, isUndefined } from "lodash";
+import { camelCase, isEmpty, isNumber, isUndefined } from "lodash";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
@@ -223,7 +223,7 @@ class QueryService implements IQueryService {
     const query = this.client.table(tableName);
     // @todo: bring in joins
 
-    if (limit && offset) {
+    if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit).offset(offset).select();
     }
 

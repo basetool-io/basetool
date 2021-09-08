@@ -33,7 +33,15 @@ type ChangesObject = Record<string, unknown>;
 const getDynamicInspector = (fieldType: string) => {
   try {
     return dynamic(
-      () => import(`@/plugins/fields/${fieldType}/Inspector.tsx`),
+      () => {
+        try {
+          // return the Inspector component if found
+          return import(`@/plugins/fields/${fieldType}/Inspector.tsx`)
+        } catch (error) {
+          // return empty component
+          return Promise.resolve(() => '')
+        }
+      },
       {
         // eslint-disable-next-line react/display-name
         loading: ({ isLoading }: { isLoading?: boolean }) =>
