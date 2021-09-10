@@ -4,7 +4,7 @@
 html,
 body,
 #__next {
-  @apply w-full h-full relative;
+  @apply w-full h-full relative bg-cool-gray-700;
 }
 
 .CodeMirror {

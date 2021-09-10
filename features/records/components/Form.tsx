@@ -18,7 +18,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import BackButton from "./BackButton"
 import Joi, { ObjectSchema } from "joi";
 import LoadingOverlay from "@/components/LoadingOverlay"
-import PageWrapper from "./PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";

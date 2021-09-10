@@ -1,3 +1,4 @@
+import { MEMBER_ROLE, OWNER_ROLE } from "../roles";
 import { OrganizationUser, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "@/prisma";
@@ -51,18 +52,30 @@ export const createUser = async (data: {
         users: {
           create: {
             userId: user.id,
-            role: "admin",
           },
         },
-      },
-    });
-  } else {
-    await prisma.user.findFirst({
-      where: {
-        email,
+        roles: {
+          create: [
+            {
+              name: OWNER_ROLE,
+            },
+            { name: MEMBER_ROLE },
+          ],
+        },
       },
       include: {
-        organizations: true,
+        roles: true,
+      },
+    });
+
+    // assign the role of Admin to that first user
+    const role = organization.roles[0];
+    await prisma.organizationUser.updateMany({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        roleId: role.id,
       },
     });
   }
@@ -86,4 +99,4 @@ export const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(10);
 
   return await bcrypt.hashSync(password, salt);
-}
+};

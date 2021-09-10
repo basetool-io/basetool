@@ -5,9 +5,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
 import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
+import { OrganizationProvider } from "@/lib/OrganizationContext";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer } from "react-toastify";
-import React from "react";
+import { useGetOrganizationsQuery } from "@/features/organizations/api-slice";
+import React, { ReactNode, useMemo } from "react";
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
 
@@ -16,6 +18,22 @@ const INTERCOM_APP_ID = "u5el90h1";
 Tooltip.defaultProps = {
   hasArrow: true,
   placement: "top",
+};
+
+const GetOrganizations = ({ children }: { children: ReactNode }) => {
+  const { data: organizationsResponse, isLoading } =
+    useGetOrganizationsQuery(null); // not sure why this method needs 1-2 args. I added null to stisfy that req.
+  const organization = useMemo(
+    () =>
+      organizationsResponse?.ok ? organizationsResponse?.data[0] : {},
+    [organizationsResponse, isLoading]
+  );
+
+  return (
+    <OrganizationProvider value={organization}>
+      {children}
+    </OrganizationProvider>
+  );
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -30,7 +48,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ReduxProvider store={store}>
         <ChakraProvider resetCSS={false}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
-            <Component {...pageProps} />
+            <GetOrganizations>
+              <Component {...pageProps} />
+            </GetOrganizations>
           </IntercomProvider>
           <ToastContainer
             position="top-center"
