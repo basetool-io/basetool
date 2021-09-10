@@ -1,32 +1,28 @@
-import {
-  CheckCircleIcon,
-  ClockIcon,
-  XCircleIcon,
-} from "@heroicons/react/solid";
+import { Button, ButtonGroup } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
-import { SparklesIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
+import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
-import { updatedDiff } from "deep-object-diff";
-import {
-  useAddRecordMutation,
-  useUpdateRecordMutation,
-} from "@/features/records/records-api-slice";
 import { useBoolean } from "react-use";
+import {
+  useCreateRecordMutation,
+  useUpdateRecordMutation,
+} from "@/features/records/api-slice";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
+import BackButton from "./BackButton"
 import Joi, { ObjectSchema } from "joi";
-import Link from "next/link";
-import MenuItem from "@/features/fields/components/MenuItem";
+import LoadingOverlay from "@/components/LoadingOverlay"
+import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
-import type { Record } from '@/features/records/types'
+import type { Record } from "@/features/records/types";
 
 const makeSchema = async (record: Record, columns: Column[]) => {
   const schema: { [columnName: string]: any } = {};
@@ -40,8 +36,8 @@ const makeSchema = async (record: Record, columns: Column[]) => {
       fieldSchema = (
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
-    } catch (error) {
-      logger.info("Error importing field schema->", error);
+    } catch (error: any) {
+      if (error.code !== 'MODULE_NOT_FOUND') logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
     }
     if (isFunction(fieldSchema)) {
@@ -58,13 +54,12 @@ const makeSchema = async (record: Record, columns: Column[]) => {
 const Form = ({
   record,
   columns,
-  isCreating,
+  formForCreate = false,
 }: {
   record: Record;
   columns: Column[];
-  isCreating?: boolean;
+  formForCreate?: boolean;
 }) => {
-  isCreating = !isUndefined(isCreating); // default to false
   const router = useRouter();
   const [isLoading, setIsLoading] = useBoolean(false);
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
@@ -84,15 +79,26 @@ const Form = ({
     });
 
   const formData = watch();
-  const diff = updatedDiff(record, formData);
 
-  const showLink = useMemo(
-    () =>
-      `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/`,
-    [router.query.dataSourceId, router.query.tableName]
-  );
+  const diff = difference(record, formData);
 
-  const [addRecord, { isLoading: isAdding }] = useAddRecordMutation();
+  const backLink = useMemo(() => {
+    if (router.query.fromTable) {
+      if (router.query.fromRecord) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
+      }else{
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+      }
+    }
+
+    if (formForCreate) {
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+    } else {
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+    }
+  }, [router.query])
+
+  const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
 
   const onSubmit = async (formData: any) => {
@@ -100,8 +106,8 @@ const Form = ({
 
     setIsLoading(true);
     try {
-      if (isCreating) {
-        response = await addRecord({
+      if (formForCreate) {
+        response = await createRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           body: {
@@ -139,10 +145,9 @@ const Form = ({
         if ("data" in response && response?.data?.ok) {
           // @todo: make these updates into a pretty message
           const updates = JSON.stringify(diff);
-          toast.success(`Updated: ${updates}`);
         }
 
-        router.push(showLink);
+        router.push(backLink);
       } else {
         toast.error("Not enough data.");
       }
@@ -155,52 +160,57 @@ const Form = ({
 
   return (
     <>
-      <div className="flex flex-col">
-        <div className="flex justify-between">
-          <div>
-            <div className="flex">
-              {formState.isDirty || (
-                <span className="text-xs text-gray-600">
-                  <SparklesIcon className="inline h-4" /> Clean
-                </span>
-              )}
-              {formState.isDirty && (
-                <>
-                  {formState.isValid && (
-                    <span className="text-xs text-green-600">
-                      <CheckCircleIcon className="inline h-4" /> Valid
-                    </span>
-                  )}
-                  {formState.isValid || (
-                    <span className="text-xs text-red-600">
-                      <XCircleIcon className="inline h-4" /> Invalid
-                    </span>
-                  )}
-                </>
-              )}
-              {isLoading && (
-                <span className="text-xs text-gray-600">
-                  <ClockIcon className="inline h-4" /> Loading
-                </span>
-              )}
+      <PageWrapper
+        heading="Edit record"
+        status={
+          <>
+            <div>
+              {/* <div className="flex">
+                {formState.isDirty || (
+                  <span className="text-xs text-gray-600">
+                    <SparklesIcon className="inline h-4" /> Clean
+                  </span>
+                )}
+                {formState.isDirty && (
+                  <>
+                    {formState.isValid && (
+                      <span className="text-xs text-green-600">
+                        <CheckCircleIcon className="inline h-4" /> Valid
+                      </span>
+                    )}
+                    {formState.isValid || (
+                      <span className="text-xs text-red-600">
+                        <XCircleIcon className="inline h-4" /> Invalid
+                      </span>
+                    )}
+                  </>
+                )}
+                {isLoading && (
+                  <span className="text-xs text-gray-600">
+                    <ClockIcon className="inline h-4" /> Loading
+                  </span>
+                )}
+              </div> */}
             </div>
-          </div>
-          <div className="flex space-x-4">
-            <Link href={showLink} passHref>
-              <MenuItem>Back</MenuItem>
-            </Link>
-            <div className="flex justify-between">
-              <MenuItem
+          </>
+        }
+        buttons={
+          <>
+            <ButtonGroup size="sm">
+              <BackButton href={backLink} />
+              <Button
+                colorScheme="blue"
                 onClick={() => {
                   handleSubmit(onSubmit)();
                 }}
               >
-                {isCreating ? "Create" : "Save"}
-              </MenuItem>
-            </div>
-          </div>
-        </div>
-        <div>
+                {formForCreate ? "Create" : "Save"}
+              </Button>
+            </ButtonGroup>
+          </>
+        }
+      >
+        <>
           <form onSubmit={handleSubmit(onSubmit)}>
             {columns &&
               columns.map((column: Column) => {
@@ -229,11 +239,12 @@ const Form = ({
                   />
                 );
               })}
-            {isUpdating && "Is updating"}
+            {isCreating && <LoadingOverlay label="Creating..." />}
+            {isUpdating && <LoadingOverlay label="Updating..." />}
             <input type="submit" value="Submit" className="hidden" />
           </form>
-        </div>
-      </div>
+        </>
+      </PageWrapper>
 
       {/* <pre>{JSON.stringify(diff, null, 2)}</pre> */}
       {/* <pre>{JSON.stringify(record, null, 2)}</pre> */}
@@ -243,4 +254,4 @@ const Form = ({
   );
 };
 
-export default Form
+export default Form;

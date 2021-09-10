@@ -14,20 +14,22 @@ import {
   useResizeColumns,
   useTable,
 } from "react-table";
-import { OrderDirection } from "@/pages/data-sources/[dataSourceId]/tables/[tableName]"
+import { OrderDirection } from "../types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
-import { isUndefined } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { makeField } from "@/features/fields";
-import {
-  useGetRecordsQuery,
-  usePrefetch,
-} from "@/features/records/records-api-slice";
+import { useFilters } from "@/hooks";
+import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useMemo, useState } from "react";
 import classNames from "classnames";
+import numeral from "numeral";
+
+const DEFAULT_PER_PAGE = 24;
 
 const Cell = ({
   row,
@@ -89,7 +91,7 @@ const usePagination = ({ perPage }: { perPage: number }) => {
     setPage(nextPageNumber);
   };
 
-  return { page , limit, offset, nextPage, previousPage };
+  return { page, limit, offset, nextPage, previousPage };
 };
 
 const RecordsTable = ({
@@ -109,25 +111,27 @@ const RecordsTable = ({
   orderDirection: OrderDirection;
   setOrderDirection: (direction: OrderDirection) => void;
 }) => {
-  const router = useRouter()
+  const router = useRouter();
+  // @todo: Get filters from the URL param
+  const { encodedFilters } = useFilters();
   // @todo: per page selector
-  const [perPage, setPerPage] = useState(24)
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
   const { page, limit, offset, nextPage, previousPage } = usePagination({
-      perPage,
-    });
+    perPage,
+  });
 
   const {
     data: recordsResponse,
     error,
-    isLoading,
+    isFetching,
   } = useGetRecordsQuery({
     dataSourceId,
     tableName,
-    filters: '',
+    filters: encodedFilters,
     limit: limit.toString(),
     offset: offset.toString(),
-    orderBy: orderBy ? orderBy : '',
-    orderDirection: orderDirection ? orderDirection : '',
+    orderBy: orderBy ? orderBy : "",
+    orderDirection: orderDirection ? orderDirection : "",
   });
 
   const meta = useMemo(() => recordsResponse?.meta, [recordsResponse?.meta]);
@@ -169,7 +173,7 @@ const RecordsTable = ({
     useResizeColumns
   );
 
-  const { pageIndex, pageSize, columnResizing } = useMemo(
+  const { columnResizing } = useMemo(
     () => ({
       pageIndex: state.pageIndex,
       pageSize: state.pageSize,
@@ -183,26 +187,26 @@ const RecordsTable = ({
   const prefetchRecord = usePrefetch("getRecord");
 
   const handleOrder = (columnName: string) => {
-    let newOrderDirection: OrderDirection = ''
-    let newOrderBy = ''
+    let newOrderDirection: OrderDirection = "";
+    let newOrderBy = "";
 
     if (orderBy !== columnName) {
       newOrderDirection = "asc";
-      newOrderBy = columnName
+      newOrderBy = columnName;
     } else {
       switch (orderDirection) {
         default:
         case "":
           newOrderDirection = "asc";
-          newOrderBy = columnName
+          newOrderBy = columnName;
           break;
         case "asc":
           newOrderDirection = "desc";
-          newOrderBy = columnName
+          newOrderBy = columnName;
           break;
         case "desc":
           newOrderDirection = "";
-          newOrderBy = ""
+          newOrderBy = "";
           break;
       }
     }
@@ -210,16 +214,16 @@ const RecordsTable = ({
     setOrderDirection(newOrderDirection);
     setOrderBy(newOrderBy);
 
-    const query = {...router.query}
+    const query = { ...router.query };
     if (newOrderBy) {
-      query.orderBy = newOrderBy
+      query.orderBy = newOrderBy;
     } else {
-      delete query.orderBy
+      delete query.orderBy;
     }
     if (newOrderDirection) {
-      query.orderDirection = newOrderDirection
+      query.orderDirection = newOrderDirection;
     } else {
-      delete query.orderDirection
+      delete query.orderDirection;
     }
 
     router.push({
@@ -227,17 +231,14 @@ const RecordsTable = ({
       query,
     });
   };
-  console.log('RecordsTalbw->', orderBy, orderDirection)
 
   return (
-    <div className="relative flex flex-col justify-between overflow-auto h-full">
-      {/* <pre>{JSON.stringify([orderBy, orderDirection], null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify({
-        page
-      }, null, 2)}</pre> */}
-      {isLoading && <div>loading...</div>}
+    <div className="relative flex flex-col justify-between h-full w-full">
+      {isFetching && (
+        <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />
+      )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && !isValid && (
+      {!isFetching && !isValid && (
         <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
           No rows found
         </div>
@@ -249,10 +250,10 @@ const RecordsTable = ({
         </div>
       )}
       {tableIsVisible && (
-        <div className="flex-1 flex">
+        <div className="flex-1 flex max-h-full w-full">
           <div
             className={
-              "table-widget relative block min-w-full divide-y divide-gray-200 overflow-auto"
+              "table-widget relative divide-y divide-gray-200 overflow-auto"
             }
             {...getTableProps()}
           >
@@ -267,9 +268,7 @@ const RecordsTable = ({
                         {...column.getHeaderProps()}
                         className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
-                        {/* <pre>{JSON.stringify(column.getOrderByToggleProps(), null, 2)}</pre> */}
                         <div
-                          // {...column.getOrderByToggleProps()}
                           className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
                           onClick={() => handleOrder(column.meta.name)}
                         >
@@ -312,7 +311,7 @@ const RecordsTable = ({
                 const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
 
                 const rowContent = (
-                  <div
+                  <a
                     {...row.getRowProps()}
                     onMouseOver={() => {
                       const id = row.original?.id?.toString();
@@ -339,7 +338,7 @@ const RecordsTable = ({
                         {cell.render("Cell")}
                       </div>
                     ))}
-                  </div>
+                  </a>
                 );
 
                 if (hasId) {
@@ -357,13 +356,13 @@ const RecordsTable = ({
         </div>
       )}
       <nav
-        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-sm"
+        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b"
         aria-label="Pagination"
       >
         <div className="inline-block text-gray-500 text-sm">
           {/* @todo: show a pretty numebr (2.7K in total) */}
-          Showing {offset + 1}-{perPage * page} of{" "}
-          {meta?.count ? `${meta.count} in total` : ""}
+          Showing {offset + 1}-{perPage * page} {meta?.count && 'of '}
+          {meta?.count ? `${meta.count < 1000 ? meta.count : numeral(meta.count).format("0.0a")} in total` : ""}
         </div>
         <div className="flex justify-between sm:justify-end">
           <Button
@@ -373,25 +372,17 @@ const RecordsTable = ({
           >
             <ChevronLeftIcon className="h-4 text-gray-600" />
           </Button>
-          {/* @todo: show a pretty numebr (2.7K pages) */}
           <div className="flex items-center px-2 space-x-1">
-            {page}
-            <span className="pl-1">of {maxPages}</span>
+            <span className="text-gray-500 mr-1">page</span> {page}{" "}
+            <span className="pl-1">
+              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
+            </span>
           </div>
           <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
             <ChevronRightIcon className="h-4 text-gray-600" />
           </Button>
         </div>
-        <div>
-          {/* {dataQuery && (
-            <Tooltip label="Reload query" aria-label="Reload query">
-              <Button size="sm" onClick={() => reloadQuery()}>
-                <RefreshIcon className="h-4" />
-              </Button>
-            </Tooltip> */}
-          {/* ) */}
-          {/* } */}
-        </div>
+        <div></div>
       </nav>
     </div>
   );

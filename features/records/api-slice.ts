@@ -1,6 +1,7 @@
 import { apiUrl } from "../api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import ApiResponse from "../api/ApiResponse";
+import URI from "urijs";
 
 export const recordsApiSlice = createApi({
   reducerPath: "records",
@@ -15,11 +16,11 @@ export const recordsApiSlice = createApi({
         {
           dataSourceId: string;
           tableName: string;
-          filters: string;
-          limit: string;
-          offset: string;
-          orderBy: string;
-          orderDirection: string;
+          filters?: string;
+          limit?: string;
+          offset?: string;
+          orderBy?: string;
+          orderDirection?: string;
         }
       >({
         query: ({
@@ -30,7 +31,20 @@ export const recordsApiSlice = createApi({
           offset,
           orderBy,
           orderDirection,
-        }) => `/data-sources/${dataSourceId}/tables/${tableName}/records?limit=${limit}&offset=${offset}&filters=${filters}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
+        }) => {
+          const queryParams = URI()
+            .query({
+              filters,
+              limit,
+              offset,
+              orderBy,
+              orderDirection,
+            })
+            .query()
+            .toString();
+
+          return `/data-sources/${dataSourceId}/tables/${tableName}/records?${queryParams}`;
+        },
         providesTags: (response) => {
           // is result available?
           if (response && response?.data) {
@@ -59,7 +73,7 @@ export const recordsApiSlice = createApi({
           { type: "Record", id: recordId },
         ],
       }),
-      addRecord: builder.mutation<
+      createRecord: builder.mutation<
         ApiResponse,
         Partial<{ dataSourceId: string; tableName: string; body: object }>
       >({
@@ -95,7 +109,7 @@ export const recordsApiSlice = createApi({
 export const {
   useGetRecordsQuery,
   useGetRecordQuery,
-  useAddRecordMutation,
+  useCreateRecordMutation,
   useUpdateRecordMutation,
   usePrefetch,
 } = recordsApiSlice;

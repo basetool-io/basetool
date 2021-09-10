@@ -1,15 +1,19 @@
+import { Button, ButtonGroup } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
-import { useGetColumnsQuery } from "@/features/tables/tables-api-slice";
-import { useGetRecordQuery } from "@/features/records/records-api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import BackButton from "@/features/records/components/BackButton"
 import Layout from "@/components/Layout";
 import Link from "next/link";
-import MenuItem from "@/features/fields/components/MenuItem";
+import LoadingOverlay from "@/components/LoadingOverlay"
+import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
+import isEmpty from "lodash/isEmpty"
 import type { Record } from "@/features/records/types";
 
 const RecordShow = ({
@@ -20,25 +24,37 @@ const RecordShow = ({
   columns: Column[];
 }) => {
   const router = useRouter();
+  const backLink = useMemo(() => {
+    if (router.query.fromTable) {
+      if (router.query.fromRecord) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
+      }else{
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+      }
+    }
+
+    return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+  }, [router.query])
 
   return (
     <>
-      <div className="flex flex-col">
-        <div className="flex justify-end space-x-4">
-          <Link
-            href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
-            passHref
-          >
-            <MenuItem>Back</MenuItem>
-          </Link>
-          <Link
-            href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
-            passHref
-          >
-            <MenuItem>Edit</MenuItem>
-          </Link>
-        </div>
-        <div>
+      <PageWrapper
+        heading="View record"
+        buttons={
+          <>
+            <ButtonGroup size="sm">
+              <BackButton href={backLink} />
+              <Link
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                passHref
+              >
+                <Button colorScheme="blue">Edit</Button>
+              </Link>
+            </ButtonGroup>
+          </>
+        }
+      >
+        <>
           {columns &&
             record &&
             columns.map((column: Column) => {
@@ -51,8 +67,8 @@ const RecordShow = ({
 
               return <Element key={column.name} field={field} />;
             })}
-        </div>
-      </div>
+        </>
+      </PageWrapper>
     </>
   );
 };
@@ -92,7 +108,7 @@ function RecordsShow() {
 
   return (
     <Layout>
-      {isLoading && <div>loading...</div>}
+      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && data?.ok && columnsResponse?.ok && (
         <RecordShow record={data?.data} columns={columns} />

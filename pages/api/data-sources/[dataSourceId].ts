@@ -2,8 +2,8 @@ import { getDataSourceFromRequest } from '@/features/api'
 import { pick } from 'lodash'
 import { withSentry } from '@sentry/nextjs'
 import ApiResponse from '@/features/api/ApiResponse'
-import IsSignedIn from '../middleware/IsSignedIn'
-import OwnsDataSource from '../middleware/OwnsDataSource'
+import IsSignedIn from '../../../features/api/middleware/IsSignedIn'
+import OwnsDataSource from '../../../features/api/middleware/OwnsDataSource'
 import getSchema from '@/plugins/data-sources/getSchema'
 import prisma from '@/prisma'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -52,11 +52,11 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   await prisma.dataSource.delete({
     where: {
-      id: parseInt(req.query.id as string, 10),
+      id: parseInt(req.query.dataSourceId as string, 10),
     },
   })
 
-  return res.json(ApiResponse.withMessage('Deleted'))
+  return res.json(ApiResponse.withMessage('Data source removed.'))
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)))

@@ -1,8 +1,9 @@
+import { decodeObject } from "@/lib/encoding"
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/pages/api/middleware/IsSignedIn";
-import OwnsDataSource from "@/pages/api/middleware/OwnsDataSource";
+import IsSignedIn from "@/features/api/middleware/IsSignedIn";
+import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -29,14 +30,21 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
-  const records = await service.getRecords({
-    tableName: req.query.tableName as string,
-    filters: 'atob(req.query.filters as string)',
-    limit: parseInt(req.query.limit as string, 10),
-    offset: parseInt(req.query.offset as string, 10),
-    orderBy: req.query.orderBy as string,
-    orderDirection: req.query.orderDirection as string,}
-  );
+  const filters = decodeObject(req.query.filters as string)
+  let queryError
+  let records
+  try {
+    records = await service.getRecords({
+      tableName: req.query.tableName as string,
+      filters,
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : null,
+      offset: req.query.offset ? parseInt(req.query.offset as string, 10) : null,
+      orderBy: req.query.orderBy as string,
+      orderDirection: req.query.orderDirection as string,}
+    );
+  } catch (error: any) {
+    queryError = error.message
+  }
 
   const count = await service.getRecordsCount(
     req.query.tableName as string
@@ -44,7 +52,11 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData(records, {meta: {count}}));
+  if (queryError) {
+    res.json(ApiResponse.withError(queryError));
+  } else {
+    res.json(ApiResponse.withData(records, {meta: {count}}));
+  }
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
@@ -68,7 +80,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       req.query.recordId as string,
       record
     );
-  } catch (error) {
+  } catch (error: any) {
     return res.json(ApiResponse.withError(error.message));
   }
 

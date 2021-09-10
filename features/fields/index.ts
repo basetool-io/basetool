@@ -1,13 +1,15 @@
 import {
   AnnotationIcon,
+  ArrowRightIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  SelectorIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums"
-import AlignLeftIcon from "@/components/svg/AlignLeftIcon";
+import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon"
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isPlainObject from "lodash/isPlainObject";
@@ -41,8 +43,20 @@ export const getColumnOptions = (
       label: "Date time",
     },
     {
+      id: "Select",
+      label: "Select",
+    },
+    {
       id: "Textarea",
       label: "Text area",
+    },
+    {
+      id: "Json",
+      label: "Json",
+    },
+    {
+      id: "Association",
+      label: "Association",
     },
   ];
 
@@ -89,8 +103,14 @@ export const iconForField = (field: Column): ElementType => {
       return CheckCircleIcon;
     case "DateTime":
       return CalendarIcon;
+    case "Select":
+      return SelectorIcon;
     case "Textarea":
       return AnnotationIcon;
+    case "Json":
+      return BracketsCurlyIcon;
+    case "Association":
+      return ArrowRightIcon;
   }
 };
 
@@ -118,4 +138,7 @@ export const getBaseOptions = () => ({
   visibility: [Views.index, Views.show, Views.edit, Views.new],
   required: false,
   nullable: false,
+  readonly: false,
+  placeholder: "",
+  help: '',
 })

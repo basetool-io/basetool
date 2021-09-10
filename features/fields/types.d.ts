@@ -5,10 +5,13 @@ export type FieldType =
   | "Id"
   | "Text"
   | "Number"
-  | "Select"
   | "Boolean"
   | "DateTime"
-  | "Textarea";
+  | "Select"
+  | "Textarea"
+  | "Json"
+  | "Association";
+
 export type ForeignKey = {
   /* eslint-disable camelcase */
   table_schema: string;
@@ -25,6 +28,9 @@ export type BaseOptions = {
   visibility: Views[];
   nullable: boolean;
   required: boolean;
+  readonly: boolean;
+  placeholder: string;
+  help: string;
 };
 
 export type Column<
@@ -39,6 +45,7 @@ export type Column<
   baseOptions: BaseOptions;
   dataSourceInfo: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
+  foreignKeyInfo?: ForeignKeyInfo;
 };
 
 export type FieldValue = string | number | undefined | boolean;
