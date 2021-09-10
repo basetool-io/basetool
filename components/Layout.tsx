@@ -55,19 +55,17 @@ function Layout({ children }: { children: ReactNode }) {
           <div className="flex min-w-[4rem] max-w-[4rem]">
             <DataSourcesSidebar />
           </div>
-          {tablesSidebarVisible && (
-            <div className="flex min-w-[14rem] max-w-[14rem]">
-              <Sidebar />
-            </div>
-          )}
-          {settingsSidebarVisible && (
-            <div className="flex min-w-[14rem] max-w-[14rem]">
-              <SettingsSidebar />
-            </div>
-          )}
-          <div className="flex-1 flex flex-col w-full h-full overflow-auto bg-cool-gray-100 rounded-l-lg shadow">
-            <div className="relative flex flex-1 w-full max-h-full">
-              {children}
+          <div className="flex flex-1 w-full h-full bg-cool-gray-100 rounded-l-lg shadow">
+            {(tablesSidebarVisible || settingsSidebarVisible) && (
+              <div className="flex min-w-[14rem] max-w-[14rem]">
+                {tablesSidebarVisible && <Sidebar />}
+                {settingsSidebarVisible && <SettingsSidebar />}
+              </div>
+            )}
+            <div className="flex-1 flex flex-col w-full h-full overflow-auto">
+              <div className="relative flex flex-1 w-full max-h-full">
+                {children}
+              </div>
             </div>
           </div>
         </div>

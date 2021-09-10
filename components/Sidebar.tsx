@@ -57,7 +57,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative py-2 pl-2 w-full bg-cool-gray-100 rounded-l-lg shadow">
+    <div className="relative py-2 pl-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
       <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
         {dataSourceResponse?.ok && (
