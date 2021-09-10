@@ -35,7 +35,7 @@ const DataSourceItem = ({
               "flex items-center justify-center w-12 h-12 rounded bg-cool-gray-400 text-white",
               "hover:bg-cool-gray-200 overflow-hidden overflow-ellipsis w-full",
               "block text-gray-800 hover:text-gray-800 font-normal cursor-pointer text-sm py-3 px-3 rounded-md leading-none",
-              { "bg-cool-gray-300 hover:bg-cool-gray-200 ": active }
+              { "bg-cool-gray-300 hover:bg-cool-gray-200": active }
             )}
           >
             {icon}
