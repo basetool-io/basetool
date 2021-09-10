@@ -10,7 +10,7 @@ export const organizationsApiSlice = createApi({
   tagTypes: ["Organization"],
   endpoints(builder) {
     return {
-      getOrganizations: builder.query<ApiResponse, undefined>({
+      getOrganizations: builder.query({
         query: () =>
           `/organizations`,
         providesTags: (response) => {

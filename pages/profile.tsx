@@ -2,11 +2,13 @@ import { Button } from "@chakra-ui/react";
 import { signOut, useSession } from "next-auth/client";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import OrganizationContext from "@/lib/OrganizationContext"
 import PageWrapper from "@/components/PageWrapper";
-import React from "react";
+import React, { useContext } from "react";
 
 function Profile() {
   const [session, sessionIsLoading] = useSession();
+  const organization = useContext(OrganizationContext);
 
   return (
     <Layout>
@@ -18,6 +20,7 @@ function Profile() {
               <div>
                 <div>Name: {session?.user?.name}</div>
                 <div>Email: {session?.user?.email}</div>
+                <div>Organization: {organization?.name}</div>
               </div>
               <div className="flex justify-center">
                 <Button

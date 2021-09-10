@@ -24,15 +24,14 @@ import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OrganizationContext from "@/lib/OrganizationContext"
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 export type Ability = {
   id: string;
   label: string;
 };
-// @todo: fetch this from somewhere else
-const organizationId = 10;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const RoleEditor = ({
@@ -44,6 +43,7 @@ const RoleEditor = ({
     | { id: ""; name: string; options: Record<string, unknown> };
   selectRole: (payload: { name: string }) => void;
 }) => {
+  const {id: organizationId} = useContext(OrganizationContext);
   const isCreateForm = currentRole.id === "";
   const [role, setRole] = useState(currentRole);
   const [abilities, setAbilities] = useState<Ability["id"][]>([]);
@@ -218,10 +218,11 @@ const RoleEditor = ({
 function Roles() {
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
+  const {id: organizationId} = useContext(OrganizationContext);
 
   const { data: rolesResponse, isLoading } = useGetRolesQuery({
-    organizationId: organizationId.toString(),
-  });
+    organizationId: organizationId?.toString(),
+  }, {skip: !organizationId});
 
   const roles = useMemo(
     () => (rolesResponse?.ok ? rolesResponse?.data : []),
