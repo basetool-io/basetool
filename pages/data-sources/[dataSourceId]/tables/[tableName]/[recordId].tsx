@@ -104,7 +104,6 @@ function RecordsShow() {
         : [],
     [columnsResponse?.data]
   ) as Column[];
-  if (router.query.error) throw new Error("Client error.");
 
   return (
     <Layout>

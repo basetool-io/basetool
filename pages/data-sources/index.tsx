@@ -1,5 +1,6 @@
 import { Code } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { useRouter } from "next/router"
 import { useSession } from "next-auth/client";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -38,6 +39,8 @@ function Index() {
     () => dataSourcesResponse?.ok && dataSourcesResponse.data.length > 0,
     [dataSourcesResponse]
   );
+  const router = useRouter()
+  if (router.query.error) throw new Error("Client error.");
 
   return (
     <Layout>
