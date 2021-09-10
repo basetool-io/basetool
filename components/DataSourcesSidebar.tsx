@@ -52,7 +52,7 @@ const DataSourcesSidebar = () => {
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
 
   return (
-    <div className="py-2 px-2 h-screen bg-cool-gray-700 border-cool-gray-800 text-white">
+    <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white">
       {dataSourcesResponse?.ok && (
         <div className="space-y-x w-full h-full flex flex-col justify-between">
           <div>

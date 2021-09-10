@@ -26,9 +26,6 @@ function Layout({ children }: { children: ReactNode }) {
   );
   const { boot, update } = useIntercom();
 
-  // Get the user's organization
-  // const {data: organizationResponse}
-
   useEffect(() => {
     // Boot up the Intercom widget
     if (inProduction) boot();
@@ -68,7 +65,7 @@ function Layout({ children }: { children: ReactNode }) {
               <SettingsSidebar />
             </div>
           )}
-          <div className="flex-1 flex flex-col w-full h-full overflow-auto bg-cool-gray-100">
+          <div className="flex-1 flex flex-col w-full h-full overflow-auto bg-cool-gray-100 rounded-l-lg shadow">
             <div className="relative flex flex-1 w-full max-h-full">
               {children}
             </div>
