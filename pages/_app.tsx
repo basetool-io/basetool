@@ -60,16 +60,15 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
       session={pageProps.session}
     >
-      {inProduction ||
-        (true && (
-          <>
-            <Script
-              strategy="lazyOnload"
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}`}
-            />
+      {inProduction && (
+        <>
+          <Script
+            strategy="lazyOnload"
+            src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}`}
+          />
 
-            <Script strategy="lazyOnload">
-              {`
+          <Script strategy="lazyOnload">
+            {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -77,9 +76,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
           gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
         `}
-            </Script>
-          </>
-        ))}
+          </Script>
+        </>
+      )}
       <ReduxProvider store={store}>
         <ChakraProvider resetCSS={false}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
