@@ -5,8 +5,10 @@ import {
 } from "@reduxjs/toolkit";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
+import { organizationsApiSlice } from "@/features/organizations/api-slice"
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
+import { rolesApiSlice } from "@/features/roles/api-slice"
 import { tablesApiSlice } from "@/features/tables/api-slice";
 import { toast } from "react-toastify"
 import recordsReducer from "@/features/records/state-slice";
@@ -42,13 +44,17 @@ const store = configureStore({
   reducer: {
     recordsState: recordsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
+    [organizationsApiSlice.reducerPath]: organizationsApiSlice.reducer,
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,
+    [rolesApiSlice.reducerPath]: rolesApiSlice.reducer,
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       dataSourcesApiSlice.middleware,
+      organizationsApiSlice.middleware,
       recordsApiSlice.middleware,
+      rolesApiSlice.middleware,
       tablesApiSlice.middleware,
       rtkQueryErrorLogger
     ),

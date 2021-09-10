@@ -311,7 +311,7 @@ const RecordsTable = ({
                 const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
 
                 const rowContent = (
-                  <div
+                  <a
                     {...row.getRowProps()}
                     onMouseOver={() => {
                       const id = row.original?.id?.toString();
@@ -338,7 +338,7 @@ const RecordsTable = ({
                         {cell.render("Cell")}
                       </div>
                     ))}
-                  </div>
+                  </a>
                 );
 
                 if (hasId) {

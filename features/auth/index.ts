@@ -1,4 +1,4 @@
-import { ADMIN_ROLE, MEMBER_ROLE } from "../roles";
+import { MEMBER_ROLE, OWNER_ROLE } from "../roles";
 import { OrganizationUser, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "@/prisma";
@@ -57,7 +57,7 @@ export const createUser = async (data: {
         roles: {
           create: [
             {
-              name: ADMIN_ROLE,
+              name: OWNER_ROLE,
             },
             { name: MEMBER_ROLE },
           ],

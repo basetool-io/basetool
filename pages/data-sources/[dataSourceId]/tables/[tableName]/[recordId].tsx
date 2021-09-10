@@ -10,7 +10,7 @@ import BackButton from "@/features/records/components/BackButton"
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay"
-import PageWrapper from "@/features/records/components/PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
 import isEmpty from "lodash/isEmpty"

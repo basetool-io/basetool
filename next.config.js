@@ -15,6 +15,11 @@ const moduleExports = {
         destination: '/data-sources',
         permanent: false,
       },
+      {
+        source: '/settings',
+        destination: '/settings/roles',
+        permanent: false,
+      },
     ]
   },
 };

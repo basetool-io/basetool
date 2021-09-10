@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
-import { getColumnOptions } from "@/features/fields";
+import { getColumnOptions, iconForField } from "@/features/fields";
 import { inDevelopment } from "@/lib/environment";
 import { isEmpty } from "lodash";
 import {
@@ -20,11 +20,11 @@ import {
 } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
-import ColumnListItem from "@/features/tables/components/ColumnListItem";
+import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import PageWrapper from "@/features/records/components/PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -36,10 +36,10 @@ const getDynamicInspector = (fieldType: string) => {
       () => {
         try {
           // return the Inspector component if found
-          return import(`@/plugins/fields/${fieldType}/Inspector.tsx`)
+          return import(`@/plugins/fields/${fieldType}/Inspector.tsx`);
         } catch (error) {
           // return empty component
-          return Promise.resolve(() => '')
+          return Promise.resolve(() => "");
         }
       },
       {
@@ -88,7 +88,7 @@ const ColumnEditor = ({
                 Sometimes we make mistakes. Choose the appropiate type of field
                 from these options"
             >
-              <FormControl id="country">
+              <FormControl id="fieldType">
                 <FormLabel>Field Type</FormLabel>
                 <Select
                   value={column.fieldType}
@@ -135,7 +135,7 @@ You can control where the field is visible here.`}
             <OptionWrapper
               helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
             >
-            <FormControl id="placeholder">
+              <FormControl id="placeholder">
                 <FormLabel>Placeholder</FormLabel>
                 <Input
                   type="text"
@@ -329,14 +329,23 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
             <div className="w-full relative p-4">
               <div className="mb-2">Fields</div>
               {columns &&
-                columns.map((c) => (
-                  <ColumnListItem
-                    key={c.name}
-                    column={c}
-                    selectedColumn={column}
-                    setColumn={setColumn}
-                  />
-                ))}
+                columns.map((col) => {
+                  const IconElement = iconForField(col);
+
+                  return (
+                    <ColumnListItem
+                      key={col.name}
+                      icon={<IconElement className="inline h-4 mr-2" />}
+                      active={col.name === column?.name}
+                      onClick={() => setColumn(col)}
+                    >
+                      {col.name}{" "}
+                      {col.baseOptions.required && (
+                        <sup className="text-red-600">*</sup>
+                      )}
+                    </ColumnListItem>
+                  );
+                })}
             </div>
           </div>
           <div className="flex-1 p-4">

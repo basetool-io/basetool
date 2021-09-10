@@ -18,7 +18,7 @@ import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import PageWrapper from "@/features/records/components/PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 

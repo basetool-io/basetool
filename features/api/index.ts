@@ -1,4 +1,4 @@
-import { DataSource, User } from "@prisma/client";
+import { DataSource, Organization, User } from "@prisma/client";
 import { NextApiRequest } from "next";
 import { getSession } from "next-auth/client";
 import prisma from "@/prisma";
@@ -10,6 +10,18 @@ export const getDataSourceFromRequest = async (
     where: {
       id: parseInt(
         (req.query.dataSourceId || req.body.dataSourceId) as string,
+        10
+      ),
+    },
+  });
+
+export const getOrganizationFromRequest = async (
+  req: NextApiRequest
+): Promise<Organization | null> =>
+  prisma.organization.findFirst({
+    where: {
+      id: parseInt(
+        (req.query.organizationId || req.body.organizationId) as string,
         10
       ),
     },

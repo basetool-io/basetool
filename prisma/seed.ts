@@ -17,7 +17,7 @@ async function main() {
       roles: {
         create: [
           {
-            name: 'Admin',
+            name: 'Owner',
           },
           {
             name: 'Member',
@@ -49,7 +49,7 @@ async function main() {
     data,
   });
 
-  // Admin user
+  // Owner user
   await prisma.organizationUser.create({
     data: {
       organizationId: organization.id,

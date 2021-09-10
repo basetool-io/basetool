@@ -16,7 +16,7 @@ import {
 } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import PageWrapper from "@/features/records/components/PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
 
 export interface IFormFields {
