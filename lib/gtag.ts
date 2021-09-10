@@ -1,4 +1,6 @@
 export const pageview = (url: string) => {
+  if (!(window as any)?.gtag) return
+
   (window as any).gtag("config", process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA, {
     page_path: url,
   });
@@ -6,6 +8,8 @@ export const pageview = (url: string) => {
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/events
 export const event = ({ action, category, label, value }: any) => {
+  if (!(window as any)?.gtag) return
+
   (window as any).gtag("event", action, {
     event_category: category,
     event_label: label,
