@@ -220,7 +220,7 @@ function Roles() {
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
   const {id: organizationId} = useContext(OrganizationContext);
 
-  const { data: rolesResponse, isLoading } = useGetRolesQuery({
+  const { data: rolesResponse, isFetching } = useGetRolesQuery({
     organizationId: organizationId?.toString(),
   }, {skip: !organizationId});
 
@@ -237,7 +237,7 @@ function Roles() {
     <Layout>
       <PageWrapper heading={`Settings / Roles`} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
-          {isLoading && <LoadingOverlay inPageWrapper />}
+          {isFetching && <LoadingOverlay inPageWrapper />}
           <div className="flex flex-shrink-0 w-1/4 border-r">
             <div className="w-full relative p-4">
               <div className="mb-2">Roles</div>
