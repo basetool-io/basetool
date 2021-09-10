@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3099",
     "build": "next build",
+    "dev": "next dev -p 3099",
     "start": "next start -p 3099",
-    "lint": "next lint",
+    "lint": "yarn tsc && next lint",
     "try": "yarn build && yarn start -p 3099",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",

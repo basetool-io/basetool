@@ -7,6 +7,7 @@ import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import Head from "next/head"
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -15,7 +16,6 @@ import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
 import isEmpty from "lodash/isEmpty";
 import type { Record } from "@/features/records/types";
-import Head from "next/head"
 
 const RecordShow = ({
   record,
