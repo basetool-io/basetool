@@ -52,10 +52,10 @@ function Layout({ children }: { children: ReactNode }) {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="flex w-screen h-screen">
-          <div className="flex min-w-[4rem] max-w-[4rem]">
+          <div className="flex w-[4rem] flex-grow-0 flex-shrink-0">
             <DataSourcesSidebar />
           </div>
-          <div className="flex flex-1 w-full h-full bg-cool-gray-100 rounded-l-lg shadow">
+          <div className="flex-1 flex h-full bg-cool-gray-100 rounded-l-lg shadow w-[calc(100%-4rem)]">
             {(tablesSidebarVisible || settingsSidebarVisible) && (
               <div className="flex min-w-[14rem] max-w-[14rem]">
                 {tablesSidebarVisible && <Sidebar />}
