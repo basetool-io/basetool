@@ -4,7 +4,8 @@ import { getSession } from "next-auth/client";
 import prisma from "@/prisma";
 
 export const getDataSourceFromRequest = async (
-  req: NextApiRequest
+  req: NextApiRequest,
+  options: Record<string, unknown> = {}
 ): Promise<DataSource | null> =>
   prisma.dataSource.findFirst({
     where: {
@@ -13,10 +14,12 @@ export const getDataSourceFromRequest = async (
         10
       ),
     },
+    ...options,
   });
 
 export const getOrganizationFromRequest = async (
-  req: NextApiRequest
+  req: NextApiRequest,
+  options: Record<string, unknown> = {}
 ): Promise<Organization | null> =>
   prisma.organization.findFirst({
     where: {
@@ -25,6 +28,7 @@ export const getOrganizationFromRequest = async (
         10
       ),
     },
+    ...options,
   });
 
 export const getUserFromRequest = async (

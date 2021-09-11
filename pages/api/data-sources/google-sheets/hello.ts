@@ -14,19 +14,8 @@ export default async function handler(
     }
   })
 
-  // return res.send(dataSource)
-
   if (dataSource) {
     const api = new GoogleSheetsService(dataSource)
-
-    // await api.loadInfo()
-    // console.log('api.sheetsByTitle->', api.sheetsByTitle)
-    // const sheets = Object.entries(api.sheetsByTitle).map(([title, spreadsheet]) => ({
-    //   id: spreadsheet.title,
-    //   title,
-    // }))
-    console.log('hey->', api)
-    // return res.send(api)
 
     let driveResponse
 

@@ -53,7 +53,7 @@ const DataSourcesSidebar = () => {
 
   return (
     <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white">
-      {isLoading && (<>&nbsp;</>)}
+      {isLoading && <>&nbsp;</>}
       {dataSourcesResponse?.ok && (
         <div className="space-y-x w-full h-full flex flex-col justify-between">
           <div>
@@ -72,29 +72,33 @@ const DataSourcesSidebar = () => {
 
                 {!isLoading &&
                   dataSourcesResponse?.ok &&
-                  dataSourcesResponse.data.map((dataSource: DataSource) => (
-                    <DataSourceItem
-                      key={dataSource.id}
-                      active={router.asPath.includes(
-                        `/data-sources/${dataSource.id}`
-                      )}
-                      icon={
-                        <Avatar
-                          name={
-                            dataSource.name == dataSource.name.toUpperCase()
-                              ? dataSource.name.split("").join(" ")
-                              : dataSource.name
-                          }
-                          maxInitials={3}
-                          round={true}
-                          size="40"
-                          color="transparent"
-                        />
-                      }
-                      link={`/data-sources/${dataSource.id}`}
-                      label={dataSource.name}
-                    />
-                  ))}
+                  dataSourcesResponse.data.map((dataSource: DataSource) => {
+                    const active = router.asPath.includes(
+                      `data-sources/${dataSource.id}`
+                    );
+
+                    return (
+                      <DataSourceItem
+                        key={dataSource.id}
+                        active={active}
+                        icon={
+                          <Avatar
+                            name={
+                              dataSource.name == dataSource.name.toUpperCase()
+                                ? dataSource.name.split("").join(" ")
+                                : dataSource.name
+                            }
+                            maxInitials={3}
+                            round={true}
+                            size="40"
+                            color="transparent"
+                          />
+                        }
+                        link={`/data-sources/${dataSource.id}`}
+                        label={dataSource.name}
+                      />
+                    );
+                  })}
                 <DataSourceItem
                   active={router.asPath.includes(`/data-sources/new`)}
                   icon={<PlusIcon className="h-4 text-white" />}
@@ -118,7 +122,11 @@ const DataSourcesSidebar = () => {
               active={router.asPath.includes(`/profile`)}
               icon={<UserCircleIcon className="h-8 w-8 text-white" />}
               link={`/profile`}
-              label={sessionIsLoading ? "Loading" : `Your profile ${session?.user?.name}`}
+              label={
+                sessionIsLoading
+                  ? "Loading"
+                  : `Your profile ${session?.user?.name}`
+              }
             />
           </div>
         </div>

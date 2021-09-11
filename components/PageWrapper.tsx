@@ -16,7 +16,7 @@ function PageWrapper({
 }) {
   return (
     <>
-      <div className="flex flex-col flex-1 px-4 py-4 w-full">
+      <div className="flex flex-col flex-1 px-2 py-2 w-full">
         <div
           className={classNames(
             "flex flex-1 flex-col bg-white shadow sm:rounded-lg"

@@ -85,7 +85,7 @@ const Sidebar = () => {
           {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
           {tablesResponse?.ok &&
             tablesResponse.data
-              .filter((table: ListTable) => table.schemaname === "public")
+              .filter((table: ListTable) => table.schemaname ? table.schemaname === "public" : true)
               .map((table: { name: string }, idx: number) => (
                 <SidebarItem
                   key={idx}

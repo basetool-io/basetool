@@ -11,6 +11,11 @@ const availableDataSources = [
     label: "PostgreSQL",
     enabled: true,
   },
+  {
+    id: "google-sheets",
+    label: "Google Sheets",
+    enabled: true,
+  },
   // {
   //   id: "mssql",
   //   label: "MSSQL (coming soon)",

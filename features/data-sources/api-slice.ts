@@ -28,11 +28,47 @@ export const dataSourcesApiSlice = createApi({
       //     return [{ type: 'dataSource', id: 'LIST' }]
       //   },
       // }),
-      getDataSource: builder.query<ApiResponse, Partial<{dataSourceId: string}>>({
-        query({dataSourceId}) {
+      getAuthUrl: builder.query<
+        ApiResponse,
+        Partial<{ dataSourceName: string }>
+      >({
+        query({ dataSourceName }) {
+          return `/data-sources/${dataSourceName}/auth-url`;
+        },
+      }),
+      getSheets: builder.query<
+        ApiResponse,
+        Partial<{ dataSourceName: string; dataSourceId: string }>
+      >({
+        query({ dataSourceName, dataSourceId }) {
+          return `/data-sources/${dataSourceName}/${dataSourceId}/sheets`;
+        },
+      }),
+      setSheetToDataSource: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceName: string;
+          dataSourceId: string;
+          spreadsheetId: string;
+          spreadsheetName: string;
+        }>
+      >({
+        query: ({ dataSourceName, dataSourceId, spreadsheetId, spreadsheetName }) => ({
+          url: `/data-sources/${dataSourceName}/${dataSourceId}/sheets`,
+          method: "POST",
+          body: { spreadsheetId, spreadsheetName },
+        }),
+      }),
+      getDataSource: builder.query<
+        ApiResponse,
+        Partial<{ dataSourceId: string }>
+      >({
+        query({ dataSourceId }) {
           return `/data-sources/${dataSourceId}`;
         },
-        providesTags: (result, error, { dataSourceId }) => [{ type: "DataSource", id: dataSourceId }],
+        providesTags: (result, error, { dataSourceId }) => [
+          { type: "DataSource", id: dataSourceId },
+        ],
       }),
       getDataSources: builder.query<ApiResponse, void>({
         query() {
@@ -54,12 +90,18 @@ export const dataSourcesApiSlice = createApi({
         }),
         invalidatesTags: [{ type: "DataSource", id: "LIST" }],
       }),
-      removeDataSource: builder.mutation<ApiResponse, Partial<{ dataSourceId: string }>>({
+      removeDataSource: builder.mutation<
+        ApiResponse,
+        Partial<{ dataSourceId: string }>
+      >({
         query: ({ dataSourceId }) => ({
           url: `${apiUrl}/data-sources/${dataSourceId}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, { dataSourceId }) => [{ type: "DataSource", id: "LIST" }, { type: "DataSource", id: dataSourceId }, ],
+        invalidatesTags: (result, error, { dataSourceId }) => [
+          { type: "DataSource", id: "LIST" },
+          { type: "DataSource", id: dataSourceId },
+        ],
       }),
       updateDataSource: builder.mutation<
         ApiResponse,
@@ -85,6 +127,9 @@ export const dataSourcesApiSlice = createApi({
 export const {
   // useGetTabledataSourcesQuery,
   useGetDataSourceQuery,
+  useGetAuthUrlQuery,
+  useGetSheetsQuery,
+  useSetSheetToDataSourceMutation,
   useGetDataSourcesQuery,
   useAddDataSourceMutation,
   useRemoveDataSourceMutation,

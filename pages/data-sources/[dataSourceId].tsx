@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React from "react";
+import React, { useEffect } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function DataSourcesShow() {
@@ -20,6 +20,16 @@ function DataSourcesShow() {
       skip: !dataSourceId,
     }
   );
+
+  useEffect(() => {
+    if (
+      dataSourceResponse?.ok &&
+      dataSourceResponse?.data?.type === "google-sheets" &&
+      !dataSourceResponse?.data?.options?.spreadsheetId
+    ) {
+      router.push(`${router.asPath}/setup`);
+    }
+  }, [dataSourceResponse]);
 
   return (
     <Layout>

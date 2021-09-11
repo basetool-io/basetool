@@ -8,7 +8,7 @@ import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
 import { OrganizationProvider } from "@/lib/OrganizationContext";
 import { Provider as ReduxProvider } from "react-redux";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { inProduction } from "@/lib/environment";
 import { useGetOrganizationsQuery } from "@/features/organizations/api-slice";
 import { useRouter } from "next/router";
@@ -35,6 +35,16 @@ const GetOrganizations = ({ children }: { children: ReactNode }) => {
   return (
     <OrganizationProvider value={organization}>{children}</OrganizationProvider>
   );
+};
+
+const ShowErrorMessages = ({ children }: { children: ReactNode }) => {
+  const router = useRouter()
+
+  useEffect(() => {
+    if(router.query.errorMessage) toast.error(router.query.errorMessage)
+  }, [router.query.errorMessage])
+
+  return <>{children}</>;
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -83,7 +93,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ChakraProvider resetCSS={false}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
             <GetOrganizations>
-              <Component {...pageProps} />
+              <ShowErrorMessages>
+                <Component {...pageProps} />
+              </ShowErrorMessages>
             </GetOrganizations>
           </IntercomProvider>
           <ToastContainer

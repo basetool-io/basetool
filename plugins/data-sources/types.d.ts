@@ -12,8 +12,10 @@ export interface IQueryService {
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
-  getTables(): Promise<[]>;
-  getColumns(tableName: string, storedColumns?: Column[]): Promise<[]>;
+  getTables(): Promise<{
+    name: string
+  }[]>;
+  getColumns(tableName: string, storedColumns?: Column[]): Promise<Column[]>;
   getRecords({
     tableName: string,
     filters: string,
