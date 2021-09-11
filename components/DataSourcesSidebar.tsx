@@ -28,14 +28,14 @@ const DataSourceItem = ({
 }) => {
   return (
     <Link href={link} passHref>
-      <a className="block shadow">
-        <Tooltip label={label} placement="right">
+      <a className="block">
+        <Tooltip label={label} placement="right" gutter={15}>
           <span
             className={classNames(
-              "flex items-center justify-center w-12 h-12 rounded bg-cool-gray-400 text-white",
-              "hover:bg-cool-gray-200 overflow-hidden overflow-ellipsis w-full",
+              "flex items-center justify-center w-12 h-12 rounded text-white",
               "block text-gray-800 hover:text-gray-800 font-normal cursor-pointer text-sm py-3 px-3 rounded-md leading-none",
-              { "bg-cool-gray-300 hover:bg-cool-gray-200": active }
+              { "hover:bg-cool-gray-600": !active },
+              { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow": active }
             )}
           >
             {icon}
@@ -88,7 +88,6 @@ const DataSourcesSidebar = () => {
                           round={true}
                           size="40"
                           color="transparent"
-                          fgColor="#000000"
                         />
                       }
                       link={`/data-sources/${dataSource.id}`}
@@ -97,7 +96,7 @@ const DataSourcesSidebar = () => {
                   ))}
                 <DataSourceItem
                   active={router.asPath.includes(`/data-sources/new`)}
-                  icon={<PlusIcon className="h-4" />}
+                  icon={<PlusIcon className="h-4 text-white" />}
                   link={"/data-sources/new"}
                   label="Add new data source"
                 />
@@ -110,13 +109,13 @@ const DataSourcesSidebar = () => {
             {/* @todo: link to complaints */}
             <DataSourceItem
               active={router.asPath.includes(`/settings`)}
-              icon={<CogIcon className="h-8 w-8 text-gray-700" />}
+              icon={<CogIcon className="h-8 w-8 text-white" />}
               link={`/settings`}
               label="Settings"
             />
             <DataSourceItem
               active={router.asPath.includes(`/profile`)}
-              icon={<UserCircleIcon className="h-8 w-8 text-gray-700" />}
+              icon={<UserCircleIcon className="h-8 w-8 text-white" />}
               link={`/profile`}
               label={sessionIsLoading ? "Loading" : `Your profile ${session?.user?.name}`}
             />

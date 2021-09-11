@@ -59,7 +59,7 @@ const Sidebar = () => {
   return (
     <div className="relative py-2 pl-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
-      <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
+      <div className="relative space-y-x w-full h-full flex flex-col">
         {dataSourceResponse?.ok && (
           <div className="my-2 mt-4 px-4 font-bold uppercase text-sm leading-none">
             {dataSourceIsLoading ? (
@@ -80,7 +80,7 @@ const Sidebar = () => {
         {isLoading && (
           <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} />
         )}
-        <div className="space-y-px">
+        <div className="space-y-1">
           {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
           {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
           {tablesResponse?.ok &&

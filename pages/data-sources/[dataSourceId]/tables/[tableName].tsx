@@ -177,7 +177,7 @@ function TablesShow() {
   return (
     <Layout>
       {isLoading && (
-        <LoadingOverlay transparent={isEmpty(columnsResponse?.data)} />
+        <LoadingOverlay inPageWrapper transparent={isEmpty(columnsResponse?.data)} />
       )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
