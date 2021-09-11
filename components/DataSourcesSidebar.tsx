@@ -53,6 +53,7 @@ const DataSourcesSidebar = () => {
 
   return (
     <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white">
+      {isLoading && (<>&nbsp;</>)}
       {dataSourcesResponse?.ok && (
         <div className="space-y-x w-full h-full flex flex-col justify-between">
           <div>
@@ -62,7 +63,7 @@ const DataSourcesSidebar = () => {
                 <Link href={`/data-sources`} passHref>
                   <a className="block">
                     <Tooltip label="Home" placement="right">
-                      <span className="flex items-center justify-center space-x-1 text-gray-700 cursor-pointer mb-4">
+                      <span className="flex items-center justify-center space-x-1 text-gray-700 cursor-pointer mb-4 mt-2">
                         <HomeIcon className="h-6 inline-block text-white" />
                       </span>
                     </Tooltip>
