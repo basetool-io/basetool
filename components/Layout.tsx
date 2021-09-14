@@ -15,11 +15,6 @@ function Layout({ children }: { children: ReactNode }) {
   const tablesSidebarVisible = useMemo(() => {
     if (router.pathname.includes("/profile")) return false;
     if (router.pathname.includes("/settings")) return false;
-    if (
-      router.pathname.includes("/data-sources") &&
-      router.pathname.includes("/setup")
-    )
-      return false;
     if (router.pathname === "/data-sources") return false;
     if (router.pathname === "/data-sources/postgresql/new") return false;
     if (router.pathname === "/data-sources/new") return false;

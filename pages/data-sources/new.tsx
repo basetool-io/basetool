@@ -12,7 +12,7 @@ function New() {
           <div className="max-w-lg">
             <div className="grid grid-cols-2 gap-4">
               {availableDataSources.map(({ id, label, enabled }) => (
-                <Link href={`/data-sources/${id}/new`}>
+                <Link href={`/data-sources/${id}/new`} key={id}>
                   <a key={id} className="border shadow px-12 py-8 rounded">{label}</a>
                 </Link>
               ))}

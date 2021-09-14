@@ -19,7 +19,6 @@ const Sidebar = () => {
   const {
     data: dataSourceResponse,
     isLoading: dataSourceIsLoading,
-    error: dataSourceError,
   } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -30,9 +29,12 @@ const Sidebar = () => {
     data: tablesResponse,
     isLoading,
     error,
-  } = useGetTablesQuery(dataSourceId, {
-    skip: !dataSourceId,
-  });
+  } = useGetTablesQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
     useRemoveDataSourceMutation();
@@ -85,7 +87,9 @@ const Sidebar = () => {
           {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
           {tablesResponse?.ok &&
             tablesResponse.data
-              .filter((table: ListTable) => table.schemaname ? table.schemaname === "public" : true)
+              .filter((table: ListTable) =>
+                table.schemaname ? table.schemaname === "public" : true
+              )
               .map((table: { name: string }, idx: number) => (
                 <SidebarItem
                   key={idx}

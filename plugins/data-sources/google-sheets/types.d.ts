@@ -6,6 +6,7 @@ export type GoogleSheetsDataSourceOptions = {
 
 export type GoogleSheetsCredentials = {
   tokens: {
+    refresh_token: string,
     access_token: string,
     scope: string,
     token_type: 'Bearer',

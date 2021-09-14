@@ -51,7 +51,7 @@ export const dataSourcesApiSlice = createApi({
           { type: "Sheets", id: "LIST" },
         ],
       }),
-      // Sheets 👆
+      // Google heets 👆
       getDataSource: builder.query<
         ApiResponse,
         Partial<{ dataSourceId: string }>

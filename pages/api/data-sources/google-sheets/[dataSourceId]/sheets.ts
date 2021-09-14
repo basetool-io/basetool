@@ -1,7 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { GoogleSheetsDataSource } from "@/plugins/data-sources/google-sheets/types"
 import { getDataSourceFromRequest } from "@/features/api"
 import ApiResponse from "@/features/api/ApiResponse";
-import GoogleSheetsService from "@/plugins/data-sources/google-sheets/GoogleSheetsService";
+import GoogleDriveService from "@/plugins/data-sources/google-sheets/GoogleDriveService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -28,7 +29,7 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!dataSource) return res.status(404).send("");
 
-  const api = new GoogleSheetsService(dataSource);
+  const api = new GoogleDriveService(dataSource);
 
   let driveResponse;
 

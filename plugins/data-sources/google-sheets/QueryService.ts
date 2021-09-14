@@ -1,11 +1,13 @@
 import { BaseOptions, Column, FieldType } from "@/features/fields/types";
+import { DataSource } from "@prisma/client";
 import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { IQueryService } from "../types";
+import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";
-import { isNull, isNumber, merge } from "lodash";
+import { isNull, isNumber, isUndefined, merge } from "lodash";
 import { logger } from "@sentry/utils";
-import GoogleSheetsService from "./GoogleSheetsService";
+import GoogleDriveService from "./GoogleDriveService";
 import cache from "@/features/cache";
 import prisma from "@/prisma";
 import type { Knex } from "knex";
@@ -71,7 +73,7 @@ export type GoogleDataSourceOptions = {
   expiresIn: number; // number of seconds
 };
 
-const CACHE_EXPIRATION_TIME = 10; // 15 minutes
+const CACHE_EXPIRATION_TIME = 900; // 15 minutes
 
 class QueryService implements IQueryService {
   public client;
@@ -84,6 +86,8 @@ class QueryService implements IQueryService {
   public options?: GoogleDataSourceOptions;
 
   private doc: GoogleSpreadsheet | undefined;
+
+  public oauthClient: OAuth2Client;
 
   constructor({
     dataSource,
@@ -103,33 +107,14 @@ class QueryService implements IQueryService {
 
     // Set the datasource and spreadsheet
     this.dataSource = dataSource;
+
     this.spreadsheetId = dataSource?.options?.spreadsheetId;
-
-    // Get the credentials
-    const { tokens } = this.getDecryptedCredentials();
-
-    if (!tokens) throw new Error("No credentials on record.");
+    const oauthClient = initOauthClient(this.dataSource);
+    if (!oauthClient) throw new Error("Failed to initialize the OAuth client");
+    this.oauthClient = oauthClient;
 
     // Initialize the clien
-    this.client = new GoogleSheetsService(dataSource);
-  }
-
-  public getDecryptedCredentials(): GoogleSheetsCredentials {
-    const credentialsAsAString = decrypt(this.dataSource.encryptedCredentials);
-
-    if (!credentialsAsAString) throw new Error("No credentials on record.");
-
-    let credentials: GoogleSheetsCredentials | null;
-
-    try {
-      credentials = JSON.parse(credentialsAsAString);
-    } catch (error) {
-      throw new Error("Failed to parse encrypted credentials");
-    }
-
-    if (isNull(credentials)) throw new Error("No credentials on record");
-
-    return credentials;
+    this.client = new GoogleDriveService(dataSource);
   }
 
   public async connect(): Promise<this> {
@@ -138,51 +123,14 @@ class QueryService implements IQueryService {
       this.doc = new GoogleSpreadsheet(this.spreadsheetId);
 
       // add authentication
-      if (this.client.oauthClient) {
-        this.doc.useOAuth2Client(this.client.oauthClient);
+      const oauthClient = initOauthClient(this.dataSource);
+      if (oauthClient) {
+        this.oauthClient = oauthClient;
+        this.doc.useOAuth2Client(oauthClient);
       }
     }
 
     return this;
-  }
-
-  private async loadInfo() {
-    try {
-      // loads document properties and worksheets
-      await this.doc?.loadInfo();
-    } catch (error: any) {
-      if (
-        error.message.includes(
-          "No refresh token or refresh handler callback is set"
-        )
-      ) {
-        await this.refreshToken();
-        await this.doc?.loadInfo();
-      }
-    }
-  }
-
-  private async refreshToken() {
-    const { tokens } = this.getDecryptedCredentials();
-
-    // return 1
-    const code = tokens.refresh_token;
-    await this.client?.oauthClient?.getToken(code, async (err, newTokens) => {
-      if (err) {
-        console.error("Error getting oAuth tokens:");
-        throw err;
-      }
-      const mergedTokens = merge(tokens, newTokens);
-      const encryptedCredentials = encrypt(
-        JSON.stringify({ tokens: mergedTokens })
-      );
-      const dataSource = await prisma.dataSource.update({
-        where: { id: this.dataSource.id },
-        data: {
-          encryptedCredentials,
-        },
-      });
-    });
   }
 
   public async disconnect(): Promise<this> {
@@ -340,25 +288,6 @@ class QueryService implements IQueryService {
     );
   }
 
-  private async getRow(
-    sheetName: string,
-    id: number
-  ): Promise<GoogleSpreadsheetRow | undefined> {
-    await this.loadInfo();
-
-    if (!this.doc) return;
-
-    const sheet = this.doc.sheetsByTitle[sheetName];
-    const rawRows = await sheet.getRows();
-
-    // Subtract one. Array start from 0
-    const row = rawRows[id];
-
-    if (!row) return;
-
-    return row;
-  }
-
   public async createRecord(
     tableName: string,
     data: unknown
@@ -416,6 +345,144 @@ class QueryService implements IQueryService {
       return false;
     }
   }
+
+  private async loadInfo() {
+    try {
+      // loads document properties and worksheets
+      await this.doc?.loadInfo();
+    } catch (error: any) {
+      if (
+        error.message.includes(
+          "No refresh token or refresh handler callback is set"
+        )
+      ) {
+        await refreshTokens(this.dataSource, this.oauthClient);
+        const oauthClient = initOauthClient(this.dataSource);
+        if (oauthClient) {
+          this.oauthClient = oauthClient;
+          this.doc?.useOAuth2Client(oauthClient);
+        }
+        await this.doc?.loadInfo();
+      }
+    }
+  }
+
+  private async getRow(
+    sheetName: string,
+    id: number
+  ): Promise<GoogleSpreadsheetRow | undefined> {
+    await this.loadInfo();
+
+    if (!this.doc) return;
+
+    const sheet = this.doc.sheetsByTitle[sheetName];
+    const rawRows = await sheet.getRows();
+
+    // Subtract one. Array start from 0
+    const row = rawRows[id];
+
+    if (!row) return;
+
+    return row;
+  }
 }
 
+export const getDecryptedCredentials = (
+  dataSource: DataSource
+): GoogleSheetsCredentials => {
+  if (
+    isUndefined(dataSource?.encryptedCredentials) ||
+    isNull(dataSource.encryptedCredentials)
+  )
+    throw new Error("No credentials on record.");
+
+  const credentialsAsAString = decrypt(dataSource.encryptedCredentials);
+
+  if (!credentialsAsAString) throw new Error("No credentials on record.");
+
+  let credentials: GoogleSheetsCredentials | null;
+
+  try {
+    credentials = JSON.parse(credentialsAsAString);
+  } catch (error) {
+    throw new Error("Failed to parse encrypted credentials");
+  }
+
+  if (isNull(credentials)) throw new Error("No credentials on record");
+
+  return credentials;
+};
+
+export const mergeAndEncryptCredentials = async (
+  dataSource: DataSource,
+  newCredentials: unknown
+) => {
+  const existingCredentials = getDecryptedCredentials(dataSource);
+
+  const mergedCredentials = merge(existingCredentials, newCredentials);
+  const encryptedCredentials = encrypt(JSON.stringify(mergedCredentials));
+  await prisma.dataSource.update({
+    where: { id: dataSource.id },
+    data: {
+      encryptedCredentials,
+    },
+  });
+};
+
+export const refreshTokens = async (
+  dataSource: DataSource,
+  oauthClient: OAuth2Client
+) => {
+  const { tokens } = getDecryptedCredentials(dataSource);
+
+  const code = tokens.refresh_token;
+  await oauthClient?.getToken(code, async (err: any, newTokens: any) => {
+    if (err) {
+      console.error("Error getting oAuth tokens:");
+      throw err;
+    }
+
+    await mergeAndEncryptCredentials(dataSource, newTokens);
+  });
+};
+
+export const initOauthClient = (
+  dataSource: DataSource
+): OAuth2Client | undefined => {
+  if (!dataSource.encryptedCredentials) return;
+
+  // Initialize the OAuth2Client with your app's oauth credentials
+  const oauthClient = new OAuth2Client({
+    clientId: process.env.GSHEETS_CLIENT_ID,
+    clientSecret: process.env.GSHEETS_CLIENT_SECRET,
+  });
+
+  const credentialsAsAString = decrypt(dataSource.encryptedCredentials);
+
+  if (!credentialsAsAString) throw new Error("No credentials on record.");
+
+  let credentials: GoogleSheetsCredentials | null;
+
+  try {
+    credentials = JSON.parse(credentialsAsAString);
+  } catch (error) {
+    throw new Error("Failed to parse encrypted credentials.");
+  }
+
+  if (!credentials || !credentials.tokens)
+    throw new Error("No credentials on record.");
+
+  const { tokens } = credentials;
+
+  oauthClient.credentials.access_token = tokens.access_token;
+  oauthClient.credentials.refresh_token = tokens.refresh_token;
+  oauthClient.credentials.expiry_date = tokens.expiry_date;
+
+  // We should refresh the tokens when neccesarry
+  oauthClient.on("tokens", async (newTokens) => {
+    await mergeAndEncryptCredentials(dataSource, newTokens);
+  });
+
+  return oauthClient;
+};
 export default QueryService;
