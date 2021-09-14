@@ -273,9 +273,11 @@ class QueryService implements IQueryService {
   ): Promise<unknown> {
     await this.loadInfo();
 
-    if (!this.doc) return [];
+    if (!this.doc) return null;
 
     const row = await this.getRow(tableName, parseInt(recordId) - 1);
+
+    if (!row) return null;
 
     return Object.fromEntries(
       Object.entries(row)
