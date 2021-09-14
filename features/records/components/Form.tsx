@@ -72,6 +72,7 @@ const Form = ({
     setTheSchema();
   }, [record, columns]);
 
+  console.log('record->', record)
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
       defaultValues: record,

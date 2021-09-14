@@ -18,6 +18,8 @@ module.exports = {
 
     // Handle module aliases
     '^@/components/(.*)$': '<rootDir>/components/$1',
+
+    "@/(.*)$": "<rootDir>/$1",
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
@@ -30,4 +32,5 @@ module.exports = {
     '/node_modules/',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
+  testEnvironment: 'jsdom',
 }
