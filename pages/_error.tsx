@@ -39,7 +39,7 @@ function Error({ statusCode }: any) {
   }, [sessionIsLoading, session]);
 
   return (
-    <p>
+    <div>
       {/* {statusCode
         ? `2An error ${statusCode} occurred on server`
         : '2An error occurred on client'} */}
@@ -55,7 +55,7 @@ function Error({ statusCode }: any) {
         <br />
         Do you want share some details about this issue? {centerText && '👉'}{centerText || '👇'}
       </div>
-    </p>
+    </div>
   );
 }
 

@@ -86,4 +86,5 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 };
 
-export default withSentry(handle);
+// Casting handle as any because sentry squaks at redirects.
+export default withSentry(handle as any);

@@ -193,6 +193,7 @@ class QueryService implements IQueryService {
           },
           dataSourceInfo: {},
           fieldOptions: {},
+          primaryKey: false,
         }));
 
         convertedHeaders.unshift({

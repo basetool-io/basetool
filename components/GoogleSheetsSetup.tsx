@@ -56,7 +56,7 @@ function GoogleSheetsSetup() {
         {!isLoading && sheetsResponse?.ok && (
           <ul>
             <div className="grid">
-              {sheetsResponse?.data?.map((sheet) => (
+              {sheetsResponse?.data?.map((sheet: {id: string, name: string}) => (
                 <li key={sheet.id}>
                   <a
                     className="cursor-pointer"
