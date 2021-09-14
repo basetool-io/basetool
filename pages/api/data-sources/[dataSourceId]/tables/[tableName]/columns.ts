@@ -36,7 +36,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     "columns",
   ]);
 
-  const service = await getQueryService({dataSource});
+  const service = await getQueryService({ dataSource, options: { cache: true } });
 
   await service.connect();
 
@@ -73,6 +73,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
         options: {
           ...dataSource.options,
           tables: {
+            ...dataSource.options.tables,
             [req.query.tableName as string]: {
               columns: merge(tableOptions, req.body.changes),
             },
@@ -87,4 +88,4 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)))
+export default withSentry(IsSignedIn(OwnsDataSource(handle)));

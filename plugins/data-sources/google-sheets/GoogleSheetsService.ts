@@ -3,6 +3,7 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { google } from "googleapis";
+import { merge } from "lodash"
 import pick from "lodash/pick";
 import prisma from "@/prisma";
 
@@ -14,7 +15,7 @@ const sheets = google.sheets("v4");
 class GoogleSheetsService {
   public dataSource: DataSource;
 
-  public oauthClient: OAuth2Client;
+  public oauthClient: OAuth2Client | undefined;
 
   public doc: GoogleSpreadsheet;
 
@@ -25,15 +26,6 @@ class GoogleSheetsService {
   }
 
   public async getSheets(sheetId: string): Promise<{ name: string }[]> {
-    // Initialize the sheet - doc ID is the long id in the sheets URL
-    const doc = new GoogleSpreadsheet(sheetId);
-
-    // add authentication
-    doc.useOAuth2Client(this.oauthClient);
-
-    // loads document properties and worksheets
-    await doc.loadInfo();
-
     // Go through the provided sheets and return a commonly object
     const sheets = Object.entries(doc.sheetsByTitle).map(([title, sheet]) => ({
       name: title,
@@ -47,15 +39,6 @@ class GoogleSheetsService {
     sheetTitle: string,
     storedColumns: []
   ): Promise<Column[]> {
-    // Initialize the sheet - doc ID is the long id in the sheets URL
-    const doc = new GoogleSpreadsheet(sheetId);
-
-    // add authentication
-    doc.useOAuth2Client(this.oauthClient);
-
-    // loads document properties and worksheets
-    await doc.loadInfo();
-
     const sheet = doc.sheetsByTitle[sheetTitle];
 
     await sheet.loadHeaderRow();
@@ -101,15 +84,6 @@ class GoogleSheetsService {
     sheetId: string,
     sheetTitle: string
   ): Promise<number> {
-    // Initialize the sheet - doc ID is the long id in the sheets URL
-    const doc = new GoogleSpreadsheet(sheetId);
-
-    // add authentication
-    doc.useOAuth2Client(this.oauthClient);
-
-    // loads document properties and worksheets
-    await doc.loadInfo();
-
     const sheet = doc.sheetsByTitle[sheetTitle];
     const rows = await sheet.getRows();
 
@@ -117,15 +91,6 @@ class GoogleSheetsService {
   }
 
   public async getRows(sheetId: string, sheetTitle: string): Promise<Record<string, unknown>[]> {
-    // Initialize the sheet - doc ID is the long id in the sheets URL
-    const doc = new GoogleSpreadsheet(sheetId);
-
-    // add authentication
-    doc.useOAuth2Client(this.oauthClient);
-
-    // loads document properties and worksheets
-    await doc.loadInfo();
-
     const sheet = doc.sheetsByTitle[sheetTitle];
     const rawRows = await sheet.getRows();
     // console.log('rows->', rows)
@@ -218,14 +183,11 @@ class GoogleSheetsService {
   }
 
   private initOauthClient() {
-    console.log(111);
     // Initialize the OAuth2Client with your app's oauth credentials
     const oauthClient = new OAuth2Client({
       clientId: process.env.GSHEETS_CLIENT_ID,
       clientSecret: process.env.GSHEETS_CLIENT_SECRET,
     });
-
-    // const { tokens } = this.dataSource.encryptedCredentials
 
     const credentialsAsAString = decrypt(this.dataSource.encryptedCredentials);
 
@@ -247,12 +209,11 @@ class GoogleSheetsService {
     oauthClient.credentials.expiry_date = tokens.expiry_date;
 
     this.oauthClient = oauthClient;
-    console.log("tokens->", tokens);
 
-    this.oauthClient.on("tokens", async (tokens) => {
-      const encryptedCredentials = encrypt(JSON.stringify({ tokens }));
+    this.oauthClient.on("tokens", async (newTokens) => {
+      const mergedTokens = merge(tokens, newTokens)
+      const encryptedCredentials = encrypt(JSON.stringify({ tokens: mergedTokens }));
 
-      console.log("tokens triggered");
       await prisma.dataSource.update({
         where: {
           id: this.dataSource.id,
@@ -261,11 +222,6 @@ class GoogleSheetsService {
           encryptedCredentials,
         },
       });
-
-      console.log(tokens.access_token);
-      console.log(tokens.scope);
-      console.log(tokens.expiry_date);
-      console.log(tokens.token_type); // will always be 'Bearer'
     });
 
     return this;

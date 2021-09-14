@@ -263,9 +263,8 @@ class QueryService implements IQueryService {
 
   public async createRecord(
     tableName: string,
-    recordId: string,
     data: unknown
-  ): Promise<number | string> {
+  ): Promise<string | undefined> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
     if (!pk)

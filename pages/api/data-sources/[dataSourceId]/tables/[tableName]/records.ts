@@ -77,7 +77,6 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   try {
     data = await service.createRecord(
       req.query.tableName as string,
-      req.query.recordId as string,
       record
     );
   } catch (error: any) {

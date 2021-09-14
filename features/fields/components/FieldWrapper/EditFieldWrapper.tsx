@@ -36,7 +36,7 @@ const EditFieldWrapper = ({
         className="w-48 md:w-64 py-2 px-6 h-full flex space-x-2"
         htmlFor={fieldId(field)}
       >
-        <IconElement className="h-4 inline-block" />{" "}
+        <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
         <span>{prettyColumnName}</span>
         {isRequired && <sup className="text-red-600">*</sup>}
       </FormLabel>

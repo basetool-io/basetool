@@ -1,3 +1,4 @@
+import { isNull } from "lodash"
 import { skipToken } from "@reduxjs/toolkit/dist/query";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -22,12 +23,17 @@ function DataSourcesShow() {
   );
 
   useEffect(() => {
+    async function redirectToSetup () {
+      await router.push(`${router.asPath}/setup`);
+    }
+
+    // If the Google Sheets datasource lacks the spreadsheetId attribute, we're going to redirect to setup.
     if (
       dataSourceResponse?.ok &&
       dataSourceResponse?.data?.type === "google-sheets" &&
-      !dataSourceResponse?.data?.options?.spreadsheetId
+      isNull(dataSourceResponse?.data?.options?.spreadsheetId)
     ) {
-      router.push(`${router.asPath}/setup`);
+      redirectToSetup()
     }
   }, [dataSourceResponse]);
 

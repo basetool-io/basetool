@@ -14,6 +14,7 @@ import Link from "next/link";
 import LoadingComponent from "./LoadingComponent";
 import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
+import isNull from "lodash/isNull"
 
 const DataSourceItem = ({
   active,
@@ -73,9 +74,14 @@ const DataSourcesSidebar = () => {
                 {!isLoading &&
                   dataSourcesResponse?.ok &&
                   dataSourcesResponse.data.map((dataSource: DataSource) => {
-                    const active = router.asPath.includes(
-                      `data-sources/${dataSource.id}`
-                    );
+                    // @todo: figure out why this isn't matching "data-sources/1" page
+                    const reg = new RegExp(String.raw`data-sources/${dataSource.id.toString()}[^\d]`)
+
+                    const active = !isNull(router.asPath.match(reg))
+                    let name = dataSource.name.replace(/[^a-zA-Z ]/g, "")
+                    if (name == name.toUpperCase()) {
+                      name = name.split("").join(" ")
+                    }
 
                     return (
                       <DataSourceItem
@@ -83,11 +89,7 @@ const DataSourcesSidebar = () => {
                         active={active}
                         icon={
                           <Avatar
-                            name={
-                              dataSource.name == dataSource.name.toUpperCase()
-                                ? dataSource.name.split("").join(" ")
-                                : dataSource.name
-                            }
+                            name={name}
                             maxInitials={3}
                             round={true}
                             size="40"

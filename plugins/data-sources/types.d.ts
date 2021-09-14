@@ -33,9 +33,8 @@ export interface IQueryService {
   ): Promise<unknown>;
   createRecord(
     tableName: string,
-    recordId: string,
     data: unknown
-  ): Promise<number | string>;
+  ): Promise<string | undefined>;
 }
 
 export interface DataSourcePlugin {
