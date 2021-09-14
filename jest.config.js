@@ -28,6 +28,9 @@ module.exports = {
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
   },
+  collectCoverage: false,
+  coverageDirectory:'/coverage',
+  "testMatch": ["<rootDir>/__tests__/**/*.test.(js|jsx)"],
   transformIgnorePatterns: [
     '/node_modules/',
     '^.+\\.module\\.(css|sass|scss)$',
