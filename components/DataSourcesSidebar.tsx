@@ -74,8 +74,7 @@ const DataSourcesSidebar = () => {
                 {!isLoading &&
                   dataSourcesResponse?.ok &&
                   dataSourcesResponse.data.map((dataSource: DataSource) => {
-                    // @todo: figure out why this isn't matching "data-sources/1" page
-                    const reg = new RegExp(String.raw`data-sources/${dataSource.id.toString()}[^\d]`)
+                    const reg = new RegExp(String.raw`/data-sources/${dataSource.id.toString()}($|/|\?)`)
 
                     const active = !isNull(router.asPath.match(reg))
                     let name = dataSource.name.replace(/[^a-zA-Z ]/g, "")
