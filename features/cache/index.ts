@@ -4,12 +4,12 @@ import Redis, { ValueType } from "ioredis";
 class CacheDriver {
   public redis;
 
-  constructor({ port = 6379, host }: { port?: number; host: string }) {
+  constructor({ url }: { url: string }) {
     const options = {
       keyPrefix: `basetool_${process.env.NODE_ENV}:`,
       lazyConnect: true,
     };
-    this.redis = new Redis(port, host, options);
+    this.redis = new Redis(url, options);
   }
 
   public async get(key: string): Promise<string | null> {
@@ -73,6 +73,6 @@ class CacheDriver {
   }
 }
 
-const cache = new CacheDriver({ host: process.env.REDIS_HOST as string });
+const cache = new CacheDriver({ url: process.env.REDIS_URL as string });
 
 export default cache;
