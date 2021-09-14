@@ -16,6 +16,7 @@ function Layout({ children }: { children: ReactNode }) {
     if (router.pathname.includes("/profile")) return false;
     if (router.pathname.includes("/settings")) return false;
     if (router.pathname === "/data-sources") return false;
+    if (router.pathname === "/data-sources/google-sheets/new") return false;
     if (router.pathname === "/data-sources/postgresql/new") return false;
     if (router.pathname === "/data-sources/new") return false;
 
