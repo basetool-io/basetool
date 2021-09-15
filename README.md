@@ -21,4 +21,34 @@ yarn prisma migrate dev
 yarn dev
 ```
 
-Open [http://localhost:3099](http://localhost:3099) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+# Development
+
+We're using [google/zx](https://github.com/google/zx) to help us run scripts.
+
+# Testing
+
+## Setup
+
+```bash
+cp .env.test.sample .env.test
+```
+
+### Setup the database
+
+Create a testing database `basetool_test`. Add those credentials in your `.env.test` file.
+
+Run `yarn test:migrate` for your initial and subsequent migrations.
+
+### Testing env
+
+We're going to run a separate server for our testing needs on port `4099`.
+
+### Seeding
+
+
+## Run Cypress
+
+To run both the test server and cypress run `yarn test:start-cypress`.
+

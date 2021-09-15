@@ -23,3 +23,30 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("login", (options) => {
+  cy.fixture('user.json').then((defaultUser) => {
+    const user = options?.user || defaultUser
+    const {email, password} = user
+
+    cy.visit("/auth/login");
+
+    cy.get("[name=email]").should("be.visible").type(email);
+    cy.get("[name=password]").should("be.visible").type(password);
+    cy.get('button[type="submit"]').should("be.visible").click();
+  });
+});
+
+Cypress.Commands.add("seed", (options = {}) => {
+  cy.fixture('user.json').then((defaultUser) => {
+    const user = options?.user || defaultUser
+
+    cy.request({
+      url: '/api/test/seed', // assuming you've exposed a seeds route
+      method: 'POST',
+      body: {
+        user
+      },
+    })
+  })
+});

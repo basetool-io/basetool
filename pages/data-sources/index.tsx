@@ -79,7 +79,7 @@ function Index() {
                   Object.values(genericProjects).map(
                     ({ name, credentials, isVisible }, idx) => {
                       return (
-                        <div className="block py-4">
+                        <div className="block py-4" key={idx}>
                           <span className="text-xl font-extralight">
                             {idx + 1}. {name}
                           </span>

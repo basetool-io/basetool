@@ -4,20 +4,40 @@
 // If you're unfamiliar with how Cypress works,
 // check out the link below and learn how to write your first test:
 // https://on.cypress.io/writing-first-test
-describe('Login Test', () => {
-
-  it('should take user to login page', () => {
-    cy.visit('/auth/login');
-    cy.get('h2.mt-6.text-center.text-3xl.font-extrabold.text-gray-900')
-      .should('have.text', 'Sign in to your account');
+describe("Login Test", () => {
+  before(() => {
+    cy.seed()
   })
 
-  it('should redirect unauthenticated user to login page', () => {
-    // cy.visit('/')
-    // cy.url().should('contain', '/auth/login')
-    cy.visit('/data-sources')
-    cy.url().should('contain', '/auth/login')
-  })
+  it("should take user to login page", () => {
+    cy.visit("/auth/login");
+    cy.get("h2.mt-6.text-center.text-3xl.font-extrabold.text-gray-900").should(
+      "have.text",
+      "Sign in to your account"
+    );
+  });
+
+  it("should redirect unauthenticated user to login page", () => {
+    cy.visit("/data-sources");
+    cy.url().should("contain", "/auth/login");
+  });
+
+  it("should login", () => {
+    cy.login();
+
+    cy.url().should("include", "/data-sources");
+    cy.visit("/data-sources/new");
+  });
+
+  it.only("adds a new datasource", () => {
+    cy.login();
+
+    cy.visit("/data-sources/new");
+
+    const dbUrl = 'postgresql://adrian@127.0.0.1/avodemo_development'
+
+    cy.get("[name=email]")
+  });
 
   // beforeEach(() => {
   //   // reset and seed the database prior to every test
@@ -50,4 +70,4 @@ describe('Login Test', () => {
   //   // UI should reflect this user being logged in
   //   cy.get('h1').should('contain', 'jane.lane')
   // })
-})
+});
