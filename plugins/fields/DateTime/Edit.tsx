@@ -21,7 +21,7 @@ const Edit = ({
   schema,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const errors = useMemo(() => formState.errors, [formState?.errors]);
+  const errors = useMemo(() => formState.errors, [formState])
   const name = useMemo(() => register.name, [register?.name]);
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
 
@@ -83,7 +83,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl
-        isInvalid={hasError && formState.isDirty}
+        isInvalid={hasError}
         isDisabled={readonly}
       >
         <DatePicker

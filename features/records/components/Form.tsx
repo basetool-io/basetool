@@ -74,6 +74,7 @@ const Form = ({
 
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
+      mode: "onTouched",
       defaultValues: record,
       resolver: joiResolver(schema),
     });
