@@ -179,30 +179,30 @@ class QueryService implements IQueryService {
 
         await sheet.loadHeaderRow();
 
-        console.log('sheet.headerValues->', sheet.headerValues)
-        const rawRows = await sheet.getRows();
-        console.log('sheet.headerValues->', rawRows[1])
+        // console.log('sheet.headerValues->', sheet.headerValues)
+        // const rawRows = await sheet.getRows();
+        // console.log('sheet.headerValues->', rawRows[1])
 
-        const cells = await sheet.loadCells();
-        console.log('cells->', cells)
+        // const cells = await sheet.loadCells();
+        // console.log('cells->', cells)
         // for await (const header of sheet.headerValues) {
         //   console.log(header)
 
 
         // }
 
-        sheet.headerValues.forEach((header, idx) => {
-          console.log('header->', header)
+        // sheet.headerValues.forEach((header, idx) => {
+        //   console.log('header->', header)
 
-          const cell = sheet.getCell(2, idx)
+        //   const cell = sheet.getCell(2, idx)
 
-          if (header === 'Platform to publish') {
-            console.log('cell->', cell._rawData.dataValidation.condition.values)
+        //   if (header === 'Platform to publish') {
+        //     console.log('cell->', (cell as any)._rawData.dataValidation.condition.values)
 
-          }
+        //   }
 
 
-        })
+        // })
 
 
         const convertedHeaders = sheet.headerValues.map((headerName) => ({

@@ -36,7 +36,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     "columns",
   ]);
 
-  const service = await getQueryService({ dataSource, options: { cache: false } });
+  const service = await getQueryService({ dataSource, options: { cache: true } });
 
   await service.connect();
 
