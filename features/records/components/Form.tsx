@@ -15,9 +15,9 @@ import {
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
-import BackButton from "./BackButton"
+import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
@@ -37,7 +37,8 @@ const makeSchema = async (record: Record, columns: Column[]) => {
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
     } catch (error: any) {
-      if (error.code !== 'MODULE_NOT_FOUND') logger.warn("Error importing field schema->", error);
+      if (error.code !== "MODULE_NOT_FOUND")
+        logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
     }
     if (isFunction(fieldSchema)) {
@@ -74,9 +75,14 @@ const Form = ({
 
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
+      mode: "onTouched",
       defaultValues: record,
       resolver: joiResolver(schema),
     });
+
+  // fix tests with useForm.mode = onTouched
+  // update the rest of the fields and remove "isDirty" from "isInvalid={hasError && formState.isDirty}"
+  // in all fields: const { errors } = formState; becomes -> const errors = useMemo(() => formState.errors, [formState])
 
   const formData = watch();
 
@@ -85,18 +91,18 @@ const Form = ({
   const backLink = useMemo(() => {
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
-      }else{
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+      } else {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
       }
     }
 
     if (formForCreate) {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
     } else {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`;
     }
-  }, [router.query])
+  }, [router.query]);
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();

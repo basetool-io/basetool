@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fieldId } from "@/features/fields";
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Edit from "../plugins/fields/Text/Edit.tsx";
@@ -53,6 +53,7 @@ const TestWrapperForm = ({
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
       defaultValues,
+      mode: "onTouched",
       resolver: joiResolver(schema),
     });
 
@@ -78,8 +79,8 @@ const getValues = (result) => {
     values = JSON.parse(values);
   } catch (error) {}
 
-  return values
-}
+  return values;
+};
 
 /**
  * @jest-environment jsdom
@@ -106,10 +107,52 @@ describe("TextField", () => {
     fireEvent.change(inputElement, { target: { value: "hello" } });
     expect(inputElement.value).toEqual("hello");
 
-    const values  = getValues(result)
+    setTimeout(() => {
+      const values = getValues(result);
 
-    expect(values).toEqual({ id: 6, name: value });
+      expect(values).toEqual({ id: 6, name: "he213123llo" });
+    }, 1);
+
     // screen.debug();
+  });
+
+  test("shows the validation errors", () => {
+    field.value = '';
+    field.record.name = '';
+
+    const result = render(
+      <TestWrapperForm
+        Component={Edit}
+        field={field}
+        schema={schema}
+        defaultValues={record}
+        showOutput={true}
+      />
+    );
+
+    // const t = getFormTestComponent({component: Edit, field, schema, defaultValues: record})
+
+    // console.log('t->', t)
+
+    const inputElement = result.container.querySelector(`#${fieldId(field)}`);
+    fireEvent.change(inputElement, { target: { value: "1" } });
+    fireEvent.change(inputElement, { target: { value: "" } });
+    fireEvent.click(document)
+    console.log('document->', document)
+
+    expect(inputElement.value).toEqual("");
+
+
+    screen.debug();
+    setTimeout(() => {
+      const values = getValues(result);
+      console.log('values->', values)
+
+      expect(values).toEqual({ id: 6, name: "hello" });
+    }, 1);
+
+    // mai dam un click ca sa verificam daca merg validarile
+
   });
 
   // test("renders Show component", () => {
@@ -203,8 +246,8 @@ describe("TextField", () => {
 });
 
 // TODO
-// investigate why it takes so long to run -> may be bcs of macbook, I've imrpoved them a bit
-// daca scrie cnv ceva -> sa se vada in formState
-// testam erori de validare
-// placeholder, options
-// null?
+// [-] investigate why it takes so long to run -> may be bcs of macbook, I've imrpoved them a bit - could be that this is how jest works
+// [-] daca scrie cnv ceva -> sa se vada in formState (use setTimeout)
+// [ ] testam erori de validare
+// [x] placeholder, options
+// [x] null?
