@@ -42,7 +42,7 @@ Cypress.Commands.add("seed", (options = {}) => {
     const user = options?.user || defaultUser
 
     cy.request({
-      url: '/api/test/seed', // assuming you've exposed a seeds route
+      url: '/api/test/seed',
       method: 'POST',
       body: {
         user

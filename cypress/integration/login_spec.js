@@ -7,6 +7,7 @@
 describe("Login Test", () => {
   before(() => {
     cy.seed()
+
   })
 
   it("should take user to login page", () => {
@@ -31,12 +32,14 @@ describe("Login Test", () => {
 
   it.only("adds a new datasource", () => {
     cy.login();
-
     cy.visit("/data-sources/new");
 
-    const dbUrl = 'postgresql://adrian@127.0.0.1/avodemo_development'
+    const credUrl = 'postgresql://adrian@127.0.0.1/avodemo_development'
 
-    cy.get("[name=email]")
+    cy.get("[name=name]").type('Demo DB')
+    cy.get("[name='credentials.url']").type(credUrl)
+    cy.get("[name=type]").uncheck()
+    cy.get('button[type="submit"]').click();
   });
 
   // beforeEach(() => {
