@@ -33,6 +33,7 @@ function Error({ statusCode }: any) {
         name: session?.user?.name,
         email: session?.user?.email,
         createdAt: session?.user?.createdAt?.toString(),
+        userHash: session?.user?.intercomUserHash,
       });
     }
   }, [sessionIsLoading, session]);
@@ -44,7 +45,7 @@ function Error({ statusCode }: any) {
         : '2An error occurred on client'} */}
       <div
         className={classNames(
-          "absolute flex justify-center h-full w-full inset-0 bg-opacity-75 z-20 rounded-xl text-center",
+          "absolute flex justify-center h-full w-full inset-0 bg-opacity-75 z-20 rounded-xl text-center bg-white",
           {
             "items-center": centerText,
           }

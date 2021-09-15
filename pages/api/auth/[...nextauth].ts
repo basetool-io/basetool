@@ -1,8 +1,22 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import NextAuth from "next-auth";
+import NextAuth, { User } from "next-auth";
 import Providers from "next-auth/providers";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import prisma from "@/prisma";
+
+function createIntercomUserHash(user: User | undefined): string | undefined {
+  if (!user?.email) return;
+
+  const secret = process.env.INTERCOM_SECRET as string;
+  const hmac = crypto.createHmac("sha256", secret);
+
+  // passing the data to be hashed
+  const data = hmac.update(user.email);
+
+  // Creating the hmac in the required format
+  return data.digest("hex");
+}
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -137,6 +151,7 @@ export default NextAuth({
           lastName: user.lastName,
           name: `${user.firstName} ${user.lastName}`,
           createdAt: (user.createdAt as Date).getTime(),
+          intercomUserHash: createIntercomUserHash(user),
         };
       }
 

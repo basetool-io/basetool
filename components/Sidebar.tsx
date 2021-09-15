@@ -57,7 +57,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative py-2 px-2 w-full">
+    <div className="relative py-2 pl-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
       <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
         {dataSourceResponse?.ok && (
@@ -80,19 +80,21 @@ const Sidebar = () => {
         {isLoading && (
           <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} />
         )}
-        {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
-        {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-        {tablesResponse?.ok &&
-          tablesResponse.data
-            .filter((table: ListTable) => table.schemaname === "public")
-            .map((table: { name: string }, idx: number) => (
-              <SidebarItem
-                key={idx}
-                active={table.name === tableName}
-                label={table.name}
-                link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-              />
-            ))}
+        <div className="space-y-px">
+          {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
+          {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
+          {tablesResponse?.ok &&
+            tablesResponse.data
+              .filter((table: ListTable) => table.schemaname === "public")
+              .map((table: { name: string }, idx: number) => (
+                <SidebarItem
+                  key={idx}
+                  active={table.name === tableName}
+                  label={table.name}
+                  link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                />
+              ))}
+        </div>
       </div>
     </div>
   );

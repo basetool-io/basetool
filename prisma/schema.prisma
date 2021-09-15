@@ -18,17 +18,19 @@ model Organization {
   updatedAt   DateTime           @updatedAt
   users       OrganizationUser[]
   dataSources DataSource[]
+  roles       Role[]
 
   @@index([slug])
 }
 
 model OrganizationUser {
   id             Int          @id @default(autoincrement())
-  role           String       @default("member") @db.VarChar(255)
   user           User         @relation(references: [id], fields: [userId])
   userId         Int
   organization   Organization @relation(references: [id], fields: [organizationId])
   organizationId Int
+  role           Role?        @relation(references: [id], fields: [roleId])
+  roleId         Int?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -101,4 +103,17 @@ model VerificationRequest {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
+}
+
+model Role {
+  id               Int                @id @default(autoincrement())
+  name             String
+  options          Json               @default("{}")
+  organization     Organization       @relation(references: [id], fields: [organizationId])
+  organizationId   Int
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  OrganizationUser OrganizationUser[]
+
+  @@index([organizationId])
 }

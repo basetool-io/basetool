@@ -7,7 +7,21 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 const moduleExports = {
-  reactStrictMode: true
+  reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/data-sources',
+        permanent: false,
+      },
+      {
+        source: '/settings',
+        destination: '/settings/roles',
+        permanent: false,
+      },
+    ]
+  },
 };
 
 const SentryWebpackPluginOptions = {
