@@ -12,6 +12,7 @@ declare module "next-auth" {
       image: string
       name: string
       createdAt: number
+      intercomUserHash
     }
   }
 }

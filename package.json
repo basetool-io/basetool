@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "next dev -p 3099",
+    "start": "next start -p 3099",
+    "lint": "yarn tsc && next lint --quiet",
+    "try": "yarn build && yarn start -p 3099",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",
     "postinstall": "prisma generate",
@@ -27,7 +29,7 @@
     "@sentry/nextjs": "^6.12.0",
     "@types/bcrypt": "^5.0.0",
     "autoprefixer": "^10.3.2",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bcrypt": "^5.0.1",
     "classnames": "^2.3.1",
     "concurrently": "^6.2.1",
@@ -62,6 +64,7 @@
     "react-use": "^17.2.4",
     "react-use-intercom": "^1.4.0",
     "tailwindcss": "^2.2.7",
+    "urijs": "^1.19.7",
     "zx": "^4.2.0"
   },
   "devDependencies": {
@@ -72,6 +75,7 @@
     "@types/react": "17.0.18",
     "@types/react-datepicker": "^4.1.4",
     "@types/react-table": "^7.7.2",
+    "@types/urijs": "^1.19.17",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",

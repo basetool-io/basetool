@@ -1,8 +1,8 @@
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/pages/api/middleware/IsSignedIn";
-import OwnsDataSource from "@/pages/api/middleware/OwnsDataSource";
+import IsSignedIn from "@/features/api/middleware/IsSignedIn";
+import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -40,9 +40,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  // return res.send(ApiResponse.withError("Hamburger."));
-  console.log('req?.body?.changes->', req?.body?.changes)
-
   if (!req?.body?.changes || Object.keys(req.body.changes).length === 0)
     return res.send(ApiResponse.withError("No changes sent."));
   const dataSource = await getDataSourceFromRequest(req);
@@ -61,7 +58,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData(data, { message: "Updated" }));
+  res.json(ApiResponse.withData(data, { message: `Updated -> ${JSON.stringify(req?.body?.changes)}` }));
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));

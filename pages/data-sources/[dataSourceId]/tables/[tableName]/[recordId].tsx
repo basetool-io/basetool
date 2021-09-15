@@ -6,14 +6,15 @@ import { makeField } from "@/features/fields";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import BackButton from "@/features/records/components/BackButton"
+import BackButton from "@/features/records/components/BackButton";
+import Head from "next/head"
 import Layout from "@/components/Layout";
 import Link from "next/link";
-import LoadingOverlay from "@/components/LoadingOverlay"
-import PageWrapper from "@/features/records/components/PageWrapper";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
 import isArray from "lodash/isArray";
-import isEmpty from "lodash/isEmpty"
+import isEmpty from "lodash/isEmpty";
 import type { Record } from "@/features/records/types";
 
 const RecordShow = ({
@@ -24,6 +25,17 @@ const RecordShow = ({
   columns: Column[];
 }) => {
   const router = useRouter();
+  const backLink = useMemo(() => {
+    if (router.query.fromTable) {
+      if (router.query.fromRecord) {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+      } else {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
+      }
+    }
+
+    return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
+  }, [router.query]);
 
   return (
     <>
@@ -32,7 +44,7 @@ const RecordShow = ({
         buttons={
           <>
             <ButtonGroup size="sm">
-              <BackButton href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`} />
+              <BackButton href={backLink} />
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref
@@ -95,13 +107,18 @@ function RecordsShow() {
   ) as Column[];
 
   return (
-    <Layout>
-      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && columnsResponse?.ok && (
-        <RecordShow record={data.data} columns={columns} />
-      )}
-    </Layout>
+    <>
+      <Layout>
+        <Head>
+          <title>View record {data?.data?.id} | 👋 Hi!</title>
+        </Head>
+        {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
+        {error && <div>Error: {JSON.stringify(error)}</div>}
+        {!isLoading && data?.ok && columnsResponse?.ok && (
+          <RecordShow record={data.data} columns={columns} />
+        )}
+      </Layout>
+    </>
   );
 }
 

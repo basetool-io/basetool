@@ -18,7 +18,7 @@ import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import PageWrapper from "@/features/records/components/PageWrapper";
+import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
@@ -101,7 +101,7 @@ const ResourcesIndex = memo(
         {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="relative flex flex-col flex-1 w-full h-full">
-            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20">
+            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
               {filtersPanelVisible && (
                 <FiltersPanel ref={filtersPanel} columns={columns} />
               )}

@@ -3,7 +3,7 @@ import { encrypt } from "@/lib/crypto"
 import { getSession } from "next-auth/client"
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "../middleware/IsSignedIn"
+import IsSignedIn from "../../../features/api/middleware/IsSignedIn"
 import getSchema from "@/plugins/data-sources/getSchema"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";

@@ -9,7 +9,8 @@ export type FieldType =
   | "DateTime"
   | "Select"
   | "Textarea"
-  | "Json";
+  | "Json"
+  | "Association";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
@@ -44,6 +45,7 @@ export type Column<
   baseOptions: BaseOptions;
   dataSourceInfo: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
+  foreignKeyInfo?: ForeignKeyInfo;
 };
 
 export type FieldValue = string | number | undefined | boolean;
