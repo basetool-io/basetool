@@ -24,8 +24,8 @@ import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import OrganizationContext from "@/lib/OrganizationContext"
 import PageWrapper from "@/components/PageWrapper";
+import ProfileContext from "@/lib/ProfileContext"
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 export type Ability = {
@@ -43,7 +43,8 @@ const RoleEditor = ({
     | { id: ""; name: string; options: Record<string, unknown> };
   selectRole: (payload: { name: string }) => void;
 }) => {
-  const {id: organizationId} = useContext(OrganizationContext);
+  const profile = useContext(ProfileContext);
+  const organizationId = profile?.organization?.id;
   const isCreateForm = currentRole.id === "";
   const [role, setRole] = useState(currentRole);
   const [abilities, setAbilities] = useState<Ability["id"][]>([]);
@@ -218,7 +219,8 @@ const RoleEditor = ({
 function Roles() {
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
-  const {id: organizationId} = useContext(OrganizationContext);
+  const profile = useContext(ProfileContext);
+  const organizationId = profile?.organization?.id;
 
   const { data: rolesResponse, isFetching } = useGetRolesQuery({
     organizationId: organizationId?.toString(),

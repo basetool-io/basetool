@@ -6,6 +6,7 @@ import {
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
 import { organizationsApiSlice } from "@/features/organizations/api-slice"
+import { profileApiSlice } from "@/features/profile/api-slice";
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice"
@@ -48,6 +49,7 @@ const store = configureStore({
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,
     [rolesApiSlice.reducerPath]: rolesApiSlice.reducer,
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
+    [profileApiSlice.reducerPath]: profileApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -56,6 +58,7 @@ const store = configureStore({
       recordsApiSlice.middleware,
       rolesApiSlice.middleware,
       tablesApiSlice.middleware,
+      profileApiSlice.middleware,
       rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",
