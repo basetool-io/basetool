@@ -1,9 +1,10 @@
-import { BaseOptions, Column, FieldType } from "@/features/fields/types";
+import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { IQueryService } from "../types";
 import { OAuth2Client } from "google-auth-library";
+import { Views } from "@/features/fields/enums"
 import { decrypt, encrypt } from "@/lib/crypto";
 import { isNull, isNumber, isUndefined, merge } from "lodash";
 import { logger } from "@sentry/utils";
@@ -11,63 +12,6 @@ import BasetoolError from "@/lib/BasetoolError";
 import GoogleDriveService from "./GoogleDriveService";
 import cache from "@/features/cache";
 import prisma from "@/prisma";
-import type { Knex } from "knex";
-
-export type FieldOptions = Record<string, unknown>;
-
-export type KnexColumnInfo = {
-  name: string;
-  type: string;
-  maxLength: number | null;
-  nullable: boolean;
-  defaultValue: string;
-};
-
-export type DBForeignKeyInfo = {
-  table_schema: string;
-  constraint_name: string;
-  table_name: string;
-  column_name: string;
-  foreign_table_schema: string;
-  foreign_table_name: string;
-  foreign_column_name: string;
-};
-
-// Removed the schema bc we can't access information_schema.constraint_column_usage on supabase
-export type ForeignKeyInfo = {
-  // tableSchema: string;
-  constraintName: string;
-  tableName: string;
-  columnName: string;
-  // foreignTableSchema: string;
-  foreignTableName: string;
-  foreignColumnName: string;
-};
-
-export type ColumnWithSourceInfo = {
-  name: string;
-  label: string;
-  dataSourceInfo: Knex.ColumnInfo;
-  primaryKey: boolean;
-};
-
-export interface ColumnWithForeignKeyInfo extends ColumnWithSourceInfo {
-  foreignKeyInfo?: ForeignKeyInfo;
-}
-
-export interface ColumnWithBaseOptions extends ColumnWithForeignKeyInfo {
-  baseOptions: BaseOptions;
-}
-
-export interface ColumnWithFieldType extends ColumnWithBaseOptions {
-  fieldType: FieldType;
-}
-
-export interface ColumnWithFieldOptions extends ColumnWithFieldType {
-  fieldOptions: FieldOptions;
-}
-
-export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
 export type GoogleDataSourceOptions = {
   cache: boolean;
@@ -180,50 +124,41 @@ class QueryService implements IQueryService {
 
         await sheet.loadHeaderRow();
 
-        // console.log('sheet.headerValues->', sheet.headerValues)
-        // const rawRows = await sheet.getRows();
-        // console.log('sheet.headerValues->', rawRows[1])
-
-        // const cells = await sheet.loadCells();
-        // console.log('cells->', cells)
-        // for await (const header of sheet.headerValues) {
-        //   console.log(header)
-
-        // }
-
-        // sheet.headerValues.forEach((header, idx) => {
-        //   console.log('header->', header)
-
-        //   const cell = sheet.getCell(2, idx)
-
-        //   if (header === 'Platform to publish') {
-        //     console.log('cell->', (cell as any)._rawData.dataValidation.condition.values)
-
-        //   }
-
-        // })
-
         if (sheet.headerValues.includes(""))
           throw new BasetoolError(
             "Failed to parse columns for this sheet. Please make sure they follow the convention."
           );
 
-        const convertedHeaders = sheet.headerValues.map((headerName) => ({
-          name: headerName,
-          label: headerName,
-          fieldType: "Text",
-          baseOptions: {
-            visibility: ["index", "show", "edit", "new"],
-            required: false,
-            nullable: true,
-            readonly: false,
-            placeholder: "",
-            help: "",
-          },
-          dataSourceInfo: {},
-          fieldOptions: {},
-          primaryKey: false,
-        }));
+        const convertedHeaders = sheet.headerValues.map(
+          (headerName: string) => {
+            const columnSettings =
+              storedColumns && storedColumns[headerName as any];
+
+            const fieldType = columnSettings?.fieldType || "Text";
+            const baseOptions = merge(
+              {
+                visibility: ["index", "show", "edit", "new"],
+                required: false,
+                nullable: true,
+                readonly: false,
+                placeholder: "",
+                help: "",
+              },
+              columnSettings?.baseOptions
+            );
+            const fieldOptions = merge({}, columnSettings?.fieldOptions);
+
+            return {
+              name: headerName,
+              label: headerName,
+              fieldType,
+              baseOptions,
+              dataSourceInfo: {},
+              fieldOptions,
+              primaryKey: false,
+            };
+          }
+        );
 
         convertedHeaders.unshift({
           name: "id",
@@ -231,7 +166,7 @@ class QueryService implements IQueryService {
           fieldType: "Id",
           primaryKey: true,
           baseOptions: {
-            visibility: ["index", "show", "edit", "new"],
+            visibility: [Views.index, Views.show, Views.edit, Views.new],
             required: false,
             nullable: true,
             readonly: false,
