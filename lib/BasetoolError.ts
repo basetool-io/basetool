@@ -1,3 +1,10 @@
-class BasetoolError extends Error {}
+class BasetoolError extends Error {
+  public links?: string[];
 
-export default BasetoolError
+  constructor(message: string, data: { links?: string[] }) {
+    super(message);
+    this.links = data.links;
+  }
+}
+
+export default BasetoolError;

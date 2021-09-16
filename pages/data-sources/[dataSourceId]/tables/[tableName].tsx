@@ -14,6 +14,7 @@ import { useBoolean, useClickAway } from "react-use";
 import { useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -89,7 +90,6 @@ const ResourcesIndex = memo(
           </>
         }
       >
-        {/* {!isLoading && data?.ok && ( */}
         <>
           <div className="relative flex flex-col flex-1 w-full h-full">
             <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
@@ -119,19 +119,16 @@ const ResourcesIndex = memo(
             <div className="relative flex-1 flex h-full max-w-full w-full">
               <RecordsTable
                 columns={parsedColumns}
-                // filters={filters}
                 orderBy={orderBy}
                 setOrderBy={setOrderBy}
                 orderDirection={orderDirection}
                 setOrderDirection={setOrderDirection}
-                // data={data?.data}
                 tableName={tableName}
                 dataSourceId={dataSourceId}
               />
             </div>
           </div>
         </>
-        {/* )} */}
       </PageWrapper>
     );
   }
@@ -173,8 +170,8 @@ function TablesShow() {
           transparent={isEmpty(columnsResponse?.data)}
         />
       )}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && columnsResponse?.ok && (
+      {error && <ErrorWrapper error={error} />}
+      {!isLoading && !error && columnsResponse?.ok && (
         <ResourcesIndex
           tableName={tableName}
           columns={columns}

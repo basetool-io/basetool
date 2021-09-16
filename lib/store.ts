@@ -1,12 +1,11 @@
 import {
   Middleware,
   configureStore,
-  isRejectedWithValue,
 } from "@reduxjs/toolkit";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { keys } from "lodash";
 import { organizationsApiSlice } from "@/features/organizations/api-slice"
-import { reactToError, reactToResponse } from "@/features/api/ApiService";
+import { reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice"
 import { tablesApiSlice } from "@/features/tables/api-slice";
@@ -31,10 +30,6 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
     if (action.payload && hasRequiredKeys) {
       reactToResponse(action.payload);
     }
-  }
-
-  if (isRejectedWithValue(action)) {
-    reactToError(action.payload);
   }
 
   return next(action);

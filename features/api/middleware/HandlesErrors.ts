@@ -8,7 +8,9 @@ const HandlesErrors =
       await handler(req, res);
     } catch (error: any) {
       if (!res.headersSent)
-        res.status(405).send(ApiResponse.withError(error.message));
+        res
+          .status(405)
+          .send(ApiResponse.withError(error.message, { meta: error }));
     }
   };
 

@@ -4,7 +4,7 @@ import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { IQueryService } from "../types";
 import { OAuth2Client } from "google-auth-library";
-import { Views } from "@/features/fields/enums"
+import { Views } from "@/features/fields/enums";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { isNull, isNumber, isUndefined, merge } from "lodash";
 import { logger } from "@sentry/utils";
@@ -126,7 +126,10 @@ class QueryService implements IQueryService {
 
         if (sheet.headerValues.includes(""))
           throw new BasetoolError(
-            "Failed to parse columns for this sheet. Please make sure they follow the convention."
+            `We might not know how to parse the column headers of your spreadsheet. Some might be empty. Would you please check the docs on how the spreadsheet should be formatted? However, the founding engineer team has been notified, and they are on it to fix it.`,
+            {
+              // links: ["https://google.com/link"],
+            }
           );
 
         const convertedHeaders = sheet.headerValues.map(

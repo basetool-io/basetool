@@ -5,6 +5,7 @@ import {
 } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useState } from "react";
@@ -49,23 +50,38 @@ function GoogleSheetsSetup() {
   };
 
   return (
-    <PageWrapper heading="Set up">
+    <PageWrapper heading="Select a sheet to use for this data source.">
       <>
-        Select a sheet to use for this data source.
-        {(isLoading || isSettingTheSheet || isReloading) && <LoadingOverlay inPageWrapper />}
+        <span className="text-lg mb-4">
+          You have multiple sheets in your account. Select the sheet that you
+          want to use for this data source.{" "}
+        </span>
+        {(isLoading || isSettingTheSheet || isReloading) && (
+          <LoadingOverlay inPageWrapper />
+        )}
         {!isLoading && sheetsResponse?.ok && (
           <ul>
             <div className="grid">
-              {sheetsResponse?.data?.map((sheet: {id: string, name: string}) => (
-                <li key={sheet.id}>
-                  <a
-                    className="cursor-pointer"
-                    onClick={() => handleSheetSelected(sheet)}
-                  >
-                    {sheet.name}
-                  </a>
-                </li>
-              ))}
+              {sheetsResponse?.data?.map(
+                (sheet: { id: string; name: string }) => (
+                  <li key={sheet.id}>
+                    <a
+                      className="inline-flex cursor-pointer hover:underline"
+                      onClick={() => handleSheetSelected(sheet)}
+                    >
+                      <div className="relative flex-shrink-0 h-5 w-4 mr-2">
+                        <Image
+                          src={`/img/logos/google-sheets.png`}
+                          alt={sheet.name}
+                          layout="fill"
+                          objectFit="contain"
+                        />
+                      </div>
+                      {sheet.name}
+                    </a>
+                  </li>
+                )
+              )}
             </div>
           </ul>
         )}

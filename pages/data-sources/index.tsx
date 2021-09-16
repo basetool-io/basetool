@@ -3,7 +3,7 @@ import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useSession } from "next-auth/client";
 import Layout from "@/components/Layout";
 import Link from "next/link";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo, useState } from "react";
 
@@ -15,21 +15,32 @@ function Index() {
   } = useGetDataSourcesQuery();
   const [session, sessionIsLoading] = useSession();
   const [genericProjects, setGenericProjects] = useState<
-    { name: string; credentials: string; isVisible: boolean }[]
+    {
+      name: string;
+      credentials: string;
+      description: string;
+      isVisible: boolean;
+    }[]
   >([
     {
       name: "Car rental",
       credentials: process.env.NEXT_PUBLIC_DUMMY_1_DB_CREDENTIALS as string,
+      description:
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. A amet fugiat blanditiis nihil! Eaque quos, fuga dolorum tenetur beatae repellat. Culpa iste similique libero facilis sed quidem accusamus? Esse, doloribus.",
       isVisible: false,
     },
     {
       name: "CRM",
       credentials: process.env.NEXT_PUBLIC_DUMMY_2_DB_CREDENTIALS as string,
+      description:
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. A amet fugiat blanditiis nihil! Eaque quos, fuga dolorum tenetur beatae repellat. Culpa iste similique libero facilis sed quidem accusamus? Esse, doloribus.",
       isVisible: false,
     },
     {
       name: "Ticketing",
       credentials: process.env.NEXT_PUBLIC_DUMMY_3_DB_CREDENTIALS as string,
+      description:
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. A amet fugiat blanditiis nihil! Eaque quos, fuga dolorum tenetur beatae repellat. Culpa iste similique libero facilis sed quidem accusamus? Esse, doloribus.",
       isVisible: false,
     },
   ]);
@@ -45,7 +56,7 @@ function Index() {
         heading={`Welcome ${sessionIsLoading ? "" : session?.user?.firstName}`}
       >
         <>
-          {sessionIsLoading && <LoadingOverlay inPageWrapper/>}
+          {sessionIsLoading && <LoadingOverlay inPageWrapper />}
           {sessionIsLoading || (
             <>
               {error && <div>Error: {JSON.stringify(error)}</div>}
@@ -81,7 +92,10 @@ function Index() {
                   <div className="divide-y mt-4">
                     {genericProjects &&
                       Object.values(genericProjects).map(
-                        ({ name, credentials, isVisible }, idx) => {
+                        (
+                          { name, credentials, description, isVisible },
+                          idx
+                        ) => {
                           return (
                             <div className="block py-4" key={idx}>
                               <span className="text-xl font-extralight">
@@ -115,13 +129,7 @@ function Index() {
                                   </>
                                 )}
                               </div>
-                              <div className="mt-4">
-                                Lorem ipsum, dolor sit amet consectetur
-                                adipisicing elit. A amet fugiat blanditiis
-                                nihil! Eaque quos, fuga dolorum tenetur beatae
-                                repellat. Culpa iste similique libero facilis
-                                sed quidem accusamus? Esse, doloribus.
-                              </div>
+                              <div className="mt-4">{description}</div>
                             </div>
                           );
                         }

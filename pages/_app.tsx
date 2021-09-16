@@ -109,6 +109,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             pauseOnFocusLoss
             draggable
             pauseOnHover
+            theme="dark"
           />
         </ChakraProvider>
       </ReduxProvider>

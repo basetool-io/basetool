@@ -1,4 +1,5 @@
 import { availableDataSources } from "@/plugins/data-sources";
+import Image from "next/image";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
@@ -10,10 +11,20 @@ function New() {
       <PageWrapper heading="Select data source type">
         <div className="flex justify-center">
           <div className="max-w-lg">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               {availableDataSources.map(({ id, label, enabled }) => (
                 <Link href={`/data-sources/${id}/new`} key={id}>
-                  <a key={id} className="border shadow px-12 py-8 rounded">{label}</a>
+                  <a key={id} className="border shadow-md px-12 py-8 rounded text-center">
+                    <div className="relative h-12 mb-4">
+                      <Image
+                        src={`/img/logos/${id}.png`}
+                        alt={`New ${id} data-source`}
+                        layout="fill"
+                        objectFit="contain"
+                      />
+                    </div>
+                    {label}
+                  </a>
                 </Link>
               ))}
             </div>
