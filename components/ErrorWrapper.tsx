@@ -9,16 +9,22 @@ function ErrorWrapper({
 }: {
   error: FetchBaseQueryError | SerializedError;
 }) {
-  const errorData = useMemo(() => 'data' in error ? error?.data as IApiResponse : undefined, [error]);
+  const { show } = useIntercom();
+  const errorData = useMemo(
+    () => ("data" in error ? (error?.data as IApiResponse) : undefined),
+    [error]
+  );
 
-return (
+  useEffect(() => show(), [])
+
+  return (
     <PageWrapper heading="An error has occured.">
       <div className="flex-1 flex flex-col justify-between">
         <div className="space-y-4">
           <div>
             <div className="font-bold text-sm uppercase">Error message:</div>
             {errorData?.messages && errorData?.messages?.join(" ")}
-            {'message' in error && error?.message && error?.message}
+            {"message" in error && error?.message && error?.message}
           </div>
           {errorData?.meta?.links && (
             <div>
