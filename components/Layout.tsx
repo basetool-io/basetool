@@ -16,6 +16,8 @@ function Layout({ children }: { children: ReactNode }) {
     if (router.pathname.includes("/profile")) return false;
     if (router.pathname.includes("/settings")) return false;
     if (router.pathname === "/data-sources") return false;
+    if (router.pathname === "/data-sources/google-sheets/new") return false;
+    if (router.pathname === "/data-sources/postgresql/new") return false;
     if (router.pathname === "/data-sources/new") return false;
 
     return true;
@@ -52,10 +54,8 @@ function Layout({ children }: { children: ReactNode }) {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="flex w-screen h-screen">
-          <div className="flex w-[4rem] flex-grow-0 flex-shrink-0">
-            <DataSourcesSidebar />
-          </div>
-          <div className="flex-1 flex h-full bg-cool-gray-100 rounded-l-lg shadow w-[calc(100%-4rem)]">
+          <DataSourcesSidebar />
+          <div className="flex-1 flex bg-cool-gray-100 rounded-tl-lg shadow w-[calc(100%-5rem)] h-[calc(100%-0.5rem)] my-2">
             {(tablesSidebarVisible || settingsSidebarVisible) && (
               <div className="flex min-w-[14rem] max-w-[14rem]">
                 {tablesSidebarVisible && <Sidebar />}

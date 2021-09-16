@@ -4,9 +4,9 @@ import ApiResponse, {
   ApiResponseMessage,
   IApiResponse,
 } from "@/features/api/ApiResponse";
+import DataQuery from "../data-sources/types";
 import Router from "next/router";
 import axios from "axios";
-import DataQuery from "../data-sources/types";
 
 const appArgs = {
   baseURL: baseUrl,

@@ -9,7 +9,7 @@ function Error({ statusCode }: any) {
   const [session, sessionIsLoading] = useSession();
   const { boot, update, show } = useIntercom();
   const { width, height } = useWindowSize();
-  const centerText = useMemo(() => width >= 1200 ,[width])
+  const centerText = useMemo(() => width >= 1200, [width]);
   const shouldShow = useMemo(() => {
     if (width <= 450 && height <= 890) return false; // mobile view
 
@@ -39,23 +39,24 @@ function Error({ statusCode }: any) {
   }, [sessionIsLoading, session]);
 
   return (
-    <p>
+    <div>
       {/* {statusCode
         ? `2An error ${statusCode} occurred on server`
         : '2An error occurred on client'} */}
       <div
         className={classNames(
-          "absolute flex justify-center h-full w-full inset-0 bg-opacity-75 z-20 rounded-xl text-center bg-white",
+          "absolute flex justify-center h-full w-full inset-0 bg-opacity-75 z-20 rounded-xl text-center bg-white text-gray-900",
           {
             "items-center": centerText,
           }
         )}
       >
-        Something went wrong.
+        Apologies. Sometimes we make mistakes too...
         <br />
-        Do you want share some details about this issue? {centerText && '👉'}{centerText || '👇'}
+        Do you want to share some details about this issue? {centerText && "👉"}
+        {centerText || "👇"}
       </div>
-    </p>
+    </div>
   );
 }
 

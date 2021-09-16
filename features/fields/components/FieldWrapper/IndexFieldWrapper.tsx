@@ -7,7 +7,7 @@ const IndexFieldWrapper = ({
   field: Field;
   children: ReactNode;
 }) => (
-  <div className="px-4 py-2 leading-tight whitespace-no-wrap">
+  <div className="py-2 leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis">
     {children}
   </div>
 )

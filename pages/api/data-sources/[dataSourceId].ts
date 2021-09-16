@@ -1,5 +1,4 @@
 import { getDataSourceFromRequest } from '@/features/api'
-import { pick } from 'lodash'
 import { withSentry } from '@sentry/nextjs'
 import ApiResponse from '@/features/api/ApiResponse'
 import IsSignedIn from '../../../features/api/middleware/IsSignedIn'
@@ -22,9 +21,16 @@ const handle = async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
 }
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = await getDataSourceFromRequest(req)
+  const dataSource = await getDataSourceFromRequest(req, {
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      options: true,
+    }
+  })
 
-  res.json(ApiResponse.withData(pick(dataSource, ['name', 'id'])))
+  res.json(ApiResponse.withData(dataSource))
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {

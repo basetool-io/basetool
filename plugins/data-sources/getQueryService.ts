@@ -4,6 +4,7 @@ import NullQueryService from "./NullQueryService"
 
 const getQueryService = async (payload: {
   dataSource: DataSource;
+  options?: Record<string, unknown>
 }): Promise<IQueryService> => {
   let queryService;
   const {dataSource} = payload

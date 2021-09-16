@@ -24,7 +24,7 @@ const ShowFieldWrapper = ({
   return (
     <div className="flex">
       <div className="w-48 md:w-64 py-4 px-6 h-full flex items-center space-x-2">
-        <IconElement className="h-4 inline-block" />{" "}
+        <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
         <span>{prettyColumnName}</span>
       </div>
       <div className="flex-1 flex flex-row">

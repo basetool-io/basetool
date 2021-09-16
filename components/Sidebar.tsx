@@ -5,7 +5,7 @@ import {
   useGetDataSourceQuery,
   useRemoveDataSourceMutation,
 } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice";
+import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "./LoadingOverlay";
 import React, { memo } from "react";
@@ -19,7 +19,6 @@ const Sidebar = () => {
   const {
     data: dataSourceResponse,
     isLoading: dataSourceIsLoading,
-    error: dataSourceError,
   } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -30,9 +29,12 @@ const Sidebar = () => {
     data: tablesResponse,
     isLoading,
     error,
-  } = useGetTablesQuery(dataSourceId, {
-    skip: !dataSourceId,
-  });
+  } = useGetTablesQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
     useRemoveDataSourceMutation();
@@ -56,10 +58,12 @@ const Sidebar = () => {
     }
   };
 
+  const prefetchColumns = usePrefetch("getColumns")
+
   return (
     <div className="relative py-2 pl-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
-      <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
+      <div className="relative space-y-x w-full h-full flex flex-col">
         {dataSourceResponse?.ok && (
           <div className="my-2 mt-4 px-4 font-bold uppercase text-sm leading-none">
             {dataSourceIsLoading ? (
@@ -78,20 +82,28 @@ const Sidebar = () => {
         )}
         {error && <div>Error: {(error as any).error}</div>}
         {isLoading && (
-          <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} />
+          <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} subTitle={false} />
         )}
-        <div className="space-y-px">
+        <div className="space-y-1">
           {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
           {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
           {tablesResponse?.ok &&
             tablesResponse.data
-              .filter((table: ListTable) => table.schemaname === "public")
+              .filter((table: ListTable) =>
+                table.schemaname ? table.schemaname === "public" : true
+              )
               .map((table: { name: string }, idx: number) => (
                 <SidebarItem
                   key={idx}
                   active={table.name === tableName}
                   label={table.name}
                   link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                  onMouseOver={() => {
+                    prefetchColumns({
+                      dataSourceId,
+                      tableName: table.name,
+                    });
+                  }}
                 />
               ))}
         </div>

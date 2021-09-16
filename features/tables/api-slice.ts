@@ -1,6 +1,6 @@
+import { apiUrl } from '../api/urls'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import ApiResponse from '../api/ApiResponse'
-import { apiUrl } from '../api/urls'
 
 export const tablesApiSlice = createApi({
   reducerPath: 'tables',
@@ -10,24 +10,19 @@ export const tablesApiSlice = createApi({
   tagTypes: ['Table', 'TableColumns'],
   endpoints(builder) {
     return {
-      getTables: builder.query<ApiResponse, string>({
-        query(id) {
-          return `/data-sources/${id}/tables`
+      getTables: builder.query<ApiResponse, {dataSourceId: string}>({
+        query({dataSourceId}) {
+          return `/data-sources/${dataSourceId}/tables`
         },
+        providesTags: (response, error, { dataSourceId }) => [{ type: 'Table', id: dataSourceId }],
       }),
-      // getTableProperties: builder.query<ApiResponse, {dataSourceId: string, tableName: string}>({
-      //   query({ dataSourceId, tableName }) {
-      //     return `/data-sources/${dataSourceId}/tables/${tableName}`
-      //   },
-      //   providesTags: ['Table'],
-      // }),
       getColumns: builder.query<ApiResponse, {dataSourceId: string, tableName: string}>({
         query({ dataSourceId, tableName }) {
           return `/data-sources/${dataSourceId}/tables/${tableName}/columns`
         },
         providesTags: (response, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
       }),
-      updateColumns: builder.mutation<ApiResponse, Partial<{dataSourceId: string, tableName: string, body: object}>>({
+      updateColumns: builder.mutation<ApiResponse, Partial<{dataSourceId: string, tableName: string, body: Record<string, unknown>}>>({
         query: ({
           dataSourceId, tableName, body,
         }) => ({
@@ -43,7 +38,7 @@ export const tablesApiSlice = createApi({
 
 export const {
   useGetTablesQuery,
-  // useGetTablePropertiesQuery,
   useGetColumnsQuery,
   useUpdateColumnsMutation,
+  usePrefetch,
 } = tablesApiSlice

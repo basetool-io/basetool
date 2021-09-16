@@ -8,7 +8,7 @@ import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
 import { ProfileProvider } from "@/lib/ProfileContext";
 import { Provider as ReduxProvider } from "react-redux";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { inProduction } from "@/lib/environment";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
@@ -35,6 +35,16 @@ const GetProfile = ({ children }: { children: ReactNode }) => {
   return (
     <ProfileProvider value={profile}>{children}</ProfileProvider>
   );
+};
+
+const ShowErrorMessages = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.errorMessage) toast.error(router.query.errorMessage);
+  }, [router.query.errorMessage]);
+
+  return <>{children}</>;
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -69,21 +79,24 @@ function MyApp({ Component, pageProps }: AppProps) {
 
           <Script strategy="lazyOnload">
             {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
 
-          gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
-          gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
-        `}
+              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
+              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
+            `}
           </Script>
+
         </>
       )}
       <ReduxProvider store={store}>
         <ChakraProvider resetCSS={false}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
             <GetProfile>
-              <Component {...pageProps} />
+              <ShowErrorMessages>
+                <Component {...pageProps} />
+              </ShowErrorMessages>
             </GetProfile>
           </IntercomProvider>
           <ToastContainer
@@ -96,6 +109,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             pauseOnFocusLoss
             draggable
             pauseOnHover
+            theme="dark"
           />
         </ChakraProvider>
       </ReduxProvider>

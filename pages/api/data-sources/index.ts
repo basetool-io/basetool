@@ -1,10 +1,10 @@
-import { OrganizationUser, User } from "@prisma/client"
-import { encrypt } from "@/lib/crypto"
-import { getSession } from "next-auth/client"
+import { OrganizationUser, User } from "@prisma/client";
+import { encrypt } from "@/lib/crypto";
+import { getSession } from "next-auth/client";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "../../../features/api/middleware/IsSignedIn"
-import getSchema from "@/plugins/data-sources/getSchema"
+import IsSignedIn from "../../../features/api/middleware/IsSignedIn";
+import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -23,9 +23,9 @@ const handle = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req })
+  const session = await getSession({ req });
 
-  if (!session) return res.status(404).send('')
+  if (!session) return res.status(404).send("");
 
   const user = (await prisma.user.findUnique({
     where: {
@@ -48,17 +48,22 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const dataSources = await prisma.dataSource.findMany({
     where: {
-      organizationId
-    }
+      organizationId,
+    },
+    orderBy: [
+      {
+        createdAt: "asc",
+      },
+    ],
   });
 
   res.json(ApiResponse.withData(dataSources));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req })
+  const session = await getSession({ req });
 
-  if (!session) return res.status(404).send('')
+  if (!session) return res.status(404).send("");
 
   const schema = await getSchema(req.body.type);
   if (schema) {
@@ -89,13 +94,13 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const organizationId = firstOrganizationPivot.organizationId;
 
   // encrypt the credentials
-  const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials))
+  const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials));
   const data = {
     name: req.body.name,
     type: req.body.type,
     organizationId,
-    encryptedCredentials
-  }
+    encryptedCredentials,
+  };
 
   const dataSource = await prisma.dataSource.create({
     data,

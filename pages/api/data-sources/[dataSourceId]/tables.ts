@@ -26,7 +26,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({dataSource});
+  const service = await getQueryService({ dataSource });
 
   await service.connect();
 

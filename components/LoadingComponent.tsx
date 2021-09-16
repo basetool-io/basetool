@@ -1,12 +1,18 @@
 import { ReactNode } from "react";
+import { funnyLoadingMessages } from "@/lib/messages";
+import { sample } from "lodash";
 
 const LoadingComponent = ({
   label = "Loading...",
+  subTitle,
   children,
 }: {
   label?: string;
+  subTitle?: string | boolean;
   children?: ReactNode;
 }) => {
+  if (subTitle !== false) subTitle = sample(funnyLoadingMessages);
+
   return (
     <div className="flex flex-col items-center justify-center p-4 text-gray-700 ">
       <svg
@@ -51,9 +57,13 @@ const LoadingComponent = ({
           strokeLinejoin="round"
         ></path>
       </svg>
-      <div className="font-bold mt-2">
+      <div className="font-bold mt-2 text-center">
         {children && children}
-        {!children && label}
+        {!children && (
+          <>
+            {label} <div className="mt-1 font-semibold">{subTitle}</div>
+          </>
+        )}
       </div>
     </div>
   );
