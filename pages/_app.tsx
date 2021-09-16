@@ -38,11 +38,11 @@ const GetOrganizations = ({ children }: { children: ReactNode }) => {
 };
 
 const ShowErrorMessages = ({ children }: { children: ReactNode }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
-    if(router.query.errorMessage) toast.error(router.query.errorMessage)
-  }, [router.query.errorMessage])
+    if (router.query.errorMessage) toast.error(router.query.errorMessage);
+  }, [router.query.errorMessage]);
 
   return <>{children}</>;
 };
@@ -79,14 +79,15 @@ function MyApp({ Component, pageProps }: AppProps) {
 
           <Script strategy="lazyOnload">
             {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
 
-          gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
-          gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
-        `}
+              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
+              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
+            `}
           </Script>
+
         </>
       )}
       <ReduxProvider store={store}>
