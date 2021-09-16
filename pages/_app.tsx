@@ -6,11 +6,11 @@ import * as gtag from "@/lib/gtag";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
 import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
-import { OrganizationProvider } from "@/lib/OrganizationContext";
+import { ProfileProvider } from "@/lib/ProfileContext";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { inProduction } from "@/lib/environment";
-import { useGetOrganizationsQuery } from "@/features/organizations/api-slice";
+import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import Script from "next/script";
@@ -24,16 +24,16 @@ Tooltip.defaultProps = {
   placement: "top",
 };
 
-const GetOrganizations = ({ children }: { children: ReactNode }) => {
-  const { data: organizationsResponse, isLoading } =
-    useGetOrganizationsQuery(null); // not sure why this method needs 1-2 args. I added null to stisfy that req.
-  const organization = useMemo(
-    () => (organizationsResponse?.ok ? organizationsResponse?.data[0] : {}),
-    [organizationsResponse, isLoading]
+const GetProfile = ({ children }: { children: ReactNode }) => {
+  const { data: profileResponse, isLoading } =
+    useGetProfileQuery(null); // not sure why this method needs 1-2 args. I added null to stisfy that req.
+  const profile = useMemo(
+    () => (profileResponse?.ok ? profileResponse?.data : {}),
+    [profileResponse, isLoading]
   );
 
   return (
-    <OrganizationProvider value={organization}>{children}</OrganizationProvider>
+    <ProfileProvider value={profile}>{children}</ProfileProvider>
   );
 };
 
@@ -82,9 +82,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ReduxProvider store={store}>
         <ChakraProvider resetCSS={false}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
-            <GetOrganizations>
+            <GetProfile>
               <Component {...pageProps} />
-            </GetOrganizations>
+            </GetProfile>
           </IntercomProvider>
           <ToastContainer
             position="top-center"

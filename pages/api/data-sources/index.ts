@@ -44,7 +44,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const { organizations } = user;
   const [firstOrganizationPivot] = organizations;
-  const organizationId = firstOrganizationPivot.id;
+  const organizationId = firstOrganizationPivot.organizationId;
 
   const dataSources = await prisma.dataSource.findMany({
     where: {
@@ -86,12 +86,11 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   const { organizations } = user;
   const [firstOrganizationPivot] = organizations;
-  const organizationId = firstOrganizationPivot.id;
+  const organizationId = firstOrganizationPivot.organizationId;
 
   // encrypt the credentials
   const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials))
   const data = {
-    id: req.body.id,
     name: req.body.name,
     type: req.body.type,
     organizationId,
