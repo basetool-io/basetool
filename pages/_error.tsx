@@ -9,7 +9,7 @@ function Error({ statusCode }: any) {
   const [session, sessionIsLoading] = useSession();
   const { boot, update, show } = useIntercom();
   const { width, height } = useWindowSize();
-  const centerText = useMemo(() => width >= 1200 ,[width])
+  const centerText = useMemo(() => width >= 1200, [width]);
   const shouldShow = useMemo(() => {
     if (width <= 450 && height <= 890) return false; // mobile view
 
@@ -51,9 +51,10 @@ function Error({ statusCode }: any) {
           }
         )}
       >
-        Something went wrong.
+        Apologies. Sometimes we make mistakes too...
         <br />
-        Do you want share some details about this issue? {centerText && '👉'}{centerText || '👇'}
+        Do you want to share some details about this issue? {centerText && "👉"}
+        {centerText || "👇"}
       </div>
     </div>
   );
