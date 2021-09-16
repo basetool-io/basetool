@@ -101,12 +101,11 @@ const DataSourcesSidebar = () => {
       })}
     >
       <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">
-        {/* <pre>{JSON.stringify(compact, null, 2)}</pre> */}
         {isLoading && <>&nbsp;</>}
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
-              {isLoading && <LoadingComponent />}
+              {isLoading && <LoadingComponent subTitle={false} />}
               {!isLoading && dataSourcesResponse?.ok && (
                 <div className="space-y-2">
                   <Link href={`/data-sources`} passHref>

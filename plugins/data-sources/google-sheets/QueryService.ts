@@ -7,6 +7,7 @@ import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { isNull, isNumber, isUndefined, merge } from "lodash";
 import { logger } from "@sentry/utils";
+import BasetoolError from "@/lib/BasetoolError";
 import GoogleDriveService from "./GoogleDriveService";
 import cache from "@/features/cache";
 import prisma from "@/prisma";
@@ -188,7 +189,6 @@ class QueryService implements IQueryService {
         // for await (const header of sheet.headerValues) {
         //   console.log(header)
 
-
         // }
 
         // sheet.headerValues.forEach((header, idx) => {
@@ -201,9 +201,12 @@ class QueryService implements IQueryService {
 
         //   }
 
-
         // })
 
+        if (sheet.headerValues.includes(""))
+          throw new BasetoolError(
+            "Failed to parse columns for this sheet. Please make sure they follow the convention."
+          );
 
         const convertedHeaders = sheet.headerValues.map((headerName) => ({
           name: headerName,
@@ -464,15 +467,18 @@ export const refreshTokens = async (
 ) => {
   const { tokens } = getDecryptedCredentials(dataSource);
 
-  const code = tokens.refresh_token;
-  await oauthClient?.getToken(code, async (err: any, newTokens: any) => {
-    if (err) {
-      console.error("Error getting oAuth tokens:");
-      throw err;
-    }
+  const { refresh_token } = tokens;
+  await oauthClient?.getToken(
+    refresh_token,
+    async (err: any, newTokens: any) => {
+      if (err) {
+        console.error("Error getting oAuth tokens:");
+        throw err;
+      }
 
-    await mergeAndEncryptCredentials(dataSource, newTokens);
-  });
+      await mergeAndEncryptCredentials(dataSource, newTokens);
+    }
+  );
 };
 
 export const initOauthClient = (

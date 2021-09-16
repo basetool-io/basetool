@@ -3,6 +3,7 @@ import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
+import HandlesErrors from "@/features/api/middleware/HandlesErrors"
 import IsSignedIn from "@/features/api/middleware/IsSignedIn";
 import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
@@ -36,7 +37,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     "columns",
   ]);
 
-  const service = await getQueryService({ dataSource, options: { cache: true } });
+  const service = await getQueryService({ dataSource, options: { cache: false } });
 
   await service.connect();
 
@@ -88,4 +89,4 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withSentry(HandlesErrors(IsSignedIn(OwnsDataSource(handle))));

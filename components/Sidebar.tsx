@@ -5,7 +5,7 @@ import {
   useGetDataSourceQuery,
   useRemoveDataSourceMutation,
 } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice";
+import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "./LoadingOverlay";
 import React, { memo } from "react";
@@ -58,6 +58,8 @@ const Sidebar = () => {
     }
   };
 
+  const prefetchColumns = usePrefetch("getColumns")
+
   return (
     <div className="relative py-2 pl-2 w-full">
       {!router.query.dataSourceId && "Select a data source"}
@@ -80,7 +82,7 @@ const Sidebar = () => {
         )}
         {error && <div>Error: {(error as any).error}</div>}
         {isLoading && (
-          <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} />
+          <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} subTitle={false} />
         )}
         <div className="space-y-1">
           {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
@@ -96,6 +98,12 @@ const Sidebar = () => {
                   active={table.name === tableName}
                   label={table.name}
                   link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                  onMouseOver={() => {
+                    prefetchColumns({
+                      dataSourceId,
+                      tableName: table.name,
+                    });
+                  }}
                 />
               ))}
         </div>

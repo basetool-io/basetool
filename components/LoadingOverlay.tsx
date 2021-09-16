@@ -4,12 +4,14 @@ import classNames from "classnames";
 
 const LoadingOverlay = ({
   label,
+  subTitle,
   transparent = false,
   inPageWrapper,
   children,
   className
 }: {
   label?: string;
+  subTitle?: string | boolean;
   transparent?: boolean;
   inPageWrapper?: boolean;
   children?: ReactNode
@@ -24,7 +26,7 @@ const LoadingOverlay = ({
         className
       )}
     >
-      <LoadingComponent label={label}>{children}</LoadingComponent>
+      <LoadingComponent label={label} subTitle={subTitle}>{children}</LoadingComponent>
     </div>
   );
 };

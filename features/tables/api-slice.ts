@@ -40,4 +40,5 @@ export const {
   useGetTablesQuery,
   useGetColumnsQuery,
   useUpdateColumnsMutation,
+  usePrefetch,
 } = tablesApiSlice
