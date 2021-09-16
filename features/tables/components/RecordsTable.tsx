@@ -19,13 +19,14 @@ import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
 import { isEmpty, isUndefined } from "lodash";
+import { localStorageColumnWidthKey } from "..";
 import { makeField } from "@/features/fields";
 import { useFilters } from "@/hooks";
 import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import classNames from "classnames";
 import numeral from "numeral";
 
@@ -173,14 +174,23 @@ const RecordsTable = ({
     useResizeColumns
   );
 
-  const { columnResizing } = useMemo(
-    () => ({
-      pageIndex: state.pageIndex,
-      pageSize: state.pageSize,
-      columnResizing: state.columnResizing,
-    }),
-    [state]
-  );
+  useEffect(() => {
+    // Keep the column sizes in localStorage
+    Object.entries(state.columnResizing.columnWidths).forEach(
+      ([columnName, width]: [string, unknown]) => {
+        const localStorageKey = localStorageColumnWidthKey({
+          dataSourceId,
+          tableName,
+          columnName,
+        });
+        window.localStorage.setItem(
+          localStorageKey,
+          (width as number).toString()
+        );
+      }
+    );
+  }, [state]);
+
   const [isValid, setIsValid] = useState(true);
   const [hasColumns, setHasColumns] = useState(true);
   const [tableIsVisible, setTableIsVisible] = useState(true);
@@ -361,8 +371,14 @@ const RecordsTable = ({
       >
         <div className="inline-block text-gray-500 text-sm">
           {/* @todo: show a pretty numebr (2.7K in total) */}
-          Showing {offset + 1}-{perPage * page} {meta?.count && 'of '}
-          {meta?.count ? `${meta.count < 1000 ? meta.count : numeral(meta.count).format("0.0a")} in total` : ""}
+          Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
+          {meta?.count
+            ? `${
+                meta.count < 1000
+                  ? meta.count
+                  : numeral(meta.count).format("0.0a")
+              } in total`
+            : ""}
         </div>
         <div className="flex justify-between sm:justify-end">
           <Button

@@ -5,6 +5,7 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
+import { LOCAL_STORAGE_PREFIX } from "@/lib/constants"
 import { Sidebar } from "react-feather";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
@@ -78,7 +79,7 @@ const DataSourceItem = ({
 const DataSourcesSidebar = () => {
   const router = useRouter();
   const [compact, setCompact] = useLocalStorageValue(
-    "basetool:datasources-sidebar-compact",
+    `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
     true,
     {
       initializeWithStorageValue: false,

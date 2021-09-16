@@ -7,9 +7,9 @@ import {
   XIcon,
 } from "@heroicons/react/outline";
 import { OrderDirection } from "@/features/tables/types";
-import { Column as ReactTableColumn } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
+import { parseColumns } from "@/features/tables";
 import { useBoolean, useClickAway } from "react-use";
 import { useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
@@ -22,15 +22,6 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
-const parseColumns = (columns: Column[]): ReactTableColumn[] =>
-  columns.map((column) => ({
-    Header: column.name,
-    accessor: column.name,
-    meta: {
-      ...column,
-    },
-  }));
-
 const ResourcesIndex = memo(
   ({
     dataSourceId,
@@ -42,7 +33,7 @@ const ResourcesIndex = memo(
     columns: Column[];
   }) => {
     const router = useRouter();
-    const parsedColumns = parseColumns(columns);
+    const parsedColumns = parseColumns({ dataSourceId, columns, tableName });
     const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
     const [orderDirection, setOrderDirection] = useState<OrderDirection>(
       router.query.orderDirection as OrderDirection
@@ -177,7 +168,10 @@ function TablesShow() {
   return (
     <Layout>
       {isLoading && (
-        <LoadingOverlay inPageWrapper transparent={isEmpty(columnsResponse?.data)} />
+        <LoadingOverlay
+          inPageWrapper
+          transparent={isEmpty(columnsResponse?.data)}
+        />
       )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && columnsResponse?.ok && (
