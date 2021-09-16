@@ -50,6 +50,11 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     where: {
       organizationId,
     },
+    orderBy: [
+      {
+        createdAt: "asc",
+      },
+    ],
   });
 
   res.json(ApiResponse.withData(dataSources));
