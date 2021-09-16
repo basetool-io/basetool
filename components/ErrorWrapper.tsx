@@ -1,8 +1,9 @@
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
-import { IApiResponse } from "@/features/api/ApiResponse"
+import { IApiResponse } from "@/features/api/ApiResponse";
 import { SerializedError } from "@reduxjs/toolkit";
+import { useIntercom } from "react-use-intercom"
 import PageWrapper from "./PageWrapper";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 function ErrorWrapper({
   error,
