@@ -75,6 +75,7 @@ export const rolesApiSlice = createApi({
   },
 });
 
+// get user role and options
 export const {
   useGetRolesQuery,
   useCreateRoleMutation,
