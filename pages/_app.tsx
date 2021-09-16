@@ -31,7 +31,6 @@ const GetProfile = ({ children }: { children: ReactNode }) => {
     () => (profileResponse?.ok ? profileResponse?.data : {}),
     [profileResponse, isLoading]
   );
-  console.log('profile->', profile)
 
   return (
     <ProfileProvider value={profile}>{children}</ProfileProvider>

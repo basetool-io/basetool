@@ -9,12 +9,12 @@ const OwnsDataSource =
       include: {
         organizations: {
           select: {
-            id: true,
+            organizationId: true,
           },
         },
       },
     })) as User & {
-      organizations: { id: number }[];
+      organizations: { organizationId: number }[];
     };
     const dataSource = await getDataSourceFromRequest(req);
 
@@ -22,7 +22,7 @@ const OwnsDataSource =
       dataSource?.organizationId &&
       user.organizations &&
       // if data source organization is in one of the user's organization
-      user.organizations.map(({ id }) => id).includes(dataSource.organizationId)
+      user.organizations.map(({ organizationId }) => organizationId).includes(dataSource.organizationId)
     ) {
       return handler(req, res);
     }
