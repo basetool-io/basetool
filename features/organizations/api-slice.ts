@@ -11,8 +11,7 @@ export const organizationsApiSlice = createApi({
   endpoints(builder) {
     return {
       getOrganizations: builder.query({
-        query: () =>
-          `/organizations`,
+        query: () => `/organizations`,
         providesTags: (response) => {
           // is result available?
           if (response && response?.data) {
@@ -30,10 +29,7 @@ export const organizationsApiSlice = createApi({
           return [{ type: "Organization", id: "LIST" }];
         },
       }),
-      getOrganization: builder.query<
-        ApiResponse,
-        { organizationId: string; }
-      >({
+      getOrganization: builder.query<ApiResponse, { organizationId: string }>({
         query({ organizationId }) {
           return `/organizations/${organizationId}`;
         },
@@ -45,7 +41,5 @@ export const organizationsApiSlice = createApi({
   },
 });
 
-export const {
-  useGetOrganizationQuery,
-  useGetOrganizationsQuery,
-} = organizationsApiSlice;
+export const { useGetOrganizationQuery, useGetOrganizationsQuery } =
+  organizationsApiSlice;
