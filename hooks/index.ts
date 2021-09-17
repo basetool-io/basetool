@@ -11,8 +11,10 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding"
-import { useMemo } from "react"
+import { useContext, useMemo } from "react"
+import AccessControlService from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
+import ProfileContext from "@/lib/ProfileContext";
 import store from "@/lib/store";
 
 export const useApi = () => new ApiService();
@@ -104,4 +106,11 @@ export const useFilters = (initialFilters?: string | undefined): {
     resetFilters,
     encodedFilters,
   };
+};
+
+export const useAccessControl = () => {
+  const profile = useContext(ProfileContext);
+  const ac = useMemo(() => new AccessControlService(profile.role), [profile.role]);
+
+  return ac
 };

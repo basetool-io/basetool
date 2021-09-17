@@ -10,12 +10,10 @@ import { OrderDirection } from "@/features/tables/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
+import { useAccessControl, useFilters } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
-import { useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
-import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
-import ACLController from "@/features/roles/acl-controller";
 import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
@@ -43,6 +41,7 @@ const ResourcesIndex = memo(
     );
     const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
     const { appliedFilters, resetFilters } = useFilters();
+    const ac = useAccessControl();
 
     useEffect(() => {
       resetFilters();
@@ -57,19 +56,6 @@ const ResourcesIndex = memo(
         toggleFiltersPanelVisible(false);
       }
     });
-
-
-    const { data: profileResponse, isLoading } =
-      useGetProfileQuery(null);
-    const profile = useMemo(
-      () => (profileResponse?.ok ? profileResponse?.data : {}),
-      [profileResponse, isLoading]
-    );
-    const { role } = profile;
-
-    const ac = new ACLController(role);
-
-    console.log('canCreate, canRead, canUpdate, canDelete ->', ac.canCreate(), ac.canRead(), ac.canUpdate(), ac.canDelete() )
 
     return (
       <PageWrapper
@@ -90,7 +76,7 @@ const ResourcesIndex = memo(
                   Edit columns
                 </Button>
               </Link>
-              { ac.canCreate() && <>
+              { ac.createAny("record").granted && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                 passHref
