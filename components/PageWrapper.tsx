@@ -8,7 +8,7 @@ function PageWrapper({
   children,
   flush = false,
 }: {
-  heading?: string;
+  heading?: string | ReactElement;
   status?: ReactElement;
   buttons?: ReactElement;
   children: ReactElement;

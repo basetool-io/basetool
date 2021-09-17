@@ -1,7 +1,7 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { withSentry } from "@sentry/nextjs";
-import BelongsToOrganization from "./middlewares/BelongsToOrganization";
-import GetSubdomain from "./middlewares/GetSubdomain";
+// import BelongsToOrganization from "./middlewares/BelongsToOrganization";
+// import GetSubdomain from "./middlewares/GetSubdomain";
 import HandlesErrors from "./middlewares/HandlesErrors";
 
 export type MiddlewareTuple = [
@@ -13,8 +13,8 @@ export type MiddlewareTuple = [
 ];
 
 const startMiddlewares: MiddlewareTuple[] = [
-  [BelongsToOrganization, {}],
-  [GetSubdomain, {}],
+  // [BelongsToOrganization, {}],
+  // [GetSubdomain, {}],
 ];
 
 const endMiddlewares: MiddlewareTuple[] = [

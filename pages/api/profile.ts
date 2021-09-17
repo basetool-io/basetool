@@ -56,9 +56,14 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const subdomain = (req as BasetoolApiRequest).subdomain;
   const organization = organizations.find((org) => org.slug === subdomain);
   const role = user.organizations[0].role;
-  const profile = { user: omit(user, "organizations"), organization, role };
+  const profile = {
+    user: omit(user, "organizations"),
+    organization,
+    organizations,
+    role,
+  };
 
-  res.json(ApiResponse.withData(profile || {}));
+  res.json(ApiResponse.withData(profile));
 }
 
 // export default withSentry(IsSignedIn(handle));
