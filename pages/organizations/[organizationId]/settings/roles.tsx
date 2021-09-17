@@ -254,7 +254,7 @@ function Roles() {
     <Layout>
       <PageWrapper heading={organization?.name ? <Heading name={organization?.name} /> : ''} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
-          {isLoading || isFetching && <LoadingOverlay inPageWrapper />}
+          {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
           <div className="flex flex-shrink-0 w-1/4 border-r">
             <div className="w-full relative p-4">
               <div className="mb-2">Roles</div>
