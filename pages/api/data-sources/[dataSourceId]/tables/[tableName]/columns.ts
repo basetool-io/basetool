@@ -3,9 +3,9 @@ import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import HandlesErrors from "@/features/api/middleware/HandlesErrors"
-import IsSignedIn from "@/features/api/middleware/IsSignedIn";
-import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
+import HandlesErrors from "@/features/api/middlewares/HandlesErrors"
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";

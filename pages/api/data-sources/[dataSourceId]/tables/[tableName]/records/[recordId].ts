@@ -1,8 +1,8 @@
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middleware/IsSignedIn";
-import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -58,7 +58,11 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   await service.disconnect();
 
-  res.json(ApiResponse.withData(data, { message: `Updated -> ${JSON.stringify(req?.body?.changes)}` }));
+  res.json(
+    ApiResponse.withData(data, {
+      message: `Updated -> ${JSON.stringify(req?.body?.changes)}`,
+    })
+  );
 }
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));

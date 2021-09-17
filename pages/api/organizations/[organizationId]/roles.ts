@@ -2,8 +2,8 @@ import { pick } from "lodash"
 import { schema } from "@/features/roles/schema"
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middleware/BelongsToOrganization"
-import IsSignedIn from "@/features/api/middleware/IsSignedIn"
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 

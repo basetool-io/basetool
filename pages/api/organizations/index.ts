@@ -2,7 +2,7 @@ import { Organization, OrganizationUser, User } from "@prisma/client";
 import { getUserFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middleware/IsSignedIn";
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handle = async (
