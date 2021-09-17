@@ -226,7 +226,7 @@ function Roles() {
   const profile = useContext(ProfileContext);
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
-  const organization: Organization | undefined = useMemo(
+  const organization: any = useMemo(
     () =>
       profile?.organizations?.find(
         (o: Organization) => o.id === parseInt(organizationId as string)
@@ -252,7 +252,7 @@ function Roles() {
 
   return (
     <Layout>
-      <PageWrapper heading={organization ? <Heading name={organization?.name} /> : ''} flush={true}>
+      <PageWrapper heading={organization?.name ? <Heading name={organization?.name} /> : ''} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
           {isLoading || isFetching && <LoadingOverlay inPageWrapper />}
           <div className="flex flex-shrink-0 w-1/4 border-r">
