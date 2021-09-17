@@ -7,6 +7,7 @@ function BackButton({ href }: { href: string }) {
   return (
     <Link href={href} passHref>
       <Button
+        as="a"
         colorScheme="blackAlpha"
         leftIcon={<BackspaceIcon className="h-4" />}
       >

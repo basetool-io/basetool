@@ -49,7 +49,7 @@ const RecordShow = ({
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref
               >
-                <Button colorScheme="blue">Edit</Button>
+                <Button as="a" colorScheme="blue">Edit</Button>
               </Link>
             </ButtonGroup>
           </>

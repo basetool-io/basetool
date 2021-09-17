@@ -1,10 +1,10 @@
 import { AnySchema } from "joi";
 import { Field } from "../../types";
 import { FormLabel } from "@chakra-ui/react";
-import classNames from "classnames";
 import { fieldId, iconForField } from "../..";
-import React, { ReactNode, useMemo } from "react";
 import { humanize } from "@/lib/humanize";
+import React, { ReactNode, useMemo } from "react";
+import classNames from "classnames";
 
 const EditFieldWrapper = ({
   field,
@@ -33,7 +33,7 @@ const EditFieldWrapper = ({
   return (
     <div className={classNames("flex", "items-start", "py-1", "leading-tight")}>
       <FormLabel
-        className="w-48 md:w-64 py-2 px-6 h-full flex space-x-2"
+        className="w-48 md:w-64 py-2 px-6 h-full flex space-x-2 font-normal"
         htmlFor={fieldId(field)}
       >
         <IconElement className="h-4 inline-block flex-shrink-0" />{" "}

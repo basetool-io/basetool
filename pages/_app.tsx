@@ -8,7 +8,7 @@ import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider, useSession } from "next-auth/client";
 import { ProfileProvider } from "@/lib/ProfileContext";
 import { Provider as ReduxProvider } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, Zoom, toast } from "react-toastify";
 import { inProduction } from "@/lib/environment";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
@@ -99,16 +99,17 @@ function MyApp({ Component, pageProps }: AppProps) {
             </GetProfile>
           </IntercomProvider>
           <ToastContainer
-            position="top-center"
+            position="bottom-right"
+            transition={Zoom}
             autoClose={3000}
-            hideProgressBar={false}
+            hideProgressBar={true}
             newestOnTop={false}
             closeOnClick
             rtl={false}
+            draggablePercent={60}
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="dark"
           />
         </ChakraProvider>
       </ReduxProvider>
