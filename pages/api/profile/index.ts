@@ -3,7 +3,7 @@ import { getUserFromRequest } from "@/features/api";
 import { omit } from "lodash";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middleware/IsSignedIn";
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn"
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handle = async (
@@ -35,9 +35,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           role: {
             select: {
               name: true,
-              options: true
-            }
-          }
+              options: true,
+            },
+          },
         },
       },
     },
