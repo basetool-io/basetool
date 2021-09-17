@@ -296,6 +296,23 @@ class QueryService implements IQueryService {
     return result;
   }
 
+  public async deleteRecord(
+    tableName: string,
+    recordId: string,
+  ): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn(tableName);
+
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
+
+    const result = await this.client
+      .table(tableName)
+      .delete()
+      .where(pk, recordId);
+
+    return result;
+  }
+
   public async getTables(): Promise<[]> {
     const query = `SELECT *
     FROM pg_catalog.pg_tables

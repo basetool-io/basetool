@@ -3,8 +3,8 @@ import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
+import { useDeleteRecordMutation, useGetRecordQuery } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
-import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head"
@@ -37,14 +37,37 @@ const RecordShow = ({
     return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
   }, [router.query]);
 
+  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+
+  const onDeleteClick = async () => {
+    const confirmed = confirm(
+      "Are you sure you want to remove this record?"
+    );
+    if (confirmed) {
+      const response = await deleteRecord({
+        dataSourceId: router.query.dataSourceId as string,
+        tableName: router.query.tableName as string,
+        recordId: record.id.toString(),
+      });
+
+      if ("data" in response && response?.data?.ok) {
+        // @todo: make the response into a pretty message
+      }
+
+      router.push(backLink);
+    }
+  }
+
   return (
     <>
       <PageWrapper
         heading="View record"
         buttons={
           <>
+            {isDeleting && <LoadingOverlay transparent={true} />}
             <ButtonGroup size="sm">
               <BackButton href={backLink} />
+              <Button colorScheme="red" onClick={onDeleteClick}>Delete</Button>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref

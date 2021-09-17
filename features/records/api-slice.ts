@@ -102,6 +102,22 @@ export const recordsApiSlice = createApi({
           { type: "Record", id: recordId },
         ],
       }),
+      deleteRecord: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          recordId: string;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, recordId }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { recordId }) => [
+          { type: "Record", id: recordId },
+        ],
+      }),
     };
   },
 });
@@ -112,4 +128,5 @@ export const {
   useCreateRecordMutation,
   useUpdateRecordMutation,
   usePrefetch,
+  useDeleteRecordMutation,
 } = recordsApiSlice;

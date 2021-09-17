@@ -15,6 +15,8 @@ const handle = async (
       return handleGET(req, res);
     case "PUT":
       return handlePUT(req, res);
+    case "DELETE":
+      return handleDELETE(req, res);
     default:
       return res.status(404).send("");
   }
@@ -64,5 +66,29 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     })
   );
 }
+
+async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource) return res.status(404).send("");
+
+  const service = await getQueryService({ dataSource });
+
+  await service.connect();
+
+  const data = await service.deleteRecord(
+    req.query.tableName as string,
+    req.query.recordId as string,
+  );
+
+  await service.disconnect();
+
+  res.json(
+    ApiResponse.withData(data, {
+      message: `Deleted -> record #${req.query.recordId} from ${req.query.tableName}`,
+    })
+  );
+}
+
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));
