@@ -3,6 +3,7 @@ import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
+import { useAccessControl } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
@@ -36,6 +37,7 @@ const RecordShow = ({
 
     return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
   }, [router.query]);
+  const ac = useAccessControl();
 
   return (
     <>
@@ -45,12 +47,14 @@ const RecordShow = ({
           <>
             <ButtonGroup size="sm">
               <BackButton href={backLink} />
+              { ac.updateAny("record").granted && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref
               >
                 <Button colorScheme="blue">Edit</Button>
               </Link>
+              </> }
             </ButtonGroup>
           </>
         }

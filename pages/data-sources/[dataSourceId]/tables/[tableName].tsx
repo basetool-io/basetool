@@ -64,6 +64,7 @@ const ResourcesIndex = memo(
         buttons={
           <>
             <ButtonGroup size="sm">
+            { ac.roleName === "Owner" && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
                 passHref
@@ -76,6 +77,7 @@ const ResourcesIndex = memo(
                   Edit columns
                 </Button>
               </Link>
+              </>}
               { ac.createAny("record").granted && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}

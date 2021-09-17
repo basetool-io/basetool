@@ -25,7 +25,7 @@ export default class AccessControlService {
   }
 
   getRoleAbilityLogic(role: Role, ability: string) {
-    return isEmpty(role.options) || isEmpty(role.options?.abilities) || (role.options.abilities && role.options.abilities.includes(ability));
+    return isEmpty(role.options) || (role.options.abilities && role.options.abilities.includes(ability));
   }
 
   createAny(record: string) {
