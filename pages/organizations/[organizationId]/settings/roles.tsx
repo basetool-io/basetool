@@ -224,10 +224,9 @@ function Roles() {
   const router = useRouter();
   const { organizationId } = router.query;
   const profile = useContext(ProfileContext);
-  console.log('profile->', profile)
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
-  const organization: Organization = useMemo(
+  const organization: Organization | undefined = useMemo(
     () =>
       profile?.organizations?.find(
         (o: Organization) => o.id === parseInt(organizationId as string)
