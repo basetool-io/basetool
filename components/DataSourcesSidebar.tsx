@@ -5,17 +5,14 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
-import { LOCAL_STORAGE_PREFIX } from "@/lib/constants";
-import { Sidebar } from "react-feather";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
-import { useLocalStorageValue } from "@react-hookz/web";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import Avatar from "react-avatar";
 import Link from "next/link";
-import React, { ReactNode, memo, useEffect } from "react";
+import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
 import isNull from "lodash/isNull";
 
@@ -80,21 +77,13 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const [compact, setCompact] = useLocalStorageValue(
-    `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
-    true,
-    {
-      initializeWithStorageValue: false,
-    }
-  );
+  const compact = true
+  // const [compact, setCompact] = useLocalStorage(
+  //   `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
+  //   true,
+  // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
-
-  useEffect(() => {
-    if (dataSourcesResponse?.data?.length === 0) {
-      setCompact(false);
-    }
-  }, []);
 
   return (
     <div
@@ -193,13 +182,13 @@ const DataSourcesSidebar = () => {
                 link={`/profile`}
                 label={sessionIsLoading ? "Loading" : `Your profile`}
               />
-              <div onClick={() => setCompact(!compact)}>
+              {/* <div onClick={() => setCompact(!compact)}>
                 <DataSourceItem
                   compact={compact}
                   icon={<Sidebar className="h-5 w-5 text-white ml-px mr-1" />}
                   label={compact ? "Expand sidebar" : `Pin sidebar`}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         )}
