@@ -6,10 +6,12 @@ import isNull from "lodash/isNull"
 const GetSubdomain =
   (handler: NextApiHandler) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
+    // Run regex on the host to get the subdomain
     const reg = new RegExp(`(.*).${process.env.BASE_URL}`)
     const matches = req.headers.host?.match(reg)
 
-    if (!isNull(matches) && !isUndefined(matches) && matches?.length > 0) {
+    // If found, add it to the request
+    if (!isNull(matches) && !isUndefined(matches) && matches?.length > 1) {
       (req as BasetoolApiRequest).subdomain = matches[1]
     }
 

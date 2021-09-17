@@ -1,6 +1,5 @@
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -40,4 +39,4 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(response));
 }
 
-export default withSentry(IsSignedIn(BelongsToOrganization(handle)));
+export default withSentry(IsSignedIn(handle));
