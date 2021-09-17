@@ -3,10 +3,10 @@ import { pick } from "lodash"
 import { schema } from "@/features/roles/schema";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
 
 const handle = async (
   req: NextApiRequest,
