@@ -34,8 +34,6 @@ const BelongsToOrganization =
       }>;
     };
 
-    console.log('user->', user)
-
     // Check that the user belongs to the organization
     const organizationPivot = user.organizations.find(
       (org) => org.organization.slug === subdomain
