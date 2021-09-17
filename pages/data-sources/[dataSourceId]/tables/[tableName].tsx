@@ -13,7 +13,9 @@ import { parseColumns } from "@/features/tables";
 import { useBoolean, useClickAway } from "react-use";
 import { useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
+import ACLController from "@/features/roles/acl-controller";
 import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
@@ -56,6 +58,19 @@ const ResourcesIndex = memo(
       }
     });
 
+
+    const { data: profileResponse, isLoading } =
+      useGetProfileQuery(null);
+    const profile = useMemo(
+      () => (profileResponse?.ok ? profileResponse?.data : {}),
+      [profileResponse, isLoading]
+    );
+    const { role } = profile;
+
+    const ac = new ACLController(role);
+
+    console.log('canCreate, canRead, canUpdate, canDelete ->', ac.canCreate(), ac.canRead(), ac.canUpdate(), ac.canDelete() )
+
     return (
       <PageWrapper
         heading="Browse records"
@@ -75,6 +90,7 @@ const ResourcesIndex = memo(
                   Edit columns
                 </Button>
               </Link>
+              { ac.canCreate() && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                 passHref
@@ -86,6 +102,7 @@ const ResourcesIndex = memo(
                   Create record
                 </Button>
               </Link>
+              </>}
             </ButtonGroup>
           </>
         }
