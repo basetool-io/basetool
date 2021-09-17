@@ -6,6 +6,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
 
 const handle = async (
   req: NextApiRequest,
@@ -55,4 +56,4 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withMessage("Removed."));
 }
 
-export default withSentry(IsSignedIn(handle));
+export default withSentry(IsSignedIn(BelongsToOrganization(handle)));
