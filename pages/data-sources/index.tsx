@@ -120,7 +120,7 @@ function Index() {
                                   <>
                                     <Code>{credentials}</Code>{" "}
                                     <Link
-                                      href={`/data-sources/new?credentials=${credentials}&name=${name}`}
+                                      href={`/data-sources/postgresql/new?credentials=${credentials}&name=${name}`}
                                     >
                                       <a className="ml-1 text-blue-600 cursor-pointer text-sm">
                                         (use these credentials)

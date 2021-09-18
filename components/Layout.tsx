@@ -22,8 +22,9 @@ function Layout({ children }: { children: ReactNode }) {
 
     return true;
   }, [router.pathname]);
+  // temporarily returning false until we figure out a better way of injecting the sidebar with dynamic values 👇
   const settingsSidebarVisible = useMemo(
-    () => router.pathname.includes("/settings"),
+    () => false && router.pathname.includes("/settings"),
     [router.pathname]
   );
   const { boot, update } = useIntercom();

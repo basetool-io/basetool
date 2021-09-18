@@ -8,9 +8,9 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
+import { ChevronRightIcon, PlusIcon } from "@heroicons/react/outline";
 import { OWNER_ROLE, defaultAbilities } from "@/features/roles";
-import { PlusIcon } from "@heroicons/react/outline";
-import { Role } from ".prisma/client";
+import { Organization, Role } from "@prisma/client";
 import { diff } from "deep-object-diff";
 import { isEmpty, isFunction, omit } from "lodash";
 import { useBoolean } from "react-use";
@@ -20,12 +20,13 @@ import {
   useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/features/roles/api-slice";
+import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext"
+import ProfileContext from "@/lib/ProfileContext";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 export type Ability = {
@@ -35,16 +36,17 @@ export type Ability = {
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const RoleEditor = ({
+  organization,
   currentRole = { id: "", name: "", options: {} },
   selectRole,
 }: {
+  organization: Organization;
   currentRole?:
     | Role
     | { id: ""; name: string; options: Record<string, unknown> };
   selectRole: (payload: { name: string }) => void;
 }) => {
-  const profile = useContext(ProfileContext);
-  const organizationId = profile?.organization?.id;
+  const organizationId = organization.id;
   const isCreateForm = currentRole.id === "";
   const [role, setRole] = useState(currentRole);
   const [abilities, setAbilities] = useState<Ability["id"][]>([]);
@@ -216,15 +218,28 @@ const RoleEditor = ({
   );
 };
 
+const Heading = ({name}: {name?: string}) => <>{name || ''} {<ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />} Settings {<ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />} Roles</>
+
 function Roles() {
+  const router = useRouter();
+  const { organizationId } = router.query;
+  const profile = useContext(ProfileContext);
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
-  const profile = useContext(ProfileContext);
-  const organizationId = profile?.organization?.id;
+  const organization: any = useMemo(
+    () =>
+      profile?.organizations?.find(
+        (o: Organization) => o.id === parseInt(organizationId as string)
+      ),
+    [profile.organizations, organizationId]
+  );
 
-  const { data: rolesResponse, isFetching } = useGetRolesQuery({
-    organizationId: organizationId?.toString(),
-  }, {skip: !organizationId});
+  const { data: rolesResponse, isLoading, isFetching } = useGetRolesQuery(
+    {
+      organizationId: organizationId?.toString(),
+    },
+    { skip: !organizationId }
+  );
 
   const roles = useMemo(
     () => (rolesResponse?.ok ? rolesResponse?.data : []),
@@ -237,9 +252,9 @@ function Roles() {
 
   return (
     <Layout>
-      <PageWrapper heading={`Settings / Roles`} flush={true}>
+      <PageWrapper heading={organization?.name ? <Heading name={organization?.name} /> : ''} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
-          {isFetching && <LoadingOverlay inPageWrapper />}
+          {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
           <div className="flex flex-shrink-0 w-1/4 border-r">
             <div className="w-full relative p-4">
               <div className="mb-2">Roles</div>
@@ -268,30 +283,34 @@ function Roles() {
               </div>
             </div>
           </div>
-          <div className="flex-1 p-4">
-            {addNewRole && (
-              <RoleEditor
-                selectRole={({ name }: { name: string }) => {
-                  toggleAddNewRole(false);
-                  setCurrentRoleName(name);
-                }}
-              />
-            )}
-            {addNewRole || (
-              <>
-                {!currentRole && "👈 Please select a role"}
-                {currentRole && (
-                  <RoleEditor
-                    currentRole={currentRole}
-                    selectRole={({ name }: { name: string }) => {
-                      toggleAddNewRole(false);
-                      setCurrentRoleName(name);
-                    }}
-                  />
-                )}
-              </>
-            )}
-          </div>
+          {organization && (
+            <div className="flex-1 p-4">
+              {addNewRole && (
+                <RoleEditor
+                  organization={organization}
+                  selectRole={({ name }: { name: string }) => {
+                    toggleAddNewRole(false);
+                    setCurrentRoleName(name);
+                  }}
+                />
+              )}
+              {addNewRole || (
+                <>
+                  {!currentRole && "👈 Please select a role"}
+                  {currentRole && (
+                    <RoleEditor
+                      organization={organization}
+                      currentRole={currentRole}
+                      selectRole={({ name }: { name: string }) => {
+                        toggleAddNewRole(false);
+                        setCurrentRoleName(name);
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </PageWrapper>
     </Layout>

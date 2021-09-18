@@ -314,6 +314,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
           <ButtonGroup size="sm">
             <BackButton href={backLink} />
             <Button
+              as="a"
               colorScheme="blue"
               disabled={!isDirty}
               onClick={saveTableSettings}

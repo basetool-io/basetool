@@ -1,10 +1,8 @@
 import { AnySchema } from "joi";
 import { Field } from "../../types";
-import { FormLabel } from "@chakra-ui/react";
-import classNames from "classnames";
 import { fieldId, iconForField } from "../..";
-import React, { ReactNode, useMemo } from "react";
 import { humanize } from "@/lib/humanize";
+import React, { ReactNode, useMemo } from "react";
 
 const EditFieldWrapper = ({
   field,
@@ -31,17 +29,19 @@ const EditFieldWrapper = ({
   );
 
   return (
-    <div className={classNames("flex", "items-start", "py-1", "leading-tight")}>
-      <FormLabel
-        className="w-48 md:w-64 py-2 px-6 h-full flex space-x-2"
+    <div className="flex items-start leading-tight border-b min-h-16">
+      <label
+        className="w-48 md:w-64 px-6 flex items-start space-x-2 font-normal min-h-16"
         htmlFor={fieldId(field)}
       >
-        <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
-        <span>{prettyColumnName}</span>
-        {isRequired && <sup className="text-red-600">*</sup>}
-      </FormLabel>
-      <div className="flex-1 flex flex-row">
-        <div className="p-3 self-center">{children}</div>
+        <div className="flex items-center space-x-2 min-h-16 py-4">
+          <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
+          <span>{prettyColumnName}</span>
+          {isRequired && <sup className="text-red-600">*</sup>}
+        </div>
+      </label>
+      <div className="flex-1 flex items-center min-h-16 py-3">
+        <div className="self-center">{children}</div>
       </div>
       <div className="flex-1 py-4">{extra}</div>
     </div>

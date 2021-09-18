@@ -21,7 +21,7 @@ export default function SignIn() {
     if (!isLoading && session) {
       router.push("/");
     }
-  }, [session]);
+  }, [isLoading, session]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

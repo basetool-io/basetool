@@ -6,12 +6,14 @@ function PageWrapper({
   status,
   buttons,
   children,
+  icon,
   flush = false,
 }: {
-  heading?: string;
+  heading?: string | ReactElement;
   status?: ReactElement;
   buttons?: ReactElement;
   children: ReactElement;
+  icon?: ReactElement;
   flush?: boolean;
 }) {
   return (
@@ -23,9 +25,9 @@ function PageWrapper({
           )}
         >
           <div className={classNames("flex justify-between border-b p-4")}>
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col justify-between items-center">
               {heading && (
-                <div className="text-xl text-gray-800">{heading}</div>
+                <div className="text-xl text-gray-800 flex items-center space-x-1">{icon && icon} <span>{heading}</span></div>
               )}
               {status}
             </div>

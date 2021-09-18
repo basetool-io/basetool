@@ -1,22 +1,18 @@
 import {
-  CogIcon,
+  ClockIcon,
   HomeIcon,
   PlusIcon,
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
-import { LOCAL_STORAGE_PREFIX } from "@/lib/constants"
-import { Sidebar } from "react-feather";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
-import { useLocalStorageValue } from "@react-hookz/web";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import Avatar from "react-avatar";
 import Link from "next/link";
-import LoadingComponent from "./LoadingComponent";
-import React, { ReactNode, memo, useEffect } from "react";
+import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
 import isNull from "lodash/isNull";
 
@@ -27,6 +23,7 @@ const DataSourceItem = ({
   icon,
   initials,
   compact,
+  flush = false,
 }: {
   active?: boolean;
   label: string;
@@ -34,16 +31,18 @@ const DataSourceItem = ({
   icon?: ReactNode;
   initials?: ReactNode;
   compact?: boolean;
+  flush?: boolean;
 }) => {
   const linkElement = (
     <a className="block">
       <Tooltip label={label} placement="right" gutter={15}>
         <div
           className={classNames(
-            "flex items-center text-white font-normal cursor-pointer text-sm py-3 px-3 rounded-md leading-none h-12",
+            "flex items-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
             { "hover:bg-cool-gray-600": !active },
             { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow": active },
             { "w-12 justify-center": compact },
+            { "py-3 px-3": !flush },
             {
               "w-full ": !compact,
             }
@@ -78,21 +77,13 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const [compact, setCompact] = useLocalStorageValue(
-    `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
-    true,
-    {
-      initializeWithStorageValue: false,
-    }
-  );
+  const compact = true
+  // const [compact, setCompact] = useLocalStorage(
+  //   `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
+  //   true,
+  // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
-
-  useEffect(() => {
-    if (dataSourcesResponse?.data?.length === 0) {
-      setCompact(false);
-    }
-  }, []);
 
   return (
     <div
@@ -106,78 +97,84 @@ const DataSourcesSidebar = () => {
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
-              {isLoading && <LoadingComponent subTitle={false} />}
-              {!isLoading && dataSourcesResponse?.ok && (
-                <div className="space-y-2">
-                  <Link href={`/data-sources`} passHref>
-                    <a className="block">
-                      <Tooltip label="Home" placement="right" gutter={15}>
-                        <span
-                          className={classNames(
-                            "flex items-center justify-center space-x-1 text-white cursor-pointer mb-4 mt-2"
-                          )}
-                        >
-                          <HomeIcon className="h-6 inline-block" />
-                        </span>
-                      </Tooltip>
-                    </a>
-                  </Link>
+              <div className="space-y-2">
+                <Link href={`/data-sources`} passHref>
+                  <a className="block">
+                    <Tooltip label="Home" placement="right" gutter={15}>
+                      <span
+                        className={classNames(
+                          "flex items-center justify-center space-x-1 text-white cursor-pointer mb-4 mt-2"
+                        )}
+                      >
+                        <HomeIcon className="h-6 inline-block" />
+                      </span>
+                    </Tooltip>
+                  </a>
+                </Link>
 
-                  {!isLoading &&
-                    dataSourcesResponse?.ok &&
-                    dataSourcesResponse.data.map((dataSource: DataSource) => {
-                      const reg = new RegExp(
-                        String.raw`/data-sources/${dataSource.id.toString()}($|/|\?)`
-                      );
-
-                      const active = !isNull(router.asPath.match(reg));
-                      let name = dataSource.name.replace(/[^a-zA-Z ]/g, "");
-                      if (name == name.toUpperCase()) {
-                        name = name.split("").join(" ");
-                      }
-
-                      return (
-                        <DataSourceItem
-                          key={dataSource.id}
-                          active={active}
-                          compact={compact}
-                          initials={
-                            <Avatar
-                              name={name}
-                              maxInitials={3}
-                              round={true}
-                              size="40"
-                              color="transparent"
-                            />
-                          }
-                          link={`/data-sources/${dataSource.id}`}
-                          label={dataSource.name}
-                        />
-                      );
-                    })}
+                {isLoading && (
                   <DataSourceItem
-                    active={router.asPath.includes(`/data-sources/new`)}
+                    active={false}
                     compact={compact}
-                    icon={
-                      <PlusIcon className="flex flex-shrink-0 h-4 text-white" />
-                    }
-                    link={"/data-sources/new"}
-                    label="New data source"
+                    initials={<ClockIcon className="h-6 w-6 text-white" />}
+                    flush={true}
+                    label={""}
                   />
-                </div>
-              )}
+                )}
+                {!isLoading &&
+                  dataSourcesResponse?.ok &&
+                  dataSourcesResponse.data.map((dataSource: DataSource) => {
+                    const reg = new RegExp(
+                      String.raw`/data-sources/${dataSource.id.toString()}($|/|\?)`
+                    );
+
+                    const active = !isNull(router.asPath.match(reg));
+                    let name = dataSource.name.replace(/[^a-zA-Z ]/g, "");
+                    if (name == name.toUpperCase()) {
+                      name = name.split("").join(" ");
+                    }
+
+                    return (
+                      <DataSourceItem
+                        key={dataSource.id}
+                        active={active}
+                        compact={compact}
+                        initials={
+                          <Avatar
+                            name={name}
+                            maxInitials={3}
+                            round={true}
+                            size="40"
+                            color="transparent"
+                          />
+                        }
+                        link={`/data-sources/${dataSource.id}`}
+                        label={dataSource.name}
+                      />
+                    );
+                  })}
+                <DataSourceItem
+                  active={router.asPath.includes(`/data-sources/new`)}
+                  compact={compact}
+                  icon={
+                    <PlusIcon className="flex flex-shrink-0 h-4 text-white" />
+                  }
+                  link={"/data-sources/new"}
+                  label="New data source"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               {/* @todo: link to docs */}
               {/* @todo: link to feature request */}
               {/* @todo: link to complaints */}
-              <DataSourceItem
+              {/* <DataSourceItem
                 active={router.asPath.includes(`/settings`)}
                 compact={compact}
                 icon={<CogIcon className="h-6 w-6 text-white" />}
                 link={`/settings`}
                 label="Settings"
-              />
+              /> */}
               <DataSourceItem
                 active={router.asPath.includes(`/profile`)}
                 compact={compact}
@@ -185,14 +182,13 @@ const DataSourcesSidebar = () => {
                 link={`/profile`}
                 label={sessionIsLoading ? "Loading" : `Your profile`}
               />
-              <div onClick={() => setCompact(!compact)}>
+              {/* <div onClick={() => setCompact(!compact)}>
                 <DataSourceItem
-                  active={router.asPath.includes(`/profile`)}
                   compact={compact}
                   icon={<Sidebar className="h-5 w-5 text-white ml-px mr-1" />}
                   label={compact ? "Expand sidebar" : `Pin sidebar`}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         )}

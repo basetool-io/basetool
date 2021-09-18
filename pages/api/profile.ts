@@ -1,9 +1,10 @@
+import { BasetoolApiRequest } from "@/features/api/types";
 import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { getUserFromRequest } from "@/features/api";
 import { omit } from "lodash";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middlewares/IsSignedIn"
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handle = async (
@@ -29,8 +30,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           organization: {
             select: {
               id: true,
-              name: true
-            }
+              name: true,
+              slug: true,
+            },
           },
           role: {
             select: {
@@ -42,18 +44,27 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   })) as User & {
-    organizations: Array<OrganizationUser & {organization: Organization, role: Role}>;
+    organizations: Array<
+      OrganizationUser & { organization: Organization; role: Role }
+    >;
   };
 
   const organizations = user.organizations.map(
     ({ organization }) => organization
   );
 
-  const organization = organizations[0]
+  const subdomain = (req as BasetoolApiRequest).subdomain;
+  const organization = organizations.find((org) => org.slug === subdomain);
   const role = user.organizations[0].role;
-  const profile = { user: omit(user, "organizations"), organization, role }
+  const profile = {
+    user: omit(user, "organizations"),
+    organization,
+    organizations,
+    role,
+  };
 
-  res.json(ApiResponse.withData((profile) || {}));
+  res.json(ApiResponse.withData(profile));
 }
 
-export default withSentry(IsSignedIn(handle));
+// export default withSentry(IsSignedIn(handle));
+export default withMiddlewares(handle, { middlewares: [[IsSignedIn, {}]] });

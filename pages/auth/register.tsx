@@ -43,7 +43,9 @@ function Register() {
   const router = useRouter();
   const [session] = useSession();
 
-  if (session) router.push('/')
+  useEffect(() => {
+    if (session) router.push('/')
+  }, [session])
 
   const onSubmit = async (formData: FormFields) => {
     const response = await api.createUser(formData);

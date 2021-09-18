@@ -5,10 +5,10 @@ import "react-toastify/dist/ReactToastify.css";
 import * as gtag from "@/lib/gtag";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
 import { IntercomProvider } from "react-use-intercom";
-import { Provider as NextAuthProvider } from "next-auth/client";
+import { Provider as NextAuthProvider, useSession } from "next-auth/client";
 import { ProfileProvider } from "@/lib/ProfileContext";
 import { Provider as ReduxProvider } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, Zoom, toast } from "react-toastify";
 import { inProduction } from "@/lib/environment";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
@@ -25,16 +25,16 @@ Tooltip.defaultProps = {
 };
 
 const GetProfile = ({ children }: { children: ReactNode }) => {
-  const { data: profileResponse, isLoading } =
-    useGetProfileQuery(null); // not sure why this method needs 1-2 args. I added null to stisfy that req.
+  const [session] = useSession();
+  const { data: profileResponse, isLoading } = useGetProfileQuery(null, {
+    skip: !session,
+  }); // not sure why this method needs 1-2 args. I added null to stisfy that req.
   const profile = useMemo(
     () => (profileResponse?.ok ? profileResponse?.data : {}),
     [profileResponse, isLoading]
   );
 
-  return (
-    <ProfileProvider value={profile}>{children}</ProfileProvider>
-  );
+  return <ProfileProvider value={profile}>{children}</ProfileProvider>;
 };
 
 const ShowErrorMessages = ({ children }: { children: ReactNode }) => {
@@ -87,7 +87,6 @@ function MyApp({ Component, pageProps }: AppProps) {
               gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
             `}
           </Script>
-
         </>
       )}
       <ReduxProvider store={store}>
@@ -100,16 +99,17 @@ function MyApp({ Component, pageProps }: AppProps) {
             </GetProfile>
           </IntercomProvider>
           <ToastContainer
-            position="top-center"
+            position="bottom-right"
+            transition={Zoom}
             autoClose={3000}
-            hideProgressBar={false}
+            hideProgressBar={true}
             newestOnTop={false}
             closeOnClick
             rtl={false}
+            draggablePercent={60}
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="dark"
           />
         </ChakraProvider>
       </ReduxProvider>
