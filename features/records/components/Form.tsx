@@ -1,5 +1,7 @@
 import { Button, ButtonGroup } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
+import { PencilAltIcon } from "@heroicons/react/outline";
+import { Save } from "react-feather";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
@@ -15,9 +17,9 @@ import {
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
-import BackButton from "./BackButton"
+import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
@@ -37,7 +39,8 @@ const makeSchema = async (record: Record, columns: Column[]) => {
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
     } catch (error: any) {
-      if (error.code !== 'MODULE_NOT_FOUND') logger.warn("Error importing field schema->", error);
+      if (error.code !== "MODULE_NOT_FOUND")
+        logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
     }
     if (isFunction(fieldSchema)) {
@@ -85,18 +88,18 @@ const Form = ({
   const backLink = useMemo(() => {
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
-      }else{
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+      } else {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
       }
     }
 
     if (formForCreate) {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
     } else {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`;
     }
-  }, [router.query])
+  }, [router.query]);
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
@@ -141,12 +144,6 @@ const Form = ({
             changes: diff,
           },
         });
-
-        if ("data" in response && response?.data?.ok) {
-          // @todo: make these updates into a pretty message
-          const updates = JSON.stringify(diff);
-        }
-
         router.push(backLink);
       } else {
         toast.error("Not enough data.");
@@ -161,50 +158,21 @@ const Form = ({
   return (
     <>
       <PageWrapper
+        icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
         heading="Edit record"
-        status={
-          <>
-            <div>
-              {/* <div className="flex">
-                {formState.isDirty || (
-                  <span className="text-xs text-gray-600">
-                    <SparklesIcon className="inline h-4" /> Clean
-                  </span>
-                )}
-                {formState.isDirty && (
-                  <>
-                    {formState.isValid && (
-                      <span className="text-xs text-green-600">
-                        <CheckCircleIcon className="inline h-4" /> Valid
-                      </span>
-                    )}
-                    {formState.isValid || (
-                      <span className="text-xs text-red-600">
-                        <XCircleIcon className="inline h-4" /> Invalid
-                      </span>
-                    )}
-                  </>
-                )}
-                {isLoading && (
-                  <span className="text-xs text-gray-600">
-                    <ClockIcon className="inline h-4" /> Loading
-                  </span>
-                )}
-              </div> */}
-            </div>
-          </>
-        }
+        flush={true}
         buttons={
           <>
             <ButtonGroup size="sm">
               <BackButton href={backLink} />
               <Button
                 colorScheme="blue"
+                isLoading={isLoading}
                 onClick={() => {
                   handleSubmit(onSubmit)();
                 }}
               >
-                {formForCreate ? "Create" : "Save"}
+                <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
               </Button>
             </ButtonGroup>
           </>

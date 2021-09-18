@@ -3,7 +3,9 @@ import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFiel
 import React, { memo } from "react";
 
 const Edit = ({ field }: EditFieldProps) => (
-  <EditFieldWrapper field={field}>{field.value}</EditFieldWrapper>
+  <EditFieldWrapper field={field}>
+    <div className="px-4">{field.value}</div>
+  </EditFieldWrapper>
 );
 
 export default memo(Edit);

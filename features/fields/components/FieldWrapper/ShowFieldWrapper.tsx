@@ -22,13 +22,15 @@ const ShowFieldWrapper = ({
   );
 
   return (
-    <div className="flex">
-      <div className="w-48 md:w-64 py-4 px-6 h-full flex items-center space-x-2">
-        <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
-        <span>{prettyColumnName}</span>
+    <div className="flex border-b min-h-16">
+      <div className="w-48 md:w-64 px-6 flex items-start space-x-2">
+        <div className="flex items-center space-x-2 min-h-16 py-4">
+          <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
+          <span>{prettyColumnName}</span>
+        </div>
       </div>
       <div className="flex-1 flex flex-row">
-        <div className="p-3 self-center">{children}</div>
+        <div className="p-4 self-center">{children}</div>
       </div>
       <div className="flex-1 py-4">{extra}</div>
     </div>
