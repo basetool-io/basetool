@@ -61,7 +61,13 @@ const ColumnEditor = ({
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) => {
   const columnOptions = useMemo(
-    () => (column ? getColumnOptions(column) : []),
+    () => {
+      if (column) {
+        return getColumnOptions(column)
+      }else{
+        return []
+      }
+    },
     [column]
   );
 
