@@ -71,7 +71,6 @@ module.exports = {
         4.5: "1.125rem",
       },
       boxShadow: {
-        row: '0 0 15px -5px rgba(0, 0, 0, 0.25)',
         left: "rgba(0, 0, 0, 0.24) 0px 3px 8px, rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;",
       },
       zIndex: {
