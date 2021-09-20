@@ -14,7 +14,6 @@ import {
   useResizeColumns,
   useTable,
 } from "react-table";
-import { MobileRow, RecordRow } from "./RecordRow";
 import { OrderDirection } from "../types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
@@ -26,7 +25,9 @@ import { useFilters, useResponsive } from "@/hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import MobileRow from "./MobileRow"
 import React, { memo, useEffect, useMemo, useState } from "react";
+import RecordRow from "./RecordRow"
 import classNames from "classnames";
 import numeral from "numeral";
 

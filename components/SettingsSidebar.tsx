@@ -1,7 +1,7 @@
 import { UserGroupIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router"
 import Link from "next/link"
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, memo, useMemo } from "react";
 import classNames from "classnames"
 
 const SettingsItem = ({
@@ -50,4 +50,4 @@ function SettingsSidebar() {
   );
 }
 
-export default SettingsSidebar;
+export default memo(SettingsSidebar);

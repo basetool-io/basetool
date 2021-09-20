@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode, memo } from "react"
 import LoadingComponent from "./LoadingComponent";
 import classNames from "classnames";
 
@@ -31,4 +31,4 @@ const LoadingOverlay = ({
   );
 };
 
-export default LoadingOverlay;
+export default memo(LoadingOverlay);
