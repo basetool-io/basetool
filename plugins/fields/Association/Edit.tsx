@@ -45,10 +45,7 @@ const Edit = ({
   const tableName = field?.column?.foreignKeyInfo?.foreignTableName;
   const getForeignName = useForeignName(field);
 
-  const {
-    data: recordsResponse,
-    isLoading,
-  } = useGetRecordsQuery(
+  const { data: recordsResponse, isLoading } = useGetRecordsQuery(
     {
       dataSourceId,
       tableName,
@@ -79,7 +76,9 @@ const Edit = ({
           >
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
-                <option value={record.id}>{getForeignName(record)}</option>
+                <option key={record.id} value={record.id}>
+                  {getForeignName(record)}
+                </option>
               ))}
           </Select>
         )}
