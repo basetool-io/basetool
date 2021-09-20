@@ -21,7 +21,6 @@
     "@hookform/resolvers": "^2.8.0",
     "@next-auth/prisma-adapter": "^0.5.4",
     "@prisma/client": "^2.30.3",
-    "@react-hookz/web": "^9.0.0",
     "@reduxjs/toolkit": "^1.6.1",
     "@sentry/nextjs": "^6.12.0",
     "@types/bcrypt": "^5.0.0",
