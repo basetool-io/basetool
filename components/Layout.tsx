@@ -2,7 +2,7 @@ import { inProduction } from "@/lib/environment";
 import { useIntercom } from "react-use-intercom";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/plugins/fields/Association/hooks"
+import { useSidebarsVisible } from "@/hooks"
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
 import Head from "next/head";

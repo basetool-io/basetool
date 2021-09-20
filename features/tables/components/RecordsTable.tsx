@@ -24,7 +24,7 @@ import { makeField } from "@/features/fields";
 import { useFilters } from "@/hooks";
 import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import { useSidebarsVisible } from "@/plugins/fields/Association/hooks";
+import { useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useEffect, useMemo, useState } from "react";

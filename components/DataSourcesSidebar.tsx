@@ -10,7 +10,7 @@ import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/plugins/fields/Association/hooks"
+import { useSidebarsVisible } from "@/hooks"
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";

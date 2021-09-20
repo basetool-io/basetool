@@ -1,4 +1,4 @@
-import { useSidebarsVisible } from "@/plugins/fields/Association/hooks"
+import { useSidebarsVisible } from "@/hooks"
 import Link from "next/link";
 import React from "react";
 import classNames from "classnames";

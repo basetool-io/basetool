@@ -1,7 +1,4 @@
-import { Field } from "@/features/fields/types"
-import { setSidebarVisibile as setSidebarVisibileToState, sidebarsVisibleSelector } from "@/features/app/state-slice"
-import { useAppDispatch, useAppSelector } from "@/hooks"
-import { useEffect } from "react"
+import { Field } from "@/features/fields/types";
 
 const useForeignName = (field: Field) => {
   const getForeignName = (record: any) => {
@@ -15,20 +12,5 @@ const useForeignName = (field: Field) => {
 
   return getForeignName;
 };
-
-export const useSidebarsVisible = (initialvalue?: boolean) => {
-  const dispatch = useAppDispatch()
-  const sidebarsVisible = useAppSelector(sidebarsVisibleSelector)
-
-  const setSidebarsVisible = (value: boolean) => {
-    dispatch(setSidebarVisibileToState(value))
-  }
-
-  useEffect(() => {
-    if (initialvalue) setSidebarsVisible(initialvalue)
-  }, [])
-
-  return [sidebarsVisible, setSidebarsVisible] as const
-}
 
 export { useForeignName };

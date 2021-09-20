@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { Sidebar } from "react-feather";
-import { useSidebarsVisible } from "@/plugins/fields/Association/hooks";
+import { useSidebarsVisible } from "@/hooks";
 import React, { ReactElement } from "react";
 import classNames from "classnames";
 

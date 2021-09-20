@@ -4,7 +4,7 @@ import React, { memo } from "react";
 
 const Edit = ({ field }: EditFieldProps) => (
   <EditFieldWrapper field={field}>
-    <div className="px-4">{field.value}</div>
+    <div className="md:px-4">{field.value}</div>
   </EditFieldWrapper>
 );
 
