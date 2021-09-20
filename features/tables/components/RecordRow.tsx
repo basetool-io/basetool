@@ -3,9 +3,9 @@ import { iconForField } from "@/features/fields";
 import { isUndefined } from "lodash";
 import { usePrefetch } from "@/features/records/api-slice";
 import { useSidebarsVisible } from "@/hooks";
+import Link from "next/link"
 import React, { useMemo } from "react";
 import classNames from "classnames";
-import Link from "next/link"
 
 const IndexFieldWrapper = ({ cell }: { cell: any }) => {
   const column = useMemo(() => cell.column?.meta, [cell]);
@@ -37,7 +37,7 @@ const MobileRow = ({
   dataSourceId: string;
   tableName: string;
   prepareRow: (row: Row) => void;
-  index: any;
+  index: number;
 }) => {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
   const prefetchRecord = usePrefetch("getRecord");
