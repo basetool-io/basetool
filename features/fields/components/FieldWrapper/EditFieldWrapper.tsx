@@ -51,8 +51,8 @@ const EditFieldWrapper = ({
           {isRequired && <sup className="text-red-600">*</sup>}
         </div>
       </label>
-      <div className="flex-1 flex items-center md:min-h-16 md:py-3">
-        <div className="px-4 md:py-4 self-center">{children}</div>
+      <div className="flex-1 flex items-center md:min-h-16">
+        <div className="px-4 md:py-3 self-center">{children}</div>
       </div>
       {showExtra && <div className="flex-1 py-4">{extra}</div>}
     </div>
