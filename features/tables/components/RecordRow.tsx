@@ -114,7 +114,7 @@ const RecordRow = ({
           });
         }
       }}
-      className={classNames("tr relative hover:bg-light-blue-50", {
+      className={classNames("tr relative hover:bg-light-blue-50 border-b last:border-b-0", {
         "bg-white": index % 2 === 0,
         "bg-gray-50": index % 2 !== 0,
         "cursor-pointer": hasId,
