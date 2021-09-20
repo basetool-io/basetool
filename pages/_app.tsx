@@ -5,15 +5,16 @@ import "react-toastify/dist/ReactToastify.css";
 import * as gtag from "@/lib/gtag";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
 import { IntercomProvider } from "react-use-intercom";
-import { Provider as NextAuthProvider, useSession } from "next-auth/client";
-import { ProfileProvider } from "@/lib/ProfileContext";
+import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
-import { ToastContainer, Zoom, toast } from "react-toastify";
+import { ToastContainer, Zoom } from "react-toastify";
 import { inProduction } from "@/lib/environment";
-import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
-import React, { ReactNode, useEffect, useMemo } from "react";
-import Script from "next/script";
+import GetProfile from "@/components/GetProfile"
+import ProductionScripts from "@/components/ProductionScripts"
+import React, { useEffect } from "react";
+import ShowErrorMessages from "@/components/ShowErrorMessages"
+import getChakraTheme from "@/lib/chakra"
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
 
@@ -24,28 +25,7 @@ Tooltip.defaultProps = {
   placement: "top",
 };
 
-const GetProfile = ({ children }: { children: ReactNode }) => {
-  const [session] = useSession();
-  const { data: profileResponse, isLoading } = useGetProfileQuery(null, {
-    skip: !session,
-  }); // not sure why this method needs 1-2 args. I added null to stisfy that req.
-  const profile = useMemo(
-    () => (profileResponse?.ok ? profileResponse?.data : {}),
-    [profileResponse, isLoading]
-  );
-
-  return <ProfileProvider value={profile}>{children}</ProfileProvider>;
-};
-
-const ShowErrorMessages = ({ children }: { children: ReactNode }) => {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (router.query.errorMessage) toast.error(router.query.errorMessage);
-  }, [router.query.errorMessage]);
-
-  return <>{children}</>;
-};
+const theme = getChakraTheme()
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -70,27 +50,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
       session={pageProps.session}
     >
-      {inProduction && (
-        <>
-          <Script
-            strategy="lazyOnload"
-            src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}`}
-          />
-
-          <Script strategy="lazyOnload">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_UA}');
-              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
-            `}
-          </Script>
-        </>
-      )}
+      {inProduction && <ProductionScripts />}
       <ReduxProvider store={store}>
-        <ChakraProvider resetCSS={false}>
+        <ChakraProvider resetCSS={false} theme={theme}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
             <GetProfile>
               <ShowErrorMessages>

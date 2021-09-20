@@ -1,13 +1,20 @@
 import { Code } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useSession } from "next-auth/client";
+import { useSidebarsVisible } from "@/hooks";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 function Index() {
+  const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
+
+  useEffect(() => {
+    setSidebarVisible(true);
+  }, []);
+
   const {
     data: dataSourcesResponse,
     isLoading,

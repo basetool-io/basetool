@@ -991,15 +991,6 @@
     prop-types "^15.7.2"
     tslib "^2.1.0"
 
-"@react-hookz/web@^9.0.0":
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/@react-hookz/web/-/web-9.0.0.tgz#1123277fc33135c1c123f115ea67e6a09e955fb3"
-  integrity sha512-aLzMOFbeogKiRbaZvu2CDuzxeRe6LdpaZvILTSJu1CwZVoTlXwnZyVbNTMqKosgl9e8qdA0wwXRP4E9FxnEMRA==
-  dependencies:
-    "@types/js-cookie" "^2.2.7"
-    "@types/react" "^17.0.19"
-    "@types/react-dom" "^17.0.9"
-
 "@reduxjs/toolkit@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-1.6.1.tgz#7bc83b47352a663bf28db01e79d17ba54b98ade9"
@@ -1222,7 +1213,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/js-cookie@^2.2.6", "@types/js-cookie@^2.2.7":
+"@types/js-cookie@^2.2.6":
   version "2.2.7"
   resolved "https://registry.yarnpkg.com/@types/js-cookie/-/js-cookie-2.2.7.tgz#226a9e31680835a6188e887f3988e60c04d3f6a3"
   integrity sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==
@@ -1282,13 +1273,6 @@
     "@types/react" "*"
     date-fns "^2.0.1"
 
-"@types/react-dom@^17.0.9":
-  version "17.0.9"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.9.tgz#441a981da9d7be117042e1a6fd3dac4b30f55add"
-  integrity sha512-wIvGxLfgpVDSAMH5utdL9Ngm5Owu0VsGmldro3ORLXV8CShrL8awVj06NuEXFQ5xyaYfdca7Sgbk/50Ri1GdPg==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-redux@^7.1.16":
   version "7.1.18"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.18.tgz#2bf8fd56ebaae679a90ebffe48ff73717c438e04"
@@ -1319,15 +1303,6 @@
   version "17.0.18"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.18.tgz#4109cbbd901be9582e5e39e3d77acd7b66bb7fbe"
   integrity sha512-YTLgu7oS5zvSqq49X5Iue5oAbVGhgPc5Au29SJC4VeE17V6gASoOxVkUDy9pXFMRFxCWCD9fLeweNFizo3UzOg==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
-
-"@types/react@^17.0.19":
-  version "17.0.20"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.20.tgz#a4284b184d47975c71658cd69e759b6bd37c3b8c"
-  integrity sha512-wWZrPlihslrPpcKyCSlmIlruakxr57/buQN1RjlIeaaTWDLtJkTtRW429MoQJergvVKc4IWBpRhWw7YNh/7GVA==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"

@@ -10,6 +10,7 @@ import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
+import { useSidebarsVisible } from "@/hooks"
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
@@ -24,6 +25,7 @@ const DataSourceItem = ({
   initials,
   compact,
   flush = false,
+  onClick
 }: {
   active?: boolean;
   label: string;
@@ -32,20 +34,19 @@ const DataSourceItem = ({
   initials?: ReactNode;
   compact?: boolean;
   flush?: boolean;
+  onClick?: () => void;
 }) => {
   const linkElement = (
-    <a className="block">
+    <a className="block" onClick={onClick}>
       <Tooltip label={label} placement="right" gutter={15}>
         <div
           className={classNames(
             "flex items-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
             { "hover:bg-cool-gray-600": !active },
             { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow": active },
-            { "w-12 justify-center": compact },
             { "py-3 px-3": !flush },
-            {
-              "w-full ": !compact,
-            }
+            { "w-12 justify-center": compact },
+            { "w-full ": !compact }
           )}
         >
           {compact && initials}
@@ -77,7 +78,9 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const compact = true
+  const [sidebarsVisible] = useSidebarsVisible()
+  const compact = true;
+  // const visible = true;
   // const [compact, setCompact] = useLocalStorage(
   //   `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
   //   true,
@@ -88,8 +91,8 @@ const DataSourcesSidebar = () => {
   return (
     <div
       className={classNames("flex flex-grow-0 flex-shrink-0", {
-        "w-[4rem]": compact,
-        "w-[12rem]": !compact,
+        "w-2 md:w-[4rem]": !sidebarsVisible,
+        "w-[4rem]": sidebarsVisible,
       })}
     >
       <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">

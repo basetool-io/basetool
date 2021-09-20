@@ -12,7 +12,6 @@ import {
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
 import { getColumnOptions, iconForField } from "@/features/fields";
-import { inDevelopment } from "@/lib/environment";
 import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
@@ -306,16 +305,6 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     <>
       <PageWrapper
         heading={`Edit '${router.query.tableName}' table`}
-        status={
-          <>
-            {inDevelopment && (
-              <div className="text-xs inline-flex">
-                {isDirty && "Dirty"}
-                {!isDirty && "Clean"}
-              </div>
-            )}
-          </>
-        }
         buttons={
           <ButtonGroup size="sm">
             <BackButton href={backLink} />
@@ -342,7 +331,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                   return (
                     <ColumnListItem
                       key={col.name}
-                      icon={<IconElement className="inline h-4 mr-2" />}
+                      icon={<IconElement className="h-4 mr-2 flex flex-shrink-0" />}
                       active={col.name === column?.name}
                       onClick={() => setColumn(col)}
                     >
