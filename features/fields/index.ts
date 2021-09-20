@@ -8,13 +8,13 @@ import {
   SelectorIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
-import { Views } from "./enums"
-import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon"
+import { Views } from "./enums";
+import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
-import type { Record } from '@/features/records/types'
+import type { Record } from "@/features/records/types";
 
 export const idColumns = ["id", "_id"];
 
@@ -54,11 +54,14 @@ export const getColumnOptions = (
       id: "Json",
       label: "Json",
     },
-    {
+  ];
+
+  if (column.foreignKeyInfo) {
+    options.push({
       id: "Association",
       label: "Association",
-    },
-  ];
+    });
+  }
 
   return options;
 };
@@ -140,5 +143,5 @@ export const getBaseOptions = () => ({
   nullable: false,
   readonly: false,
   placeholder: "",
-  help: '',
-})
+  help: "",
+});
