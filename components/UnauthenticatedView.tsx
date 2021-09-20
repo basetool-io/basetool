@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { memo, useEffect } from 'react'
 
 function UnauthenticatedView() {
   const router = useRouter()
@@ -13,4 +13,4 @@ function UnauthenticatedView() {
   )
 }
 
-export default UnauthenticatedView
+export default memo(UnauthenticatedView)

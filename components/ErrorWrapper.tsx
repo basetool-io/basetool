@@ -3,7 +3,7 @@ import { IApiResponse } from "@/features/api/ApiResponse";
 import { SerializedError } from "@reduxjs/toolkit";
 import { useIntercom } from "react-use-intercom"
 import PageWrapper from "./PageWrapper";
-import React, { useEffect, useMemo } from "react";
+import React, { memo, useEffect, useMemo } from "react";
 
 function ErrorWrapper({
   error,
@@ -44,4 +44,4 @@ function ErrorWrapper({
   );
 }
 
-export default ErrorWrapper;
+export default memo(ErrorWrapper);

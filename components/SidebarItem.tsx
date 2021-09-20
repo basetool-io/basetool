@@ -1,6 +1,6 @@
 import { useSidebarsVisible } from "@/hooks"
 import Link from "next/link";
-import React from "react";
+import React, { memo } from "react";
 import classNames from "classnames";
 
 function SidebarItem({
@@ -34,4 +34,4 @@ function SidebarItem({
   );
 }
 
-export default SidebarItem;
+export default memo(SidebarItem);

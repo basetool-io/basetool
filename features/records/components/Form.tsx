@@ -159,7 +159,7 @@ const Form = ({
     <>
       <PageWrapper
         icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
-        heading="Edit record"
+        heading={formForCreate ? "Create record" : "Edit record"}
         flush={true}
         buttons={
           <>

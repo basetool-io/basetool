@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 function Shimmer({
   width = 100,
@@ -15,4 +15,4 @@ function Shimmer({
   return <div className="shimmer-bg content-line" style={styles}></div>;
 }
 
-export default Shimmer;
+export default memo(Shimmer);
