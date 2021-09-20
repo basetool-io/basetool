@@ -1,18 +1,20 @@
+import { AssociationFieldOptions } from "./types"
 import { Code, FormControl, FormLabel, Input, Select } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { isUndefined } from "lodash"
+import { ListTable } from "@/plugins/data-sources/postgresql/types"
+import { first, isUndefined } from "lodash"
 import { useBoolean } from "react-use"
-import { useGetColumnsQuery } from "@/features/tables/api-slice"
+import { useGetColumnsQuery, useGetTablesQuery } from "@/features/tables/api-slice"
 import { useRouter } from "next/router"
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import fieldOptions from "./fieldOptions";
 
 function Inspector({
   column,
   setColumnOption,
 }: {
-  column: Column;
+  column: Column<Record<string, unknown>, AssociationFieldOptions>;
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) {
   const router = useRouter()
@@ -24,11 +26,17 @@ function Inspector({
 
   // fetch the column for that foreign table ahed of time to better show the user what fields he can choose
   const dataSourceId = router.query.dataSourceId as string
-  const tableName = column.foreignKeyInfo.foreignTableName
+
+  const { data: tablesResponse, isLoading: tablesLoading } = useGetTablesQuery(
+    { dataSourceId },
+    { skip: !dataSourceId }
+  );
+  const [tableName, setTableName] = useState(column?.foreignKeyInfo?.foreignTableName)
   const {
     data: columnsResponse,
     error,
     isLoading,
+    isFetching
   } = useGetColumnsQuery(
     {
       dataSourceId,
@@ -39,6 +47,7 @@ function Inspector({
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
+    setColumnOption(column, "fieldOptions.tableName", first(tablesResponse?.data));
     setColumnOption(column, "fieldOptions.nameColumn", initialValue);
   }, []);
 
@@ -46,14 +55,41 @@ function Inspector({
     toggleEditRaw(!isUndefined(error))
   }, [error]);
 
+  // @todo: better UI
+  // The user must choose how to join the table first
+  // Then he should choose how to show the data.
+
   return (
-    <OptionWrapper helpText="Make it easier to your users to identify the record you are referencing with this foreign key.">
+    <OptionWrapper helpText="Make it easier for your users to identify the record you are referencing with this association.">
+      <pre>{JSON.stringify([column.fieldOptions, error, dataSourceId, tableName], null, 2)}</pre>
+      <FormControl id="tableName">
+        <FormLabel>
+          The table for this association
+        </FormLabel>
+
+        {!tablesLoading && tablesResponse?.ok && (<Select
+          className="font-mono"
+          value={tableName}
+          onChange={(e) => {
+            setColumnOption(
+              column,
+              "fieldOptions.tableName",
+              e.currentTarget.value
+            );
+            setTableName(e.currentTarget.value)
+          }}
+        >
+          {tablesResponse?.data && tablesResponse?.data.filter((table: ListTable) => table.schemaname ? table.schemaname === "public" : true).map((table: ListTable) => <option value={table.name}>{table.name}</option>)}
+        </Select>)}
+      </FormControl>
+
       <FormControl id="nameColumn">
         <FormLabel>
           <Code>name</Code> column for this association
+          <pre>{JSON.stringify(error, isLoading, columnsResponse, null, 2)}</pre>
         </FormLabel>
-
-        {!editRaw && !error && !isLoading && columnsResponse?.ok && (<Select
+        {isLoading || isFetching && "Fetching Columns"}
+        {!editRaw && !error && !(isLoading || isFetching) && columnsResponse?.ok && (<Select
           className="font-mono"
           value={initialValue}
           onChange={(e) => {
