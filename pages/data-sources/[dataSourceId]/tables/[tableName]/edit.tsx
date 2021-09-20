@@ -325,7 +325,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                   return (
                     <ColumnListItem
                       key={col.name}
-                      icon={<IconElement className="inline h-4 mr-2" />}
+                      icon={<IconElement className="h-4 mr-2 flex flex-shrink-0" />}
                       active={col.name === column?.name}
                       onClick={() => setColumn(col)}
                     >
