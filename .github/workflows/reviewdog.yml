@@ -11,3 +11,4 @@ jobs:
         with:
           reporter: github-pr-review
           level: error
+          eslint_flags: --quiet
