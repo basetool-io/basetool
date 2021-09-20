@@ -34,7 +34,7 @@ function Profile() {
                       organizations.map((organization: Organization) => (
                         <li key={organization.id}>
                           <Link href={`/organizations/${organization.id}/settings/roles`}>
-                            <a>{organization.name}</a>
+                            <a className="text-blue-600 underline">{organization.name}</a>
                           </Link>
                         </li>
                       ))}

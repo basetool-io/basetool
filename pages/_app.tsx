@@ -3,12 +3,13 @@ import "../lib/globals.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import * as gtag from "@/lib/gtag";
-import { ChakraProvider, Tooltip } from "@chakra-ui/react";
+import { ChakraProvider, Tooltip, extendTheme } from "@chakra-ui/react";
 import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider, useSession } from "next-auth/client";
 import { ProfileProvider } from "@/lib/ProfileContext";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom, toast } from "react-toastify";
+import { createBreakpoints } from "@chakra-ui/theme-tools"
 import { inProduction } from "@/lib/environment";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useRouter } from "next/router";
@@ -23,6 +24,18 @@ Tooltip.defaultProps = {
   hasArrow: true,
   placement: "top",
 };
+
+// 1. Update the breakpoints to match Tailwind
+const breakpoints = createBreakpoints({
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
+})
+
+// 2. Extend the theme
+const theme = extendTheme({ breakpoints })
 
 const GetProfile = ({ children }: { children: ReactNode }) => {
   const [session] = useSession();
@@ -90,7 +103,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </>
       )}
       <ReduxProvider store={store}>
-        <ChakraProvider resetCSS={false}>
+        <ChakraProvider resetCSS={false} theme={theme}>
           <IntercomProvider appId={INTERCOM_APP_ID}>
             <GetProfile>
               <ShowErrorMessages>

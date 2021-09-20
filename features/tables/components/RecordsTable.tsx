@@ -24,6 +24,7 @@ import { makeField } from "@/features/fields";
 import { useFilters } from "@/hooks";
 import { useGetRecordsQuery, usePrefetch } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import { useSidebarsVisible } from "@/plugins/fields/Association/hooks";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useEffect, useMemo, useState } from "react";
@@ -241,6 +242,7 @@ const RecordsTable = ({
       query,
     });
   };
+  const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
@@ -339,6 +341,7 @@ const RecordsTable = ({
                       "bg-gray-50": i % 2 !== 0,
                       "cursor-pointer": hasId,
                     })}
+                    onClick={() => setSidebarVisible(false)}
                   >
                     {row.cells.map((cell) => (
                       <div
