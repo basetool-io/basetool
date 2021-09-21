@@ -16,6 +16,8 @@ export default class AccessControlService {
     this.ac = new AccessControl();
     this.role = role;
 
+    console.log(this.role)
+
     this.ac.grant(role.name);
 
     this.setPermissionsForRecord();
