@@ -4,6 +4,7 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
+import { useAccessControl } from "@/hooks";
 import { useDeleteRecordMutation, useGetRecordQuery } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
@@ -63,6 +64,7 @@ function RecordsShow() {
     return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
   }, [router.query]);
 
+  const ac = useAccessControl();
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
@@ -100,7 +102,10 @@ function RecordsShow() {
                   {isDeleting && <LoadingOverlay transparent={true} />}
                   <ButtonGroup size="sm">
                     <BackButton href={backLink} />
+                    { ac.deleteAny("record").granted && <>
                     <Button colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
+                    </>}
+                    { ac.updateAny("record").granted && <>
                     <Link
                       href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                       passHref
@@ -113,6 +118,7 @@ function RecordsShow() {
                         Edit
                       </Button>
                     </Link>
+                    </>}
                   </ButtonGroup>
                 </>
               }

@@ -1,5 +1,8 @@
-import { getDataSourceFromRequest } from "@/features/api";
+import { Role as ACRole } from "@/features/roles/AccessControlService";
+import { OrganizationUser, Role, User } from "@prisma/client";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
+import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -23,6 +26,28 @@ const handle = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  const user = (await getUserFromRequest(req, {
+    select: {
+      organizations: {
+        include: {
+          role: {
+            select: {
+              name: true,
+              options: true
+            }
+          }
+        },
+      },
+    },
+  })) as User & {
+    organizations: Array<OrganizationUser & {role: Role}>;
+  };
+
+  const role = user.organizations[0].role;
+  const ac = new AccessControlService(role as ACRole);
+
+  if(!ac.readAny("record").granted) return res.status(403).send("");
+
   const dataSource = await getDataSourceFromRequest(req);
 
   if (!dataSource) return res.status(404).send("");

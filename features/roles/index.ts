@@ -3,7 +3,7 @@ const MEMBER_ROLE = "Member";
 
 export const defaultAbilities = [
   {
-    id: "can_view",
+    id: "can_read",
     label: "Can view records",
   },
   {
@@ -11,7 +11,7 @@ export const defaultAbilities = [
     label: "Can create records",
   },
   {
-    id: "can_edit",
+    id: "can_update",
     label: "Can edit records",
   },
   {
