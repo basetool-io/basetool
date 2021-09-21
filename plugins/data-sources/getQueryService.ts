@@ -15,7 +15,7 @@ const getQueryService = async (payload: {
     ).default;
 
     return new queryService(payload);
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === 'MODULE_NOT_FOUND') {
       return new NullQueryService(payload)
     }else{
