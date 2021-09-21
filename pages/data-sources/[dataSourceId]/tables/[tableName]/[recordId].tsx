@@ -1,11 +1,11 @@
 import { Button, ButtonGroup } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
-import { EyeIcon, PencilAltIcon } from "@heroicons/react/outline";
+import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
+import { useDeleteRecordMutation, useGetRecordQuery } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
-import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head";
@@ -63,6 +63,24 @@ function RecordsShow() {
     return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
   }, [router.query]);
 
+
+  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+
+  const handleDelete = async () => {
+    const confirmed = confirm(
+      "Are you sure you want to remove this record?"
+    );
+    if (confirmed) {
+      await deleteRecord({
+        dataSourceId: router.query.dataSourceId as string,
+        tableName: router.query.tableName as string,
+        recordId: record.id.toString(),
+      });
+
+      router.push(backLink);
+    }
+  }
+
   return (
     <>
       <Layout>
@@ -79,8 +97,10 @@ function RecordsShow() {
               flush={true}
               buttons={
                 <>
+                  {isDeleting && <LoadingOverlay transparent={true} />}
                   <ButtonGroup size="sm">
                     <BackButton href={backLink} />
+                    <Button colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
                     <Link
                       href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                       passHref

@@ -316,6 +316,13 @@ class QueryService implements IQueryService {
     }
   }
 
+  public async deleteRecord(
+    tableName: string,
+    recordId: string,
+  ): Promise<unknown> {
+    return false;
+  }
+
   private async loadInfo() {
     try {
       // loads document properties and worksheets
