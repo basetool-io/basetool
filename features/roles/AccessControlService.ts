@@ -21,36 +21,38 @@ export default class AccessControlService {
     this.setPermissionsForRecord();
   }
 
-  setPermissionsForRecord() {
-    if(this.getRoleAbilityLogic(this.role, "can_create")) this.ac.grant(this.roleName()).createAny("record");
-    if(this.getRoleAbilityLogic(this.role, "can_read")) this.ac.grant(this.roleName()).readAny("record");
-    if(this.getRoleAbilityLogic(this.role, "can_update")) this.ac.grant(this.roleName()).updateAny("record");
-    if(this.getRoleAbilityLogic(this.role, "can_delete")) this.ac.grant(this.roleName()).deleteAny("record");
+  get roleName() {
+    return this.role.name;
   }
 
-  roleName() {
-    if(this.role) return this.role.name;
-
-    return "";
+  public hasRole(roleName: string) {
+    return this.roleName === roleName;
   }
 
-  getRoleAbilityLogic(role: Role, ability: string) {
-    return isEmpty(role.options) || (role.options.abilities && role.options.abilities.includes(ability));
+  public createAny(record: string) {
+    return this.ac.can(this.roleName).createAny(record);
   }
 
-  createAny(record: string) {
-    return this.ac.can(this.roleName()).createAny(record);
+  public readAny(record: string) {
+    return this.ac.can(this.roleName).readAny(record);
   }
 
-  readAny(record: string) {
-    return this.ac.can(this.roleName()).readAny(record);
+  public updateAny(record: string) {
+    return this.ac.can(this.roleName).updateAny(record);
   }
 
-  updateAny(record: string) {
-    return this.ac.can(this.roleName()).updateAny(record);
+  public deleteAny(record: string) {
+    return this.ac.can(this.roleName).deleteAny(record);
   }
 
-  deleteAny(record: string) {
-    return this.ac.can(this.roleName()).deleteAny(record);
+  private getRoleAbilityLogic(ability: string) {
+    return isEmpty(this.role.options) || (this.role.options.abilities && this.role.options.abilities.includes(ability));
+  }
+
+  private setPermissionsForRecord() {
+    if(this.getRoleAbilityLogic("can_create")) this.ac.grant(this.roleName).createAny("record");
+    if(this.getRoleAbilityLogic("can_read")) this.ac.grant(this.roleName).readAny("record");
+    if(this.getRoleAbilityLogic("can_update")) this.ac.grant(this.roleName).updateAny("record");
+    if(this.getRoleAbilityLogic("can_delete")) this.ac.grant(this.roleName).deleteAny("record");
   }
 }

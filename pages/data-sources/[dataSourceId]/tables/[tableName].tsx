@@ -6,6 +6,7 @@ import {
   PlusIcon,
   XIcon,
 } from "@heroicons/react/outline";
+import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
@@ -64,33 +65,37 @@ const ResourcesIndex = memo(
         buttons={
           <>
             <ButtonGroup size="sm">
-            { ac.roleName() === "Owner" && <>
-              <Link
-                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
-                passHref
-              >
-                <Button
-                  colorScheme="blue"
-                  variant="outline"
-                  leftIcon={<PencilAltIcon className="h-4" />}
-                >
-                  Edit columns
-                </Button>
-              </Link>
-              </>}
-              { ac.createAny("record").granted && <>
-              <Link
-                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
-                passHref
-              >
-                <Button
-                  colorScheme="blue"
-                  leftIcon={<PlusIcon className="h-4" />}
-                >
-                  Create record
-                </Button>
-              </Link>
-              </>}
+              {ac.hasRole(OWNER_ROLE) && (
+                <>
+                  <Link
+                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
+                    passHref
+                  >
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      leftIcon={<PencilAltIcon className="h-4" />}
+                    >
+                      Edit columns
+                    </Button>
+                  </Link>
+                </>
+              )}
+              {ac.createAny("record").granted && (
+                <>
+                  <Link
+                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                    passHref
+                  >
+                    <Button
+                      colorScheme="blue"
+                      leftIcon={<PlusIcon className="h-4" />}
+                    >
+                      Create record
+                    </Button>
+                  </Link>
+                </>
+              )}
             </ButtonGroup>
           </>
         }
