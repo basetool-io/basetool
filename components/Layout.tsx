@@ -2,12 +2,14 @@ import { inProduction } from "@/lib/environment";
 import { useIntercom } from "react-use-intercom";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
+import { useSidebarsVisible } from "@/hooks"
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
 import Head from "next/head";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import SettingsSidebar from "./SettingsSidebar";
 import Sidebar from "./Sidebar";
+import classNames from "classnames"
 
 function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -22,8 +24,9 @@ function Layout({ children }: { children: ReactNode }) {
 
     return true;
   }, [router.pathname]);
+  // temporarily returning false until we figure out a better way of injecting the sidebar with dynamic values 👇
   const settingsSidebarVisible = useMemo(
-    () => router.pathname.includes("/settings"),
+    () => false && router.pathname.includes("/settings"),
     [router.pathname]
   );
   const { boot, update } = useIntercom();
@@ -45,6 +48,8 @@ function Layout({ children }: { children: ReactNode }) {
     }
   }, [sessionIsLoading, session]);
 
+  const [sidebarsVisible] = useSidebarsVisible()
+
   return (
     <Authenticated>
       <>
@@ -55,9 +60,15 @@ function Layout({ children }: { children: ReactNode }) {
         </Head>
         <div className="flex w-screen h-screen">
           <DataSourcesSidebar />
-          <div className="flex-1 flex bg-cool-gray-100 rounded-tl-lg shadow w-[calc(100%-5rem)] h-[calc(100%-0.5rem)] my-2">
+          <div className={classNames("flex-1 flex bg-cool-gray-100 rounded-tl-lg shadow h-[calc(100%-0.5rem)] my-2", {
+            "w-[calc(100%-5rem)]": sidebarsVisible,
+            "w-[calc(100%-0.5rem)] md:w-[calc(100%-5rem)]": !sidebarsVisible,
+          })}>
             {(tablesSidebarVisible || settingsSidebarVisible) && (
-              <div className="flex min-w-[14rem] max-w-[14rem]">
+              <div className={classNames("flex", {
+                "min-w-[14rem] max-w-[14rem]": sidebarsVisible,
+                "w-0 md:min-w-[14rem] md:max-w-[14rem]": !sidebarsVisible
+              })}>
                 {tablesSidebarVisible && <Sidebar />}
                 {settingsSidebarVisible && <SettingsSidebar />}
               </div>

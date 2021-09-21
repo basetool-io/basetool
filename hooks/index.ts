@@ -11,6 +11,12 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding"
+import {
+  setSidebarVisibile as setSidebarVisibileToState,
+  sidebarsVisibleSelector,
+} from "@/features/app/state-slice";
+import { useEffect } from "react";
+import { useMedia } from "react-use"
 import { useMemo } from "react"
 import ApiService from "@/features/api/ApiService";
 import store from "@/lib/store";
@@ -104,4 +110,29 @@ export const useFilters = (initialFilters?: string | undefined): {
     resetFilters,
     encodedFilters,
   };
+};
+
+export const useResponsive = () => {
+  const isSm = useMedia("(min-width: 640px)", false);
+  const isMd = useMedia("(min-width: 768px)", false);
+  const isLg = useMedia("(min-width: 1024px)", false);
+  const isXl = useMedia("(min-width: 1280px)", false);
+  const is2xl = useMedia("(min-width: 1536px)", false);
+
+  return { isSm, isMd, isLg, isXl, is2xl };
+};
+
+export const useSidebarsVisible = (initialvalue?: boolean) => {
+  const dispatch = useAppDispatch();
+  const sidebarsVisible = useAppSelector(sidebarsVisibleSelector);
+
+  const setSidebarsVisible = (value: boolean) => {
+    dispatch(setSidebarVisibileToState(value));
+  };
+
+  useEffect(() => {
+    if (initialvalue) setSidebarsVisible(initialvalue);
+  }, []);
+
+  return [sidebarsVisible, setSidebarsVisible] as const;
 };

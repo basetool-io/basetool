@@ -16,15 +16,13 @@ const Sidebar = () => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
-  const {
-    data: dataSourceResponse,
-    isLoading: dataSourceIsLoading,
-  } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
+    useGetDataSourceQuery(
+      { dataSourceId },
+      {
+        skip: !dataSourceId,
+      }
+    );
   const {
     data: tablesResponse,
     isLoading,
@@ -58,7 +56,7 @@ const Sidebar = () => {
     }
   };
 
-  const prefetchColumns = usePrefetch("getColumns")
+  const prefetchColumns = usePrefetch("getColumns");
 
   return (
     <div className="relative py-2 pl-2 w-full">
@@ -82,7 +80,10 @@ const Sidebar = () => {
         )}
         {error && <div>Error: {(error as any).error}</div>}
         {isLoading && (
-          <LoadingOverlay transparent={isEmpty(tablesResponse?.data)} subTitle={false} />
+          <LoadingOverlay
+            transparent={isEmpty(tablesResponse?.data)}
+            subTitle={false}
+          />
         )}
         <div className="space-y-1">
           {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}

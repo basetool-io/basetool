@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { funnyLoadingMessages } from "@/lib/messages";
 import { sample } from "lodash";
 
@@ -69,4 +69,4 @@ const LoadingComponent = ({
   );
 };
 
-export default LoadingComponent;
+export default memo(LoadingComponent);

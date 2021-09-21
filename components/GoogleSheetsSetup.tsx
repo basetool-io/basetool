@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 
 function GoogleSheetsSetup() {
   const router = useRouter();
@@ -90,4 +90,4 @@ function GoogleSheetsSetup() {
   );
 }
 
-export default GoogleSheetsSetup;
+export default memo(GoogleSheetsSetup);
