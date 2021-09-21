@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { EditFieldProps } from "@/features/fields/types";
 import {
   FormControl,
@@ -48,7 +49,7 @@ const Edit = ({
       });
     }
     if (setValue) {
-      setValue(register.name, isDate(value) ? value?.toISOString() : null, {
+      setValue(register.name, isDate(value) ? DateTime.fromISO((value as Date).toISOString()).toString() : null, {
         shouldValidate: true,
         shouldDirty: true,
         shouldTouch: true,
@@ -93,7 +94,7 @@ const Edit = ({
           timeFormat="HH:mm"
           timeIntervals={15}
           timeCaption="time"
-          dateFormat="MMMM d, yyyy h:mm aa"
+          dateFormat="MMMM d, yyyy HH:mm"
           customInput={<CustomInput {...register} placeholder={placeholder} />}
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
