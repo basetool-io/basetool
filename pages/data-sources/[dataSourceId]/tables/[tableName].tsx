@@ -64,7 +64,7 @@ const ResourcesIndex = memo(
         buttons={
           <>
             <ButtonGroup size="sm">
-            { ac.roleName === "Owner" && <>
+            { ac.roleName() === "Owner" && <>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
                 passHref
