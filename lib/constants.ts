@@ -1,1 +1,1 @@
-export const LOCAL_STORAGE_PREFIX = 'basetool'
+export const LOCAL_STORAGE_PREFIX = "basetool";

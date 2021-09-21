@@ -13,6 +13,12 @@ import {
 import { encodeObject } from "@/lib/encoding"
 import { useContext, useMemo } from "react"
 import AccessControlService from "@/features/roles/AccessControlService";
+import {
+  setSidebarVisibile as setSidebarVisibileToState,
+  sidebarsVisibleSelector,
+} from "@/features/app/state-slice";
+import { useEffect } from "react";
+import { useMedia } from "react-use"
 import ApiService from "@/features/api/ApiService";
 import ProfileContext from "@/lib/ProfileContext";
 import store from "@/lib/store";
@@ -113,4 +119,29 @@ export const useAccessControl = () => {
   const ac = useMemo(() => new AccessControlService(profile.role), [profile.role]);
 
   return ac
+};
+
+export const useResponsive = () => {
+  const isSm = useMedia("(min-width: 640px)", false);
+  const isMd = useMedia("(min-width: 768px)", false);
+  const isLg = useMedia("(min-width: 1024px)", false);
+  const isXl = useMedia("(min-width: 1280px)", false);
+  const is2xl = useMedia("(min-width: 1536px)", false);
+
+  return { isSm, isMd, isLg, isXl, is2xl };
+};
+
+export const useSidebarsVisible = (initialvalue?: boolean) => {
+  const dispatch = useAppDispatch();
+  const sidebarsVisible = useAppSelector(sidebarsVisibleSelector);
+
+  const setSidebarsVisible = (value: boolean) => {
+    dispatch(setSidebarVisibileToState(value));
+  };
+
+  useEffect(() => {
+    if (initialvalue) setSidebarsVisible(initialvalue);
+  }, []);
+
+  return [sidebarsVisible, setSidebarsVisible] as const;
 };

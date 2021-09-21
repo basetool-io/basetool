@@ -1,5 +1,6 @@
+import { useSidebarsVisible } from "@/hooks"
 import Link from "next/link";
-import React from "react";
+import React, { memo } from "react";
 import classNames from "classnames";
 
 function SidebarItem({
@@ -13,6 +14,8 @@ function SidebarItem({
   link: string;
   [name: string]: any
 }) {
+  const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible()
+
   return (
     <Link href={link} passHref>
       <a
@@ -20,6 +23,9 @@ function SidebarItem({
           "hover:bg-blue-gray-50 hover:shadow overflow-hidden overflow-ellipsis w-full relative flex flex-grow-0 text-gray-800 font-normal cursor-pointer text-sm py-2 px-4 rounded-md leading-none m-0",
           { "bg-white shadow": active }
         )}
+        onClick={() => {
+          setSidebarVisible(false)
+        }}
         {...rest}
       >
         {label}
@@ -28,4 +34,4 @@ function SidebarItem({
   );
 }
 
-export default SidebarItem;
+export default memo(SidebarItem);

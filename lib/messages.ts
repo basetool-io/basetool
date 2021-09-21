@@ -2,7 +2,6 @@ export const errorMessage = "Apologies. Sometimes we make mistakes too. However,
 
 export const funnyLoadingMessages = [
   "Vegetables give you +5 points. Fast food gives you +10 points, but depletes your health daily by -2.",
-  "Covfefe",
   "Some avocado trees take up to 14 years to bear fruit.",
   "Glaciers and ice sheets hold about 69 percent of the world's freshwater.",
   "The best place in the world to see rainbows is in Hawaii.",

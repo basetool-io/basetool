@@ -21,7 +21,6 @@
     "@hookform/resolvers": "^2.8.0",
     "@next-auth/prisma-adapter": "^0.5.4",
     "@prisma/client": "^2.30.3",
-    "@react-hookz/web": "^9.0.0",
     "@reduxjs/toolkit": "^1.6.1",
     "@sentry/nextjs": "^6.12.0",
     "@types/bcrypt": "^5.0.0",
@@ -63,7 +62,7 @@
     "react-toastify": "^8.0.2",
     "react-use": "^17.2.4",
     "react-use-intercom": "^1.4.0",
-    "tailwindcss": "^2.2.7",
+    "tailwindcss": "^2.2.15",
     "urijs": "^1.19.7"
   },
   "devDependencies": {

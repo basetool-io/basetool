@@ -7,6 +7,7 @@ import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
 import { tablesApiSlice } from "@/features/tables/api-slice";
 import { toast } from "react-toastify";
+import appReducer from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
 
 /**
@@ -38,6 +39,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 
 const store = configureStore({
   reducer: {
+    appState: appReducer,
     recordsState: recordsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,

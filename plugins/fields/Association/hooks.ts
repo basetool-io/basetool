@@ -1,4 +1,4 @@
-import { Field } from "@/features/fields/types"
+import { Field } from "@/features/fields/types";
 
 const useForeignName = (field: Field) => {
   const getForeignName = (record: any) => {
