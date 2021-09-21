@@ -16,15 +16,13 @@ export default class AccessControlService {
     this.ac = new AccessControl();
     this.role = role;
 
-    console.log(this.role)
-
-    this.ac.grant(role.name);
+    this.ac.grant(this.roleName);
 
     this.setPermissionsForRecord();
   }
 
   get roleName() {
-    return this.role.name;
+    return this.role?.name;
   }
 
   public hasRole(roleName: string) {
