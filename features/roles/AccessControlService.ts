@@ -29,7 +29,9 @@ export default class AccessControlService {
   }
 
   roleName() {
-    return this.role.name;
+    if(this.role) return this.role.name;
+
+    return "";
   }
 
   getRoleAbilityLogic(role: Role, ability: string) {
