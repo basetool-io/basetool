@@ -11,14 +11,14 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding"
-import { useContext, useMemo } from "react"
-import AccessControlService from "@/features/roles/AccessControlService";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
+import { useContext, useMemo } from "react"
 import { useEffect } from "react";
 import { useMedia } from "react-use"
+import AccessControlService from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
 import ProfileContext from "@/lib/ProfileContext";
 import store from "@/lib/store";
@@ -118,7 +118,7 @@ export const useAccessControl = () => {
   const profile = useContext(ProfileContext);
   const ac = useMemo(() => new AccessControlService(profile.role), [profile.role]);
 
-  return ac
+  return ac;
 };
 
 export const useResponsive = () => {
