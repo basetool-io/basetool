@@ -39,7 +39,7 @@ const RecordShow = ({
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
-  const onDeleteClick = async () => {
+  const handleDelete = async () => {
     const confirmed = confirm(
       "Are you sure you want to remove this record?"
     );
@@ -67,7 +67,7 @@ const RecordShow = ({
             {isDeleting && <LoadingOverlay transparent={true} />}
             <ButtonGroup size="sm">
               <BackButton href={backLink} />
-              <Button colorScheme="red" onClick={onDeleteClick}>Delete</Button>
+              <Button colorScheme="red" onClick={handleDelete}>Delete</Button>
               <Link
                 href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                 passHref
