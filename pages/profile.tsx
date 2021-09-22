@@ -7,10 +7,6 @@ import PageWrapper from "@/components/PageWrapper";
 import ProfileContext from "@/lib/ProfileContext";
 import React, { useContext } from "react";
 
-const Heading = ({ children }: { children: string }) => (
-  <div className="text-xl border-b mb-4 pb-1">{children}</div>
-);
-
 function Profile() {
   const { organizations, user, role } = useContext(ProfileContext);
 
@@ -21,14 +17,14 @@ function Profile() {
           <div className="w-full h-full flex-1 flex flex-col justify-between">
             <div>
               <div className="mt-4">
-                <Heading>General</Heading>
+                <PageWrapper.Heading>General</PageWrapper.Heading>
                 <div>
                   Name: {user?.firstName} {user?.lastName}
                 </div>
                 <div>Email: {user?.email}</div>
                 <div>Role: {role?.name}</div>
                 <div className="mt-4">
-                  <Heading>Organizations</Heading>
+                  <PageWrapper.Heading>Organizations</PageWrapper.Heading>
                   <ol>
                     {organizations &&
                       organizations.map((organization: Organization) => (

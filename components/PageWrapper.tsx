@@ -1,8 +1,40 @@
 import { Button } from "@chakra-ui/react";
+import { ChevronRightIcon } from "@heroicons/react/outline"
 import { Sidebar } from "react-feather";
 import { useSidebarsVisible } from "@/hooks";
-import React, { ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import classNames from "classnames";
+
+const Heading = ({ children }: { children: string }) => (
+  <div className="text-xl border-b mb-4 pb-1">{children}</div>
+);
+
+const TitleCrumbs = ({
+  icon,
+  crumbs,
+}: {
+  icon?: ReactNode;
+  crumbs: string[];
+}) => {
+  return (
+    <>
+      {icon}
+      {crumbs &&
+        crumbs.map((crumb, idx) => {
+          if (idx === crumbs.length - 1) {
+            return <span key={idx}>{crumb}</span>;
+          }
+
+          return (
+            <span key={idx}>
+              {crumb}{" "}
+              <ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />{" "}
+            </span>
+          );
+        })}
+    </>
+  );
+};
 
 function PageWrapper({
   heading,
@@ -58,5 +90,8 @@ function PageWrapper({
     </>
   );
 }
+
+PageWrapper.TitleCrumbs = TitleCrumbs
+PageWrapper.Heading = Heading
 
 export default PageWrapper;
