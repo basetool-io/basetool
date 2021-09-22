@@ -254,10 +254,7 @@ const RecordsTable = ({
 
   const setCheckedItems = (checked: boolean) => {
     if (checked) {
-      const ids = [];
-      for(const record of data) {
-        ids.push(record?.id);
-      }
+      const ids = data.map((record) => record?.id)
       setRecordsSelected(ids);
     } else {
       resetRecordsSelection();
@@ -349,7 +346,7 @@ const RecordsTable = ({
             )}
 
             {isMd ||
-              rows.map((row: Row<any>, index) => (<>
+              rows.map((row: Row<any>, index) => (
                 <RowComponent
                   key={index}
                   index={index}
@@ -357,7 +354,7 @@ const RecordsTable = ({
                   dataSourceId={dataSourceId}
                   tableName={tableName}
                   prepareRow={prepareRow}
-                /></>
+                />
               ))}
             {isMd && (
               <div {...getTableBodyProps()}>

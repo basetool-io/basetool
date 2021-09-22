@@ -53,14 +53,13 @@ const recordsStateSlice = createSlice({
     },
     toggleRecordSelection(state, action: PayloadAction<number>) {
       const index = state.selectedRecords.indexOf(action.payload);
-      if(index >=0) {
+      if(index >= 0) {
         state.selectedRecords.splice(index, 1);
       } else {
         state.selectedRecords.push(action.payload);
       }
     },
     setRecordsSelected(state, action: PayloadAction<number[]>) {
-      state.selectedRecords = [];
       state.selectedRecords = action.payload;
     },
     resetRecordsSelection(state) {
