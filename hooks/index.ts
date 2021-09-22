@@ -7,8 +7,12 @@ import {
   appliedFiltersSelector,
   filtersSelector,
   removeFilter,
+  resetRecordsSelection as resetRecordsSelectionInState,
+  selectedRecordsSelector,
   setAppliedFilters,
   setFilters,
+  setRecordsSelected as setRecordsSelectedInState,
+  toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding"
@@ -166,3 +170,23 @@ export const useOrganizationFromContext = ({
 
   return organization;
 };
+
+export const useSelectRecords = () => {
+  const dispatch = useAppDispatch();
+  const selectedRecords = useAppSelector(selectedRecordsSelector);
+
+  const toggleRecordSelection = (value: number) => {
+    dispatch(toggleRecordSelectionInState(value));
+  };
+
+  const setRecordsSelected = (values: number[]) => {
+    dispatch(setRecordsSelectedInState(values));
+  };
+
+  const resetRecordsSelection = () => {
+    dispatch(resetRecordsSelectionInState());
+  }
+
+  return {selectedRecords, toggleRecordSelection, setRecordsSelected, resetRecordsSelection};
+};
+

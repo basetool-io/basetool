@@ -96,7 +96,6 @@ const DataSourcesSidebar = () => {
       })}
     >
       <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">
-        {isLoading && <>&nbsp;</>}
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>

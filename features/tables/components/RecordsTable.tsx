@@ -1,5 +1,6 @@
 import { Column as BaseToolColumn } from "@/features/fields/types";
 import { Button } from "@chakra-ui/react";
+import { Checkbox } from "@chakra-ui/checkbox";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -21,7 +22,7 @@ import { iconForField, prettifyData } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { localStorageColumnWidthKey } from "..";
 import { makeField } from "@/features/fields";
-import { useFilters, useResponsive } from "@/hooks";
+import { useFilters, useResponsive, useSelectRecords } from "@/hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -246,6 +247,24 @@ const RecordsTable = ({
 
   const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
 
+  const {selectedRecords, setRecordsSelected, resetRecordsSelection} = useSelectRecords();
+
+  const allChecked = data.length === selectedRecords.length && data.length > 0;
+  const isIndeterminate = selectedRecords.length > 0 && !allChecked;
+
+  const setCheckedItems = (checked: boolean) => {
+    if (checked) {
+      const ids = data.map((record) => record?.id)
+      setRecordsSelected(ids);
+    } else {
+      resetRecordsSelection();
+    }
+  }
+
+  useEffect(() => {
+    resetRecordsSelection();
+  }, [data])
+
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
       {isFetching && (
@@ -275,6 +294,13 @@ const RecordsTable = ({
               <div className="bg-gray-50 rounded-t">
                 {headerGroups.map((headerGroup) => (
                   <div {...headerGroup.getHeaderGroupProps()} className="tr">
+                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <Checkbox colorScheme="gray"
+                        isChecked={allChecked}
+                        isIndeterminate={isIndeterminate}
+                        onChange={(e) => setCheckedItems(e.target.checked)}
+                        />
+                    </div>
                     {headerGroup.headers.map((column: any) => {
                       const IconElement = iconForField(column.meta);
 

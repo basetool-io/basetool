@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@heroicons/react/outline";
+import { ChevronRightIcon } from "@heroicons/react/outline"
 import { Sidebar } from "react-feather";
 import { useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
