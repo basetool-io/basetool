@@ -99,11 +99,11 @@ function RecordsShow() {
               flush={true}
               buttons={
                 <>
-                  {isDeleting && <LoadingOverlay transparent={true} />}
+                  {/* {isDeleting && <LoadingOverlay transparent={true} />} */}
                   <ButtonGroup size="sm">
                     <BackButton href={backLink} />
                     { ac.deleteAny("record").granted && <>
-                    <Button colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
+                    <Button isLoading={isDeleting} colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
                     </>}
                     { ac.updateAny("record").granted && <>
                     <Link
