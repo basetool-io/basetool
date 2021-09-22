@@ -28,7 +28,14 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     select: {
       id: true,
       name: true,
+      slug: true,
       roles: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      dataSources: {
         select: {
           id: true,
           name: true,
@@ -42,6 +49,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
               id: true,
               firstName: true,
               lastName: true,
+              email: true,
             },
           },
           role: {

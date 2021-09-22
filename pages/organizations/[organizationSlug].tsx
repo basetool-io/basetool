@@ -12,7 +12,7 @@ function OrganizationShow() {
   return (
     <Layout sidebar={<OrganizationSidebar organization={organization} />}>
       <PageWrapper crumbs={[organization?.name, "General"]}>
-        <><pre>{JSON.stringify(organization, null, 2)}</pre></>
+        <>Nothing to do here yet.</>
       </PageWrapper>
     </Layout>
   );

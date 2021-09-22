@@ -50,6 +50,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
                   },
                 },
               },
+              dataSources: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           role: {

@@ -1,6 +1,6 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import { IFilter } from "@/features/tables/components/Filter";
-import { Organization } from "@prisma/client"
+import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
@@ -15,14 +15,14 @@ import {
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
-import { encodeObject } from "@/lib/encoding"
+import { encodeObject } from "@/lib/encoding";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
-import { useContext, useMemo } from "react"
+import { useContext, useMemo } from "react";
 import { useEffect } from "react";
-import { useMedia } from "react-use"
+import { useMedia } from "react-use";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
 import ProfileContext from "@/lib/ProfileContext";
@@ -32,7 +32,9 @@ export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export const useFilters = (initialFilters?: string | undefined): {
+export const useFilters = (
+  initialFilters?: string | undefined
+): {
   filters: IFilter[];
   setFilters: (filters: IFilter[]) => void;
   appliedFilters: IFilter[];
@@ -41,7 +43,7 @@ export const useFilters = (initialFilters?: string | undefined): {
   removeFilter: (idx: number) => void;
   updateFilter: (idx: number, filter: IFilter) => void;
   resetFilters: () => void;
-  encodedFilters: string
+  encodedFilters: string;
 } => {
   // const router = useRouter()
   const filters = useAppSelector(filtersSelector);
@@ -121,7 +123,10 @@ export const useFilters = (initialFilters?: string | undefined): {
 
 export const useAccessControl = () => {
   const profile = useContext(ProfileContext);
-  const ac = useMemo(() => new AccessControlService(profile.role), [profile.role]);
+  const ac = useMemo(
+    () => new AccessControlService(profile.role),
+    [profile.role]
+  );
 
   return ac;
 };
@@ -157,7 +162,12 @@ export const useOrganizationFromContext = ({
 }: {
   id?: number;
   slug?: string;
-}): Organization | undefined => {
+}):
+  | (Organization & {
+      users: Array<OrganizationUser & { user: User }>;
+      roles: Role[];
+    })
+  | undefined => {
   const { organizations } = useContext(ProfileContext);
   const organization: Organization | undefined = useMemo(
     () =>
@@ -185,8 +195,12 @@ export const useSelectRecords = () => {
 
   const resetRecordsSelection = () => {
     dispatch(resetRecordsSelectionInState());
-  }
+  };
 
-  return {selectedRecords, toggleRecordSelection, setRecordsSelected, resetRecordsSelection};
+  return {
+    selectedRecords,
+    toggleRecordSelection,
+    setRecordsSelected,
+    resetRecordsSelection,
+  };
 };
-

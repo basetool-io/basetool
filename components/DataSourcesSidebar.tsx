@@ -8,9 +8,10 @@ import { DataSource } from "@prisma/client";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/hooks"
+import { useSidebarsVisible } from "@/hooks";
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
@@ -25,7 +26,8 @@ const DataSourceItem = ({
   initials,
   compact,
   flush = false,
-  onClick
+  onClick,
+  ...rest
 }: {
   active?: boolean;
   label: string;
@@ -35,9 +37,10 @@ const DataSourceItem = ({
   compact?: boolean;
   flush?: boolean;
   onClick?: () => void;
+  [name: string]: any
 }) => {
   const linkElement = (
-    <a className="block" onClick={onClick}>
+    <a className="block" onClick={onClick} {...rest}>
       <Tooltip label={label} placement="right" gutter={15}>
         <div
           className={classNames(
@@ -78,7 +81,8 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const [sidebarsVisible] = useSidebarsVisible()
+  const { dataSourceId } = router.query as string;
+  const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
   // const visible = true;
   // const [compact, setCompact] = useLocalStorage(
@@ -87,6 +91,7 @@ const DataSourcesSidebar = () => {
   // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const prefetchTables = usePrefetch("getTables");
 
   return (
     <div
@@ -152,6 +157,11 @@ const DataSourcesSidebar = () => {
                         }
                         link={`/data-sources/${dataSource.id}`}
                         label={dataSource.name}
+                        onMouseOver={() => {
+                          prefetchTables({
+                            dataSourceId: dataSource.id.toString(),
+                          });
+                        }}
                       />
                     );
                   })}

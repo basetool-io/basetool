@@ -1,4 +1,4 @@
-import { InformationCircleIcon, UserGroupIcon } from "@heroicons/react/outline";
+import { InformationCircleIcon, ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/outline";
 import { Organization } from "@prisma/client"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -42,16 +42,22 @@ function OrganizationSidebar({organization}: {organization?: Organization}) {
         {organization?.name}
       </div>
       <div className="p-2 space-y-2 pr-0">
-        <Item
+        {/* <Item
           label="General"
           link={`/organizations/${organization?.slug}`}
           icon={<InformationCircleIcon className="h-4" />}
           description="Get to know your organization"
+        /> */}
+        <Item
+          label="Members"
+          link={`/organizations/${organization?.slug}/members`}
+          icon={<UserGroupIcon className="h-4" />}
+          description="The more the merrier"
         />
         <Item
           label="Roles"
           link={`/organizations/${organization?.slug}/roles`}
-          icon={<UserGroupIcon className="h-4" />}
+          icon={<ShieldCheckIcon className="h-4" />}
           description="You might allow some members to do some things and others not"
         />
       </div>

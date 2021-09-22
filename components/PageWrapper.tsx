@@ -3,10 +3,11 @@ import { ChevronRightIcon } from "@heroicons/react/outline"
 import { Sidebar } from "react-feather";
 import { useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
+import LoadingOverlay from "./LoadingOverlay"
 import React, { ReactElement, ReactNode } from "react";
 import classNames from "classnames";
 
-const Heading = ({ children }: { children: string }) => (
+const Heading = ({ children }: { children: string | ReactNode }) => (
   <div className="uppercase font-semibold mb-2 pb-1">{children}</div>
 );
 
@@ -15,12 +16,12 @@ const Section = ({ children }: { children: ReactNode }) => (
 );
 
 const Blocks = ({ children }: { children: ReactNode }) => (
-  <div className="grid gap-4 grid-cols-4">{children}</div>
+  <div className="grid gap-4 auto-cols-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{children}</div>
 );
 
-const Block = ({ href, children }: { href?: string; children: ReactNode }) => {
+const Block = ({ href, children, onMouseOver }: { href?: string; children: ReactNode, onMouseOver?: () => void }) => {
   const content = (
-    <div className="rounded-md border shadow-glow bg-true-gray-50 p-4">{children}</div>
+    <div className="rounded-md border shadow-glow bg-true-gray-50 p-4 h-full" onMouseOver={onMouseOver}>{children}</div>
   );
 
   if (href)
@@ -60,6 +61,7 @@ function PageWrapper({
   children,
   icon,
   flush = false,
+  isLoading = false,
 }: {
   heading?: string | ReactElement;
   crumbs?: Array<string | undefined>;
@@ -67,6 +69,7 @@ function PageWrapper({
   children: ReactElement;
   icon?: ReactElement;
   flush?: boolean;
+  isLoading?: boolean;
 }) {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
 
@@ -108,6 +111,7 @@ function PageWrapper({
               "px-4 py-4": !flush,
             })}
           >
+            {isLoading && <LoadingOverlay inPageWrapper />}
             {children}
           </div>
         </div>
