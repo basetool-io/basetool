@@ -61,4 +61,10 @@ export default class NullQueryService implements IQueryService {
   ): Promise<unknown> {
     return [];
   }
+  public async deleteRecords(
+    tableName: string,
+    recordIds: number[],
+  ): Promise<unknown> {
+    return [];
+  }
 }

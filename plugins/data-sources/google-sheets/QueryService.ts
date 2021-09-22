@@ -320,7 +320,14 @@ class QueryService implements IQueryService {
     tableName: string,
     recordId: string,
   ): Promise<unknown> {
-    return false;
+    return [];
+  }
+
+  public async deleteRecords(
+    tableName: string,
+    recordIds: number[],
+  ): Promise<unknown> {
+    return [];
   }
 
   private async loadInfo() {
