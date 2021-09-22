@@ -1,10 +1,17 @@
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import { Button, ButtonGroup, Tooltip } from "@chakra-ui/react";
 import { Checkbox } from "@chakra-ui/checkbox";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
-import { useDeleteRecordMutation, usePrefetch } from "@/features/records/api-slice";
+import {
+  useAccessControl,
+  useSelectRecords,
+  useSidebarsVisible,
+} from "@/hooks";
+import {
+  useDeleteRecordMutation,
+  usePrefetch,
+} from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import { useSelectRecords, useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
 import React, { memo } from "react";
 import classNames from "classnames";
@@ -26,15 +33,14 @@ const RecordRow = ({
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
-  const {selectedRecords, toggleRecordSelection} = useSelectRecords();
+  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
   const router = useRouter();
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+  const ac = useAccessControl();
 
   const handleDelete = async () => {
-    const confirmed = confirm(
-      "Are you sure you want to remove this record?"
-    );
+    const confirmed = confirm("Are you sure you want to remove this record?");
     if (confirmed) {
       await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
@@ -42,7 +48,7 @@ const RecordRow = ({
         recordId: row?.original?.id,
       });
     }
-  }
+  };
 
   return (
     <a
@@ -58,14 +64,21 @@ const RecordRow = ({
           });
         }
       }}
-      className={classNames("tr relative hover:bg-sky-50 border-b last:border-b-0", {
-        "bg-white": index % 2 === 0,
-        "bg-gray-50": index % 2 !== 0,
-      })}
+      className={classNames(
+        "tr relative hover:bg-sky-50 border-b last:border-b-0",
+        {
+          "bg-white": index % 2 === 0,
+          "bg-gray-50": index % 2 !== 0,
+        }
+      )}
       onClick={() => setSidebarVisible(false)}
     >
       <div className="td px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <Checkbox colorScheme="gray" isChecked={selectedRecords.includes(row?.original?.id)} onChange={(e) => toggleRecordSelection(row?.original?.id)} />
+        <Checkbox
+          colorScheme="gray"
+          isChecked={selectedRecords.includes(row?.original?.id)}
+          onChange={(e) => toggleRecordSelection(row?.original?.id)}
+        />
       </div>
       {row.cells.map((cell) => (
         <div
@@ -76,12 +89,38 @@ const RecordRow = ({
         </div>
       ))}
       <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
-        <ButtonGroup size="xs" variant="outline" spacing={1}>
-          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
-            passHref><Button><EyeIcon className="h-3.5"/></Button></Link>
-          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
-            passHref><Button><PencilAltIcon className="h-3.5"/></Button></Link>
-          <Button onClick={handleDelete}><TrashIcon className="h-3.5"/></Button>
+        <ButtonGroup size="sm" variant="outline" spacing={1}>
+          {ac.readAny("record").granted && (
+            <Link
+              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
+              passHref
+            >
+              <Tooltip label={"View record"} placement="bottom" gutter={10}>
+                <Button as="a">
+                  <EyeIcon className="h-4" />
+                </Button>
+              </Tooltip>
+            </Link>
+          )}
+          {ac.updateAny("record").granted && (
+            <Link
+              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
+              passHref
+            >
+              <Tooltip label={"Edit record"} placement="bottom" gutter={10}>
+                <Button as="a">
+                  <PencilAltIcon className="h-4" />
+                </Button>
+              </Tooltip>
+            </Link>
+          )}
+          {ac.deleteAny("record").granted && (
+            <Tooltip label={"Delete record"} placement="bottom" gutter={10}>
+              <Button onClick={handleDelete} as="a">
+                <TrashIcon className="h-4" />
+              </Button>
+            </Tooltip>
+          )}
         </ButtonGroup>
       </div>
     </a>

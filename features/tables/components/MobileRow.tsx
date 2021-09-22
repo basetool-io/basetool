@@ -1,21 +1,25 @@
-import { Button, ButtonGroup, Checkbox } from "@chakra-ui/react";
-import { CheckIcon, DotsHorizontalIcon, EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
+import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
 import { isUndefined } from "lodash";
-import { useDeleteRecordMutation, usePrefetch } from "@/features/records/api-slice";
+import {
+  useAccessControl,
+  useSelectRecords,
+  useSidebarsVisible,
+} from "@/hooks";
+import {
+  useDeleteRecordMutation,
+  usePrefetch,
+} from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import { useSelectRecords, useSidebarsVisible } from "@/hooks";
-import Link from "next/link"
+import Link from "next/link";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
 
 const IndexFieldWrapper = ({ cell }: { cell: any }) => {
   const column = useMemo(() => cell.column?.meta, [cell]);
-  const IconElement = useMemo(
-    () => iconForField(column),
-    [column.fieldType]
-  );
+  const IconElement = useMemo(() => iconForField(column), [column.fieldType]);
 
   return (
     <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
@@ -49,15 +53,14 @@ const MobileRow = ({
   const hasId = !isUndefined(row?.original?.id);
   const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
 
-  const {selectedRecords, toggleRecordSelection} = useSelectRecords();
+  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
   const router = useRouter();
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+  const ac = useAccessControl();
 
   const handleDelete = async () => {
-    const confirmed = confirm(
-      "Are you sure you want to remove this record?"
-    );
+    const confirmed = confirm("Are you sure you want to remove this record?");
     if (confirmed) {
       await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
@@ -65,7 +68,7 @@ const MobileRow = ({
         recordId: row?.original?.id,
       });
     }
-  }
+  };
 
   return (
     <a
@@ -89,32 +92,54 @@ const MobileRow = ({
       onClick={() => setSidebarVisible(false)}
     >
       <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
-        <div className="flex items-center space-x-2 md:min-h-16 md:py-4">
-          <CheckIcon className="h-4 inline-block flex-shrink-0" />{" "}
-          <span>Select</span>
-        </div>
-        <Checkbox colorScheme="gray" isChecked={selectedRecords.includes(row?.original?.id)} onChange={(e) => toggleRecordSelection(row?.original?.id)} />
+        <ButtonGroup size="md" variant="outline" spacing={1}>
+          <Button as="a">
+            <Checkbox
+              size="lg"
+              colorScheme="gray"
+              isChecked={selectedRecords.includes(row?.original?.id)}
+              onChange={(e) => toggleRecordSelection(row?.original?.id)}
+            />
+          </Button>
+          {ac.readAny("record").granted && (
+            <Link
+              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
+              passHref
+            >
+              <Tooltip label={"View record"} placement="bottom" gutter={10}>
+                <Button as="a">
+                  <EyeIcon className="h-4.5" />
+                </Button>
+              </Tooltip>
+            </Link>
+          )}
+          {ac.updateAny("record").granted && (
+            <Link
+              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
+              passHref
+            >
+              <Tooltip label={"Edit record"} placement="bottom" gutter={10}>
+                <Button as="a">
+                  <PencilAltIcon className="h-4.5" />
+                </Button>
+              </Tooltip>
+            </Link>
+          )}
+          {ac.deleteAny("record").granted && (
+            <Tooltip label={"Delete record"} placement="bottom" gutter={10}>
+              <Button onClick={handleDelete} as="a">
+                <TrashIcon className="h-4.5" />
+              </Button>
+            </Tooltip>
+          )}
+        </ButtonGroup>
       </div>
 
       {row.cells.map((cell) => (
         <IndexFieldWrapper cell={cell} />
       ))}
-
-      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
-        <div className="flex items-center space-x-2 md:min-h-16 md:py-4">
-          <DotsHorizontalIcon className="h-4 inline-block flex-shrink-0" />{" "}
-          <span>Controls</span>
-        </div>
-        <ButtonGroup size="xs" variant="outline" spacing={1}>
-          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
-            passHref><Button><EyeIcon className="h-3.5"/></Button></Link>
-          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
-            passHref><Button><PencilAltIcon className="h-3.5"/></Button></Link>
-          <Button onClick={handleDelete}><TrashIcon className="h-3.5"/></Button>
-        </ButtonGroup>
-      </div>
     </a>
   );
 };
 
-export default memo(MobileRow)
+export default memo(MobileRow);
