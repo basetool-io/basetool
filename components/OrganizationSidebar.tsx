@@ -3,6 +3,7 @@ import { Organization } from "@prisma/client"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import React, { ReactNode, memo, useMemo } from "react";
+import Shimmer from "./Shimmer"
 import classNames from "classnames"
 
 const Item = ({
@@ -17,7 +18,7 @@ const Item = ({
   description: string;
 }) => {
   const router = useRouter()
-  const isActive = useMemo(() => link === router.asPath, [router.asPath])
+  const isActive = useMemo(() => link === router.asPath, [router.asPath, link])
 
   return (
     <Link href={link}>
@@ -37,7 +38,8 @@ function OrganizationSidebar({organization}: {organization?: Organization}) {
   return (
     <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
       <div className="px-4 py-4 font-bold uppercase text-sm leading-none h-[40px]">
-        Settings
+        {!organization?.name && <Shimmer />}
+        {organization?.name}
       </div>
       <div className="p-2 space-y-2 pr-0">
         <Item
