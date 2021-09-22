@@ -73,8 +73,6 @@ const ResourcesIndex = memo(
           tableName: router.query.tableName as string,
           recordIds: selectedRecords as number[],
         });
-
-        // router.push(backLink);
       }
     }
 

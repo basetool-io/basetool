@@ -27,10 +27,17 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
-  const data = await service.deleteRecords(
-    req.query.tableName as string,
-    req.body as number[],
-  );
+  let data;
+  try {
+    data = await service.deleteRecords(
+      req.query.tableName as string,
+      req.body as number[],
+    );
+  } catch (error: any) {
+    await service.disconnect();
+
+    return res.json(ApiResponse.withError(error.message));
+  }
 
   await service.disconnect();
 
