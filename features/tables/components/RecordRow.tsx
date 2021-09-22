@@ -1,7 +1,11 @@
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Checkbox } from "@chakra-ui/checkbox";
+import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
-import { usePrefetch } from "@/features/records/api-slice";
+import { useDeleteRecordMutation, usePrefetch } from "@/features/records/api-slice";
+import { useRouter } from "next/router";
 import { useSelectRecords, useSidebarsVisible } from "@/hooks";
+import Link from "next/link";
 import React, { memo } from "react";
 import classNames from "classnames";
 
@@ -23,6 +27,22 @@ const RecordRow = ({
   prepareRow(row);
 
   const {selectedRecords, toggleRecordSelection} = useSelectRecords();
+  const router = useRouter();
+
+  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+
+  const handleDelete = async () => {
+    const confirmed = confirm(
+      "Are you sure you want to remove this record?"
+    );
+    if (confirmed) {
+      await deleteRecord({
+        dataSourceId: router.query.dataSourceId as string,
+        tableName: router.query.tableName as string,
+        recordId: row?.original?.id,
+      });
+    }
+  }
 
   return (
     <a
@@ -55,6 +75,15 @@ const RecordRow = ({
           {cell.render("Cell")}
         </div>
       ))}
+      <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
+        <ButtonGroup size="xs" variant="outline" spacing={1}>
+          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
+            passHref><Button><EyeIcon className="h-3.5"/></Button></Link>
+          <Link href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
+            passHref><Button><PencilAltIcon className="h-3.5"/></Button></Link>
+          <Button onClick={handleDelete}><TrashIcon className="h-3.5"/></Button>
+        </ButtonGroup>
+      </div>
     </a>
   );
 };
