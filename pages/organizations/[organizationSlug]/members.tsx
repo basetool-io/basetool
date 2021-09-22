@@ -163,7 +163,7 @@ function Members() {
             <div className="w-full relative p-4">
               <div className="mb-2">Members</div>
               {organization?.users &&
-                organization?.users.map((user: OrganizationUser, idx: number) => (
+                organization?.users.map((user: OrganizationUser & {user: User}, idx: number) => (
                   <ColumnListItem
                     key={user?.user?.id}
                     active={user?.user?.id === currentUserId && !addNew}
