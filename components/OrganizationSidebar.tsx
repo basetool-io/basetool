@@ -1,5 +1,5 @@
-import { InformationCircleIcon, ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/outline";
 import { Organization } from "@prisma/client"
+import { ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router"
 import Link from "next/link"
 import React, { ReactNode, memo, useMemo } from "react";
