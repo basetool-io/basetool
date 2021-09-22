@@ -1,9 +1,10 @@
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import { Button, ButtonGroup, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import {
   FilterIcon,
   PencilAltIcon,
   PlusIcon,
+  TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
 import { OWNER_ROLE } from "@/features/roles";
@@ -11,8 +12,9 @@ import { OrderDirection } from "@/features/tables/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
-import { useAccessControl, useFilters } from "@/hooks";
+import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
+import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import ErrorWrapper from "@/components/ErrorWrapper";
@@ -58,7 +60,21 @@ const ResourcesIndex = memo(
       }
     });
 
-    // const {selectedRecords} = useSelectRecords();
+    const {selectedRecords} = useSelectRecords();
+    const [deleteBulkRecords, { isLoading: isDeleting }] = useDeleteBulkRecordsMutation();
+
+    const handleDeleteMultiple = async () => {
+      const confirmed = confirm(
+        "Are you sure you want to remove " + selectedRecords.length + " record(s)?"
+      );
+      if (confirmed) {
+        await deleteBulkRecords({
+          dataSourceId: router.query.dataSourceId as string,
+          tableName: router.query.tableName as string,
+          recordIds: selectedRecords as number[],
+        });
+      }
+    }
 
     return (
       <PageWrapper
@@ -83,21 +99,21 @@ const ResourcesIndex = memo(
                   </Link>
                 </>
               )}
-              {/* {(ac.deleteAny("record").granted && selectedRecords.length > 0) && (
+              {ac.deleteAny("record").granted && (
                 <>
-                  <Link
-                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
-                    passHref
+                  <Tooltip label={"Delete " + selectedRecords.length + " record(s)"} placement="bottom" gutter={10}>
+                  <Button
+                    colorScheme="red"
+                    variant="outline"
+                    isLoading={isDeleting}
+                    isDisabled={selectedRecords.length == 0}
+                    onClick={handleDeleteMultiple}
                   >
-                    <Button
-                      colorScheme="red"
-                      leftIcon={<TrashIcon className="h-4" />}
-                    >
-                      Delete {selectedRecords.length} record(s)
-                    </Button>
-                  </Link>
+                    <TrashIcon className="h-4" />
+                  </Button>
+                  </Tooltip>
                 </>
-              )} */}
+              )}
               {ac.createAny("record").granted && (
                 <>
                   <Link

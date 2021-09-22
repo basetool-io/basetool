@@ -39,6 +39,10 @@ export interface IQueryService {
     tableName: string,
     recordId: string,
   ): Promise<unknown>;
+  deleteRecords(
+    tableName: string,
+    recordIds: number[],
+  ): Promise<unknown>;
 }
 
 export interface DataSourcePlugin {
