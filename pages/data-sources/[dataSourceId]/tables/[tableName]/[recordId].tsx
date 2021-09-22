@@ -73,13 +73,13 @@ function RecordsShow() {
       "Are you sure you want to remove this record?"
     );
     if (confirmed) {
-      await deleteRecord({
+      const response = await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
         tableName: router.query.tableName as string,
         recordId: record.id.toString(),
-      });
+      }).unwrap();
 
-      router.push(backLink);
+      if (response?.ok) router.push(backLink);
     }
   }
 
@@ -99,11 +99,10 @@ function RecordsShow() {
               flush={true}
               buttons={
                 <>
-                  {isDeleting && <LoadingOverlay transparent={true} />}
                   <ButtonGroup size="sm">
                     <BackButton href={backLink} />
                     { ac.deleteAny("record").granted && <>
-                    <Button colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
+                    <Button isLoading={isDeleting} colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
                     </>}
                     { ac.updateAny("record").granted && <>
                     <Link

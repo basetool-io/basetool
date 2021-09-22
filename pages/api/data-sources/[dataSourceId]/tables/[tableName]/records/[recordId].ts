@@ -101,10 +101,18 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
-  const data = await service.deleteRecord(
-    req.query.tableName as string,
-    req.query.recordId as string,
-  );
+  let data;
+
+  try {
+    data = await service.deleteRecord(
+      req.query.tableName as string,
+      req.query.recordId as string,
+    );
+  } catch (error: any) {
+    await service.disconnect();
+
+    return res.json(ApiResponse.withError(error.message));
+  }
 
   await service.disconnect();
 
