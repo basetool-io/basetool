@@ -58,6 +58,8 @@ const ResourcesIndex = memo(
       }
     });
 
+    // const {selectedRecords} = useSelectRecords();
+
     return (
       <PageWrapper
         heading="Browse records"
@@ -81,6 +83,21 @@ const ResourcesIndex = memo(
                   </Link>
                 </>
               )}
+              {/* {(ac.deleteAny("record").granted && selectedRecords.length > 0) && (
+                <>
+                  <Link
+                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                    passHref
+                  >
+                    <Button
+                      colorScheme="red"
+                      leftIcon={<TrashIcon className="h-4" />}
+                    >
+                      Delete {selectedRecords.length} record(s)
+                    </Button>
+                  </Link>
+                </>
+              )} */}
               {ac.createAny("record").granted && (
                 <>
                   <Link

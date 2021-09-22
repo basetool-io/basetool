@@ -1,8 +1,7 @@
+import { Checkbox } from "@chakra-ui/checkbox";
 import { Row } from "react-table";
-import { isUndefined } from "lodash";
 import { usePrefetch } from "@/features/records/api-slice";
-import { useSidebarsVisible } from "@/hooks";
-import Link from "next/link"
+import { useSelectRecords, useSidebarsVisible } from "@/hooks";
 import React, { memo } from "react";
 import classNames from "classnames";
 
@@ -23,10 +22,9 @@ const RecordRow = ({
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
-  const hasId = !isUndefined(row?.original?.id);
-  const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
+  const {selectedRecords, toggleRecordSelection} = useSelectRecords();
 
-  const rowContent = (
+  return (
     <a
       {...row.getRowProps()}
       onMouseOver={() => {
@@ -43,10 +41,12 @@ const RecordRow = ({
       className={classNames("tr relative hover:bg-sky-50 border-b last:border-b-0", {
         "bg-white": index % 2 === 0,
         "bg-gray-50": index % 2 !== 0,
-        "cursor-pointer": hasId,
       })}
       onClick={() => setSidebarVisible(false)}
     >
+      <div className="td px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <Checkbox colorScheme="gray" isChecked={selectedRecords.includes(row?.original?.id)} onChange={(e) => toggleRecordSelection(row?.original?.id)} />
+      </div>
       {row.cells.map((cell) => (
         <div
           {...cell.getCellProps()}
@@ -57,12 +57,6 @@ const RecordRow = ({
       ))}
     </a>
   );
-
-  if (hasId) {
-    return <Link href={link}>{rowContent}</Link>;
-  }
-
-  return rowContent;
 };
 
 export default memo(RecordRow);
