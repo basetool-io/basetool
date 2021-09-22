@@ -1,12 +1,9 @@
 import { ListTable } from "@/plugins/data-sources/postgresql/types";
-import { TrashIcon } from "@heroicons/react/outline";
-import { toast } from "react-toastify";
-import {
-  useGetDataSourceQuery,
-  useRemoveDataSourceMutation,
-} from "@/features/data-sources/api-slice";
+import { PencilAltIcon } from "@heroicons/react/outline";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
 import React, { memo } from "react";
 import SidebarItem from "./SidebarItem";
@@ -34,28 +31,6 @@ const Sidebar = () => {
     }
   );
 
-  const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
-    useRemoveDataSourceMutation();
-
-  const handleRemove = async () => {
-    if (dataSourceIsLoading || dataSourceIsRemoving) return;
-
-    const confirmed = confirm(
-      "Are you sure you want to remove this data source? All information about it (settings included) will be completely removed from our servers."
-    );
-    if (confirmed) {
-      toast(
-        "The data source has been removed. You will be redirected to the homepage. Thank you!"
-      );
-
-      await removeDataSource({ dataSourceId });
-
-      await setTimeout(async () => {
-        await router.push("/");
-      }, 3000);
-    }
-  };
-
   const prefetchColumns = usePrefetch("getColumns");
 
   return (
@@ -69,13 +44,11 @@ const Sidebar = () => {
             ) : (
               <span>{dataSourceResponse?.data?.name}</span>
             )}
-            <a
-              className="mt-1 flex items-center text-xs text-gray-600 cursor-pointer"
-              onClick={handleRemove}
-            >
-              <TrashIcon className="h-4 inline" />{" "}
-              {dataSourceIsRemoving ? "removing" : "remove"}
-            </a>
+            <Link href={`/data-sources/${dataSourceId}/edit`}>
+              <a className="mt-1 flex items-center text-xs text-gray-600 cursor-pointer">
+                <PencilAltIcon className="h-4 inline" /> Edit
+              </a>
+            </Link>
           </div>
         )}
         {error && <div>Error: {(error as any).error}</div>}
