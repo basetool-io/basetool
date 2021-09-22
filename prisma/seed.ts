@@ -12,8 +12,8 @@ async function main() {
 
   const organization = await prisma.organization.create({
     data: {
-      name: "AFC Richmond",
-      slug: "afc-richmond",
+      name: "Apple",
+      slug: "apple",
       roles: {
         create: [
           {
@@ -36,7 +36,7 @@ async function main() {
     lastName: string;
     password?: string;
   } = {
-    email: "ted@afc.richmond",
+    email: "ted@apple.com",
     firstName: "Ted",
     lastName: "Lasso",
   };
@@ -60,7 +60,7 @@ async function main() {
 
   const roy = await prisma.user.create({
     data: {
-      email: "roy@afc.richmond",
+      email: "roy@apple.com",
       firstName: "Roy",
       lastName: "Kent",
     },

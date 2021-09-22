@@ -1,6 +1,6 @@
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -32,6 +32,24 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         select: {
           id: true,
           name: true,
+        },
+      },
+      users: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          role: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },

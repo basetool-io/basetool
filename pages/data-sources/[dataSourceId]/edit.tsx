@@ -1,7 +1,10 @@
 import { Button } from "@chakra-ui/react";
-import { TrashIcon } from "@heroicons/react/outline"
-import { toast } from "react-toastify"
-import { useGetDataSourceQuery, useRemoveDataSourceMutation } from "@/features/data-sources/api-slice";
+import { TrashIcon } from "@heroicons/react/outline";
+import { toast } from "react-toastify";
+import {
+  useGetDataSourceQuery,
+  useRemoveDataSourceMutation,
+} from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
@@ -10,7 +13,7 @@ import React, { useState } from "react";
 function Edit() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
-  const [hasBeenRemoved, setHasBeenRemoved] = useState(false) // This is used to update the UI about the removal of the DS
+  const [hasBeenRemoved, setHasBeenRemoved] = useState(false); // This is used to update the UI about the removal of the DS
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(
       { dataSourceId },
@@ -33,7 +36,7 @@ function Edit() {
       );
 
       await removeDataSource({ dataSourceId });
-      setHasBeenRemoved(true)
+      setHasBeenRemoved(true);
 
       await setTimeout(async () => {
         await router.push("/");
@@ -43,11 +46,7 @@ function Edit() {
 
   return (
     <Layout>
-      <PageWrapper
-        heading={
-          <PageWrapper.TitleCrumbs crumbs={[dataSourceResponse?.data?.name, "Edit"]} />
-        }
-      >
+      <PageWrapper crumbs={[dataSourceResponse?.data?.name, "Edit"]}>
         <div className="w-full h-full flex-1 flex flex-col justify-between">
           <div>
             <div className="mt-4"></div>
@@ -61,7 +60,11 @@ function Edit() {
               isLoading={dataSourceIsRemoving}
             >
               <TrashIcon className="h-4 inline" />{" "}
-              {hasBeenRemoved ? "Removed" : dataSourceIsRemoving ? "Removing" : "Remove data source"}
+              {hasBeenRemoved
+                ? "Removed"
+                : dataSourceIsRemoving
+                ? "Removing"
+                : "Remove data source"}
             </Button>
           </div>
         </div>

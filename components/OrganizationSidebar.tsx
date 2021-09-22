@@ -1,10 +1,11 @@
-import { UserGroupIcon } from "@heroicons/react/outline";
+import { InformationCircleIcon, UserGroupIcon } from "@heroicons/react/outline";
+import { Organization } from "@prisma/client"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import React, { ReactNode, memo, useMemo } from "react";
 import classNames from "classnames"
 
-const SettingsItem = ({
+const Item = ({
   label,
   link,
   icon,
@@ -16,7 +17,7 @@ const SettingsItem = ({
   description: string;
 }) => {
   const router = useRouter()
-  const isActive = useMemo(() => link === router.pathname, [router.pathname])
+  const isActive = useMemo(() => link === router.asPath, [router.asPath])
 
   return (
     <Link href={link}>
@@ -32,22 +33,28 @@ const SettingsItem = ({
   );
 };
 
-function SettingsSidebar() {
+function OrganizationSidebar({organization}: {organization?: Organization}) {
   return (
     <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
       <div className="px-4 py-4 font-bold uppercase text-sm leading-none h-[40px]">
         Settings
       </div>
       <div className="p-2 space-y-2 pr-0">
-        <SettingsItem
+        <Item
+          label="General"
+          link={`/organizations/${organization?.slug}`}
+          icon={<InformationCircleIcon className="h-4" />}
+          description="Get to know your organization"
+        />
+        <Item
           label="Roles"
-          link="/settings/roles"
+          link={`/organizations/${organization?.slug}/roles`}
           icon={<UserGroupIcon className="h-4" />}
-          description="You might allow some members to do something and some not."
+          description="You might allow some members to do some things and others not"
         />
       </div>
     </div>
   );
 }
 
-export default memo(SettingsSidebar);
+export default memo(OrganizationSidebar);

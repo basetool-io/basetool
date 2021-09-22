@@ -32,6 +32,24 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
               id: true,
               name: true,
               slug: true,
+              users: {
+                select: {
+                  id: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                  role: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
             },
           },
           role: {

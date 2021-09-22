@@ -7,24 +7,26 @@ import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
 import Head from "next/head";
 import React, { ReactNode, useEffect, useMemo } from "react";
-import SettingsSidebar from "./SettingsSidebar";
+import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
 import classNames from "classnames";
 
 function Layout({
   hideSidebar = false,
   children,
+  sidebar
 }: {
   hideSidebar?: boolean;
   children: ReactNode;
+  sidebar?: ReactNode;
 }) {
   const router = useRouter();
   const [session, sessionIsLoading] = useSession();
   const tablesSidebarVisible = useMemo(() => {
+    if (sidebar) return false
     if (hideSidebar) return false
 
     if (router.pathname.includes("/profile")) return false;
-    if (router.pathname.includes("/settings")) return false;
     if (router.pathname === "/data-sources") return false;
     if (router.pathname === "/data-sources/google-sheets/new") return false;
     if (router.pathname === "/data-sources/postgresql/new") return false;
@@ -78,7 +80,7 @@ function Layout({
               }
             )}
           >
-            {(tablesSidebarVisible || settingsSidebarVisible) && (
+            {(sidebar || tablesSidebarVisible || settingsSidebarVisible) && (
               <div
                 className={classNames("flex", {
                   "min-w-[14rem] max-w-[14rem]": sidebarsVisible,
@@ -87,6 +89,7 @@ function Layout({
               >
                 {tablesSidebarVisible && <Sidebar />}
                 {settingsSidebarVisible && <SettingsSidebar />}
+                {sidebar}
               </div>
             )}
             <div className="flex-1 flex flex-col w-full h-full overflow-auto">

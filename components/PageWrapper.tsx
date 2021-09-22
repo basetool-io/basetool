@@ -20,7 +20,7 @@ const Blocks = ({ children }: { children: ReactNode }) => (
 
 const Block = ({ href, children }: { href?: string; children: ReactNode }) => {
   const content = (
-    <div className="border shadow-md bg-true-gray-50 p-4">{children}</div>
+    <div className="rounded-md border shadow-glow bg-true-gray-50 p-4">{children}</div>
   );
 
   if (href)

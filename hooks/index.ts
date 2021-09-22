@@ -1,5 +1,6 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import { IFilter } from "@/features/tables/components/Filter";
+import { Organization } from "@prisma/client"
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
@@ -144,4 +145,24 @@ export const useSidebarsVisible = (initialvalue?: boolean) => {
   }, []);
 
   return [sidebarsVisible, setSidebarsVisible] as const;
+};
+
+export const useOrganizationFromContext = ({
+  id,
+  slug,
+}: {
+  id?: number;
+  slug?: string;
+}): Organization | undefined => {
+  const { organizations } = useContext(ProfileContext);
+  const organization: Organization | undefined = useMemo(
+    () =>
+      organizations?.find((o: Organization) => {
+        if (slug) return o.slug === slug;
+        if (id) return o.id === id;
+      }),
+    [organizations, id, slug]
+  );
+
+  return organization;
 };

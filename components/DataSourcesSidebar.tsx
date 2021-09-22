@@ -101,7 +101,7 @@ const DataSourcesSidebar = () => {
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
               <div className="space-y-2">
-                <Link href={`/data-sources`} passHref>
+                <Link href={`/`} passHref>
                   <a className="block">
                     <Tooltip label="Home" placement="right" gutter={15}>
                       <span
