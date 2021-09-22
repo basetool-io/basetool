@@ -6,8 +6,12 @@ import {
   appliedFiltersSelector,
   filtersSelector,
   removeFilter,
+  resetRecordsSelection as resetRecordsSelectionToState,
+  selectedRecordsSelector,
   setAppliedFilters,
   setFilters,
+  setRecordsSelected as setRecordsSelectedToState,
+  toggleRecordSelection as toggleRecordSelectionToState,
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding"
@@ -145,3 +149,23 @@ export const useSidebarsVisible = (initialvalue?: boolean) => {
 
   return [sidebarsVisible, setSidebarsVisible] as const;
 };
+
+export const useSelectRecords = () => {
+  const dispatch = useAppDispatch();
+  const selectedRecords = useAppSelector(selectedRecordsSelector);
+
+  const toggleRecordSelection = (value: number) => {
+    dispatch(toggleRecordSelectionToState(value));
+  };
+
+  const setRecordsSelected = (values: number[]) => {
+    dispatch(setRecordsSelectedToState(values));
+  };
+
+  const resetRecordsSelection = () => {
+    dispatch(resetRecordsSelectionToState());
+  }
+
+  return {selectedRecords, toggleRecordSelection, setRecordsSelected, resetRecordsSelection};
+};
+
