@@ -1,10 +1,10 @@
-import { Button, Select } from "@chakra-ui/react";
 import { OWNER_ROLE } from "@/features/roles"
 import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { PlusIcon } from "@heroicons/react/outline";
+import { Select } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useBoolean } from "react-use";
-import { useGetOrganizationQuery, useRemoveMemberMutation } from "@/features/organizations/api-slice";
+import { useGetOrganizationQuery, useRemoveMemberMutation, useUpdateMemberRoleMutation } from "@/features/organizations/api-slice";
 import { useOrganizationFromContext } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
@@ -28,30 +28,20 @@ const RolesSelector = ({ roleId, roles, onChange }: {roleId: number, roles: Role
 const EditCurrentUser = ({
   organizationUser,
   organization,
-  setLocalOrgUser,
 }: {
   organizationUser?: any;
   organization: Organization & {users: User[], roles: Role[]};
-  setLocalOrgUser: (user: any) => void;
 }) => {
   const user = useMemo(() => organizationUser?.user, [organizationUser]);
-  // const [user, setUser] = useState()
-  const handleSave = () => {
-    console.log("handleSave");
-  };
-  const changeUserRole = (roleId: string) => {
-    console.log("changeUserRole", roleId);
-    setLocalOrgUser({
-      ...organizationUser,
-      role: {
-        ...organizationUser.role,
-        id: roleId,
+  const [updateUserRole, {isLoading}] = useUpdateMemberRoleMutation()
+  const changeUserRole = async (roleId: string) => {
+    await updateUserRole({
+      organizationId: organization?.id?.toString(),
+      userId: organizationUser?.id?.toString(),
+      body: {
+        roleId: parseInt(roleId),
       },
     });
-    // setChanges({
-    //   ...local,
-    //   role: roleId
-    // })
   };
 
   const [removeMember, { isLoading: isRemoving }] = useRemoveMemberMutation();
@@ -85,8 +75,6 @@ const EditCurrentUser = ({
             </PageWrapper.Section>
           </>
         )}
-        <pre>{JSON.stringify(organizationUser, null, 2)}</pre>
-        <>{/* <pre>{JSON.stringify(organization, null, 2)}</pre> */}</>
       </div>
 
       <div className="grid grid-cols-3">
@@ -100,9 +88,9 @@ const EditCurrentUser = ({
             </a>
           )}
         </div>
-        <Button colorScheme="blue" size="sm" width="300px" onClick={handleSave}>
+        {/* <Button colorScheme="blue" size="sm" width="300px" onClick={handleSave}>
           Save
-        </Button>
+        </Button> */}
         <div className="flex justify-end"></div>
       </div>
     </div>
@@ -192,13 +180,11 @@ function Members() {
               <EditCurrentUser
                 organizationUser={localOrgUser}
                 organization={organization}
-                setLocalOrgUser={setLocalOrgUser}
               />
             )}
             {addNew && organization && (
               <EditCurrentUser
                 organization={organization}
-                setLocalOrgUser={setLocalOrgUser}
               />
             )}
           </div>

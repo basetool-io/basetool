@@ -36,9 +36,27 @@ export const organizationsApiSlice = createApi({
       //   }),
       //   invalidatesTags: [{ type: "Organization", id: "LIST" }],
       // }),
+      updateMemberRole: builder.mutation<
+        ApiResponse,
+        Partial<{
+          organizationId: string;
+          userId: string;
+          body: { roleId: number };
+        }>
+      >({
+        query: ({ organizationId, userId, body }) => ({
+          url: `/organizations/${organizationId}/users/${userId}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { userId }) => [
+          { type: "User", id: "LIST" },
+          { type: "User", id: userId },
+        ],
+      }),
       removeMember: builder.mutation<
         ApiResponse,
-        Partial<{ organizationId: string, userId: string }>
+        Partial<{ organizationId: string; userId: string }>
       >({
         query: ({ organizationId, userId }) => ({
           url: `/organizations/${organizationId}/users/${userId}`,
@@ -78,6 +96,7 @@ export const {
   // useGetOrganizationsQuery,
   // useAddOrganizationMutation,
   useRemoveMemberMutation,
+  useUpdateMemberRoleMutation,
   useUpdateOrganizationMutation,
   usePrefetch,
 } = organizationsApiSlice;

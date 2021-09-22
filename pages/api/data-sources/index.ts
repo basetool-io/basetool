@@ -43,12 +43,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   };
 
   const { organizations } = user;
-  const [firstOrganizationPivot] = organizations;
-  const organizationId = firstOrganizationPivot.organizationId;
+  const organizationIds = organizations.map(
+    ({ organizationId }) => organizationId
+  );
 
   const dataSources = await prisma.dataSource.findMany({
     where: {
-      organizationId,
+      organizationId: {
+        in: organizationIds,
+      },
     },
     orderBy: [
       {
