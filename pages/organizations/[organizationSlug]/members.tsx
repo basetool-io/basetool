@@ -1,7 +1,10 @@
 import { Button, Select } from "@chakra-ui/react";
-import { Organization } from "@prisma/client";
-import { useBoolean } from "react-use"
-import { useGetOrganizationQuery } from "@/features/organizations/api-slice";
+import { OWNER_ROLE } from "@/features/roles"
+import { Organization, OrganizationUser, Role, User } from "@prisma/client";
+import { PlusIcon } from "@heroicons/react/outline";
+import { isUndefined } from "lodash";
+import { useBoolean } from "react-use";
+import { useGetOrganizationQuery, useRemoveMemberMutation } from "@/features/organizations/api-slice";
 import { useOrganizationFromContext } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
@@ -9,18 +12,29 @@ import Layout from "@/components/Layout";
 import OrganizationSidebar from "@/components/OrganizationSidebar";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
-import { PlusIcon } from "@heroicons/react/outline"
+
+const RolesSelector = ({ roleId, roles, onChange }: {roleId: number, roles: Role[], onChange: (e: any) => void}) => {
+  return (
+    <Select value={roleId} onChange={onChange}>
+      {roles.map((role: Record<string, any>) => (
+        <option key={role.id} value={role.id}>
+          {role.name}
+        </option>
+      ))}
+    </Select>
+  );
+};
 
 const EditCurrentUser = ({
   organizationUser,
   organization,
-  setLocalOrgUser
+  setLocalOrgUser,
 }: {
-  organizationUser: any;
-  organization: Organization;
-  setLocalOrgUser: (user: any) => void
+  organizationUser?: any;
+  organization: Organization & {users: User[], roles: Role[]};
+  setLocalOrgUser: (user: any) => void;
 }) => {
-  const user = useMemo(() => organizationUser.user, [organizationUser]);
+  const user = useMemo(() => organizationUser?.user, [organizationUser]);
   // const [user, setUser] = useState()
   const handleSave = () => {
     console.log("handleSave");
@@ -31,13 +45,26 @@ const EditCurrentUser = ({
       ...organizationUser,
       role: {
         ...organizationUser.role,
-        id: roleId
-      }
-    })
+        id: roleId,
+      },
+    });
     // setChanges({
     //   ...local,
     //   role: roleId
     // })
+  };
+
+  const [removeMember, { isLoading: isRemoving }] = useRemoveMemberMutation();
+
+  const handleDelete = async () => {
+    if (isRemoving) return
+
+    if (confirm("Are you sure you want to remove this member?")) {
+      await removeMember({
+        organizationId: organization?.id?.toString(),
+        userId: organizationUser.id,
+      });
+    }
   };
 
   return (
@@ -50,18 +77,11 @@ const EditCurrentUser = ({
                 {user.firstName} {user.lastName}
               </PageWrapper.Heading>
               <div className="mb-2">Email: {user.email}</div>
-              <Select
-                value={organizationUser.role?.id}
-                onChange={(e) => {
-                  changeUserRole(e.currentTarget.value);
-                }}
-              >
-                {organization.roles.map((role: Record<string, any>) => (
-                  <option key={role.id} value={role.id}>
-                    {role.name}
-                  </option>
-                ))}
-              </Select>
+              <RolesSelector
+                roleId={organizationUser.role?.id}
+                roles={organization?.roles}
+                onChange={(e: any) => changeUserRole(e.currentTarget.value)}
+              />
             </PageWrapper.Section>
           </>
         )}
@@ -70,17 +90,16 @@ const EditCurrentUser = ({
       </div>
 
       <div className="grid grid-cols-3">
-        <div></div>
-        {/* <div>
-          {!isCreateForm && !isAdminRole && (
+        <div>
+          {organizationUser?.role?.name !== OWNER_ROLE && (
             <a
               className="text-red-600 text-sm cursor-pointer"
-              onClick={() => !isDeleting && handleDelete()}
+              onClick={handleDelete}
             >
-              Remove role
+              Remove member
             </a>
           )}
-        </div> */}
+        </div>
         <Button colorScheme="blue" size="sm" width="300px" onClick={handleSave}>
           Save
         </Button>
@@ -120,11 +139,17 @@ function Members() {
     () => currentOrganizationUser?.user,
     [currentOrganizationUser]
   );
-  const [localOrgUser, setLocalOrgUser] = useState()
+  const [localOrgUser, setLocalOrgUser] = useState();
 
   useEffect(() => {
-    setLocalOrgUser(currentOrganizationUser)
-  }, [currentOrganizationUser])
+    if (isUndefined(currentUserId) && organization?.users?.length > 0) {
+      setCurrentUserId(organization.users[0]?.user?.id);
+    }
+  }, []);
+
+  useEffect(() => {
+    setLocalOrgUser(currentOrganizationUser);
+  }, [currentOrganizationUser]);
 
   return (
     <Layout sidebar={<OrganizationSidebar organization={organization} />}>
@@ -138,13 +163,13 @@ function Members() {
             <div className="w-full relative p-4">
               <div className="mb-2">Members</div>
               {organization?.users &&
-                organization?.users.map((user, idx: number) => (
+                organization?.users.map((user: OrganizationUser, idx: number) => (
                   <ColumnListItem
                     key={user?.user?.id}
-                    active={user?.user?.id === currentUserId}
+                    active={user?.user?.id === currentUserId && !addNew}
                     onClick={() => {
                       setCurrentUserId(user?.user?.id);
-                      // toggleAddNew(false);
+                      toggleAddNew(false);
                     }}
                   >
                     {user?.user?.firstName} {user?.user?.lastName}
@@ -163,9 +188,15 @@ function Members() {
             </div>
           </div>
           <div className="flex-1 p-4">
-            {localOrgUser && organization && (
+            {!addNew && localOrgUser && organization && (
               <EditCurrentUser
                 organizationUser={localOrgUser}
+                organization={organization}
+                setLocalOrgUser={setLocalOrgUser}
+              />
+            )}
+            {addNew && organization && (
+              <EditCurrentUser
                 organization={organization}
                 setLocalOrgUser={setLocalOrgUser}
               />

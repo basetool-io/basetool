@@ -81,7 +81,6 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const { dataSourceId } = router.query as string;
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
   // const visible = true;

@@ -7,7 +7,7 @@ export const organizationsApiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["Organization"],
+  tagTypes: ["Organization", "User"],
   endpoints(builder) {
     return {
       getOrganization: builder.query<
@@ -19,6 +19,7 @@ export const organizationsApiSlice = createApi({
         },
         providesTags: (result, error, { organizationId }) => [
           { type: "Organization", id: organizationId },
+          { type: "User", id: "LIST" },
         ],
       }),
       // getOrganizations: builder.query<ApiResponse, void>({
@@ -35,19 +36,19 @@ export const organizationsApiSlice = createApi({
       //   }),
       //   invalidatesTags: [{ type: "Organization", id: "LIST" }],
       // }),
-      // removeOrganization: builder.mutation<
-      //   ApiResponse,
-      //   Partial<{ organizationId: string }>
-      // >({
-      //   query: ({ organizationId }) => ({
-      //     url: `${apiUrl}/organizations/${organizationId}`,
-      //     method: "DELETE",
-      //   }),
-      //   invalidatesTags: (result, error, { organizationId }) => [
-      //     { type: "Organization", id: "LIST" },
-      //     { type: "Organization", id: organizationId },
-      //   ],
-      // }),
+      removeMember: builder.mutation<
+        ApiResponse,
+        Partial<{ organizationId: string, userId: string }>
+      >({
+        query: ({ organizationId, userId }) => ({
+          url: `/organizations/${organizationId}/users/${userId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { userId }) => [
+          { type: "User", id: "LIST" },
+          { type: "User", id: userId },
+        ],
+      }),
       updateOrganization: builder.mutation<
         ApiResponse,
         Partial<{
@@ -76,7 +77,7 @@ export const {
   // useSetSheetToOrganizationMutation,
   // useGetOrganizationsQuery,
   // useAddOrganizationMutation,
-  // useRemoveOrganizationMutation,
+  useRemoveMemberMutation,
   useUpdateOrganizationMutation,
   usePrefetch,
 } = organizationsApiSlice;

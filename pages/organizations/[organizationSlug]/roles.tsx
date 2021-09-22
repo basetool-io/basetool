@@ -51,7 +51,7 @@ const RoleEditor = ({
   const [role, setRole] = useState(currentRole);
   const [abilities, setAbilities] = useState<Ability["id"][]>([]);
 
-  const isAdminRole = useMemo(
+  const isOwnerRole = useMemo(
     () => currentRole?.name === OWNER_ROLE,
     [currentRole]
   );
@@ -61,7 +61,7 @@ const RoleEditor = ({
       setRole(currentRole);
     }
 
-    if (isAdminRole) {
+    if (isOwnerRole) {
       setAbilities(defaultAbilities.map(({ id }) => id));
     } else {
       // Don't try to set the abilities if you're just creating the role.
@@ -141,7 +141,7 @@ const RoleEditor = ({
                   name="name"
                   placeholder="User, Sales, Marketing or something else"
                   value={role?.name}
-                  disabled={isAdminRole}
+                  disabled={isOwnerRole}
                   onChange={(e) => {
                     setRole({
                       ...role,
@@ -149,7 +149,7 @@ const RoleEditor = ({
                     });
                   }}
                 />
-                {isAdminRole && (
+                {isOwnerRole && (
                   <FormHelperText>
                     You can't change the name of this role.
                   </FormHelperText>
@@ -176,13 +176,13 @@ const RoleEditor = ({
                       <FormLabel>Abilities</FormLabel>
                       <Stack direction="column">
                         {defaultAbilities.map(({ id, label }) => (
-                          <Checkbox isDisabled={isAdminRole} value={id}>
+                          <Checkbox isDisabled={isOwnerRole} value={id}>
                             {label}
                           </Checkbox>
                         ))}
                       </Stack>
                     </CheckboxGroup>
-                    {isAdminRole && (
+                    {isOwnerRole && (
                       <FormHelperText>
                         You can't change the name of this role.
                       </FormHelperText>
@@ -196,7 +196,7 @@ const RoleEditor = ({
       </div>
       <div className="grid grid-cols-3">
         <div>
-          {!isCreateForm && !isAdminRole && (
+          {!isCreateForm && !isOwnerRole && (
             <a
               className="text-red-600 text-sm cursor-pointer"
               onClick={() => !isDeleting && handleDelete()}

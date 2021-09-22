@@ -90,5 +90,4 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(profile));
 }
 
-// export default withSentry(IsSignedIn(handle));
 export default withMiddlewares(handle, { middlewares: [[IsSignedIn, {}]] });
