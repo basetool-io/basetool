@@ -111,6 +111,4 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withMessage("You are in!"));
 }
 
-export default withMiddlewares(handle, {
-  middlewares: [[BelongsToOrganization, {}]],
-});
+export default withMiddlewares(handle);
