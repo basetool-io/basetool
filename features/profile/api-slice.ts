@@ -10,12 +10,10 @@ export const profileApiSlice = createApi({
   endpoints(builder) {
     return {
       getProfile: builder.query({
-        query: () =>
-          `/profile`,
+        query: () => `/profile`,
         providesTags: (response) => {
           // is result available?
           if (response && response?.data) {
-
             // successful query
             return [{ type: "Profile", id: response?.data?.user?.email }];
           }
@@ -27,6 +25,4 @@ export const profileApiSlice = createApi({
   },
 });
 
-export const {
-  useGetProfileQuery,
-} = profileApiSlice;
+export const { useGetProfileQuery } = profileApiSlice;

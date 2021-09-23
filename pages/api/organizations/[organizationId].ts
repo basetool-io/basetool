@@ -42,6 +42,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         },
       },
       users: {
+        orderBy: {
+          createdAt: 'asc'
+        },
         select: {
           id: true,
           user: {

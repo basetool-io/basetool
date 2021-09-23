@@ -22,20 +22,39 @@ export const organizationsApiSlice = createApi({
           { type: "User", id: "LIST" },
         ],
       }),
-      // getOrganizations: builder.query<ApiResponse, void>({
-      //   query() {
-      //     return "/organizations";
-      //   },
-      //   providesTags: [{ type: "Organization", id: "LIST" }],
-      // }),
-      // addOrganization: builder.mutation<ApiResponse, Partial<{ body: unknown }>>({
-      //   query: ({ body }) => ({
-      //     url: `${apiUrl}/organizations`,
-      //     method: "POST",
-      //     body,
-      //   }),
-      //   invalidatesTags: [{ type: "Organization", id: "LIST" }],
-      // }),
+      inviteMember: builder.mutation<
+        ApiResponse,
+        Partial<{
+          organizationId: string;
+          body: { email: string; roleId: number };
+        }>
+      >({
+        query: ({ organizationId, body }) => ({
+          url: `/organizations/${organizationId}/users`,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: (response) => [
+          {
+            type: "Organization",
+            id: response?.data?.organizationUser?.organizationId,
+          },
+          { type: "User", id: "LIST" },
+        ],
+      }),
+      acceptInvitation: builder.mutation<
+        ApiResponse,
+        Partial<{
+          organizationId: string;
+          body: { uuid: string; formData: {email: string; firstName: number; lastName: string; password: string } };
+        }>
+      >({
+        query: ({ organizationId, body }) => ({
+          url: `/organizations/${organizationId}/invitations`,
+          method: "POST",
+          body,
+        }),
+      }),
       updateMemberRole: builder.mutation<
         ApiResponse,
         Partial<{
@@ -90,12 +109,9 @@ export const organizationsApiSlice = createApi({
 
 export const {
   useGetOrganizationQuery,
-  // useGetAuthUrlQuery,
-  // useGetSheetsQuery,
-  // useSetSheetToOrganizationMutation,
-  // useGetOrganizationsQuery,
-  // useAddOrganizationMutation,
+  useAcceptInvitationMutation,
   useRemoveMemberMutation,
+  useInviteMemberMutation,
   useUpdateMemberRoleMutation,
   useUpdateOrganizationMutation,
   usePrefetch,

@@ -36,6 +36,22 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const organizationUser = await prisma.organizationUser.findUnique({
+    where: {
+      id: parseInt(req.query.organizationUserId as string, 10),
+    },
+    select: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+  if (!organizationUser)
+    return res.send(ApiResponse.withError("Invalid user."));
+
+  // Get the owner role
   const ownerRoles = await prisma.role.findMany({
     where: {
       name: OWNER_ROLE,
@@ -43,7 +59,8 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     },
   });
   const ownerRoleId = ownerRoles[0].id;
-  const response = await prisma.user.deleteMany({
+  // remove the organization user that is not an owner
+  await prisma.organizationUser.deleteMany({
     where: {
       AND: {
         id: parseInt(req.query.organizationUserId as string, 10),
@@ -53,8 +70,14 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   });
+  // Delete the actual user
+  const response = await prisma.user.delete({
+    where: {
+      id: organizationUser.user.id,
+    },
+  });
 
-  if (response?.count) {
+  if (response) {
     return res.json(ApiResponse.withMessage("Removed."));
   }
 

@@ -1,10 +1,15 @@
-import { schema } from "@/features/organization-users/schema"
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import Joi from "joi";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
+
+export const schema = Joi.object({
+  email: Joi.string().email().required(),
+  roleId: Joi.number().required(),
+});
 
 const handle = async (
   req: NextApiRequest,
@@ -19,7 +24,7 @@ const handle = async (
 };
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const data = req.body
+  const data = req.body;
 
   if (schema) {
     const validator = schema.validate(data, { abortEarly: false });
@@ -39,4 +44,9 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
-export default withMiddlewares(handle, { middlewares: [[IsSignedIn, {}], [OwnsDataSource, {}]] });
+export default withMiddlewares(handle, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});
