@@ -1,7 +1,7 @@
-import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Checkbox } from "@chakra-ui/checkbox";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
+import { Tooltip } from "@chakra-ui/react";
 import {
   useAccessControl,
   useSelectRecords,
@@ -49,6 +49,9 @@ const RecordRow = ({
       });
     }
   };
+  // add tooltip to all buttons
+  // extract to a component
+  // same component for mobile
 
   return (
     <a
@@ -89,33 +92,35 @@ const RecordRow = ({
         </div>
       ))}
       <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
-        <ButtonGroup size="sm" variant="outline" spacing={1}>
+        <div className="flex space-x-2 items-center h-full">
           {ac.readAny("record").granted && (
             <Link
               href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
-              passHref
             >
-              <Button as="a">
-                <EyeIcon className="h-4" />
-              </Button>
+              <a>
+                <Tooltip label="View record">
+                  <div>
+                    <EyeIcon className="h-5" />
+                  </div>
+                </Tooltip>
+              </a>
             </Link>
           )}
           {ac.updateAny("record").granted && (
             <Link
               href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
-              passHref
             >
-              <Button as="a">
-                <PencilAltIcon className="h-4" />
-              </Button>
+              <a>
+                <PencilAltIcon className="h-5" />
+              </a>
             </Link>
           )}
           {ac.deleteAny("record").granted && (
-            <Button onClick={handleDelete} as="a">
-              <TrashIcon className="h-4" />
-            </Button>
+            <a onClick={handleDelete} className="cursor-pointer">
+              <TrashIcon className="h-5" />
+            </a>
           )}
-        </ButtonGroup>
+        </div>
       </div>
     </a>
   );

@@ -342,7 +342,9 @@ const RecordsTable = ({
                         </div>
                       );
                     })}
-                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></div>
+                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[84px]">
+                      &nbsp;
+                    </div>
                   </div>
                 ))}
               </div>
