@@ -27,7 +27,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const result = await prisma.organizationUser.update({
     where: {
-      id: parseInt(req.query.userId as string, 10),
+      id: parseInt(req.query.organizationUserId as string, 10),
     },
     data,
   });
@@ -43,10 +43,10 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     },
   });
   const ownerRoleId = ownerRoles[0].id;
-  const response = await prisma.organizationUser.deleteMany({
+  const response = await prisma.user.deleteMany({
     where: {
       AND: {
-        id: parseInt(req.query.userId as string, 10),
+        id: parseInt(req.query.organizationUserId as string, 10),
         NOT: {
           id: ownerRoleId,
         },
