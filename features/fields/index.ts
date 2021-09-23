@@ -144,4 +144,5 @@ export const getBaseOptions = () => ({
   readonly: false,
   placeholder: "",
   help: "",
+  label: "",
 });

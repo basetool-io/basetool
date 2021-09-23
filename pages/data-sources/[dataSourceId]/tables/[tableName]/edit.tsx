@@ -138,6 +138,28 @@ You can control where the field is visible here.`}
             </OptionWrapper>
 
             <OptionWrapper
+              helpText={`We are humanizing the name of the column from db, but if you want to change it, please write the new one here. The label is reflected on index (table header), show, edit, create views.`}
+            >
+              <FormControl id="label">
+                <FormLabel>Label</FormLabel>
+                <Input
+                  type="text"
+                  name="label value"
+                  placeholder="Label value"
+                  required={false}
+                  value={column.baseOptions.label}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.label",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+
+            <OptionWrapper
               helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
             >
               <FormControl id="placeholder">
