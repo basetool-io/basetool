@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev -p 3099",
-    "start": "next start -p 3099",
+    "dev": "next dev",
+    "start": "next start",
     "lint": "yarn tsc && next lint --quiet",
-    "try": "yarn build && yarn start -p 3099",
+    "try": "yarn build && yarn start",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "tsc && prisma migrate deploy && next build",
     "postinstall": "prisma generate"

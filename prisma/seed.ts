@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.organizationInvitation.deleteMany({});
   await prisma.dataSource.deleteMany({});
   await prisma.organizationUser.deleteMany({});
   await prisma.user.deleteMany({});
@@ -36,7 +37,7 @@ async function main() {
     lastName: string;
     password?: string;
   } = {
-    email: "ted@apple.com",
+    email: "ted.lasso@apple.com",
     firstName: "Ted",
     lastName: "Lasso",
   };
@@ -60,7 +61,7 @@ async function main() {
 
   const roy = await prisma.user.create({
     data: {
-      email: "roy@apple.com",
+      email: "roy.kent@apple.com",
       firstName: "Roy",
       lastName: "Kent",
     },

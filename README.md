@@ -13,7 +13,13 @@ cp .env.sample .env
 # set your DATABASE_URL
 # generate a SECRET with openssl rand -hex 32
 yarn prisma migrate dev
+# seed
+SEED_PASSWORD=secret yarn prisma db seed --preview-feature
 ```
+
+You may now log in with `ted.lasso@apple.com` and password `secret`.
+
+There's also a `prisma/sample-seed.sql` file that you can use to create a sample database.
 
 ## Run
 
@@ -21,4 +27,4 @@ yarn prisma migrate dev
 yarn dev
 ```
 
-Open [http://localhost:3099](http://localhost:3099) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
