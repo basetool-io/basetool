@@ -10,7 +10,7 @@ const handler = (
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) => {
-  if (req.query.error) throw new Error('Server errror')
+  if (req.query.error) throw new Error(`Server errror ${req.query.error}`)
 
   res.status(200).json({ name: 'John Doe' })
 }
