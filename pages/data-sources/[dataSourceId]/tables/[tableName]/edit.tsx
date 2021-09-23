@@ -138,7 +138,7 @@ You can control where the field is visible here.`}
             </OptionWrapper>
 
             <OptionWrapper
-              helpText={`We are humanizing the name of the column from db, but if you want to change it, please write the new one here. The label is reflected on index (table header), show, edit, create views.`}
+              helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
             >
               <FormControl id="label">
                 <FormLabel>Label</FormLabel>
