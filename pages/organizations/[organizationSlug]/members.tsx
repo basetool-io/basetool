@@ -140,13 +140,12 @@ const EditCurrentUser = ({
 
 const CreateUser = ({ organization }: { organization: CustomOrganization }) => {
   const [user, setUser] = useState({
-    email: "tim@apple.com",
+    email: "",
     roleId: organization?.roles[0]?.id,
   });
   const [inviteMember, { isLoading }] = useInviteMemberMutation();
 
   const handleInvite = async (e: any) => {
-    console.log("handleInvite->", user);
     e.preventDefault();
 
     await inviteMember({
