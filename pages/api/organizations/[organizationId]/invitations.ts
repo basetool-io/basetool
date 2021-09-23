@@ -4,7 +4,6 @@ import { hashPassword } from "@/features/auth";
 import { schema } from "@/features/organizations/invitationsSchema";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import mailgun from "@/lib/mailgun";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
