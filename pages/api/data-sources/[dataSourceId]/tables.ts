@@ -1,4 +1,4 @@
-import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
+import { ListTable, PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -30,7 +30,13 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
-  const tables = await service.getTables();
+  const tables = await service.getTables() as ListTable[];
+
+  tables.forEach((table: ListTable) => {
+    if ((dataSource.options?.tables as any)[table.name]?.label) {
+      table.label = (dataSource.options.tables as any)[table.name].label;
+    }
+  })
 
   await service.disconnect();
 

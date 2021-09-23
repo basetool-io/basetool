@@ -1,4 +1,5 @@
 import { getDataSourceFromRequest } from "@/features/api";
+import { merge } from "lodash";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
@@ -54,11 +55,21 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
+  const previousData = await prisma.dataSource.findUnique({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+  });
+
   const result = await prisma.dataSource.update({
     where: {
-      id: parseInt(req.query.id as string, 10),
+      id: parseInt(req.query.dataSourceId as string, 10),
     },
-    data,
+    data: {
+      options: {
+        tables: merge((previousData?.options as any).tables, data),
+      },
+    },
   });
 
   return res.json(ApiResponse.withData(result, { message: "Updated" }));

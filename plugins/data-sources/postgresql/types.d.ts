@@ -9,6 +9,7 @@ export type AxiosErrorWithMessage = {
 export type ListTable = {
   name: string;
   schemaname: string;
+  label?: string;
 };
 
 export type Table = {

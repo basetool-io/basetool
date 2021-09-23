@@ -7,7 +7,7 @@ export const dataSourcesApiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["DataSource", "Sheets"],
+  tagTypes: ["DataSource", "Sheets", "Table"],
   endpoints(builder) {
     return {
       getAuthUrl: builder.query<
@@ -94,18 +94,23 @@ export const dataSourcesApiSlice = createApi({
         ApiResponse,
         Partial<{
           dataSourceId: string;
-          tableName: string;
           body: unknown;
         }>
       >({
-        query: ({ dataSourceId, tableName, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/dataSources/${dataSourceId}`,
+        query: ({ dataSourceId, body }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}`,
           method: "PUT",
           body,
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
-          { type: "DataSource", id: dataSourceId },
+          { type: "Table", id: dataSourceId },
         ],
+      }),
+      getTables: builder.query<ApiResponse, {dataSourceId: string}>({
+        query({dataSourceId}) {
+          return `/data-sources/${dataSourceId}/tables`
+        },
+        providesTags: (response, error, { dataSourceId }) => [{ type: 'Table', id: dataSourceId }],
       }),
     };
   },
@@ -120,5 +125,6 @@ export const {
   useAddDataSourceMutation,
   useRemoveDataSourceMutation,
   useUpdateDataSourceMutation,
+  useGetTablesQuery,
   usePrefetch,
 } = dataSourcesApiSlice;

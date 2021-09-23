@@ -10,12 +10,6 @@ export const tablesApiSlice = createApi({
   tagTypes: ['Table', 'TableColumns'],
   endpoints(builder) {
     return {
-      getTables: builder.query<ApiResponse, {dataSourceId: string}>({
-        query({dataSourceId}) {
-          return `/data-sources/${dataSourceId}/tables`
-        },
-        providesTags: (response, error, { dataSourceId }) => [{ type: 'Table', id: dataSourceId }],
-      }),
       getColumns: builder.query<ApiResponse, {dataSourceId: string, tableName: string}>({
         query({ dataSourceId, tableName }) {
           return `/data-sources/${dataSourceId}/tables/${tableName}/columns`
@@ -37,7 +31,6 @@ export const tablesApiSlice = createApi({
 })
 
 export const {
-  useGetTablesQuery,
   useGetColumnsQuery,
   useUpdateColumnsMutation,
   usePrefetch,
