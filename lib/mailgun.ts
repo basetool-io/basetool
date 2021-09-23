@@ -19,7 +19,7 @@ class EmailService {
   public client: Client;
 
   constructor() {
-    this.domain = "basetool.io";
+    this.domain = process.env.MAILGUN_DOMAIN as string;
     this.from = "Basetool <adrian@basetool.io>";
 
     const mailgun = new Mailgun(formData);
