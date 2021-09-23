@@ -152,6 +152,11 @@ const CreateUser = ({ organization }: { organization: CustomOrganization }) => {
       organizationId: organization.id.toString(),
       body: user,
     });
+
+    setUser({
+      email: "",
+      roleId: organization?.roles[0]?.id,
+    });
   };
 
   return (
