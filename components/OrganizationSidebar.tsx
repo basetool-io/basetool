@@ -50,13 +50,13 @@ function OrganizationSidebar({organization}: {organization?: Organization}) {
         /> */}
         <Item
           label="Members"
-          link={`/organizations/${organization?.slug}/members`}
+          link={organization?.slug ? `/organizations/${organization?.slug}/members` : ''}
           icon={<UserGroupIcon className="h-4" />}
           description="The more the merrier"
         />
         <Item
           label="Roles"
-          link={`/organizations/${organization?.slug}/roles`}
+          link={organization?.slug ? `/organizations/${organization?.slug}/roles` : ''}
           icon={<ShieldCheckIcon className="h-4" />}
           description="You might allow some members to do some things and others not"
         />

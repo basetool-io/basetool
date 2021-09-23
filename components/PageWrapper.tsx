@@ -21,7 +21,7 @@ const Blocks = ({ children }: { children: ReactNode }) => (
 
 const Block = ({ href, children, onMouseOver }: { href?: string; children: ReactNode, onMouseOver?: () => void }) => {
   const content = (
-    <div className="rounded-md border shadow-glow bg-true-gray-50 p-4 h-full" onMouseOver={onMouseOver}>{children}</div>
+    <div className="rounded-md border bg-true-gray-50 hover:bg-true-gray-100 hover:border-true-gray-300 p-4 h-full" onMouseOver={onMouseOver}>{children}</div>
   );
 
   if (href)
