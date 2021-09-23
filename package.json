@@ -9,7 +9,7 @@
     "lint": "yarn tsc && next lint --quiet",
     "try": "yarn build && yarn start",
     "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
-    "vercel-build": "tsc && prisma migrate deploy && next build",
+    "vercel-build": "prisma migrate deploy && next build",
     "postinstall": "prisma generate"
   },
   "dependencies": {
