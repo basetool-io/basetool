@@ -10,7 +10,8 @@ export type FieldType =
   | "Select"
   | "Textarea"
   | "Json"
-  | "Association";
+  | "Association"
+  | "ProgressBar";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
