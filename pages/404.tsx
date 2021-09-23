@@ -7,7 +7,7 @@ import React from "react";
 function Custom404() {
   return (
     <PublicLayout>
-      <div className="flex w-full h-full md:items-center">
+      <div className="flex w-full h-full">
         <PageWrapper className="flex md:max-h-64" flush={true}>
           <div className="flex flex-col md:flex-row h-full">
             <div className="md:w-1/2 p-2">
