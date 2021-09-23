@@ -7,8 +7,8 @@ import React from "react";
 function Custom404() {
   return (
     <PublicLayout>
-      <div className="flex w-full h-full">
-        <PageWrapper className="flex md:max-h-64" flush={true}>
+      <div className="flex w-full h-full md:items-center">
+        <PageWrapper className="flex md:max-h-64 md:transform md:-translate-y-1/2" flush={true}>
           <div className="flex flex-col md:flex-row h-full">
             <div className="md:w-1/2 p-2">
               <h1 className="text-2xl">404 - Missing page. Maybe the cat has something to do with it?</h1>
