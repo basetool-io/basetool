@@ -1,18 +1,23 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { withSentry } from '@sentry/nextjs'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { captureException, withSentry } from "@sentry/nextjs";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  name: string
-}
+const handler = (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.query.error) throw new Error(`hey errror ${req.query.error}`);
+  if (req.query.lol) {
+    try {
+      throw new Error(`Lol errror ${req.query.lol}`);
+    } catch (error) {
+      captureException(error);
 
-const handler = (
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) => {
-  if (req.query.error) throw new Error(`Server errror ${req.query.error}`)
+      return res.json({
+        message: `There's been an error ${req.query.lol}`,
+        error,
+      });
+    }
+  }
 
-  res.status(200).json({ name: 'John Doe' })
-}
+  res.status(200).json({ name: "John Doe" });
+};
 
-export default withSentry(handler)
+export default withSentry(handler);
