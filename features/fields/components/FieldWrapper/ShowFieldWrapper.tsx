@@ -1,6 +1,6 @@
 import { Field } from "../../types";
 import { ReactNode, useMemo } from "react";
-import { iconForField } from "../..";
+import { getColumnNameLabel, iconForField } from "../..";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import { useResponsive } from "@/hooks";
 
@@ -14,7 +14,7 @@ const ShowFieldWrapper = ({
   extra?: ReactNode;
 }) => {
   const prettyColumnName = useMemo(
-    () => (field?.column?.baseOptions?.label ? field?.column?.baseOptions?.label : (field?.column?.label ? field?.column?.label : field?.column?.name)),
+    () => (getColumnNameLabel(field?.column?.baseOptions?.label, field?.column?.label, field?.column?.name)),
     [field?.column?.baseOptions?.label, field?.column?.label]
   );
 
