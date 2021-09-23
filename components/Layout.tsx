@@ -11,10 +11,11 @@ import SettingsSidebar from "./SettingsSidebar";
 import Sidebar from "./Sidebar";
 import classNames from "classnames"
 
-function Layout({ children }: { children: ReactNode }) {
+function Layout({ children, hideSidebar = false }: { children: ReactNode, hideSidebar?: boolean }) {
   const router = useRouter();
   const [session, sessionIsLoading] = useSession();
   const tablesSidebarVisible = useMemo(() => {
+    if (hideSidebar) return false;
     if (router.pathname.includes("/profile")) return false;
     if (router.pathname.includes("/settings")) return false;
     if (router.pathname === "/data-sources") return false;

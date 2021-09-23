@@ -168,4 +168,3 @@ export const useSelectRecords = () => {
 
   return {selectedRecords, toggleRecordSelection, setRecordsSelected, resetRecordsSelection};
 };
-
