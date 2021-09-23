@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
+import { Button, ButtonGroup, Checkbox } from "@chakra-ui/react";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
@@ -106,11 +106,9 @@ const MobileRow = ({
               href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
               passHref
             >
-              <Tooltip label={"View record"} placement="bottom" gutter={10}>
-                <Button as="a">
-                  <EyeIcon className="h-4.5" />
-                </Button>
-              </Tooltip>
+              <Button as="a">
+                <EyeIcon className="h-4.5" />
+              </Button>
             </Link>
           )}
           {ac.updateAny("record").granted && (
@@ -118,19 +116,15 @@ const MobileRow = ({
               href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
               passHref
             >
-              <Tooltip label={"Edit record"} placement="bottom" gutter={10}>
-                <Button as="a">
-                  <PencilAltIcon className="h-4.5" />
-                </Button>
-              </Tooltip>
+              <Button as="a">
+                <PencilAltIcon className="h-4.5" />
+              </Button>
             </Link>
           )}
           {ac.deleteAny("record").granted && (
-            <Tooltip label={"Delete record"} placement="bottom" gutter={10}>
-              <Button onClick={handleDelete} as="a">
-                <TrashIcon className="h-4.5" />
-              </Button>
-            </Tooltip>
+            <Button onClick={handleDelete} as="a">
+              <TrashIcon className="h-4.5" />
+            </Button>
           )}
         </ButtonGroup>
       </div>
