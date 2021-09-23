@@ -292,7 +292,7 @@ function Members() {
                         toggleAddNew(false);
                       }}
                     >
-                      {userLabel(user)}
+                      {userLabel(user as any)}
                     </ColumnListItem>
                   )
                 )}
