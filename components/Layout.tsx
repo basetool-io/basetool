@@ -64,7 +64,7 @@ function Layout({
     <Authenticated>
       <>
         <Head>
-          <title>👋 Hi!</title>
+          <title>👋 Basetool!</title>
           <meta name="description" content="The Airtable to your database" />
           <link rel="icon" href="/favicon.ico" />
         </Head>

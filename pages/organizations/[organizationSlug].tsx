@@ -1,18 +1,22 @@
-import { useOrganizationFromContext } from "@/hooks"
-import { useRouter } from "next/router"
+import { useOrganizationFromContext } from "@/hooks";
+import { useRouter } from "next/router";
+import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock"
 import Layout from "@/components/Layout";
-import OrganizationSidebar from "@/components/OrganizationSidebar"
 import PageWrapper from "@/components/PageWrapper";
 import React from "react";
 
 function OrganizationShow() {
-  const router = useRouter()
-  const organization = useOrganizationFromContext({ slug: (router.query.organizationSlug as string) });
+  const router = useRouter();
+  const organization = useOrganizationFromContext({
+    slug: router.query.organizationSlug as string,
+  });
 
   return (
-    <Layout sidebar={<OrganizationSidebar organization={organization} />}>
+    <Layout hideSidebar={true}>
       <PageWrapper crumbs={[organization?.name, "General"]}>
-        <>Nothing to do here yet.</>
+        <>
+          <DataSourcesBlock />
+        </>
       </PageWrapper>
     </Layout>
   );

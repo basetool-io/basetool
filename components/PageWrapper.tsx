@@ -62,6 +62,7 @@ function PageWrapper({
   icon,
   flush = false,
   isLoading = false,
+  className
 }: {
   heading?: string | ReactElement;
   crumbs?: Array<string | undefined>;
@@ -70,18 +71,19 @@ function PageWrapper({
   icon?: ReactElement;
   flush?: boolean;
   isLoading?: boolean;
+  className?: string;
 }) {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
 
   return (
     <>
-      <div className="flex flex-col flex-1 px-2 py-2 min-w-64 w-full">
+      <div className={classNames("flex flex-col flex-1 px-2 py-2 min-w-64 w-full", className)}>
         <div
           className={classNames(
             "flex flex-1 flex-col bg-white shadow sm:rounded-lg"
           )}
         >
-          <div
+          {(heading || crumbs || icon) && <div
             className={classNames(
               "flex justify-between border-b p-4 flex-col md:flex-row space-y-2 md:space-y-0"
             )}
@@ -105,7 +107,7 @@ function PageWrapper({
             <div className="flex justify-start md:justify-end items-center">
               {buttons}
             </div>
-          </div>
+          </div>}
           <div
             className={classNames("flex-1 flex flex-col", {
               "px-4 py-4": !flush,
