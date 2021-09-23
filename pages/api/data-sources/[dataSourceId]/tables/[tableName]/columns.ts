@@ -64,8 +64,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       "options",
       "tables",
       req.query.tableName as string,
-      "columns",
     ]);
+
+    const tableColumnOptions = tableOptions.columns;
+
     const result = await prisma.dataSource.update({
       where: {
         id: parseInt(req.query.dataSourceId as string, 10),
@@ -76,7 +78,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
           tables: {
             ...dataSource.options.tables,
             [req.query.tableName as string]: {
-              columns: merge(tableOptions, req.body.changes),
+              ...tableOptions,
+              columns: merge(tableColumnOptions, req.body.changes),
             },
           },
         },

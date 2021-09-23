@@ -1,7 +1,8 @@
 import { ListTable } from "@/plugins/data-sources/postgresql/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
+import { getLabel } from "@/features/data-sources";
+import { useGetDataSourceQuery, useGetTablesQuery } from "@/features/data-sources/api-slice";
+import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
@@ -66,11 +67,11 @@ const Sidebar = () => {
               .filter((table: ListTable) =>
                 table.schemaname ? table.schemaname === "public" : true
               )
-              .map((table: { name: string }, idx: number) => (
+              .map((table: ListTable, idx: number) => (
                 <SidebarItem
                   key={idx}
                   active={table.name === tableName}
-                  label={table.name}
+                  label={getLabel(table)}
                   link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                   onMouseOver={() => {
                     prefetchColumns({

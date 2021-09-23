@@ -14,7 +14,7 @@ import classNames from "classnames";
 function Layout({
   hideSidebar = false,
   children,
-  sidebar
+  sidebar,
 }: {
   hideSidebar?: boolean;
   children: ReactNode;
@@ -23,8 +23,8 @@ function Layout({
   const router = useRouter();
   const [session, sessionIsLoading] = useSession();
   const tablesSidebarVisible = useMemo(() => {
-    if (sidebar) return false
-    if (hideSidebar) return false
+    if (sidebar) return false;
+    if (hideSidebar) return false;
 
     if (router.pathname.includes("/profile")) return false;
     if (router.pathname === "/data-sources") return false;
