@@ -1,19 +1,9 @@
-import { Button, ButtonGroup, Checkbox } from "@chakra-ui/react";
-import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { Checkbox } from "@chakra-ui/react";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
-import { isUndefined } from "lodash";
-import {
-  useAccessControl,
-  useSelectRecords,
-  useSidebarsVisible,
-} from "@/hooks";
-import {
-  useDeleteRecordMutation,
-  usePrefetch,
-} from "@/features/records/api-slice";
-import { useRouter } from "next/router";
-import Link from "next/link";
+import { usePrefetch } from "@/features/records/api-slice";
+import { useSelectRecords, useSidebarsVisible } from "@/hooks";
+import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
 
@@ -50,25 +40,7 @@ const MobileRow = ({
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
-  const hasId = !isUndefined(row?.original?.id);
-  const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
-
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
-  const router = useRouter();
-
-  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
-  const ac = useAccessControl();
-
-  const handleDelete = async () => {
-    const confirmed = confirm("Are you sure you want to remove this record?");
-    if (confirmed) {
-      await deleteRecord({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
-        recordId: row?.original?.id,
-      });
-    }
-  };
 
   return (
     <a
@@ -87,46 +59,17 @@ const MobileRow = ({
       className={classNames("flex flex-col w-full hover:bg-gray-100 border-b", {
         "bg-white": index % 2 === 0,
         "bg-gray-50": index % 2 !== 0,
-        "cursor-pointer": hasId,
       })}
       onClick={() => setSidebarVisible(false)}
     >
-      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
-        <ButtonGroup size="md" variant="outline" spacing={1}>
-          <Button as="a">
-            <Checkbox
-              size="lg"
-              colorScheme="gray"
-              isChecked={selectedRecords.includes(row?.original?.id)}
-              onChange={(e) => toggleRecordSelection(row?.original?.id)}
-            />
-          </Button>
-          {ac.readAny("record").granted && (
-            <Link
-              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
-              passHref
-            >
-              <Button as="a">
-                <EyeIcon className="h-4.5" />
-              </Button>
-            </Link>
-          )}
-          {ac.updateAny("record").granted && (
-            <Link
-              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
-              passHref
-            >
-              <Button as="a">
-                <PencilAltIcon className="h-4.5" />
-              </Button>
-            </Link>
-          )}
-          {ac.deleteAny("record").granted && (
-            <Button onClick={handleDelete} as="a">
-              <TrashIcon className="h-4.5" />
-            </Button>
-          )}
-        </ButtonGroup>
+      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
+        <Checkbox
+          size="lg"
+          colorScheme="gray"
+          isChecked={selectedRecords.includes(row?.original?.id)}
+          onChange={(e) => toggleRecordSelection(row?.original?.id)}
+        />
+        <ItemControls recordId={row?.original?.id} />
       </div>
 
       {row.cells.map((cell) => (

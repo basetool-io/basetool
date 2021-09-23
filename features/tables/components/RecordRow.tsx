@@ -1,18 +1,13 @@
 import { Checkbox } from "@chakra-ui/checkbox";
-import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Row } from "react-table";
-import { Tooltip } from "@chakra-ui/react";
 import {
-  useAccessControl,
+  usePrefetch,
+} from "@/features/records/api-slice";
+import {
   useSelectRecords,
   useSidebarsVisible,
 } from "@/hooks";
-import {
-  useDeleteRecordMutation,
-  usePrefetch,
-} from "@/features/records/api-slice";
-import { useRouter } from "next/router";
-import Link from "next/link";
+import ItemControls from "./ItemControls";
 import React, { memo } from "react";
 import classNames from "classnames";
 
@@ -34,24 +29,6 @@ const RecordRow = ({
   prepareRow(row);
 
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
-  const router = useRouter();
-
-  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
-  const ac = useAccessControl();
-
-  const handleDelete = async () => {
-    const confirmed = confirm("Are you sure you want to remove this record?");
-    if (confirmed) {
-      await deleteRecord({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
-        recordId: row?.original?.id,
-      });
-    }
-  };
-  // add tooltip to all buttons
-  // extract to a component
-  // same component for mobile
 
   return (
     <a
@@ -92,35 +69,7 @@ const RecordRow = ({
         </div>
       ))}
       <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
-        <div className="flex space-x-2 items-center h-full">
-          {ac.readAny("record").granted && (
-            <Link
-              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}`}
-            >
-              <a>
-                <Tooltip label="View record">
-                  <div>
-                    <EyeIcon className="h-5" />
-                  </div>
-                </Tooltip>
-              </a>
-            </Link>
-          )}
-          {ac.updateAny("record").granted && (
-            <Link
-              href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row?.original?.id}/edit`}
-            >
-              <a>
-                <PencilAltIcon className="h-5" />
-              </a>
-            </Link>
-          )}
-          {ac.deleteAny("record").granted && (
-            <a onClick={handleDelete} className="cursor-pointer">
-              <TrashIcon className="h-5" />
-            </a>
-          )}
-        </div>
+        <ItemControls recordId={row?.original?.id} />
       </div>
     </a>
   );
