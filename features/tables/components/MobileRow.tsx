@@ -1,18 +1,15 @@
+import { Checkbox } from "@chakra-ui/react";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
-import { isUndefined } from "lodash";
 import { usePrefetch } from "@/features/records/api-slice";
-import { useSidebarsVisible } from "@/hooks";
-import Link from "next/link"
+import { useSelectRecords, useSidebarsVisible } from "@/hooks";
+import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
 
 const IndexFieldWrapper = ({ cell }: { cell: any }) => {
   const column = useMemo(() => cell.column?.meta, [cell]);
-  const IconElement = useMemo(
-    () => iconForField(column),
-    [column.fieldType]
-  );
+  const IconElement = useMemo(() => iconForField(column), [column.fieldType]);
 
   return (
     <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
@@ -43,10 +40,9 @@ const MobileRow = ({
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
-  const hasId = !isUndefined(row?.original?.id);
-  const link = `/data-sources/${dataSourceId}/tables/${tableName}/${row.original.id}`;
+  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
-  const rowContent = (
+  return (
     <a
       // {...row.getRowProps()}
       onMouseOver={() => {
@@ -63,21 +59,24 @@ const MobileRow = ({
       className={classNames("flex flex-col w-full hover:bg-gray-100 border-b", {
         "bg-white": index % 2 === 0,
         "bg-gray-50": index % 2 !== 0,
-        "cursor-pointer": hasId,
       })}
       onClick={() => setSidebarVisible(false)}
     >
+      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
+        <Checkbox
+          size="lg"
+          colorScheme="gray"
+          isChecked={selectedRecords.includes(row?.original?.id)}
+          onChange={(e) => toggleRecordSelection(row?.original?.id)}
+        />
+        <ItemControls recordId={row?.original?.id} />
+      </div>
+
       {row.cells.map((cell) => (
         <IndexFieldWrapper cell={cell} />
       ))}
     </a>
   );
-
-  if (hasId) {
-    return <Link href={link}>{rowContent}</Link>;
-  }
-
-  return rowContent;
 };
 
-export default memo(MobileRow)
+export default memo(MobileRow);

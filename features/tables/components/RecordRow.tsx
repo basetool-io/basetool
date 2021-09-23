@@ -1,7 +1,13 @@
 import { Checkbox } from "@chakra-ui/checkbox";
 import { Row } from "react-table";
-import { usePrefetch } from "@/features/records/api-slice";
-import { useSelectRecords, useSidebarsVisible } from "@/hooks";
+import {
+  usePrefetch,
+} from "@/features/records/api-slice";
+import {
+  useSelectRecords,
+  useSidebarsVisible,
+} from "@/hooks";
+import ItemControls from "./ItemControls";
 import React, { memo } from "react";
 import classNames from "classnames";
 
@@ -22,7 +28,7 @@ const RecordRow = ({
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
-  const {selectedRecords, toggleRecordSelection} = useSelectRecords();
+  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
     <a
@@ -38,14 +44,21 @@ const RecordRow = ({
           });
         }
       }}
-      className={classNames("tr relative hover:bg-sky-50 border-b last:border-b-0", {
-        "bg-white": index % 2 === 0,
-        "bg-gray-50": index % 2 !== 0,
-      })}
+      className={classNames(
+        "tr relative hover:bg-sky-50 border-b last:border-b-0",
+        {
+          "bg-white": index % 2 === 0,
+          "bg-gray-50": index % 2 !== 0,
+        }
+      )}
       onClick={() => setSidebarVisible(false)}
     >
       <div className="td px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <Checkbox colorScheme="gray" isChecked={selectedRecords.includes(row?.original?.id)} onChange={(e) => toggleRecordSelection(row?.original?.id)} />
+        <Checkbox
+          colorScheme="gray"
+          isChecked={selectedRecords.includes(row?.original?.id)}
+          onChange={(e) => toggleRecordSelection(row?.original?.id)}
+        />
       </div>
       {row.cells.map((cell) => (
         <div
@@ -55,6 +68,9 @@ const RecordRow = ({
           {cell.render("Cell")}
         </div>
       ))}
+      <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
+        <ItemControls recordId={row?.original?.id} />
+      </div>
     </a>
   );
 };
