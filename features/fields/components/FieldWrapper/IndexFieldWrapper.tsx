@@ -1,5 +1,5 @@
 import { Field } from '../../types'
-import { ReactNode } from 'react'
+import { ReactNode, memo } from 'react'
 
 const IndexFieldWrapper = ({
   children,
@@ -12,4 +12,4 @@ const IndexFieldWrapper = ({
   </div>
 )
 
-export default IndexFieldWrapper
+export default memo(IndexFieldWrapper)

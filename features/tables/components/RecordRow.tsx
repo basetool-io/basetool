@@ -1,12 +1,5 @@
-import { Checkbox } from "@chakra-ui/checkbox";
 import { Row } from "react-table";
-import {
-  usePrefetch,
-} from "@/features/records/api-slice";
-import {
-  useSelectRecords,
-  useSidebarsVisible,
-} from "@/hooks";
+import { usePrefetch } from "@/features/records/api-slice";
 import ItemControls from "./ItemControls";
 import React, { memo } from "react";
 import classNames from "classnames";
@@ -24,11 +17,8 @@ const RecordRow = ({
   prepareRow: (row: Row) => void;
   index: number;
 }) => {
-  const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
-
-  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
     <a
@@ -51,15 +41,7 @@ const RecordRow = ({
           "bg-gray-50": index % 2 !== 0,
         }
       )}
-      onClick={() => setSidebarVisible(false)}
     >
-      <div className="td px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <Checkbox
-          colorScheme="gray"
-          isChecked={selectedRecords.includes(row?.original?.id)}
-          onChange={(e) => toggleRecordSelection(row?.original?.id)}
-        />
-      </div>
       {row.cells.map((cell) => (
         <div
           {...cell.getCellProps()}
