@@ -10,6 +10,7 @@ export type ListTable = {
   name: string;
   schemaname: string;
   label?: string;
+  authorizedRoles?: string[];
 };
 
 export type Table = {
@@ -17,6 +18,7 @@ export type Table = {
     [columnName: string]: Column
   }
   label?: string
+  authorizedRoles?: string[];
 }
 
 export type Tables = {

@@ -36,6 +36,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
       table.label = (dataSource.options.tables as any)[table.name].label;
     }
+    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.authorizedRoles) {
+      table.authorizedRoles = (dataSource.options.tables as any)[table.name].authorizedRoles;
+    }
   })
 
   await service.disconnect();

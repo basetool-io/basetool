@@ -1,15 +1,21 @@
 import {
   Button,
   ButtonGroup,
+  Checkbox,
+  CheckboxGroup,
+  Code,
   FormControl,
+  FormHelperText,
   FormLabel,
   Input,
+  Stack,
 } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { Role } from "@prisma/client";
 import { TrashIcon } from "@heroicons/react/outline";
+import { cloneDeep, isEmpty, isUndefined } from "lodash";
 import { diff } from "deep-object-diff";
 import { getLabel } from "@/features/data-sources";
-import { isEmpty } from "lodash";
 import { toast } from "react-toastify";
 import {
   useGetDataSourceQuery,
@@ -17,6 +23,7 @@ import {
   useRemoveDataSourceMutation,
   useUpdateDataSourceMutation,
 } from "@/features/data-sources/api-slice";
+import { useGetRolesQuery } from "@/features/roles/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/components/ColumnListItem";
@@ -39,7 +46,25 @@ const TableEditor = ({
   const [table, setTable] = useState(currentTable);
 
   const changes = useMemo(
-    () => diff(currentTable, table),
+    () => {
+
+      if (currentTable?.authorizedRoles && table?.authorizedRoles && !isEmpty(diff(currentTable.authorizedRoles, table.authorizedRoles))) {
+        const copyCurrentTable = {...currentTable};
+        const copyTable = {...table};
+
+        const currentTableAuthorizedRoles = [...currentTable.authorizedRoles];
+        currentTableAuthorizedRoles.sort();
+        const tableAuthorizedRoles = [...table.authorizedRoles];
+        tableAuthorizedRoles.sort();
+
+        delete copyCurrentTable.authorizedRoles;
+        delete copyTable.authorizedRoles;
+
+        return diff(copyCurrentTable, copyTable) && diff(currentTableAuthorizedRoles, tableAuthorizedRoles);
+      }
+
+      return diff(currentTable, table)
+    },
     [currentTable, table]
   );
 
@@ -49,13 +74,22 @@ const TableEditor = ({
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
+    const options = dataSourceResponse ? cloneDeep(dataSourceResponse.data.options) : {};
+
+    const mergedOptions = {
+      ...options,
+      tables: {
+        ...options.tables,
+        [table.name]: {
+          label: table.label,
+          authorizedRoles: table.authorizedRoles,
+        },
+      }
+    };
+
     await updateTable({
       dataSourceId: dataSourceId,
-      body: {
-        [currentTable.name]: {
-          label: table.label,
-        },
-      },
+      body: mergedOptions,
     });
 
     selectTable(currentTable.name);
@@ -67,9 +101,72 @@ const TableEditor = ({
     setTable(currentTable);
   }, [currentTable])
 
+  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
+    useGetDataSourceQuery(
+      { dataSourceId },
+      {
+        skip: !dataSourceId,
+      }
+    );
+
+  const {
+    data: rolesResponse,
+    isLoading: rolesIsLoading,
+    isFetching: rolesIsFetching,
+  } = useGetRolesQuery(
+    {
+      organizationId: dataSourceResponse?.data?.organizationId,
+    },
+    { skip: !dataSourceResponse?.data?.organizationId }
+  );
+
+  const roles = useMemo(
+    () => (rolesResponse?.ok ? rolesResponse?.data : []),
+    [rolesResponse]
+  );
+
+  const [checkedRoles, setCheckedRoles] = React.useState<string[]>([])
+
+  const allChecked = checkedRoles.length === roles.length && checkedRoles.length > 0;
+  const isIndeterminate = checkedRoles.length > 0 && !allChecked
+
+  const toggleAllChecked = (value: boolean) => {
+    setCheckedRoles([]);
+    if( value ) setCheckedRoles(roles.map((role: Role) => role.name));
+  }
+
+  const toggleChecked = (roleName: string) => {
+    if (checkedRoles.includes(roleName)) {
+      setCheckedRoles(checkedRoles.filter(item => item !== roleName));
+    } else {
+      setCheckedRoles([...checkedRoles, roleName]);
+    }
+  }
+
+  useEffect(() => {
+    setTable({
+      ...table,
+      authorizedRoles: checkedRoles,
+    });
+  }, [checkedRoles])
+
+  useEffect(() => {
+    if(isUndefined(currentTable.authorizedRoles)) {
+      setCheckedRoles(roles.map((role: Role) => role.name));
+    } else if(isEmpty(currentTable.authorizedRoles)){
+      setCheckedRoles([]);
+    } else {
+      const existingNames = roles.filter((role: Role) => {
+        if (currentTable.authorizedRoles) return currentTable.authorizedRoles.includes(role.name);
+      }).map((role: Role) => role.name);
+      setCheckedRoles(existingNames);
+    }
+  }, [currentTable]);
+
   return (
     <>
       <div className="w-full h-full flex flex-col justify-between">
+        {(dataSourceIsLoading || rolesIsLoading || rolesIsFetching) && <LoadingOverlay inPageWrapper />}
         <div>
           <div>
             <h3 className="uppercase text-md font-semibold">
@@ -100,6 +197,43 @@ const TableEditor = ({
                       });
                     }}
                   />
+                  <FormHelperText>Original name for this table is <Code>{table.name}</Code>.</FormHelperText>
+                </FormControl>
+              </OptionWrapper>
+
+              <OptionWrapper
+                helpText={
+                  "Tables are visible to everyone by default. You can also restrict the visibility to certain roles by selecting them from the dropdown."
+                }
+              >
+                <FormControl id="access">
+                  <FormLabel>
+                    Access by role
+                  </FormLabel>
+                  <CheckboxGroup size="md" colorScheme="gray">
+                    <Checkbox
+                      isChecked={allChecked}
+                      isIndeterminate={isIndeterminate}
+                      onChange={(e) => toggleAllChecked(e.target.checked)}
+                    >
+                      All roles
+                    </Checkbox>
+                    <Stack pl={6} mt={1} spacing={1}>
+                      {roles &&
+                        roles.map((role: Role, idx: number) => (
+                        <div className={allChecked ? "hidden" : ""}>
+                          <Checkbox
+                            id={idx.toString()}
+                            isChecked={checkedRoles.includes(role.name)}
+                            onChange={(e) => toggleChecked(role.name)}
+                            className="hidden"
+                          >
+                            {role.name}
+                          </Checkbox>
+                        </div>
+                      ))}
+                    </Stack>
+                  </CheckboxGroup>
                 </FormControl>
               </OptionWrapper>
             </form>
@@ -143,6 +277,7 @@ const TablesEditor = ({ tables }: { tables: ListTable[] }) => {
         skip: !dataSourceId,
       }
     );
+
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
     useRemoveDataSourceMutation();
 

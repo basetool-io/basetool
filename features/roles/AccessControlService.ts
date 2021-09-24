@@ -1,5 +1,6 @@
 import { AccessControl, Permission } from 'accesscontrol';
-import { isEmpty } from 'lodash';
+import { Table } from '@/plugins/data-sources/postgresql/types';
+import { isEmpty, isUndefined } from 'lodash';
 
 export type Role = {
   name: string;
@@ -58,6 +59,16 @@ export default class AccessControlService {
     if(!this.role) return this.falsePermission;
 
     return this.ac.can(this.roleName).deleteAny(record);
+  }
+
+  public canViewTable(table: Table) {
+    if(isUndefined(table.authorizedRoles)) {
+      return true;
+    } else if(isEmpty(table.authorizedRoles)){
+      return false;
+    } else {
+      return table.authorizedRoles.includes(this.roleName);
+    }
   }
 
   private getRoleAbilityLogic(ability: string): boolean | undefined {

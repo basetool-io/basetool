@@ -1,5 +1,4 @@
 import { getDataSourceFromRequest } from "@/features/api";
-import { merge } from "lodash";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
@@ -31,6 +30,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       name: true,
       type: true,
       options: true,
+      organizationId: true,
     },
   });
 
@@ -49,6 +49,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
+
   const previousData = await prisma.dataSource.findUnique({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
@@ -60,9 +61,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: {
-        tables: merge((previousData?.options as any).tables, data),
-      },
+      options: data,
     },
   });
 
