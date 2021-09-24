@@ -27,7 +27,7 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
-const CheckboxColumnCell = ({ row }: { row: Row }) => {
+const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
