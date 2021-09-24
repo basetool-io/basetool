@@ -54,7 +54,7 @@ const ResourcesIndex = memo(
     const router = useRouter();
     const checkboxColumn = {
       Header: 'record_selector',
-      accessor: (row, i) => `record_selector_${i}`,
+      accessor: (row: any, i: number) => `record_selector_${i}`,
       Cell: CheckboxColumnCell,
       width: 70,
       minWidth: 70,
