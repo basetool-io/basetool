@@ -200,7 +200,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (newUser) {
-    const invite = await prisma.organizationInvitation.create({
+    await prisma.organizationInvitation.create({
       data: {
         organizationUserId: organizationUser.id,
         uuid: uuid,

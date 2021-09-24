@@ -4,7 +4,6 @@ import { inProduction } from "./environment";
 import Client from "mailgun.js/dist/lib/client";
 import Mailgun from "mailgun.js";
 import formData from "form-data";
-import logger from "./logger"
 
 type Success = {
   id: string;
@@ -45,15 +44,6 @@ class MailgunClient implements MailClient {
   }
 
   public async send({ to, subject, text, html }: SendData) {
-    logger.debug({
-      to,
-      subject,
-      text,
-      html,
-      domain: this.domain,
-      client: this.client,
-    });
-
     return (this.client as Client).messages.create(this.domain, {
       from: this.from,
       to,
