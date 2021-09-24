@@ -441,8 +441,6 @@ class QueryService implements IQueryService {
         };
       });
 
-
-
     // refactor to get all options for field type not for field name
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
       columnsWithFieldType
