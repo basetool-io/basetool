@@ -63,11 +63,7 @@ class EmailService {
       html: html,
     };
 
-    try {
-      return this.sendMessage(body);
-    } catch (error: any) {
-      return error;
-    }
+    return this.sendMessage(body);
   }
 
   private async sendMessage({
