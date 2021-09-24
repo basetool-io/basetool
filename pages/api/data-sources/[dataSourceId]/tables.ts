@@ -36,8 +36,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   // If we have any, we'll assign the stored data to the tables we return.
   if (storedTableData) {
     tables.forEach((table) => {
-      table.label ||= storedTableData[table.name].label;
-      table.authorizedRoles ||= storedTableData[table.name].authorizedRoles;
+      if (storedTableData[table.name].label) {
+        table.label = storedTableData[table.name].label;
+      }
+      if (storedTableData[table.name].authorizedRoles) {
+        table.authorizedRoles ||= storedTableData[table.name]?.authorizedRoles;
+      }
     })
   }
 
