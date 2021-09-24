@@ -118,9 +118,16 @@ function Uuid({ invitation }: { invitation: any }) {
               </FormErrorMessage>
             </FormControl>
 
-            <Button type="submit" colorScheme="blue">
-              🚀 Join
-            </Button>
+            <div className="flex justify-center w-full">
+              <Button
+                type="submit"
+                colorScheme="blue"
+                isLoading={isLoading}
+                width="300px"
+              >
+                🚀 Join
+              </Button>
+            </div>
           </form>
         </div>
       </PageWrapper>

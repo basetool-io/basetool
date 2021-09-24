@@ -9,6 +9,7 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import BasetoolError from "@/lib/BasetoolError"
 import Joi from "joi";
+import logger from "@/lib/logger"
 import mailgun from "@/lib/mailgun";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -105,6 +106,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       html: `${req.body.formData.firstName} ${req.body.formData.lastName} has accepted your invitation to <a href="${baseUrl}/organizations/${org?.slug}">Basetool</a>.`,
     });
   } catch (error: any) {
+    logger.debug(error)
     captureMessage(`Failed to send email ${error.message}`);
   }
 
@@ -178,58 +180,55 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!user) throw new BasetoolError('Failed to create the user.')
 
-  try {
-    const organizationUser = await prisma.organizationUser.create({
+  const organizationUser = await prisma.organizationUser.create({
+    data: {
+      userId: user.id,
+      roleId: req.body.roleId,
+      organizationId: parseInt(req.query.organizationId as string),
+    },
+    select: {
+      id: true,
+      userId: true,
+      roleId: true,
+      organizationId: true,
+    },
+  });
+
+  const emailData: any = {
+    to: req.body.email,
+    subject: `🤫 You have been invited to join ${organization.name} on Basetool.io`,
+  }
+
+  if (newUser) {
+    await prisma.organizationInvitation.create({
       data: {
-        userId: user.id,
-        roleId: req.body.roleId,
-        organizationId: parseInt(req.query.organizationId as string),
+        organizationUserId: organizationUser.id,
+        uuid: uuid,
       },
       select: {
-        id: true,
-        userId: true,
-        roleId: true,
-        organizationId: true,
+        uuid: true,
       },
     });
-
-    const emailData: any = {
-      to: req.body.email,
-      subject: `🤫 You have been invited to join ${organization.name} on Basetool.io`,
-    }
-
-    if (newUser) {
-      const invite = await prisma.organizationInvitation.create({
-        data: {
-          organizationUserId: organizationUser.id,
-          uuid: uuid,
-        },
-        select: {
-          uuid: true,
-        },
-      });
-      // send email to the invited person
-      emailData.inviteUrl = `${baseUrl}/organization-invitations/${uuid}`;
-      emailData.text = `Please use the link below to join. \n ${emailData.inviteUrl}`
-      emailData.html = `Please click <a href="${emailData.inviteUrl}">here</a> to join. <br /> ${emailData.inviteUrl}`
-    } else {
-      emailData.inviteUrl = `${baseUrl}/organizations/${organization.slug}`;
-      emailData.text = `Please use the link below to join. \n ${emailData.inviteUrl}`
-      emailData.html = `Please click <a href="${emailData.inviteUrl}">here</a> to join. <br /> ${emailData.inviteUrl}`
-    }
-
-    try {
-      await mailgun.send(emailData);
-    } catch (error: any) {
-      captureMessage(`Failed to send email ${error.message}`);
-    }
-
-    return res.json(
-      ApiResponse.withMessage("User invited to join 💪")
-    );
-  } catch (error: any) {
-    return res.send(ApiResponse.withError(error.message, { meta: error }));
+    // send email to the invited person
+    emailData.inviteUrl = `${baseUrl}/organization-invitations/${uuid}`;
+    emailData.text = `Please use the link below to join. \n ${emailData.inviteUrl}`
+    emailData.html = `Please click <a href="${emailData.inviteUrl}">here</a> to join. <br /> ${emailData.inviteUrl}`
+  } else {
+    emailData.inviteUrl = `${baseUrl}/organizations/${organization.slug}`;
+    emailData.text = `Please use the link below to join. \n ${emailData.inviteUrl}`
+    emailData.html = `Please click <a href="${emailData.inviteUrl}">here</a> to join. <br /> ${emailData.inviteUrl}`
   }
+
+  try {
+    await mailgun.send(emailData);
+  } catch (error: any) {
+    logger.debug(error)
+    captureMessage(`Failed to send email ${error.message}`);
+  }
+
+  return res.json(
+    ApiResponse.withMessage("User invited to join 💪")
+  );
 }
 
 export default withMiddlewares(handler);
