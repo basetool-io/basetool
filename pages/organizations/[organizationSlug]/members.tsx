@@ -324,34 +324,6 @@ function Members() {
             )}
           </div>
         </div>
-        {/* {organization && (
-            <div className="flex-1 p-4">
-              {addNew && (
-                <RoleEditor
-                  organization={organization}
-                  selectRole={({ name }: { name: string }) => {
-                    toggleAddNew(false);
-                    setCurrentUserId(name);
-                  }}
-                />
-              )}
-              {addNew || (
-                <>
-                  {!currentRole && "👈 Please select a role"}
-                  {currentRole && (
-                    <RoleEditor
-                      organization={organization}
-                      currentRole={currentRole}
-                      selectRole={({ name }: { name: string }) => {
-                        toggleAddNew(false);
-                        setCurrentUserId(name);
-                      }}
-                    />
-                  )}
-                </>
-              )} */}
-        {/* </div> */}
-        {/* )} */}
       </PageWrapper>
     </Layout>
   );
