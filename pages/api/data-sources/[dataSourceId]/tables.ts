@@ -31,15 +31,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   await service.connect();
 
   const tables = await service.getTables() as ListTable[];
+  const storedTableData = dataSource.options.tables
 
-  tables.forEach((table: ListTable) => {
-    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
-      table.label = (dataSource.options.tables as any)[table.name].label;
-    }
-    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.authorizedRoles) {
-      table.authorizedRoles = (dataSource.options.tables as any)[table.name].authorizedRoles;
-    }
-  })
+  // If we have any, we'll assign the stored data to the tables we return.
+  if (storedTableData) {
+    tables.forEach((table) => {
+      table.label ||= storedTableData[table.name].label;
+      table.authorizedRoles ||= storedTableData[table.name].authorizedRoles;
+    })
+  }
 
   await service.disconnect();
 
