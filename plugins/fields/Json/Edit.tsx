@@ -18,7 +18,7 @@ const Edit = ({
   schema,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const { errors } = formState;
+  const errors = useMemo(() => formState.errors, [formState])
   const { name } = register;
 
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ const Edit = ({
     <EditFieldWrapper field={field} schema={schema}>
       <pre>{JSON.stringify(this, null, 2)}</pre>
       <FormControl
-        isInvalid={(hasError && formState.isDirty) || !isNull(jsonError)}
+        isInvalid={(hasError) || !isNull(jsonError)}
         id={fieldId(field)}
       >
         <Textarea
