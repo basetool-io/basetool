@@ -4,6 +4,7 @@ import { inProduction } from "./environment";
 import Client from "mailgun.js/dist/lib/client";
 import Mailgun from "mailgun.js";
 import formData from "form-data";
+import logger from "./logger";
 
 type Success = {
   id: string;
@@ -80,7 +81,15 @@ class EmailService {
     text?: string;
     html?: string;
   }) {
-    if (inProduction) {
+    if (inProduction || (process.env.NODE_ENV as string) === "preview") {
+      logger.debug({
+        to,
+        subject,
+        text,
+        html,
+        domain: this.domain,
+      });
+
       return (this.client as Client).messages.create(this.domain, {
         to,
         subject,
