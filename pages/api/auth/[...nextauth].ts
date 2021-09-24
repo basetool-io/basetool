@@ -162,7 +162,20 @@ export default NextAuth({
 
   // Events are useful for logging
   // https://next-auth.js.org/configuration/events
-  events: {},
+  events: {
+    async signIn({ user }: { user: User }) {
+      if (user?.email) {
+        await prisma.user.updateMany({
+          where: {
+            email: user.email,
+          },
+          data: {
+            lastLoggedInAt: new Date(),
+          },
+        });
+      }
+    },
+  },
 
   // You can set the theme to 'light', 'dark' or use 'auto' to default to the
   // whatever prefers-color-scheme is set to in the browser. Default is 'auto'

@@ -91,18 +91,19 @@ model Session {
 }
 
 model User {
-  id            Int                @id @default(autoincrement())
-  email         String             @unique @db.VarChar(255)
-  emailVerified DateTime?
-  password      String             @default("") @db.VarChar(255)
-  image         String?
-  firstName     String?            @db.VarChar(255)
-  lastName      String?            @db.VarChar(255)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  organizations OrganizationUser[]
-  accounts      Account[]
-  sessions      Session[]
+  id             Int                @id @default(autoincrement())
+  email          String             @unique @db.VarChar(255)
+  emailVerified  DateTime?
+  password       String             @default("") @db.VarChar(255)
+  image          String?
+  firstName      String?            @db.VarChar(255)
+  lastName       String?            @db.VarChar(255)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  lastLoggedInAt DateTime?
+  organizations  OrganizationUser[]
+  accounts       Account[]
+  sessions       Session[]
 }
 
 model VerificationRequest {
