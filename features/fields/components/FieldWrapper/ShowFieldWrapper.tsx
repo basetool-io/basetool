@@ -1,7 +1,6 @@
 import { Field } from "../../types";
 import { ReactNode, useMemo } from "react";
-import { humanize } from "@/lib/humanize";
-import { iconForField } from "../..";
+import { getColumnNameLabel, iconForField } from "../..";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import { useResponsive } from "@/hooks";
 
@@ -15,9 +14,10 @@ const ShowFieldWrapper = ({
   extra?: ReactNode;
 }) => {
   const prettyColumnName = useMemo(
-    () => (field?.column?.name ? humanize(field.column.name) : ""),
-    [field?.column?.name]
+    () => (getColumnNameLabel(field?.column?.baseOptions?.label, field?.column?.label, field?.column?.name)),
+    [field?.column?.baseOptions?.label, field?.column?.label]
   );
+
   const IconElement = useMemo(
     () => iconForField(field.column),
     [field.column.fieldType]

@@ -175,6 +175,7 @@ class QueryService implements IQueryService {
             readonly: false,
             placeholder: "",
             help: "",
+            label: "",
           },
           dataSourceInfo: {},
           fieldOptions: {},

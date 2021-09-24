@@ -1,6 +1,8 @@
 import { Column } from "../fields/types";
 import { LOCAL_STORAGE_PREFIX } from "@/lib/constants";
 import { Column as ReactTableColumn } from "react-table";
+import { getColumnNameLabel } from "../fields";
+import { useMemo } from "react";
 
 export const DEFAULT_COLUMN_WIDTH = 150;
 export const MIN_COLUMN_WIDTH = 30;
@@ -43,8 +45,13 @@ export const parseColumns = ({
       columnWidth = DEFAULT_COLUMN_WIDTH;
     }
 
+    const prettyColumnName = useMemo(
+      () => (getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name)),
+      [column?.baseOptions?.label, column?.label]
+    );
+
     return {
-      Header: column.name,
+      Header: prettyColumnName,
       accessor: column.name,
       meta: {
         ...column,
