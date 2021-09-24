@@ -1,14 +1,14 @@
 import { OrganizationUser, User } from "@prisma/client";
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -114,4 +114,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   );
 }
 
-export default withSentry(IsSignedIn(handle));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+  ],
+});

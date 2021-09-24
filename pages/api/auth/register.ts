@@ -1,14 +1,14 @@
 /* eslint-disable max-len */
 import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const successMessage = "Account created. Please sign in.";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -44,4 +44,4 @@ const handle = async (
   return res.json(ApiResponse.withMessage(successMessage));
 };
 
-export default withSentry(handle);
+export default withMiddlewares(handler);

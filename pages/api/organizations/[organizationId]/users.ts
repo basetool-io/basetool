@@ -1,6 +1,7 @@
 import { baseUrl } from "@/features/api/urls";
-import { captureMessage, withSentry } from "@sentry/nextjs";
+import { captureMessage } from "@sentry/nextjs";
 import { v4 as uuidv4 } from "uuid";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -9,7 +10,7 @@ import mailgun from "@/lib/mailgun";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -123,4 +124,9 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-export default withSentry(IsSignedIn(BelongsToOrganization(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [BelongsToOrganization, {}],
+  ],
+});

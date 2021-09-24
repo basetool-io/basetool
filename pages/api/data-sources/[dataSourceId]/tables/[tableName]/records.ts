@@ -1,13 +1,13 @@
 import { decodeObject } from "@/lib/encoding";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -85,4 +85,9 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});
