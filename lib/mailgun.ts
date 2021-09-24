@@ -55,6 +55,7 @@ class MailgunClient implements MailClient {
     });
 
     return (this.client as Client).messages.create(this.domain, {
+      from: this.from,
       to,
       subject,
       text,
