@@ -1,9 +1,8 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { captureException } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
+import { inProduction } from "@/lib/environment";
 import ApiResponse from "./ApiResponse";
-// import BelongsToOrganization from "./middlewares/BelongsToOrganization";
-// import GetSubdomain from "./middlewares/GetSubdomain";
 
 export type MiddlewareTuple = [
   (
@@ -13,10 +12,7 @@ export type MiddlewareTuple = [
   Record<string, unknown>
 ];
 
-const startMiddlewares: MiddlewareTuple[] = [
-  // [BelongsToOrganization, {}],
-  // [GetSubdomain, {}],
-];
+const startMiddlewares: MiddlewareTuple[] = [];
 
 const endMiddlewares: MiddlewareTuple[] = [];
 
@@ -45,16 +41,18 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
-      if (!res.headersSent) {
-        captureException(error);
+      if (inProduction) {
+        if (!res.headersSent) {
+          captureException(error);
 
-        return res
-          .status(405)
-          .send(
+          return res.status(405).send(
             ApiResponse.withError(errorResponse, {
               meta: { errorMessage: error.message, error },
             })
           );
+        }
+      } else {
+        throw error;
       }
     }
   };
