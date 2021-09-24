@@ -1,5 +1,4 @@
 import { getDataSourceFromRequest } from "@/features/api";
-import { merge } from "lodash";
 import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
