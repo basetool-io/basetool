@@ -432,6 +432,7 @@ class QueryService implements IQueryService {
         fieldType: getFieldTypeFromColumnInfo(column),
       }));
 
+    // refactor to get all options for field type not for field name
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
       columnsWithFieldType
     );
@@ -474,6 +475,7 @@ class QueryService implements IQueryService {
           },
         };
 
+        // move this above/. this is a bug
         if (storedColumn?.fieldType) {
           newColumn.fieldType = storedColumn.fieldType;
         }
