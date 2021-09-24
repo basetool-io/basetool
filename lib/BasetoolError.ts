@@ -1,9 +1,9 @@
 class BasetoolError extends Error {
   public links?: string[];
 
-  constructor(message: string, data: { links?: string[] }) {
+  constructor(message: string, data?: { links?: string[] }) {
     super(message);
-    this.links = data.links;
+    this.links = data?.links;
   }
 }
 
