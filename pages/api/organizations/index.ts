@@ -39,7 +39,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     ({ organization }) => organization
   );
 
-  res.json(ApiResponse.withData((organizations) || []));
+  res.json(ApiResponse.withData(organizations || []));
 }
 
 export default withSentry(IsSignedIn(handle));

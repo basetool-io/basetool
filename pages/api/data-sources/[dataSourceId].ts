@@ -31,12 +31,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       name: true,
       type: true,
       options: true,
-      // users: {
-      //   include: {
-      //     user: true,
-      //     role: true,
-      //   },
-      // },
     },
   });
 

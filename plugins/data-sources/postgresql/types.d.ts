@@ -16,6 +16,7 @@ export type Table = {
   columns?: {
     [columnName: string]: Column
   }
+  label?: string
 }
 
 export type Tables = {

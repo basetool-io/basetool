@@ -33,20 +33,20 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           role: {
             select: {
               name: true,
-              options: true
-            }
-          }
+              options: true,
+            },
+          },
         },
       },
     },
   })) as User & {
-    organizations: Array<OrganizationUser & {role: Role}>;
+    organizations: Array<OrganizationUser & { role: Role }>;
   };
 
   const role = user.organizations[0].role;
   const ac = new AccessControlService(role as ACRole);
 
-  if(!ac.readAny("record").granted) return res.status(403).send("");
+  if (!ac.readAny("record").granted) return res.status(403).send("");
 
   const dataSource = await getDataSourceFromRequest(req);
 
@@ -122,6 +122,5 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     })
   );
 }
-
 
 export default withSentry(IsSignedIn(OwnsDataSource(handle)));

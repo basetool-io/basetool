@@ -33,7 +33,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const tables = await service.getTables() as ListTable[];
 
   tables.forEach((table: ListTable) => {
-    if ((dataSource.options?.tables as any)[table.name]?.label) {
+    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
       table.label = (dataSource.options.tables as any)[table.name].label;
     }
   })

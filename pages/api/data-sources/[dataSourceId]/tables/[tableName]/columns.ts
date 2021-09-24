@@ -3,7 +3,6 @@ import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withSentry } from "@sentry/nextjs";
 import ApiResponse from "@/features/api/ApiResponse";
-import HandlesErrors from "@/features/api/middlewares/HandlesErrors"
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
@@ -66,7 +65,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       req.query.tableName as string,
     ]);
 
-    const tableColumnOptions = tableOptions.columns;
+    const tableColumnOptions = tableOptions?.columns;
 
     const result = await prisma.dataSource.update({
       where: {
@@ -92,4 +91,4 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(HandlesErrors(IsSignedIn(OwnsDataSource(handle))));
+export default withSentry(IsSignedIn(OwnsDataSource(handle)));

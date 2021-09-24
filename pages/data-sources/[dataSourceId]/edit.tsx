@@ -171,11 +171,7 @@ const TablesEditor = ({ tables }: { tables: ListTable[] }) => {
   return (
     <>
       <PageWrapper
-        heading={
-          <PageWrapper.TitleCrumbs
-            crumbs={[dataSourceResponse?.data?.name, "Edit"]}
-          />
-        }
+        crumbs={[dataSourceResponse?.data?.name, "Edit"]}
         buttons={
           <ButtonGroup size="sm">
             <BackButton href={backLink} />

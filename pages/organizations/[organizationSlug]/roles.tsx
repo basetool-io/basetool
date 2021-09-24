@@ -8,9 +8,9 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
-import { ChevronRightIcon, PlusIcon } from "@heroicons/react/outline";
 import { OWNER_ROLE, defaultAbilities } from "@/features/roles";
 import { Organization, Role } from "@prisma/client";
+import { PlusIcon } from "@heroicons/react/outline";
 import { diff } from "deep-object-diff";
 import { isEmpty, isFunction, omit } from "lodash";
 import { useBoolean } from "react-use";
@@ -20,14 +20,15 @@ import {
   useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/features/roles/api-slice";
+import { useOrganizationFromContext } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OrganizationSidebar from "@/components/OrganizationSidebar";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export type Ability = {
   id: string;
@@ -46,12 +47,11 @@ const RoleEditor = ({
     | { id: ""; name: string; options: Record<string, unknown> };
   selectRole: (payload: { name: string }) => void;
 }) => {
-  const organizationId = organization.id;
   const isCreateForm = currentRole.id === "";
   const [role, setRole] = useState(currentRole);
   const [abilities, setAbilities] = useState<Ability["id"][]>([]);
 
-  const isAdminRole = useMemo(
+  const isOwnerRole = useMemo(
     () => currentRole?.name === OWNER_ROLE,
     [currentRole]
   );
@@ -61,7 +61,7 @@ const RoleEditor = ({
       setRole(currentRole);
     }
 
-    if (isAdminRole) {
+    if (isOwnerRole) {
       setAbilities(defaultAbilities.map(({ id }) => id));
     } else {
       // Don't try to set the abilities if you're just creating the role.
@@ -88,7 +88,7 @@ const RoleEditor = ({
 
     if (isCreateForm) {
       const response = await createRole({
-        organizationId: organizationId.toString(),
+        organizationId: organization?.id.toString(),
         body: {
           changes: omit(role, ["id"]),
         },
@@ -96,7 +96,7 @@ const RoleEditor = ({
       selectRole({ name: (response as any)?.data?.data?.name });
     } else {
       const response = await updateRole({
-        organizationId: organizationId.toString(),
+        organizationId: organization?.id.toString(),
         roleId,
         body: {
           changes: role,
@@ -108,7 +108,10 @@ const RoleEditor = ({
 
   const handleDelete = async () => {
     if (confirm("Are you sure you want to remove this role?")) {
-      await deleteRole({ organizationId: organizationId.toString(), roleId });
+      await deleteRole({
+        organizationId: organization?.id?.toString(),
+        roleId,
+      });
 
       if (isFunction(selectRole)) selectRole({ name: OWNER_ROLE });
     }
@@ -138,7 +141,7 @@ const RoleEditor = ({
                   name="name"
                   placeholder="User, Sales, Marketing or something else"
                   value={role?.name}
-                  disabled={isAdminRole}
+                  disabled={isOwnerRole}
                   onChange={(e) => {
                     setRole({
                       ...role,
@@ -146,7 +149,7 @@ const RoleEditor = ({
                     });
                   }}
                 />
-                {isAdminRole && (
+                {isOwnerRole && (
                   <FormHelperText>
                     You can't change the name of this role.
                   </FormHelperText>
@@ -173,13 +176,13 @@ const RoleEditor = ({
                       <FormLabel>Abilities</FormLabel>
                       <Stack direction="column">
                         {defaultAbilities.map(({ id, label }) => (
-                          <Checkbox isDisabled={isAdminRole} value={id}>
+                          <Checkbox isDisabled={isOwnerRole} value={id}>
                             {label}
                           </Checkbox>
                         ))}
                       </Stack>
                     </CheckboxGroup>
-                    {isAdminRole && (
+                    {isOwnerRole && (
                       <FormHelperText>
                         You can't change the name of this role.
                       </FormHelperText>
@@ -193,7 +196,7 @@ const RoleEditor = ({
       </div>
       <div className="grid grid-cols-3">
         <div>
-          {!isCreateForm && !isAdminRole && (
+          {!isCreateForm && !isOwnerRole && (
             <a
               className="text-red-600 text-sm cursor-pointer"
               onClick={() => !isDeleting && handleDelete()}
@@ -218,27 +221,23 @@ const RoleEditor = ({
   );
 };
 
-const Heading = ({name}: {name?: string}) => <>{name || ''} {<ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />} Settings {<ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />} Roles</>
-
 function Roles() {
   const router = useRouter();
-  const { organizationId } = router.query;
-  const profile = useContext(ProfileContext);
+  const organization = useOrganizationFromContext({
+    slug: router.query.organizationSlug as string,
+  });
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
   const [currentRoleName, setCurrentRoleName] = useState<string>(OWNER_ROLE);
-  const organization: any = useMemo(
-    () =>
-      profile?.organizations?.find(
-        (o: Organization) => o.id === parseInt(organizationId as string)
-      ),
-    [profile.organizations, organizationId]
-  );
 
-  const { data: rolesResponse, isLoading, isFetching } = useGetRolesQuery(
+  const {
+    data: rolesResponse,
+    isLoading,
+    isFetching,
+  } = useGetRolesQuery(
     {
-      organizationId: organizationId?.toString(),
+      organizationId: organization?.id?.toString(),
     },
-    { skip: !organizationId }
+    { skip: !organization?.id }
   );
 
   const roles = useMemo(
@@ -251,8 +250,8 @@ function Roles() {
   );
 
   return (
-    <Layout>
-      <PageWrapper heading={organization?.name ? <Heading name={organization?.name} /> : ''} flush={true}>
+    <Layout sidebar={<OrganizationSidebar organization={organization} />}>
+      <PageWrapper crumbs={[organization?.name, "Roles"]} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
           {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
           <div className="flex flex-shrink-0 w-1/4 border-r">
