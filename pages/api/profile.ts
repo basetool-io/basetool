@@ -7,7 +7,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -32,6 +32,30 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
               id: true,
               name: true,
               slug: true,
+              users: {
+                select: {
+                  id: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                  role: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+              dataSources: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           role: {
@@ -66,5 +90,4 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(profile));
 }
 
-// export default withSentry(IsSignedIn(handle));
-export default withMiddlewares(handle, { middlewares: [[IsSignedIn, {}]] });
+export default withMiddlewares(handler, { middlewares: [[IsSignedIn, {}]] });

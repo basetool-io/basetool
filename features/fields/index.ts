@@ -151,4 +151,12 @@ export const getBaseOptions = () => ({
   readonly: false,
   placeholder: "",
   help: "",
+  label: "",
 });
+
+export const getColumnNameLabel = (baseOptionsLabel: string, label: string, name: string) => {
+  if (baseOptionsLabel) return baseOptionsLabel;
+  if (label) return label;
+
+  return name;
+};

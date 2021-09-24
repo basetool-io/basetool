@@ -1,8 +1,9 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { withSentry } from "@sentry/nextjs";
+import { captureException } from "@sentry/nextjs";
+import { errorResponse } from "@/lib/messages";
+import ApiResponse from "./ApiResponse";
 // import BelongsToOrganization from "./middlewares/BelongsToOrganization";
 // import GetSubdomain from "./middlewares/GetSubdomain";
-import HandlesErrors from "./middlewares/HandlesErrors";
 
 export type MiddlewareTuple = [
   (
@@ -17,10 +18,7 @@ const startMiddlewares: MiddlewareTuple[] = [
   // [GetSubdomain, {}],
 ];
 
-const endMiddlewares: MiddlewareTuple[] = [
-  [withSentry, {}],
-  [HandlesErrors, {}],
-];
+const endMiddlewares: MiddlewareTuple[] = [];
 
 // This method will add the requested middlewares to all the handlers.
 export const withMiddlewares =
@@ -34,7 +32,7 @@ export const withMiddlewares =
     // The middlewares will be run top-down (first ones on the list run first, last ones run last)
     const allMiddlewares: MiddlewareTuple[] = [
       ...endMiddlewares,
-      ...options?.middlewares || [],
+      ...(options?.middlewares || []),
       ...startMiddlewares,
     ];
 
@@ -43,5 +41,20 @@ export const withMiddlewares =
       handler = middleware(handler, args);
     }
 
-    return handler(req, res);
+    // Run the handler. If it crashes, log the error to Sentry and respond with a nice message.
+    try {
+      return await handler(req, res);
+    } catch (error: any) {
+      if (!res.headersSent) {
+        captureException(error);
+
+        return res
+          .status(405)
+          .send(
+            ApiResponse.withError(errorResponse, {
+              meta: { errorMessage: error.message, error },
+            })
+          );
+      }
+    }
   };

@@ -1,17 +1,18 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import { IFilter } from "@/features/tables/components/Filter";
+import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
   appliedFiltersSelector,
   filtersSelector,
   removeFilter,
-  resetRecordsSelection as resetRecordsSelectionToState,
+  resetRecordsSelection as resetRecordsSelectionInState,
   selectedRecordsSelector,
   setAppliedFilters,
   setFilters,
-  setRecordsSelected as setRecordsSelectedToState,
-  toggleRecordSelection as toggleRecordSelectionToState,
+  setRecordsSelected as setRecordsSelectedInState,
+  toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
@@ -155,20 +156,45 @@ export const useSidebarsVisible = (initialvalue?: boolean) => {
   return [sidebarsVisible, setSidebarsVisible] as const;
 };
 
+export const useOrganizationFromContext = ({
+  id,
+  slug,
+}: {
+  id?: number;
+  slug?: string;
+}):
+  | (Organization & {
+      users: Array<OrganizationUser & { user: User }>;
+      roles: Role[];
+    })
+  | undefined => {
+  const { organizations } = useContext(ProfileContext);
+  const organization: Organization | undefined = useMemo(
+    () =>
+      organizations?.find((o: Organization) => {
+        if (slug) return o.slug === slug;
+        if (id) return o.id === id;
+      }),
+    [organizations, id, slug]
+  );
+
+  return organization;
+};
+
 export const useSelectRecords = () => {
   const dispatch = useAppDispatch();
   const selectedRecords = useAppSelector(selectedRecordsSelector);
 
   const toggleRecordSelection = (value: number) => {
-    dispatch(toggleRecordSelectionToState(value));
+    dispatch(toggleRecordSelectionInState(value));
   };
 
   const setRecordsSelected = (values: number[]) => {
-    dispatch(setRecordsSelectedToState(values));
+    dispatch(setRecordsSelectedInState(values));
   };
 
   const resetRecordsSelection = () => {
-    dispatch(resetRecordsSelectionToState());
+    dispatch(resetRecordsSelectionInState());
   };
 
   return {

@@ -1,6 +1,5 @@
 import { Column as BaseToolColumn } from "@/features/fields/types";
-import { Button } from "@chakra-ui/react";
-import { Checkbox } from "@chakra-ui/checkbox";
+import { Button, Checkbox } from "@chakra-ui/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -45,7 +44,7 @@ const Cell = ({
 }) => {
   const field = makeField({
     record: row.original,
-    column: column.meta,
+    column: column?.meta,
     tableName,
   });
   const Element = getField(column.meta, Views.index);
@@ -295,42 +294,58 @@ const RecordsTable = ({
               <div className="bg-gray-50 rounded-t">
                 {headerGroups.map((headerGroup) => (
                   <div {...headerGroup.getHeaderGroupProps()} className="tr">
-                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <Checkbox
-                        colorScheme="gray"
-                        isChecked={allChecked}
-                        isIndeterminate={isIndeterminate}
-                        onChange={(e) => setCheckedItems(e.target.checked)}
-                      />
-                    </div>
                     {headerGroup.headers.map((column: any) => {
-                      const IconElement = iconForField(column.meta);
+                      const isRecordSelector =
+                        column.Header === "record_selector";
+
+                      const IconElement = column?.meta
+                        ? iconForField(column.meta)
+                        : () => "" as any;
 
                       return (
                         <div
                           {...column.getHeaderProps()}
                           className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
-                          <div
-                            className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
-                            onClick={() => handleOrder(column.meta.name)}
-                          >
-                            <IconElement className="h-3 inline-block mr-2" />
-                            <span className="h-4 inline-block">
-                              {column.render("Header")}
-                              {column.meta.name === orderBy && (
+                          {isRecordSelector && (
+                            <div className="flex items-center justify-center h-4">
+                              <Checkbox
+                                colorScheme="gray"
+                                isChecked={allChecked}
+                                isIndeterminate={isIndeterminate}
+                                onChange={(e: any) =>
+                                  setCheckedItems(e.target.checked)
+                                }
+                              />
+                            </div>
+                          )}
+                          {isRecordSelector || (
+                            <div
+                              className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
+                              onClick={() =>
+                                !isRecordSelector &&
+                                handleOrder(column.meta.name)
+                              }
+                            >
+                              <IconElement className="h-3 inline-block mr-2" />
+                              <span className="h-4 inline-block">
                                 <>
-                                  {orderDirection === "desc" && (
-                                    <SortDescendingIcon className="h-4 inline" />
-                                  )}
-                                  {orderDirection === "asc" && (
-                                    <SortAscendingIcon className="h-4 inline" />
-                                  )}
-                                  {/* {orderDirection === '' && '2'} */}
+                                  {column.render("Header")}
+                                  {column?.meta &&
+                                    column.meta.name === orderBy && (
+                                      <>
+                                        {orderDirection === "desc" && (
+                                          <SortDescendingIcon className="h-4 inline" />
+                                        )}
+                                        {orderDirection === "asc" && (
+                                          <SortAscendingIcon className="h-4 inline" />
+                                        )}
+                                      </>
+                                    )}
                                 </>
-                              )}
-                            </span>
-                          </div>
+                              </span>
+                            </div>
+                          )}
                           <div
                             {...column.getResizerProps()}
                             className={classNames("resizer", {

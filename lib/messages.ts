@@ -1,4 +1,4 @@
-export const errorMessage = "Apologies. Sometimes we make mistakes too. However, the founding engineer team has been notified, and they are on it to fix it."
+export const errorResponse = "Apologies for this issue. Sometimes we make mistakes too. However, the founding engineering team has been notified, and they are on it to fix it."
 
 export const funnyLoadingMessages = [
   "Vegetables give you +5 points. Fast food gives you +10 points, but depletes your health daily by -2.",

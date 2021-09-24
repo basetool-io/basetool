@@ -1,7 +1,7 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -9,7 +9,7 @@ import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -33,20 +33,20 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           role: {
             select: {
               name: true,
-              options: true
-            }
-          }
+              options: true,
+            },
+          },
         },
       },
     },
   })) as User & {
-    organizations: Array<OrganizationUser & {role: Role}>;
+    organizations: Array<OrganizationUser & { role: Role }>;
   };
 
   const role = user.organizations[0].role;
   const ac = new AccessControlService(role as ACRole);
 
-  if(!ac.readAny("record").granted) return res.status(403).send("");
+  if (!ac.readAny("record").granted) return res.status(403).send("");
 
   const dataSource = await getDataSourceFromRequest(req);
 
@@ -106,7 +106,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   try {
     data = await service.deleteRecord(
       req.query.tableName as string,
-      req.query.recordId as string,
+      req.query.recordId as string
     );
   } catch (error: any) {
     await service.disconnect();
@@ -123,5 +123,9 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   );
 }
 
-
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});

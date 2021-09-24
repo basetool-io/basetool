@@ -1,11 +1,11 @@
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -28,10 +28,39 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     select: {
       id: true,
       name: true,
+      slug: true,
       roles: {
         select: {
           id: true,
           name: true,
+        },
+      },
+      dataSources: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      users: {
+        orderBy: {
+          createdAt: 'asc'
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          role: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },
@@ -40,4 +69,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(response));
 }
 
-export default withSentry(IsSignedIn(BelongsToOrganization(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [BelongsToOrganization, {}],
+  ],
+});

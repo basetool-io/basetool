@@ -22,7 +22,7 @@ const Edit = ({
   setValue,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const { errors } = formState;
+  const errors = useMemo(() => formState.errors, [formState])
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -56,7 +56,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl
-        isInvalid={hasError && formState.isDirty}
+        isInvalid={hasError}
         isDisabled={readonly}
       >
         {/* @todo: use regular text inoput when failed to fetch all the records for the association */}

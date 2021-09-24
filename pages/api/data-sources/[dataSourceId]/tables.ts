@@ -1,13 +1,13 @@
 import { ListTable, PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -33,7 +33,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const tables = await service.getTables() as ListTable[];
 
   tables.forEach((table: ListTable) => {
-    if (dataSource.options?.tables && (dataSource.options?.tables as any)[table.name]?.label) {
+    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
       table.label = (dataSource.options.tables as any)[table.name].label;
     }
   })
@@ -43,4 +43,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(tables));
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});

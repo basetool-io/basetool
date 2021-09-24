@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Tooltip } from "@chakra-ui/react";
+import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import {
   FilterIcon,
@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/outline";
 import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
+import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
@@ -26,6 +27,20 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
+const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
+  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
+
+  return (
+    <div className="flex items-center justify-center h-full">
+      <Checkbox
+        colorScheme="gray"
+        isChecked={selectedRecords.includes(row?.original?.id)}
+        onChange={(e) => toggleRecordSelection(row?.original?.id)}
+      />
+    </div>
+  );
+};
+
 const ResourcesIndex = memo(
   ({
     dataSourceId,
@@ -37,7 +52,18 @@ const ResourcesIndex = memo(
     columns: Column[];
   }) => {
     const router = useRouter();
-    const parsedColumns = parseColumns({ dataSourceId, columns, tableName });
+    const checkboxColumn = {
+      Header: 'record_selector',
+      accessor: (row: any, i: number) => `record_selector_${i}`,
+      Cell: CheckboxColumnCell,
+      width: 70,
+      minWidth: 70,
+      maxWidth: 70,
+    };
+    const parsedColumns = [
+      checkboxColumn,
+      ...parseColumns({ dataSourceId, columns, tableName }),
+    ];
     const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
     const [orderDirection, setOrderDirection] = useState<OrderDirection>(
       router.query.orderDirection as OrderDirection
@@ -60,12 +86,15 @@ const ResourcesIndex = memo(
       }
     });
 
-    const {selectedRecords} = useSelectRecords();
-    const [deleteBulkRecords, { isLoading: isDeleting }] = useDeleteBulkRecordsMutation();
+    const { selectedRecords } = useSelectRecords();
+    const [deleteBulkRecords, { isLoading: isDeleting }] =
+      useDeleteBulkRecordsMutation();
 
     const handleDeleteMultiple = async () => {
       const confirmed = confirm(
-        "Are you sure you want to remove " + selectedRecords.length + " record(s)?"
+        "Are you sure you want to remove " +
+          selectedRecords.length +
+          " record(s)?"
       );
       if (confirmed) {
         await deleteBulkRecords({
@@ -74,7 +103,7 @@ const ResourcesIndex = memo(
           recordIds: selectedRecords as number[],
         });
       }
-    }
+    };
 
     return (
       <PageWrapper
@@ -101,16 +130,20 @@ const ResourcesIndex = memo(
               )}
               {ac.deleteAny("record").granted && (
                 <>
-                  <Tooltip label={"Delete " + selectedRecords.length + " record(s)"} placement="bottom" gutter={10}>
-                  <Button
-                    colorScheme="red"
-                    variant="outline"
-                    isLoading={isDeleting}
-                    isDisabled={selectedRecords.length == 0}
-                    onClick={handleDeleteMultiple}
+                  <Tooltip
+                    label={"Delete " + selectedRecords.length + " record(s)"}
+                    placement="bottom"
+                    gutter={10}
                   >
-                    <TrashIcon className="h-4" />
-                  </Button>
+                    <Button
+                      colorScheme="red"
+                      variant="outline"
+                      isLoading={isDeleting}
+                      isDisabled={selectedRecords.length == 0}
+                      onClick={handleDeleteMultiple}
+                    >
+                      <TrashIcon className="h-4" />
+                    </Button>
                   </Tooltip>
                 </>
               )}

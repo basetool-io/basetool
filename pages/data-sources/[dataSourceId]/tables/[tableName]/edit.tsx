@@ -3,7 +3,9 @@ import {
   ButtonGroup,
   Checkbox,
   CheckboxGroup,
+  Code,
   FormControl,
+  FormHelperText,
   FormLabel,
   Input,
   Select,
@@ -11,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
-import { getColumnOptions, iconForField } from "@/features/fields";
+import { getColumnNameLabel, getColumnOptions, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
@@ -85,7 +87,7 @@ const ColumnEditor = ({
       {column?.name && (
         <div className="w-full">
           <div>
-            <h3 className="uppercase text-md font-semibold">{column.name}</h3>
+            <h3 className="uppercase text-md font-semibold">{getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name)}</h3>
           </div>
           <div className="divide-y">
             <OptionWrapper
@@ -135,6 +137,29 @@ You can control where the field is visible here.`}
                   <Checkbox value="new">New</Checkbox>
                 </Stack>
               </CheckboxGroup>
+            </OptionWrapper>
+
+            <OptionWrapper
+              helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
+            >
+              <FormControl id="label">
+                <FormLabel>Label</FormLabel>
+                <Input
+                  type="text"
+                  name="label value"
+                  placeholder="Label value"
+                  required={false}
+                  value={column.baseOptions.label}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.label",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+                <FormHelperText>Original name for this field is <Code>{column.name}</Code>.</FormHelperText>
+              </FormControl>
             </OptionWrapper>
 
             <OptionWrapper
@@ -334,7 +359,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                       active={col.name === column?.name}
                       onClick={() => setColumn(col)}
                     >
-                      {col.name}{" "}
+                      {getColumnNameLabel(col.baseOptions.label, col.label, col.name)}{" "}
                       {col.baseOptions.required && (
                         <sup className="text-red-600">*</sup>
                       )}

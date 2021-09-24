@@ -8,9 +8,10 @@ import { DataSource } from "@prisma/client";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { usePrefetch } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/hooks"
+import { useSidebarsVisible } from "@/hooks";
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
@@ -25,7 +26,8 @@ const DataSourceItem = ({
   initials,
   compact,
   flush = false,
-  onClick
+  onClick,
+  ...rest
 }: {
   active?: boolean;
   label: string;
@@ -35,9 +37,10 @@ const DataSourceItem = ({
   compact?: boolean;
   flush?: boolean;
   onClick?: () => void;
+  [name: string]: any
 }) => {
   const linkElement = (
-    <a className="block" onClick={onClick}>
+    <a className="block" onClick={onClick} {...rest}>
       <Tooltip label={label} placement="right" gutter={15}>
         <div
           className={classNames(
@@ -78,7 +81,7 @@ const DataSourceItem = ({
 
 const DataSourcesSidebar = () => {
   const router = useRouter();
-  const [sidebarsVisible] = useSidebarsVisible()
+  const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
   // const visible = true;
   // const [compact, setCompact] = useLocalStorage(
@@ -87,6 +90,7 @@ const DataSourcesSidebar = () => {
   // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const prefetchTables = usePrefetch("getTables");
 
   return (
     <div
@@ -96,17 +100,18 @@ const DataSourcesSidebar = () => {
       })}
     >
       <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">
-        {isLoading && <>&nbsp;</>}
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
               <div className="space-y-2">
-                <Link href={`/data-sources`} passHref>
+                <Link href={`/`} passHref>
                   <a className="block">
                     <Tooltip label="Home" placement="right" gutter={15}>
                       <span
                         className={classNames(
-                          "flex items-center justify-center space-x-1 text-white cursor-pointer mb-4 mt-2"
+                          "flex items-center justify-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
+                          { "hover:bg-cool-gray-600": router.asPath === '/' },
+                          { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":router.asPath === '/' },
                         )}
                       >
                         <HomeIcon className="h-6 inline-block" />
@@ -153,6 +158,11 @@ const DataSourcesSidebar = () => {
                         }
                         link={`/data-sources/${dataSource.id}`}
                         label={dataSource.name}
+                        onMouseOver={() => {
+                          prefetchTables({
+                            dataSourceId: dataSource.id.toString(),
+                          });
+                        }}
                       />
                     );
                   })}
@@ -163,7 +173,7 @@ const DataSourcesSidebar = () => {
                     <PlusIcon className="flex flex-shrink-0 h-4 text-white" />
                   }
                   link={"/data-sources/new"}
-                  label="New data source"
+                  label="Add new data source"
                 />
               </div>
             </div>

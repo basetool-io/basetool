@@ -15,7 +15,7 @@ const BelongsToOrganization =
     };
 
     // Check that the organizationId is in the users organizations
-    const foundOrg = user.organizations.find(
+    const foundOrg = user?.organizations?.find(
       (org) =>
         org.organizationId ===
         parseInt(

@@ -298,7 +298,7 @@ class QueryService implements IQueryService {
 
   public async deleteRecord(
     tableName: string,
-    recordId: string,
+    recordId: string
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
@@ -315,7 +315,7 @@ class QueryService implements IQueryService {
 
   public async deleteRecords(
     tableName: string,
-    recordIds: number[],
+    recordIds: number[]
   ): Promise<unknown> {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
@@ -427,11 +427,21 @@ class QueryService implements IQueryService {
       }));
 
     const columnsWithFieldType: ColumnWithFieldType[] =
-      columnsWithBaseOptions.map((column) => ({
-        ...column,
-        fieldType: getFieldTypeFromColumnInfo(column),
-      }));
+      columnsWithBaseOptions.map((column) => {
+        const storedColumn = !isUndefined(storedColumns)
+          ? storedColumns[column.name as any]
+          : undefined;
 
+        // Try and find if the user defined this type in the DB
+        const fieldType = storedColumn?.fieldType || getFieldTypeFromColumnInfo(column)
+
+        return {
+          ...column,
+          fieldType,
+        };
+      });
+
+    // refactor to get all options for field type not for field name
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
       columnsWithFieldType
     );
@@ -473,10 +483,6 @@ class QueryService implements IQueryService {
             ...fieldOptions,
           },
         };
-
-        if (storedColumn?.fieldType) {
-          newColumn.fieldType = storedColumn.fieldType;
-        }
 
         return newColumn;
       });

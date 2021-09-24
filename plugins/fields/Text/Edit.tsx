@@ -18,7 +18,7 @@ const Edit = ({
   schema,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const { errors } = formState;
+  const errors = useMemo(() => formState.errors, [formState])
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -27,7 +27,7 @@ const Edit = ({
     : null;
   const hasHelp = !isNull(helpText);
 
-  // options
+  // field.baseOptions
   const placeholder = field?.column?.baseOptions?.placeholder
     ? field.column.baseOptions.placeholder
     : "";
@@ -38,7 +38,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl
-        isInvalid={hasError && formState.isDirty}
+        isInvalid={hasError}
         isDisabled={readonly}
       >
         <Input
