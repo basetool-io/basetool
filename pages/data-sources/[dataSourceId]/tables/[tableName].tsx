@@ -31,7 +31,7 @@ const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center h-full">
       <Checkbox
         colorScheme="gray"
         isChecked={selectedRecords.includes(row?.original?.id)}
