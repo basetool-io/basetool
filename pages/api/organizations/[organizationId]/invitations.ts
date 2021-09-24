@@ -1,5 +1,6 @@
 import { OWNER_ROLE } from "@/features/roles";
 import { baseUrl } from "@/features/api/urls";
+import { captureMessage } from "@sentry/nextjs"
 import { hashPassword } from "@/features/auth";
 import { schema } from "@/features/organizations/invitationsSchema";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -91,14 +92,14 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     const owner = org?.roles[0]?.organizationUsers[0].user;
 
     // Send email to owner
-    mailgun.send({
+    await mailgun.send({
       to: owner?.email as string,
       subject: "Good news from Basetool",
       text: `${req.body.formData.firstName} ${req.body.formData.lastName} has accepted your invitation to Basetool.`,
       html: `${req.body.formData.firstName} ${req.body.formData.lastName} has accepted your invitation to <a href="${baseUrl}/organizations/${org?.slug}">Basetool</a>.`,
     });
-  } catch (error) {
-    console.log("error->", error);
+  } catch (error: any) {
+    captureMessage(`Failed to send email ${error.message}`);
   }
 
   await prisma.organizationInvitation.delete({

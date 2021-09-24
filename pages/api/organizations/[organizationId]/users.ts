@@ -1,4 +1,5 @@
 import { baseUrl } from "@/features/api/urls";
+import { captureMessage } from "@sentry/nextjs";
 import { v4 as uuidv4 } from "uuid";
 import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
@@ -101,12 +102,16 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
     // send email to the invited person
     const inviteUrl = `${baseUrl}/organization-invitations/${uuid}`;
-    mailgun.send({
-      to: req.body.email,
-      subject: `🤫 You have been invited to join ${organization.name} on Basetool.io`,
-      text: `Please use the link below to join. \n ${inviteUrl}`,
-      html: `Please click <a href="${inviteUrl}">here</a> to join. <br /> ${inviteUrl}`,
-    });
+    try {
+      await mailgun.send({
+        to: req.body.email,
+        subject: `🤫 You have been invited to join ${organization.name} on Basetool.io`,
+        text: `Please use the link below to join. \n ${inviteUrl}`,
+        html: `Please click <a href="${inviteUrl}">here</a> to join. <br /> ${inviteUrl}`,
+      });
+    } catch (error: any) {
+      captureMessage(`Failed to send email ${error.message}`);
+    }
 
     return res.json(
       ApiResponse.withData(
