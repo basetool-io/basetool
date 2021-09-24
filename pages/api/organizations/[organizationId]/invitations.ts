@@ -1,5 +1,6 @@
 import { OWNER_ROLE } from "@/features/roles";
 import { baseUrl } from "@/features/api/urls";
+import { captureMessage } from "@sentry/nextjs"
 import { hashPassword } from "@/features/auth";
 import { schema } from "@/features/organizations/invitationsSchema";
 import { withMiddlewares } from "@/features/api/middleware";
