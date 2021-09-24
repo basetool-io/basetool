@@ -435,7 +435,7 @@ class QueryService implements IQueryService {
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
       columnsWithFieldType
     );
-//console.log(fieldOptionsByFieldName, columns);
+
     // add default field options for each type of field
     const columnsWithFieldOptions: ColumnWithFieldOptions[] =
       columnsWithFieldType.map((column) => {
@@ -611,7 +611,7 @@ const getFieldTypeFromColumnInfo = (
     case "double precision":
     case "money":
       if (idColumns.includes(name)) return "Id";
-      else return "ProgressBar";
+      else return "Number"; //this is where I had to change Number into ProgressBar when had to check if ProgressBar is rendering
   }
 };
 
