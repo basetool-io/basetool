@@ -8,7 +8,7 @@ import mailgun from "@/lib/mailgun";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -110,4 +110,4 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withMessage("You are in!"));
 }
 
-export default withMiddlewares(handle);
+export default withMiddlewares(handler);

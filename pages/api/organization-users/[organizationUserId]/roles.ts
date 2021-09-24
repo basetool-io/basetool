@@ -11,7 +11,7 @@ export const schema = Joi.object({
   roleId: Joi.number().required(),
 });
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -44,7 +44,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
-export default withMiddlewares(handle, {
+export default withMiddlewares(handler, {
   middlewares: [
     [IsSignedIn, {}],
     [OwnsDataSource, {}],

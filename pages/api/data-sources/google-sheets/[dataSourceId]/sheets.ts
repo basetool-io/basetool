@@ -1,15 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { GoogleSheetsDataSource } from "@/plugins/data-sources/google-sheets/types"
-import { getDataSourceFromRequest } from "@/features/api"
+import { GoogleSheetsDataSource } from "@/plugins/data-sources/google-sheets/types";
+import { getDataSourceFromRequest } from "@/features/api";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import GoogleDriveService from "@/plugins/data-sources/google-sheets/GoogleDriveService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   switch (req.method) {
     case "GET":
       return handleGET(req, res);
@@ -18,7 +16,7 @@ export default async function handler(
     default:
       return res.status(404).send("");
   }
-}
+};
 
 const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const dataSource = await prisma.dataSource.findUnique({
@@ -57,20 +55,22 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!dataSource) return res.status(404).send("");
 
-  const {spreadsheetId, spreadsheetName} = req.body
+  const { spreadsheetId, spreadsheetName } = req.body;
 
   await prisma.dataSource.update({
     where: {
-      id: dataSource.id as number
+      id: dataSource.id as number,
     },
     data: {
       name: spreadsheetName,
       options: {
         ...dataSource.options,
-        spreadsheetId
-      }
-    }
-  })
+        spreadsheetId,
+      },
+    },
+  });
 
-  return res.send(ApiResponse.withMessage('Updated!'))
+  return res.send(ApiResponse.withMessage("Updated!"));
 };
+
+export default withMiddlewares(handler);
