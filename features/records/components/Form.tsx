@@ -81,6 +81,7 @@ const Form = ({
       defaultValues: record,
       resolver: joiResolver(schema),
     });
+    const {errors} = formState
 
   const formData = watch();
 
@@ -104,8 +105,18 @@ const Form = ({
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => console.log(value, name, type));
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
+
+  const checkForErrors = async () => {
+    const visibleColumns = columns.map(({name}) => name)
+    console.log('columns->', visibleColumns)
+  }
 
   const onSubmit = async (formData: any) => {
+    console.log('onSubmit->', formData)
     let response;
 
     setIsLoading(true);
@@ -170,6 +181,7 @@ const Form = ({
                 colorScheme="blue"
                 isLoading={isLoading}
                 onClick={() => {
+                  console.log(checkForErrors())
                   handleSubmit(onSubmit)();
                 }}
               >
@@ -180,6 +192,7 @@ const Form = ({
         }
       >
         <>
+          <pre>{JSON.stringify([formData, errors], null, 2)}</pre>
           <form onSubmit={handleSubmit(onSubmit)}>
             {columns &&
               columns.map((column: Column) => {
