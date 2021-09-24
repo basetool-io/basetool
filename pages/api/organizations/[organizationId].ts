@@ -1,11 +1,11 @@
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -69,4 +69,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(response));
 }
 
-export default withSentry(IsSignedIn(BelongsToOrganization(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [BelongsToOrganization, {}],
+  ],
+});

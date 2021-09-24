@@ -7,7 +7,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -90,4 +90,4 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   res.json(ApiResponse.withData(profile));
 }
 
-export default withMiddlewares(handle, { middlewares: [[IsSignedIn, {}]] });
+export default withMiddlewares(handler, { middlewares: [[IsSignedIn, {}]] });

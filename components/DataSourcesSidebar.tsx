@@ -109,7 +109,9 @@ const DataSourcesSidebar = () => {
                     <Tooltip label="Home" placement="right" gutter={15}>
                       <span
                         className={classNames(
-                          "flex items-center justify-center space-x-1 text-white cursor-pointer mb-4 mt-2"
+                          "flex items-center justify-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
+                          { "hover:bg-cool-gray-600": router.asPath === '/' },
+                          { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":router.asPath === '/' },
                         )}
                       >
                         <HomeIcon className="h-6 inline-block" />
@@ -171,7 +173,7 @@ const DataSourcesSidebar = () => {
                     <PlusIcon className="flex flex-shrink-0 h-4 text-white" />
                   }
                   link={"/data-sources/new"}
-                  label="New data source"
+                  label="Add new data source"
                 />
               </div>
             </div>
