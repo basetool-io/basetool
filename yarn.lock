@@ -2681,6 +2681,11 @@ elliptic@^6.5.3:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+emailjs@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/emailjs/-/emailjs-3.6.0.tgz#a055d8b8a611a0557488760d36e80ac53f9a56fc"
+  integrity sha512-dvg/AF2YR50AjNlGLWuA/9zN0FQxuZ6f3aTNm61iJOVTsMLphBwlzWXDyPAG3NK1RC+MVgGvBFk/x2F/Dvd0rQ==
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"

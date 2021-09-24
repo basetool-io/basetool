@@ -12,7 +12,8 @@ function createIntercomUserHash(user: User | undefined): string | undefined {
   const hmac = crypto.createHmac("sha256", secret);
 
   // passing the data to be hashed
-  const data = hmac.update(user.email);
+  // We'll use an email & createdAt combination so we update the user if he gets invited to a second org.
+  const data = hmac.update(`${user.email}-${user.createdAt}`);
 
   // Creating the hmac in the required format
   return data.digest("hex");

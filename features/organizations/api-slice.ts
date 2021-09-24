@@ -29,8 +29,9 @@ export const organizationsApiSlice = createApi({
           body: { email: string; roleId: number };
         }>
       >({
+        // create an invitation
         query: ({ organizationId, body }) => ({
-          url: `/organizations/${organizationId}/users`,
+          url: `/organizations/${organizationId}/invitations`,
           method: "POST",
           body,
         }),
@@ -49,9 +50,10 @@ export const organizationsApiSlice = createApi({
           body: { uuid: string; formData: {email: string; firstName: number; lastName: string; password: string } };
         }>
       >({
+        // update an invitation
         query: ({ organizationId, body }) => ({
           url: `/organizations/${organizationId}/invitations`,
-          method: "POST",
+          method: "PUT",
           body,
         }),
       }),
