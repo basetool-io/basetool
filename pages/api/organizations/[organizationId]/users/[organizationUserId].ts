@@ -60,7 +60,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   });
   const ownerRoleId = ownerRoles[0].id;
   // remove the organization user that is not an owner
-  await prisma.organizationUser.deleteMany({
+  const response = await prisma.organizationUser.deleteMany({
     where: {
       AND: {
         id: parseInt(req.query.organizationUserId as string, 10),
@@ -68,12 +68,6 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
           id: ownerRoleId,
         },
       },
-    },
-  });
-  // Delete the actual user
-  const response = await prisma.user.delete({
-    where: {
-      id: organizationUser.user.id,
     },
   });
 
