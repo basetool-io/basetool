@@ -66,7 +66,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       req.query.tableName as string,
     ]);
 
-    const tableColumnOptions = tableOptions.columns;
+    const tableColumnOptions = tableOptions?.columns;
 
     const result = await prisma.dataSource.update({
       where: {
