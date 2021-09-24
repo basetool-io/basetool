@@ -4,7 +4,7 @@ import { inProduction } from "./environment";
 import Client from "mailgun.js/dist/lib/client";
 import Mailgun from "mailgun.js";
 import formData from "form-data";
-import logger from "./logger";
+import logger from "./logger"
 
 type Success = {
   id: string;
@@ -15,16 +15,25 @@ type Fail = {
   details: string;
   page: string;
 };
+type SendData = {
+  to: string | string[];
+  subject: string;
+  text?: string;
+  html?: string;
+};
 
-class EmailService {
+interface MailClient {
+  send(data: SendData): Promise<any>;
+}
+
+class MailgunClient implements MailClient {
   public domain: string;
   public from: string;
-  public client: Client | SMTPClient;
+  public client: Client;
 
-  constructor() {
-    this.domain = process.env.MAILGUN_DOMAIN as string;
-    this.from = process.env.EMAIL_FROM || "Basetool <adrian@basetool.io>";
-
+  constructor(domain: string, from: string) {
+    this.domain = domain;
+    this.from = from;
     const mailgun = new Mailgun(formData);
     const config = {
       username: "api",
@@ -32,15 +41,69 @@ class EmailService {
       public_key: process.env.MAILGUN_PUBLIC_KEY || "",
     };
 
+    this.client = mailgun.client(config);
+  }
+
+  public async send({ to, subject, text, html }: SendData) {
+    logger.debug({
+      to,
+      subject,
+      text,
+      html,
+      domain: this.domain,
+      client: this.client,
+    });
+
+    return (this.client as Client).messages.create(this.domain, {
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
+}
+
+class MailtrapClient implements MailClient {
+  public domain: string;
+  public from: string;
+  public client: SMTPClient;
+
+  constructor(domain: string, from: string) {
+    this.domain = domain;
+    this.from = from;
+
+    this.client = new SMTPClient({
+      user: process.env.MAILTRAP_USERNAME,
+      password: process.env.MAILTRAP_PASSWORD,
+      host: "smtp.mailtrap.io",
+      port: parseInt(process.env.MAILTRAP_PORT as string),
+    });
+  }
+
+  public async send({ to, subject, text, html }: SendData) {
+    return (this.client as SMTPClient).sendAsync({
+      from: this.from,
+      to,
+      subject,
+      text,
+      attachment: [{ data: html, alternative: true }],
+    } as any);
+  }
+}
+
+class EmailService {
+  public domain: string;
+  public from: string;
+  public client: MailClient;
+
+  constructor() {
+    this.domain = process.env.MAILGUN_DOMAIN as string;
+    this.from = process.env.EMAIL_FROM || "Basetool <adrian@basetool.io>";
+
     if (inProduction) {
-      this.client = mailgun.client(config);
+      this.client = new MailgunClient(this.domain, this.from);
     } else {
-      this.client = new SMTPClient({
-        user: process.env.MAILTRAP_USERNAME,
-        password: process.env.MAILTRAP_PASSWORD,
-        host: "smtp.mailtrap.io",
-        port: parseInt(process.env.MAILTRAP_PORT as string),
-      });
+      this.client = new MailtrapClient(this.domain, this.from);
     }
   }
 
@@ -49,12 +112,7 @@ class EmailService {
     subject,
     text,
     html,
-  }: {
-    to: string | string[];
-    subject: string;
-    text?: string;
-    html?: string;
-  }): Promise<Success | Fail> {
+  }: SendData): Promise<Success | Fail> {
     const body = {
       from: this.from,
       to: flatten([to]),
@@ -63,44 +121,7 @@ class EmailService {
       html: html,
     };
 
-    return this.sendMessage(body);
-  }
-
-  private async sendMessage({
-    to,
-    subject,
-    text,
-    html,
-  }: {
-    to: string | string[];
-    subject: string;
-    text?: string;
-    html?: string;
-  }) {
-    if (inProduction || (process.env.NODE_ENV as string) === "preview") {
-      logger.debug({
-        to,
-        subject,
-        text,
-        html,
-        domain: this.domain,
-      });
-
-      return (this.client as Client).messages.create(this.domain, {
-        to,
-        subject,
-        text,
-        html,
-      });
-    } else {
-      return (this.client as SMTPClient).sendAsync({
-        from: this.from,
-        to,
-        subject,
-        text,
-        attachment: [{ data: html, alternative: true }],
-      } as any);
-    }
+    return this.client.send(body);
   }
 }
 
