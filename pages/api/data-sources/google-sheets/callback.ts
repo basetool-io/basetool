@@ -1,15 +1,19 @@
 import { decrypt, encrypt } from "@/lib/crypto";
 import { google } from "googleapis";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // Get the user who granted this access.
   const rawState = req.query.state as string;
   // We sent the state as payoad=encryptedState
   const encryptedPayload = rawState.split("=")[1];
-  if (!encryptedPayload) return res.redirect(302, "/auth/login?errorMessage=Bad response from Google Sheets.");
+  if (!encryptedPayload)
+    return res.redirect(
+      302,
+      "/auth/login?errorMessage=Bad response from Google Sheets."
+    );
 
   const decryptedPayload = decrypt(encryptedPayload);
 
@@ -17,7 +21,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     payload = JSON.parse(decryptedPayload as string);
   } catch (error) {
-    return res.redirect(302, "/auth/login?errorMessage=Failed to decrypt response from Google Sheets.");
+    return res.redirect(
+      302,
+      "/auth/login?errorMessage=Failed to decrypt response from Google Sheets."
+    );
   }
   const { email } = payload;
 
@@ -32,7 +39,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  if (!user) return res.redirect(`/data-sources/google-sheets/new?errorMessage=Failed to find the user who initiate this request.`);
+  if (!user)
+    return res.redirect(
+      `/data-sources/google-sheets/new?errorMessage=Failed to find the user who initiate this request.`
+    );
 
   const { organizations } = user;
   const [firstOrganizationPivot] = organizations;
@@ -81,10 +91,12 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
     if (dataSource && dataSource.id) {
       res.redirect(`/data-sources/${dataSource.id}`);
     } else {
-      res.redirect('/data-sources/google-sheets/new?errorMessage=Failed to find a data source.');
+      res.redirect(
+        "/data-sources/google-sheets/new?errorMessage=Failed to find a data source."
+      );
     }
   });
 };
 
 // Casting handle as any because sentry squaks at redirects.
-export default withSentry(handle as any);
+export default withMiddlewares(handler as any);

@@ -6,7 +6,7 @@ import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -86,7 +86,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   );
 }
 
-export default withMiddlewares(handle, {
+export default withMiddlewares(handler, {
   middlewares: [
     [IsSignedIn, {}],
     [BelongsToOrganization, {}],

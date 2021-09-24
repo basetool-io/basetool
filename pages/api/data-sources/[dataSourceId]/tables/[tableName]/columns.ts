@@ -1,7 +1,7 @@
 import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -9,7 +9,7 @@ import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -91,4 +91,9 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)));
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});
