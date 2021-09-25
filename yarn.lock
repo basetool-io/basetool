@@ -1336,13 +1336,6 @@
   resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.17.tgz#232ac9884b6a2aeab5dbe70b79cdb91d5067c325"
   integrity sha512-ShIlp+8iNGo/yVVfYFoNRqUiaE9wMCzsSl85qTg2/C5l56BTJokU7QeMgVBQ9xhcyhWQP0zGXPBZPPvEG/sRmQ==
 
-"@types/use-double-click@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/use-double-click/-/use-double-click-1.0.1.tgz#7549e1882a941d2a13d7bc0d7b67dc56249c72e5"
-  integrity sha512-mkoH+XW24GIPZO/0FO7ms6SiLxwvPPl8KxYxemoigSkPS9cQxI6CH6lw5gwQ5bLeProgzMGlULUANOnUCJ8GJg==
-  dependencies:
-    "@types/react" "*"
-
 "@types/uuid@^8.3.1":
   version "8.3.1"
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.1.tgz#1a32969cf8f0364b3d8c8af9cc3555b7805df14f"
@@ -6900,11 +6893,6 @@ use-composed-ref@^1.0.0:
   integrity sha512-my1lNHGWsSDAhhVAT4MKs6IjBUtG6ZG11uUqexPH9PptiIZDQOzaF4f5tEbJ2+7qvNbtXNBbU3SfmN+fXlWDhg==
   dependencies:
     ts-essentials "^2.0.3"
-
-use-double-click@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/use-double-click/-/use-double-click-1.0.5.tgz#656a3c3c528b5cd3ff40ee548bac0d50b714dfc6"
-  integrity sha512-71LUca6NtzpzHYlcfM/dOdmwvmvpMbzeIVQpN87w+DctpLiMCXtZpsN8FNWPgHpPBtNhvucPUHIDh5al8D8C7w==
 
 use-isomorphic-layout-effect@^1.0.0:
   version "1.1.1"

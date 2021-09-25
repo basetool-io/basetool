@@ -1,10 +1,8 @@
 import { Row } from "react-table";
 import { usePrefetch } from "@/features/records/api-slice";
-import { useRouter } from "next/router"
 import ItemControls from "./ItemControls";
 import React, { memo, useRef } from "react";
 import classNames from "classnames";
-import useDoubleClick from 'use-double-click';
 
 const RecordRow = ({
   row,
@@ -19,14 +17,8 @@ const RecordRow = ({
   prepareRow: (row: Row) => void;
   index: number;
 }) => {
-  const router = useRouter()
   const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
-  useDoubleClick({
-    onDoubleClick: async () => await router.push(`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row.original.id}`),
-    ref: rowRef,
-    latency: 250
-  });
   prepareRow(row);
 
   return (
