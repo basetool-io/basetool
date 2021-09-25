@@ -434,7 +434,8 @@ class QueryService implements IQueryService {
           : undefined;
 
         // Try and find if the user defined this type in the DB
-        const fieldType = storedColumn?.fieldType || getFieldTypeFromColumnInfo(column)
+        const fieldType =
+          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
 
         return {
           ...column,
@@ -501,16 +502,17 @@ class QueryService implements IQueryService {
   private async getPrimaryKeyColumn(
     tableName: string
   ): Promise<string | undefined> {
-    const query = `SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
-    FROM   pg_index i
-    JOIN   pg_attribute a ON a.attrelid = i.indrelid
-                         AND a.attnum = ANY(i.indkey)
-    WHERE  i.indrelid = ?::regclass
-    AND    i.indisprimary;`;
+    const query = `SELECT k.column_name
+FROM information_schema.table_constraints i
+JOIN information_schema.key_column_usage k
+USING(constraint_name,table_schema,table_name)
+WHERE
+  "table_name" = ?
+  AND "constraint_type" = 'PRIMARY KEY';`;
     const { rows } = await this.client.raw(query, [tableName]);
 
     if (!isEmpty(rows)) {
-      return rows[0].attname;
+      return rows[0].column_name;
     }
   }
 
