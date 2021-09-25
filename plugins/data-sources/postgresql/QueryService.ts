@@ -74,14 +74,6 @@ export type PostgresCredentials = {
   useSsl: boolean;
 };
 
-// is = "is",
-// is_not = "is_not",
-// contains = "contains",
-// not_contains = "not_contains",
-// starts_with = "starts_with",
-// ends_with = "ends_with",
-// is_empty = "is_empty",
-// is_not_empty = "is_not_empty",
 const getCondition = (filter: IFilter) => {
   switch (filter.condition) {
     case "is":
@@ -134,12 +126,6 @@ const getValue = (filter: IFilter) => {
   return "=";
 };
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
-  // console.log(
-  //   "addFilterToQuery->",
-  //   filter.columnName,
-  //   getCondition(filter),
-  //   getValue(filter)
-  // );
   query.where(filter.columnName, getCondition(filter), getValue(filter));
 };
 
@@ -200,8 +186,7 @@ class QueryService implements IQueryService {
   }
 
   public async disconnect(): Promise<this> {
-    // This client does not need to disconnect
-    this.client.destroy();
+    await this.client.destroy();
 
     return this;
   }
@@ -239,17 +224,24 @@ class QueryService implements IQueryService {
     return query as unknown as [];
   }
 
-  public async getRecordsCount(tableName: string): Promise<number> {
+  public async getRecordsCount({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<number> {
     const [{ count }] = await this.client.count().table(tableName);
 
     return parseInt(count as string, 10);
   }
 
-  public async getRecord(
-    tableName: string,
-    recordId: string
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async getRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -262,11 +254,14 @@ class QueryService implements IQueryService {
     return rows[0];
   }
 
-  public async createRecord(
-    tableName: string,
-    data: unknown
-  ): Promise<string | undefined> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async createRecord({
+    tableName,
+    data,
+  }: {
+    tableName: string;
+    data: unknown;
+  }): Promise<string | undefined> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -279,12 +274,16 @@ class QueryService implements IQueryService {
     return id as string;
   }
 
-  public async updateRecord(
-    tableName: string,
-    recordId: string,
-    data: unknown
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async updateRecord({
+    tableName,
+    recordId,
+    data,
+  }: {
+    tableName: string;
+    recordId: string;
+    data: unknown;
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -297,11 +296,14 @@ class QueryService implements IQueryService {
     return result;
   }
 
-  public async deleteRecord(
-    tableName: string,
-    recordId: string
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async deleteRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -314,11 +316,14 @@ class QueryService implements IQueryService {
     return result;
   }
 
-  public async deleteRecords(
-    tableName: string,
-    recordIds: number[]
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async deleteRecords({
+    tableName,
+    recordIds,
+  }: {
+    tableName: string;
+    recordIds: number[];
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -391,12 +396,15 @@ class QueryService implements IQueryService {
     return tables as [];
   }
 
-  public async getColumns(
-    tableName: string,
-    storedColumns?: Column[]
-  ): Promise<[]> {
+  public async getColumns({
+    tableName,
+    storedColumns,
+  }: {
+    tableName: string;
+    storedColumns?: Column[];
+  }): Promise<[]> {
     const rawColumns = await this.client.table(tableName).columnInfo();
-    const primaryKeyColumn = await this.getPrimaryKeyColumn(tableName);
+    const primaryKeyColumn = await this.getPrimaryKeyColumn({ tableName });
     const foreignKeys = await this.getForeignKeys(tableName);
     const foreignKeysByColumnName = Object.fromEntries(
       foreignKeys.map((fk: ForeignKeyInfo) => [fk.columnName, fk])
@@ -499,9 +507,11 @@ class QueryService implements IQueryService {
     return columns as [];
   }
 
-  private async getPrimaryKeyColumn(
-    tableName: string
-  ): Promise<string | undefined> {
+  private async getPrimaryKeyColumn({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<string | undefined> {
     const query = `SELECT k.column_name
 FROM information_schema.table_constraints i
 JOIN information_schema.key_column_usage k
