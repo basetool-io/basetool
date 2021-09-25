@@ -42,11 +42,11 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
+      captureException(error);
+      
       // Show a prety message in production and throw the error in development
       if (inProduction) {
         if (!res.headersSent) {
-          captureException(error);
-
           const status = error.code && isNumber(error.code) ? error.code : 500
 
           return res.status(status).send(
