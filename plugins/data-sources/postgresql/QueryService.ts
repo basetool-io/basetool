@@ -187,6 +187,7 @@ class QueryService implements IQueryService {
     this.client = knex({
       client: "pg",
       connection,
+      debug: false,
     });
 
     this.dataSource = dataSource;
