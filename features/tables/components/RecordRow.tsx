@@ -1,8 +1,10 @@
 import { Row } from "react-table";
 import { usePrefetch } from "@/features/records/api-slice";
+import { useRouter } from "next/router"
 import ItemControls from "./ItemControls";
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import classNames from "classnames";
+import useDoubleClick from 'use-double-click';
 
 const RecordRow = ({
   row,
@@ -17,11 +19,18 @@ const RecordRow = ({
   prepareRow: (row: Row) => void;
   index: number;
 }) => {
+  const router = useRouter()
+  const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
+  useDoubleClick({
+    onDoubleClick: async () => await router.push(`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${row.original.id}`),
+    ref: rowRef,
+    latency: 250
+  });
   prepareRow(row);
 
   return (
-    <a
+    <div
       {...row.getRowProps()}
       onMouseOver={() => {
         const id = row.original?.id?.toString();
@@ -41,6 +50,7 @@ const RecordRow = ({
           "bg-gray-50": index % 2 !== 0,
         }
       )}
+      ref={rowRef}
     >
       {row.cells.map((cell) => (
         <div
@@ -53,7 +63,7 @@ const RecordRow = ({
       <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
         <ItemControls recordId={row?.original?.id} />
       </div>
-    </a>
+    </div>
   );
 };
 
