@@ -45,8 +45,10 @@ export const withMiddlewares =
       if (inProduction) {
         if (!res.headersSent) {
           captureException(error);
+          
+          const status = error.code && isNumber(error.code) ? error.code : 500
 
-          return res.status(405).send(
+          return res.status(status).send(
             ApiResponse.withError(errorResponse, {
               meta: { errorMessage: error.message, error },
             })
