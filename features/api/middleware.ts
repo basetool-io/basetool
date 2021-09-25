@@ -43,7 +43,7 @@ export const withMiddlewares =
       return await handler(req, res);
     } catch (error: any) {
       captureException(error);
-      
+
       // Show a prety message in production and throw the error in development
       if (inProduction) {
         if (!res.headersSent) {
