@@ -2,6 +2,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { captureException } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
+import { isNumber } from "lodash"
 import ApiResponse from "./ApiResponse";
 
 export type MiddlewareTuple = [
