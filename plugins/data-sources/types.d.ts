@@ -16,16 +16,17 @@ export interface IQueryService {
     name: string
   }[]>;
   getColumns(tableName: string, storedColumns?: Column[]): Promise<Column[]>;
-  getRecords({
+  getRecords(payload: {
     tableName: string,
     filters: string,
     limit: number,
     offset: number,
     orderBy: string,
     orderDirection: string,
+    select: string[],
   }): Promise<[]>;
   getRecordsCount(tableName: string): Promise<number>;
-  getRecord(tableName: string, recordId: string): Promise<unknown>;
+  getRecord(tableName: string, recordId: string, columnsToSelect: string[],): Promise<Record<string, unknown> | undefined>;
   updateRecord(
     tableName: string,
     recordId: string,

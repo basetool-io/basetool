@@ -1,5 +1,8 @@
+import { Views } from "@/features/fields/enums"
 import { decodeObject } from "@/lib/encoding";
+import { getColumns } from "./columns"
 import { getDataSourceFromRequest } from "@/features/api";
+import { getFilteredColumns } from "@/features/fields"
 import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -30,6 +33,13 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   await service.connect();
 
+  // Get columns and filter them based on visibility
+  const columns = await getColumns({ dataSource, tableName: req.query.tableName as string });
+
+  const filteredColumns = getFilteredColumns(columns, Views.show).map(
+    ({ name }) => name
+  );
+
   const filters = decodeObject(req.query.filters as string);
   let queryError;
   let records;
@@ -43,6 +53,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         : null,
       orderBy: req.query.orderBy as string,
       orderDirection: req.query.orderDirection as string,
+      select: filteredColumns,
     });
   } catch (error: any) {
     queryError = error.message;

@@ -1,6 +1,9 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
+import { Views } from "@/features/fields/enums";
+import { getColumns } from "../columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { getFilteredColumns } from "@/features/fields";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -52,14 +55,26 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
+  const tableName = req.query.tableName as string;
+
   const service = await getQueryService({ dataSource });
 
   await service.connect();
 
-  const record = await service.getRecord(
-    req.query.tableName as string,
-    req.query.recordId as string
+  // Get columns and filter them based on visibility
+  const columns = await getColumns({ dataSource, tableName });
+
+  const filteredColumns = getFilteredColumns(columns, Views.show).map(
+    ({ name }) => name
   );
+
+  const record = await service.getRecord(
+    tableName,
+    req.query.recordId as string,
+    filteredColumns
+  );
+
+  if (!record) return res.send(ApiResponse.withData({}));
 
   await service.disconnect();
 

@@ -212,19 +212,19 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
+    select,
   }: {
     tableName: string;
-    filters: [];
+    filters: string[];
     limit: number;
     offset: number;
     orderBy: string;
     orderDirection: string;
+    select: string[]
   }): Promise<[]> {
     const query = this.client.table(tableName);
-    // @todo: bring in joins
-
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select();
+      query.limit(limit).offset(offset).select(select);
     }
 
     if (filters) {
@@ -246,15 +246,16 @@ class QueryService implements IQueryService {
 
   public async getRecord(
     tableName: string,
-    recordId: string
-  ): Promise<unknown> {
+    recordId: string,
+    columnsToSelect: string[],
+  ) {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select()
+      .select(columnsToSelect)
       .where(pk, recordId)
       .table(tableName);
 

@@ -205,6 +205,7 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
+    select,
   }: {
     tableName: string;
     filters: [];
@@ -212,6 +213,7 @@ class QueryService implements IQueryService {
     offset: number;
     orderBy: string;
     orderDirection: string;
+    select: string[];
   }): Promise<[]> {
     await this.loadInfo();
 
@@ -239,14 +241,14 @@ class QueryService implements IQueryService {
   public async getRecord(
     tableName: string,
     recordId: string
-  ): Promise<unknown> {
+  ): Promise<Record<string, unknown> | undefined> {
     await this.loadInfo();
 
-    if (!this.doc) return null;
+    if (!this.doc) return;
 
     const row = await this.getRow(tableName, parseInt(recordId) - 1);
 
-    if (!row) return null;
+    if (!row) return;
 
     return Object.fromEntries(
       Object.entries(row)
