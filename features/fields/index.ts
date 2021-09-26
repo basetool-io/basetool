@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums";
+import { compact, first } from "lodash"
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
@@ -147,9 +148,6 @@ export const getBaseOptions = () => ({
   label: "",
 });
 
-export const getColumnNameLabel = (baseOptionsLabel: string, label: string, name: string) => {
-  if (baseOptionsLabel) return baseOptionsLabel;
-  if (label) return label;
-
-  return name;
+export const getColumnNameLabel = (...args: any[]) => {
+  return first(compact(args))
 };
