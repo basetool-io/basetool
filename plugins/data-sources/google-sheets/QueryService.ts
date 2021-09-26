@@ -176,6 +176,7 @@ class QueryService implements IQueryService {
             placeholder: "",
             help: "",
             label: "",
+            disconnected: false,
           },
           dataSourceInfo: {},
           fieldOptions: {},
@@ -319,14 +320,14 @@ class QueryService implements IQueryService {
 
   public async deleteRecord(
     tableName: string,
-    recordId: string,
+    recordId: string
   ): Promise<unknown> {
     return [];
   }
 
   public async deleteRecords(
     tableName: string,
-    recordIds: number[],
+    recordIds: number[]
   ): Promise<unknown> {
     return [];
   }
