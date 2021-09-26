@@ -11,7 +11,8 @@ import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
-import { isArray, isEmpty } from "lodash";
+import { getFilteredColumns } from "@/features/fields";
+import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
@@ -27,7 +28,7 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
-const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
+const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
@@ -53,7 +54,7 @@ const ResourcesIndex = memo(
   }) => {
     const router = useRouter();
     const checkboxColumn = {
-      Header: 'record_selector',
+      Header: "record_selector",
       accessor: (row: any, i: number) => `record_selector_${i}`,
       Cell: CheckboxColumnCell,
       width: 70,
@@ -229,14 +230,9 @@ function TablesShow() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column?.baseOptions.visibility?.includes(Views.index)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   return (
     <Layout>

@@ -12,6 +12,7 @@ import { Views } from "./enums";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
+import isArray from "lodash/isArray";
 import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
@@ -145,11 +146,36 @@ export const getBaseOptions = () => ({
   placeholder: "",
   help: "",
   label: "",
+  disconnected: false,
 });
 
-export const getColumnNameLabel = (baseOptionsLabel: string, label: string, name: string) => {
+export const getColumnNameLabel = (
+  baseOptionsLabel: string,
+  label: string,
+  name: string
+) => {
   if (baseOptionsLabel) return baseOptionsLabel;
   if (label) return label;
 
   return name;
+};
+
+/* Returns the filtered column based on their visibility settings. */
+export const getFilteredColumns = (
+  columns: Column[],
+  view: Views
+): Column[] => {
+  if (isArray(columns)) {
+    return (
+      columns
+        // Remove fields that should be hidden on index
+        .filter((column: Column) =>
+          column.baseOptions.visibility.includes(view)
+        )
+        // Remove disconnected fields
+        .filter((column: Column) => !column?.baseOptions.disconnected)
+    );
+  } else {
+    return [];
+  }
 };
