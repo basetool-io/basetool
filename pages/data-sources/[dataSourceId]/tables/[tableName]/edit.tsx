@@ -126,7 +126,7 @@ const ColumnEditor = ({
             </OptionWrapper>
 
             <OptionWrapper
-              helpText={`Some fields you don't want to show at all.`}
+              helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
             >
               <FormLabel>Disconnect field</FormLabel>
               <Checkbox
