@@ -231,10 +231,10 @@ const TableEditor = ({
                     </Checkbox>
                     <Stack pl={6} mt={1} spacing={1}>
                       {roles &&
-                        roles.map((role: Role, idx: number) => (
-                          <div className={allChecked ? "hidden" : ""}>
+                        roles.map((role: Role) => (
+                          <div key={role.name} className={allChecked ? "hidden" : ""}>
                             <Checkbox
-                              id={idx.toString()}
+                              id={`role_authorization_${role.name}`}
                               isChecked={checkedRoles.includes(role.name)}
                               onChange={(e) => toggleChecked(role.name)}
                               className="hidden"
