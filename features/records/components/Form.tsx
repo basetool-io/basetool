@@ -84,7 +84,7 @@ const Form = ({
 
   const formData = watch();
 
-  const diff = difference(record, formData);
+  const diff = () => Object.fromEntries(Object.entries(difference(record, formData)).map(([key]) => [key, getValues(key)]));
 
   const backLink = useMemo(() => {
     if (router.query.fromTable) {
