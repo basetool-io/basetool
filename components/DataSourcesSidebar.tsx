@@ -8,7 +8,7 @@ import { DataSource } from "@prisma/client";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
-import { usePrefetch } from "@/features/data-sources/api-slice";
+import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import { useSidebarsVisible } from "@/hooks";

@@ -1,9 +1,9 @@
 import {
   useGetDataSourceQuery,
   useGetSheetsQuery,
-  useGetTablesQuery,
   useSetSheetToDataSourceMutation,
 } from "@/features/data-sources/api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice"
 import { useRouter } from "next/router";
 import Image from "next/image";
 import LoadingOverlay from "@/components/LoadingOverlay";

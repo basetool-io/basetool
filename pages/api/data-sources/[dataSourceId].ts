@@ -49,13 +49,6 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
-
-  const previousData = await prisma.dataSource.findUnique({
-    where: {
-      id: parseInt(req.query.dataSourceId as string, 10),
-    },
-  });
-
   const result = await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),

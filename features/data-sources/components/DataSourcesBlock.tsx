@@ -1,6 +1,6 @@
 import { DataSource, Organization } from "@prisma/client";
 import { useGetDataSourcesQuery } from "../api-slice";
-import { usePrefetch } from "@/features/data-sources/api-slice";
+import { usePrefetch } from "@/features/tables/api-slice";
 import PageWrapper from "@/components/PageWrapper";
 import ProfileContext from "@/lib/ProfileContext";
 import React, { useContext } from "react";
