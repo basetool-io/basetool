@@ -16,10 +16,7 @@ const EditFieldWrapper = ({
   extra?: ReactNode;
   schema?: AnySchema;
 }) => {
-  const prettyColumnName = useMemo(
-    () => (getColumnNameLabel(field?.column?.baseOptions?.label, field?.column?.label, field?.column?.name)),
-    [field?.column?.baseOptions?.label, field?.column?.label]
-  );
+  const prettyColumnName = getColumnNameLabel(field?.column?.baseOptions?.label, field?.column?.label, field?.column?.name);
   const IconElement = useMemo(
     () => iconForField(field.column),
     [field.column.fieldType]

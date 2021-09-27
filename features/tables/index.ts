@@ -45,10 +45,7 @@ export const parseColumns = ({
       columnWidth = DEFAULT_COLUMN_WIDTH;
     }
 
-    const prettyColumnName = useMemo(
-      () => (getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name)),
-      [column?.baseOptions?.label, column?.label]
-    );
+    const prettyColumnName = getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name);
 
     return {
       Header: prettyColumnName,
