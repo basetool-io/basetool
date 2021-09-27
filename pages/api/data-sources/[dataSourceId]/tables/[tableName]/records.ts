@@ -31,8 +31,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-const filters = decodeObject(req.query.filters as string);
-
+  const filters = decodeObject(req.query.filters as string);
 
   // Get columns and filter them based on visibility
   const columns = await getColumns({
