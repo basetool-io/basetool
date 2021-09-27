@@ -1,6 +1,5 @@
 import { Row } from "react-table";
 import { usePrefetch } from "@/features/records/api-slice";
-import ItemControls from "./ItemControls";
 import React, { memo } from "react";
 import classNames from "classnames";
 
@@ -21,7 +20,7 @@ const RecordRow = ({
   prepareRow(row);
 
   return (
-    <a
+    <div
       {...row.getRowProps()}
       onMouseOver={() => {
         const id = row.original?.id?.toString();
@@ -50,10 +49,7 @@ const RecordRow = ({
           {cell.render("Cell")}
         </div>
       ))}
-      <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
-        <ItemControls recordId={row?.original?.id} />
-      </div>
-    </a>
+    </div>
   );
 };
 
