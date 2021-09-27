@@ -84,7 +84,7 @@ const Form = ({
 
   const formData = watch();
 
-  const diff = () => Object.fromEntries(Object.entries(difference(record, formData)).map(([key]) => [key, getValues(key)]));
+  // const diff = difference(record, formData);
 
   const backLink = useMemo(() => {
     if (router.query.fromTable) {
@@ -104,6 +104,8 @@ const Form = ({
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
+
+  const customDiff = () => Object.fromEntries(Object.entries(difference(record, formData)).map(([key]) => [key, getValues(key)]));
 
   const onSubmit = async (formData: any) => {
     let response;
@@ -142,7 +144,7 @@ const Form = ({
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: diff,
+            changes: customDiff,
           },
         });
         router.push(backLink);
