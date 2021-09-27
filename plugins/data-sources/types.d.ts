@@ -6,16 +6,25 @@ export type QueryResponse = {
   dataSourceType: DataSourceTypes;
 };
 
+export interface IQueryServiceWrapper {
+  runQuery(name: keyof IQueryService, payload?: unknown);
+  runQueries(queries: {name: keyof IQueryService, payload?: unknown}[]);
+}
 export interface IQueryService {
   dataSource: DataSource | undefined;
   queryResult: unknown;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
-  getTables(): Promise<{
-    name: string
-  }[]>;
-  getColumns(tableName: string, storedColumns?: Column[]): Promise<Column[]>;
+  getTables(): Promise<
+    {
+      name: string;
+    }[]
+  >;
+  getColumns(payload: {
+    tableName: string;
+    storedColumns?: Column[];
+  }): Promise<Column[]>;
   getRecords({
     tableName: string,
     filters: string,
@@ -24,25 +33,22 @@ export interface IQueryService {
     orderBy: string,
     orderDirection: string,
   }): Promise<[]>;
-  getRecordsCount(tableName: string): Promise<number>;
-  getRecord(tableName: string, recordId: string): Promise<unknown>;
-  updateRecord(
+  getRecordsCount({ tableName: string }): Promise<number>;
+  getRecord({ tableName: string, recordId: string }): Promise<unknown>;
+  updateRecord({
     tableName: string,
     recordId: string,
-    data: unknown
-  ): Promise<unknown>;
-  createRecord(
+    data: unknown,
+  }): Promise<unknown>;
+  createRecord({
     tableName: string,
-    data: unknown
-  ): Promise<string | undefined>;
-  deleteRecord(
-    tableName: string,
-    recordId: string,
-  ): Promise<unknown>;
-  deleteRecords(
-    tableName: string,
-    recordIds: number[],
-  ): Promise<unknown>;
+    data: unknown,
+  }): Promise<string | undefined>;
+  deleteRecord({ tableName: string, recordId: string }): Promise<unknown>;
+  deleteRecords(payload: {
+    tableName: string;
+    recordIds: number[];
+  }): Promise<unknown>;
 }
 
 export interface DataSourcePlugin {

@@ -1,9 +1,9 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { captureException } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
+import { inProduction } from "@/lib/environment";
+import { isNumber } from "lodash"
 import ApiResponse from "./ApiResponse";
-// import BelongsToOrganization from "./middlewares/BelongsToOrganization";
-// import GetSubdomain from "./middlewares/GetSubdomain";
 
 export type MiddlewareTuple = [
   (
@@ -13,10 +13,7 @@ export type MiddlewareTuple = [
   Record<string, unknown>
 ];
 
-const startMiddlewares: MiddlewareTuple[] = [
-  // [BelongsToOrganization, {}],
-  // [GetSubdomain, {}],
-];
+const startMiddlewares: MiddlewareTuple[] = [];
 
 const endMiddlewares: MiddlewareTuple[] = [];
 
@@ -45,16 +42,21 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
-      if (!res.headersSent) {
-        captureException(error);
+      captureException(error);
 
-        return res
-          .status(405)
-          .send(
+      // Show a prety message in production and throw the error in development
+      if (inProduction) {
+        if (!res.headersSent) {
+          const status = error.code && isNumber(error.code) ? error.code : 500
+
+          return res.status(status).send(
             ApiResponse.withError(errorResponse, {
               meta: { errorMessage: error.message, error },
             })
           );
+        }
+      } else {
+        throw error;
       }
     }
   };

@@ -1,6 +1,9 @@
-import { ListTable, PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
+import {
+  ListTable,
+  PostgresqlDataSource,
+} from "@/plugins/data-sources/postgresql/types";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -28,17 +31,16 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  const tables = await service.getTables() as ListTable[];
+  const tables = (await service.runQuery("getTables")) as ListTable[];
 
   tables.forEach((table: ListTable) => {
-    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
+    if (
+      dataSource?.options?.tables &&
+      dataSource?.options?.tables[table.name]?.label
+    ) {
       table.label = (dataSource.options.tables as any)[table.name].label;
     }
-  })
-
-  await service.disconnect();
+  });
 
   res.json(ApiResponse.withData(tables));
 }

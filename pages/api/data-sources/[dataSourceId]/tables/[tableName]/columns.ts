@@ -1,7 +1,7 @@
 import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -36,16 +36,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     "columns",
   ]);
 
-  const service = await getQueryService({ dataSource, options: { cache: false } });
+  const service = await getQueryService({
+    dataSource,
+    options: { cache: false },
+  });
 
-  await service.connect();
-
-  const columns = await service.getColumns(
-    req.query.tableName as string,
-    storedColumns
-  );
-
-  await service.disconnect();
+  const columns = await service.runQuery("getColumns", {
+    tableName: req.query.tableName as string,
+    storedColumns,
+  });
 
   res.json(ApiResponse.withData(columns));
 }

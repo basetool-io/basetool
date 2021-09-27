@@ -54,16 +54,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
+  const record = await service.runQuery("getRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+  });
 
-  const record = await service.getRecord(
-    req.query.tableName as string,
-    req.query.recordId as string
-  );
-
-  await service.disconnect();
-
-  res.json(ApiResponse.withData(record));
+  return res.json(ApiResponse.withData(record));
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
@@ -75,15 +71,11 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  const data = await service.updateRecord(
-    req.query.tableName as string,
-    req.query.recordId as string,
-    req.body.changes
-  );
-
-  await service.disconnect();
+  const data = await service.runQuery("updateRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+    data: req.body.changes,
+  });
 
   res.json(
     ApiResponse.withData(data, {
@@ -99,22 +91,10 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  let data;
-
-  try {
-    data = await service.deleteRecord(
-      req.query.tableName as string,
-      req.query.recordId as string
-    );
-  } catch (error: any) {
-    await service.disconnect();
-
-    return res.json(ApiResponse.withError(error.message));
-  }
-
-  await service.disconnect();
+  const data = await service.runQuery("deleteRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+  });
 
   res.json(
     ApiResponse.withData(data, {

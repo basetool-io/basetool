@@ -101,10 +101,13 @@ class QueryService implements IQueryService {
     return sheets;
   }
 
-  public async getColumns(
-    tableName: string,
-    storedColumns?: Column[]
-  ): Promise<Column[]> {
+  public async getColumns({
+    tableName,
+    storedColumns,
+  }: {
+    tableName: string;
+    storedColumns?: Column[];
+  }): Promise<Column[]> {
     const key = `${this.dataSource.constructor.name}.getColumns({tableName:"${tableName}"})`;
 
     return await cache.fetch<Column[]>({
@@ -186,7 +189,11 @@ class QueryService implements IQueryService {
     });
   }
 
-  public async getRecordsCount(tableName: string): Promise<number> {
+  public async getRecordsCount({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<number> {
     await this.loadInfo();
 
     if (!this.doc) return 0;
@@ -235,10 +242,13 @@ class QueryService implements IQueryService {
     return rows as [];
   }
 
-  public async getRecord(
-    tableName: string,
-    recordId: string
-  ): Promise<unknown> {
+  public async getRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
     await this.loadInfo();
 
     if (!this.doc) return null;
@@ -259,10 +269,13 @@ class QueryService implements IQueryService {
     );
   }
 
-  public async createRecord(
-    tableName: string,
-    data: unknown
-  ): Promise<string | undefined> {
+  public async createRecord({
+    tableName,
+    data,
+  }: {
+    tableName: string;
+    data: unknown;
+  }): Promise<string | undefined> {
     await this.loadInfo();
 
     if (!this.doc) return;
@@ -280,11 +293,15 @@ class QueryService implements IQueryService {
     return undefined;
   }
 
-  public async updateRecord(
-    tableName: string,
-    recordId: string,
-    data: unknown
-  ): Promise<boolean | number | string | undefined> {
+  public async updateRecord({
+    tableName,
+    recordId,
+    data,
+  }: {
+    tableName: string;
+    recordId: string;
+    data: unknown;
+  }): Promise<boolean | number | string | undefined> {
     await this.loadInfo();
 
     if (!this.doc) return;
@@ -317,17 +334,23 @@ class QueryService implements IQueryService {
     }
   }
 
-  public async deleteRecord(
-    tableName: string,
-    recordId: string,
-  ): Promise<unknown> {
+  public async deleteRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
     return [];
   }
 
-  public async deleteRecords(
-    tableName: string,
-    recordIds: number[],
-  ): Promise<unknown> {
+  public async deleteRecords({
+    tableName,
+    recordIds,
+  }: {
+    tableName: string;
+    recordIds: number[];
+  }): Promise<unknown> {
     return [];
   }
 

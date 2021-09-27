@@ -1,9 +1,10 @@
 import { getDataSourceFromRequest } from "@/features/api";
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
+import pluralize from "pluralize";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -25,25 +26,17 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  let data;
-  try {
-    data = await service.deleteRecords(
-      req.query.tableName as string,
-      req.body as number[],
-    );
-  } catch (error: any) {
-    await service.disconnect();
-
-    return res.json(ApiResponse.withError(error.message));
-  }
-
-  await service.disconnect();
+  const data = await service.runQuery("deleteRecords", {
+    tableName: req.query.tableName as string,
+    recordIds: req.body as number[],
+  });
 
   res.json(
     ApiResponse.withData(data, {
-      message: `Deleted -> ${req.body.length} record(s) from ${req.query.tableName}`,
+      message: `Deleted ${req.body.length} ${pluralize(
+        "record",
+        req.body.length
+      )} from ${req.query.tableName}`,
     })
   );
 }
