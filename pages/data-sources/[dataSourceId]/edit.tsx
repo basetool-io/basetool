@@ -130,7 +130,7 @@ const TableEditor = ({
     [rolesResponse]
   );
 
-  const [checkedRoles, setCheckedRoles] = React.useState<string[]>([]);
+  const [checkedRoles, setCheckedRoles] = useState<string[]>([]);
 
   const allChecked =
     checkedRoles.length === roles.length && checkedRoles.length > 0;
