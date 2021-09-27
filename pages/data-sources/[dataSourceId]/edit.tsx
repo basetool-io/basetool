@@ -45,28 +45,31 @@ const TableEditor = ({
 
   const [table, setTable] = useState(currentTable);
 
-  const changes = useMemo(
-    () => {
+  const changes = useMemo(() => {
+    if (
+      currentTable?.authorizedRoles &&
+      table?.authorizedRoles &&
+      !isEmpty(diff(currentTable.authorizedRoles, table.authorizedRoles))
+    ) {
+      const copyCurrentTable = { ...currentTable };
+      const copyTable = { ...table };
 
-      if (currentTable?.authorizedRoles && table?.authorizedRoles && !isEmpty(diff(currentTable.authorizedRoles, table.authorizedRoles))) {
-        const copyCurrentTable = {...currentTable};
-        const copyTable = {...table};
+      const currentTableAuthorizedRoles = [...currentTable.authorizedRoles];
+      currentTableAuthorizedRoles.sort();
+      const tableAuthorizedRoles = [...table.authorizedRoles];
+      tableAuthorizedRoles.sort();
 
-        const currentTableAuthorizedRoles = [...currentTable.authorizedRoles];
-        currentTableAuthorizedRoles.sort();
-        const tableAuthorizedRoles = [...table.authorizedRoles];
-        tableAuthorizedRoles.sort();
+      delete copyCurrentTable.authorizedRoles;
+      delete copyTable.authorizedRoles;
 
-        delete copyCurrentTable.authorizedRoles;
-        delete copyTable.authorizedRoles;
+      return (
+        diff(copyCurrentTable, copyTable) &&
+        diff(currentTableAuthorizedRoles, tableAuthorizedRoles)
+      );
+    }
 
-        return diff(copyCurrentTable, copyTable) && diff(currentTableAuthorizedRoles, tableAuthorizedRoles);
-      }
-
-      return diff(currentTable, table)
-    },
-    [currentTable, table]
-  );
+    return diff(currentTable, table);
+  }, [currentTable, table]);
 
   const [updateTable, { isLoading: isUpdating }] =
     useUpdateDataSourceMutation();
@@ -74,7 +77,9 @@ const TableEditor = ({
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const options = dataSourceResponse ? cloneDeep(dataSourceResponse.data.options) : {};
+    const options = dataSourceResponse
+      ? cloneDeep(dataSourceResponse.data.options)
+      : {};
 
     const mergedOptions = {
       ...options,
@@ -84,7 +89,7 @@ const TableEditor = ({
           label: table.label,
           authorizedRoles: table.authorizedRoles,
         },
-      }
+      },
     };
 
     await updateTable({
@@ -99,7 +104,7 @@ const TableEditor = ({
 
   useEffect(() => {
     setTable(currentTable);
-  }, [currentTable])
+  }, [currentTable]);
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(
@@ -125,40 +130,44 @@ const TableEditor = ({
     [rolesResponse]
   );
 
-  const [checkedRoles, setCheckedRoles] = React.useState<string[]>([])
+  const [checkedRoles, setCheckedRoles] = React.useState<string[]>([]);
 
-  const allChecked = checkedRoles.length === roles.length && checkedRoles.length > 0;
-  const isIndeterminate = checkedRoles.length > 0 && !allChecked
+  const allChecked =
+    checkedRoles.length === roles.length && checkedRoles.length > 0;
+  const isIndeterminate = checkedRoles.length > 0 && !allChecked;
 
   const toggleAllChecked = (value: boolean) => {
     setCheckedRoles([]);
-    if( value ) setCheckedRoles(roles.map((role: Role) => role.name));
-  }
+    if (value) setCheckedRoles(roles.map((role: Role) => role.name));
+  };
 
   const toggleChecked = (roleName: string) => {
     if (checkedRoles.includes(roleName)) {
-      setCheckedRoles(checkedRoles.filter(item => item !== roleName));
+      setCheckedRoles(checkedRoles.filter((item) => item !== roleName));
     } else {
       setCheckedRoles([...checkedRoles, roleName]);
     }
-  }
+  };
 
   useEffect(() => {
     setTable({
       ...table,
       authorizedRoles: checkedRoles,
     });
-  }, [checkedRoles])
+  }, [checkedRoles]);
 
   useEffect(() => {
-    if(isUndefined(currentTable.authorizedRoles)) {
+    if (isUndefined(currentTable.authorizedRoles)) {
       setCheckedRoles(roles.map((role: Role) => role.name));
-    } else if(isEmpty(currentTable.authorizedRoles)){
+    } else if (isEmpty(currentTable.authorizedRoles)) {
       setCheckedRoles([]);
     } else {
-      const existingNames = roles.filter((role: Role) => {
-        if (currentTable.authorizedRoles) return currentTable.authorizedRoles.includes(role.name);
-      }).map((role: Role) => role.name);
+      const existingNames = roles
+        .filter((role: Role) => {
+          if (currentTable.authorizedRoles)
+            return currentTable.authorizedRoles.includes(role.name);
+        })
+        .map((role: Role) => role.name);
       setCheckedRoles(existingNames);
     }
   }, [currentTable]);
@@ -166,7 +175,9 @@ const TableEditor = ({
   return (
     <>
       <div className="w-full h-full flex flex-col justify-between">
-        {(dataSourceIsLoading || rolesIsLoading || rolesIsFetching) && <LoadingOverlay inPageWrapper />}
+        {(dataSourceIsLoading || rolesIsLoading || rolesIsFetching) && (
+          <LoadingOverlay inPageWrapper />
+        )}
         <div>
           <div>
             <h3 className="uppercase text-md font-semibold">
@@ -197,7 +208,9 @@ const TableEditor = ({
                       });
                     }}
                   />
-                  <FormHelperText>Original name for this table is <Code>{table.name}</Code>.</FormHelperText>
+                  <FormHelperText>
+                    Original name for this table is <Code>{table.name}</Code>.
+                  </FormHelperText>
                 </FormControl>
               </OptionWrapper>
 
@@ -207,9 +220,7 @@ const TableEditor = ({
                 }
               >
                 <FormControl id="access">
-                  <FormLabel>
-                    Access by role
-                  </FormLabel>
+                  <FormLabel>Access by role</FormLabel>
                   <CheckboxGroup size="md" colorScheme="gray">
                     <Checkbox
                       isChecked={allChecked}
@@ -221,17 +232,17 @@ const TableEditor = ({
                     <Stack pl={6} mt={1} spacing={1}>
                       {roles &&
                         roles.map((role: Role, idx: number) => (
-                        <div className={allChecked ? "hidden" : ""}>
-                          <Checkbox
-                            id={idx.toString()}
-                            isChecked={checkedRoles.includes(role.name)}
-                            onChange={(e) => toggleChecked(role.name)}
-                            className="hidden"
-                          >
-                            {role.name}
-                          </Checkbox>
-                        </div>
-                      ))}
+                          <div className={allChecked ? "hidden" : ""}>
+                            <Checkbox
+                              id={idx.toString()}
+                              isChecked={checkedRoles.includes(role.name)}
+                              onChange={(e) => toggleChecked(role.name)}
+                              className="hidden"
+                            >
+                              {role.name}
+                            </Checkbox>
+                          </div>
+                        ))}
                     </Stack>
                   </CheckboxGroup>
                 </FormControl>
@@ -372,9 +383,27 @@ function Edit() {
     { skip: !dataSourceId }
   );
 
+  // Get the datasource and the roles to load everything in one go and not show a new loading screen when the user selectes a table.
+  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
+    useGetDataSourceQuery(
+      { dataSourceId },
+      {
+        skip: !dataSourceId,
+      }
+    );
+
+  const { isLoading: rolesIsLoading } = useGetRolesQuery(
+    {
+      organizationId: dataSourceResponse?.data?.organizationId,
+    },
+    { skip: !dataSourceResponse?.data?.organizationId }
+  );
+
   return (
     <Layout hideSidebar={true}>
-      {isLoading && <LoadingOverlay transparent={true} />}
+      {(isLoading || rolesIsLoading || dataSourceIsLoading) && (
+        <LoadingOverlay transparent={true} />
+      )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {data?.ok && <TablesEditor tables={data?.data} />}
     </Layout>
