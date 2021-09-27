@@ -71,20 +71,17 @@ const Sidebar = () => {
                 table.schemaname ? table.schemaname === "public" : true
               )
               .filter((table: ListTable) => ac.canViewTable(table))
-              .map((table: ListTable, idx: number) => {
-                <SidebarItem
-                  key={idx}
-                  active={table.name === tableName}
-                  label={getLabel(table)}
-                  link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-                  onMouseOver={() => {
-                    prefetchColumns({
-                      dataSourceId,
-                      tableName: table.name,
-                    });
-                  }}
-                />
-              })}
+              .map((table: ListTable, idx: number) => <SidebarItem
+                key={idx}
+                active={table.name === tableName}
+                label={getLabel(table)}
+                link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                onMouseOver={() => {
+                  prefetchColumns({
+                    dataSourceId,
+                    tableName: table.name,
+                  })
+                } } />)}
         </div>
       </div>
     </div>
