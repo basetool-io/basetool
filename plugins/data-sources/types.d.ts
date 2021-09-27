@@ -18,15 +18,15 @@ export interface IQueryService {
   getColumns(tableName: string, storedColumns?: Column[]): Promise<Column[]>;
   getRecords(payload: {
     tableName: string,
-    filters: string,
-    limit: number,
-    offset: number,
+    filters: IFilter[],
+    limit?: number,
+    offset?: number,
     orderBy: string,
     orderDirection: string,
     select: string[],
   }): Promise<[]>;
   getRecordsCount(tableName: string): Promise<number>;
-  getRecord(tableName: string, recordId: string, columnsToSelect: string[],): Promise<Record<string, unknown> | undefined>;
+  getRecord(tableName: string, recordId: string, select: string[],): Promise<Record<string, unknown> | undefined>;
   updateRecord(
     tableName: string,
     recordId: string,

@@ -240,7 +240,8 @@ class QueryService implements IQueryService {
 
   public async getRecord(
     tableName: string,
-    recordId: string
+    recordId: string,
+    select: string[]
   ): Promise<Record<string, unknown> | undefined> {
     await this.loadInfo();
 

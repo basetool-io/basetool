@@ -1,9 +1,10 @@
-import { Views } from "@/features/fields/enums"
+import { IFilter } from "@/features/tables/components/Filter";
+import { Views } from "@/features/fields/enums";
 import { decodeObject } from "@/lib/encoding";
-import { getColumns } from "./columns"
+import { getColumns } from "./columns";
 import { getDataSourceFromRequest } from "@/features/api";
-import { getFilteredColumns } from "@/features/fields"
-import { withMiddlewares } from "@/features/api/middleware"
+import { getFilteredColumns } from "@/features/fields";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -34,23 +35,29 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   await service.connect();
 
   // Get columns and filter them based on visibility
-  const columns = await getColumns({ dataSource, tableName: req.query.tableName as string });
+  const columns = await getColumns({
+    dataSource,
+    tableName: req.query.tableName as string,
+  });
 
   const filteredColumns = getFilteredColumns(columns, Views.show).map(
     ({ name }) => name
   );
 
-  const filters = decodeObject(req.query.filters as string);
+  const filters =
+    (decodeObject(req.query.filters as string) as IFilter[]) || [];
   let queryError;
   let records;
   try {
     records = await service.getRecords({
       tableName: req.query.tableName as string,
       filters,
-      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : null,
+      limit: req.query.limit
+        ? parseInt(req.query.limit as string, 10)
+        : undefined,
       offset: req.query.offset
         ? parseInt(req.query.offset as string, 10)
-        : null,
+        : undefined,
       orderBy: req.query.orderBy as string,
       orderDirection: req.query.orderDirection as string,
       select: filteredColumns,

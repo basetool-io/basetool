@@ -38,9 +38,10 @@ export default class NullQueryService implements IQueryService {
 
   public async getRecord(
     tableName: string,
-    recordId: string
-  ): Promise<unknown> {
-    return [];
+    recordId: string,
+    select: string[],
+  ): Promise<Record<string, unknown> | undefined> {
+    return undefined;
   }
   public async updateRecord(
     tableName: string,

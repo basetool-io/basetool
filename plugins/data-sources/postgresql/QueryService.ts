@@ -215,9 +215,9 @@ class QueryService implements IQueryService {
     select,
   }: {
     tableName: string;
-    filters: string[];
-    limit: number;
-    offset: number;
+    filters: IFilter[];
+    limit?: number;
+    offset?: number;
     orderBy: string;
     orderDirection: string;
     select: string[]
