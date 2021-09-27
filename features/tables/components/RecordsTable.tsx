@@ -295,8 +295,10 @@ const RecordsTable = ({
                 {headerGroups.map((headerGroup) => (
                   <div {...headerGroup.getHeaderGroupProps()} className="tr">
                     {headerGroup.headers.map((column: any) => {
-                      const isRecordSelector =
-                        column.Header === "record_selector";
+                      const isRecordSelectorColumn =
+                        column.Header === "selector_column";
+                      const isControlsColumn =
+                        column.Header === "controls_column";
 
                       const IconElement = column?.meta
                         ? iconForField(column.meta)
@@ -307,7 +309,7 @@ const RecordsTable = ({
                           {...column.getHeaderProps()}
                           className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
-                          {isRecordSelector && (
+                          {isRecordSelectorColumn && (
                             <div className="flex items-center justify-center h-4">
                               <Checkbox
                                 colorScheme="gray"
@@ -319,11 +321,11 @@ const RecordsTable = ({
                               />
                             </div>
                           )}
-                          {isRecordSelector || (
+                          {isControlsColumn || isRecordSelectorColumn || (
                             <div
                               className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
                               onClick={() =>
-                                !isRecordSelector &&
+                                !isRecordSelectorColumn &&
                                 handleOrder(column.meta.name)
                               }
                             >
@@ -357,9 +359,6 @@ const RecordsTable = ({
                         </div>
                       );
                     })}
-                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[84px]">
-                      &nbsp;
-                    </div>
                   </div>
                 ))}
               </div>

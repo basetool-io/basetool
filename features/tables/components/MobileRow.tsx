@@ -69,11 +69,12 @@ const MobileRow = ({
         <ItemControls recordId={row?.original?.id} />
       </div>
 
-      {row.cells.map(
+      {row.cells
         // We won't render the column if there isn't a meta property. This cell could be the record selector cell.
-        (cell) =>
-          (cell.column as any)?.meta && <IndexFieldWrapper cell={cell} />
-      )}
+        .filter((cell: any) => cell.column?.meta)
+        .map((cell) => (
+          <IndexFieldWrapper cell={cell} />
+        ))}
     </div>
   );
 };
