@@ -101,10 +101,13 @@ class QueryService implements IQueryService {
     return sheets;
   }
 
-  public async getColumns(
-    tableName: string,
-    storedColumns?: Column[]
-  ): Promise<Column[]> {
+  public async getColumns({
+    tableName,
+    storedColumns,
+  }: {
+    tableName: string;
+    storedColumns?: Column[];
+  }): Promise<Column[]> {
     const key = `${this.dataSource.constructor.name}.getColumns({tableName:"${tableName}"})`;
 
     return await cache.fetch<Column[]>({
@@ -176,6 +179,7 @@ class QueryService implements IQueryService {
             placeholder: "",
             help: "",
             label: "",
+            disconnected: false,
           },
           dataSourceInfo: {},
           fieldOptions: {},
@@ -186,7 +190,11 @@ class QueryService implements IQueryService {
     });
   }
 
-  public async getRecordsCount(tableName: string): Promise<number> {
+  public async getRecordsCount({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<number> {
     await this.loadInfo();
 
     if (!this.doc) return 0;
@@ -204,6 +212,7 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
+    select,
   }: {
     tableName: string;
     filters: [];
@@ -211,6 +220,7 @@ class QueryService implements IQueryService {
     offset: number;
     orderBy: string;
     orderDirection: string;
+    select: string[];
   }): Promise<[]> {
     await this.loadInfo();
 
@@ -235,17 +245,22 @@ class QueryService implements IQueryService {
     return rows as [];
   }
 
-  public async getRecord(
-    tableName: string,
-    recordId: string
-  ): Promise<unknown> {
+  public async getRecord({
+    tableName,
+    recordId,
+    select,
+  }: {
+    tableName: string;
+    recordId: string;
+    select: string[];
+  }): Promise<Record<string, unknown> | undefined> {
     await this.loadInfo();
 
-    if (!this.doc) return null;
+    if (!this.doc) return;
 
     const row = await this.getRow(tableName, parseInt(recordId) - 1);
 
-    if (!row) return null;
+    if (!row) return;
 
     return Object.fromEntries(
       Object.entries(row)
@@ -259,10 +274,13 @@ class QueryService implements IQueryService {
     );
   }
 
-  public async createRecord(
-    tableName: string,
-    data: unknown
-  ): Promise<string | undefined> {
+  public async createRecord({
+    tableName,
+    data,
+  }: {
+    tableName: string;
+    data: unknown;
+  }): Promise<string | undefined> {
     await this.loadInfo();
 
     if (!this.doc) return;
@@ -280,11 +298,15 @@ class QueryService implements IQueryService {
     return undefined;
   }
 
-  public async updateRecord(
-    tableName: string,
-    recordId: string,
-    data: unknown
-  ): Promise<boolean | number | string | undefined> {
+  public async updateRecord({
+    tableName,
+    recordId,
+    data,
+  }: {
+    tableName: string;
+    recordId: string;
+    data: unknown;
+  }): Promise<boolean | number | string | undefined> {
     await this.loadInfo();
 
     if (!this.doc) return;
@@ -317,17 +339,23 @@ class QueryService implements IQueryService {
     }
   }
 
-  public async deleteRecord(
-    tableName: string,
-    recordId: string,
-  ): Promise<unknown> {
+  public async deleteRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
     return [];
   }
 
-  public async deleteRecords(
-    tableName: string,
-    recordIds: number[],
-  ): Promise<unknown> {
+  public async deleteRecords({
+    tableName,
+    recordIds,
+  }: {
+    tableName: string;
+    recordIds: number[];
+  }): Promise<unknown> {
     return [];
   }
 

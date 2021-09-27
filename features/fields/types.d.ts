@@ -32,6 +32,7 @@ export type BaseOptions = {
   placeholder: string;
   help: string;
   label: string;
+  disconnected: boolean;
 };
 
 export type Column<

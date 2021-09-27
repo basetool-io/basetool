@@ -42,6 +42,7 @@ const DataSourcesBlock = () => {
               return (
                 <PageWrapper.Block
                   href={`/data-sources/${dataSource.id}`}
+                  key={dataSource.id}
                   onMouseOver={() => {
                     prefetchTables({
                       dataSourceId: dataSource.id.toString(),

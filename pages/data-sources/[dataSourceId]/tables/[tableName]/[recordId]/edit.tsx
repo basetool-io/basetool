@@ -1,14 +1,13 @@
-import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
-import { isEmpty } from "lodash"
+import { getFilteredColumns } from "@/features/fields"
+import { isEmpty } from "lodash";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { useMemo } from "react";
-import isArray from "lodash/isArray";
 
 function RecordsEdit() {
   const router = useRouter();
@@ -32,14 +31,9 @@ function RecordsEdit() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column.baseOptions.visibility?.includes(Views.edit)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   return (
     <Layout>

@@ -31,9 +31,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  const tables = await service.getTables() as ListTable[];
+  const tables = (await service.runQuery("getTables")) as ListTable[];
   const storedTableData = dataSource.options.tables;
 
   // If we have any, we'll assign the stored data to the tables we return.
@@ -50,8 +48,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       }
     });
   }
-
-  await service.disconnect();
 
   res.json(ApiResponse.withData(tables));
 }

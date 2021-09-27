@@ -3,9 +3,12 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
-import { makeField } from "@/features/fields";
+import { getFilteredColumns, makeField } from "@/features/fields";
 import { useAccessControl } from "@/hooks";
-import { useDeleteRecordMutation, useGetRecordQuery } from "@/features/records/api-slice";
+import {
+  useDeleteRecordMutation,
+  useGetRecordQuery,
+} from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
@@ -15,7 +18,6 @@ import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
-import isArray from "lodash/isArray";
 import isEmpty from "lodash/isEmpty";
 
 function RecordsShow() {
@@ -41,14 +43,9 @@ function RecordsShow() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column.baseOptions.visibility?.includes(Views.show)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.show),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   const record = useMemo(() => data?.data, [data?.data]);
 
@@ -69,9 +66,7 @@ function RecordsShow() {
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
   const handleDelete = async () => {
-    const confirmed = confirm(
-      "Are you sure you want to remove this record?"
-    );
+    const confirmed = confirm("Are you sure you want to remove this record?");
     if (confirmed) {
       const response = await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
@@ -81,7 +76,7 @@ function RecordsShow() {
 
       if (response?.ok) router.push(backLink);
     }
-  }
+  };
 
   return (
     <>
@@ -101,23 +96,34 @@ function RecordsShow() {
                 <>
                   <ButtonGroup size="sm">
                     <BackButton href={backLink} />
-                    { ac.deleteAny("record").granted && <>
-                    <Button isLoading={isDeleting} colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
-                    </>}
-                    { ac.updateAny("record").granted && <>
-                    <Link
-                      href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
-                      passHref
-                    >
-                      <Button
-                        as="a"
-                        colorScheme="blue"
-                        leftIcon={<PencilAltIcon className="h-4" />}
-                      >
-                        Edit
-                      </Button>
-                    </Link>
-                    </>}
+                    {ac.deleteAny("record").granted && (
+                      <>
+                        <Button
+                          isLoading={isDeleting}
+                          colorScheme="red"
+                          leftIcon={<TrashIcon className="h-4" />}
+                          onClick={handleDelete}
+                        >
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                    {ac.updateAny("record").granted && (
+                      <>
+                        <Link
+                          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                          passHref
+                        >
+                          <Button
+                            as="a"
+                            colorScheme="blue"
+                            leftIcon={<PencilAltIcon className="h-4" />}
+                          >
+                            Edit
+                          </Button>
+                        </Link>
+                      </>
+                    )}
                   </ButtonGroup>
                 </>
               }

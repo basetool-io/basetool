@@ -53,7 +53,9 @@ function Error({ statusCode }: any) {
       >
         Apologies. Sometimes we make mistakes too...
         <br />
-        Do you want to share some details about this issue? {centerText && "👉"}
+        Do you want to share some details about this issue in our chat or to{" "}
+        <a href="mailto:adrian@basetool.io">adrian@basetool.io</a>?{" "}
+        {centerText && "👉"}
         {centerText || "👇"}
       </div>
     </div>

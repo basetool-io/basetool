@@ -2,6 +2,7 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { captureException } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
+import { isNumber } from "lodash"
 import ApiResponse from "./ApiResponse";
 
 export type MiddlewareTuple = [
@@ -41,11 +42,14 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
+      captureException(error);
+
+      // Show a prety message in production and throw the error in development
       if (inProduction) {
         if (!res.headersSent) {
-          captureException(error);
+          const status = error.code && isNumber(error.code) ? error.code : 500
 
-          return res.status(405).send(
+          return res.status(status).send(
             ApiResponse.withError(errorResponse, {
               meta: { errorMessage: error.message, error },
             })
