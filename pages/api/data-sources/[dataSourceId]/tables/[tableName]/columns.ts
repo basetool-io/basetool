@@ -1,5 +1,5 @@
 import { Column } from "@/features/fields/types";
-import { DataSource } from "@prisma/client"
+import { DataSource } from "@prisma/client";
 import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
@@ -29,7 +29,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = await getDataSourceFromRequest(req);
 
   if (!dataSource) return res.status(404).send("");
-  const tableName = req.query.tableName as string
+  const tableName = req.query.tableName as string;
 
   const columns = await getColumns({ dataSource, tableName });
 
@@ -56,11 +56,10 @@ export const getColumns = async ({
     options: { cache: false },
   });
 
-  await service.connect();
-
-  const columns = await service.getColumns(tableName as string, storedColumns);
-
-  await service.disconnect();
+  const columns = await service.runQuery("getColumns", {
+    tableName: tableName as string,
+    storedColumns,
+  });
 
   return columns;
 };

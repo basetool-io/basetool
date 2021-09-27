@@ -59,8 +59,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
   // Get columns and filter them based on visibility
   const columns = await getColumns({ dataSource, tableName });
 
@@ -68,15 +66,11 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     ({ name }) => name
   );
 
-  const record = await service.getRecord(
-    tableName,
-    req.query.recordId as string,
-    filteredColumns
-  );
-
-  if (!record) return res.send(ApiResponse.withData({}));
-
-  await service.disconnect();
+  const record = await service.runQuery("getRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+    select: filteredColumns,
+  });
 
   res.json(ApiResponse.withData(record));
 }
@@ -90,15 +84,11 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  const data = await service.updateRecord(
-    req.query.tableName as string,
-    req.query.recordId as string,
-    req.body.changes
-  );
-
-  await service.disconnect();
+  const data = await service.runQuery("updateRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+    data: req.body.changes,
+  });
 
   res.json(
     ApiResponse.withData(data, {
@@ -114,22 +104,10 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
-
-  let data;
-
-  try {
-    data = await service.deleteRecord(
-      req.query.tableName as string,
-      req.query.recordId as string
-    );
-  } catch (error: any) {
-    await service.disconnect();
-
-    return res.json(ApiResponse.withError(error.message));
-  }
-
-  await service.disconnect();
+  const data = await service.runQuery("deleteRecord", {
+    tableName: req.query.tableName as string,
+    recordId: req.query.recordId as string,
+  });
 
   res.json(
     ApiResponse.withData(data, {

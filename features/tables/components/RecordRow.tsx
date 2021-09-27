@@ -1,6 +1,6 @@
 import { Row } from "react-table";
 import { usePrefetch } from "@/features/records/api-slice";
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import classNames from "classnames";
 
 const RecordRow = ({
@@ -16,6 +16,7 @@ const RecordRow = ({
   prepareRow: (row: Row) => void;
   index: number;
 }) => {
+  const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
@@ -40,6 +41,7 @@ const RecordRow = ({
           "bg-gray-50": index % 2 !== 0,
         }
       )}
+      ref={rowRef}
     >
       {row.cells.map((cell) => (
         <div
