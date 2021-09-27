@@ -13,6 +13,7 @@ import { compact, first } from "lodash"
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
+import isArray from "lodash/isArray";
 import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
@@ -146,8 +147,29 @@ export const getBaseOptions = () => ({
   placeholder: "",
   help: "",
   label: "",
+  disconnected: false,
 });
 
 export const getColumnNameLabel = (...args: any[]) => {
   return first(compact(args))
+};
+
+/* Returns the filtered column based on their visibility settings. */
+export const getFilteredColumns = (
+  columns: Column[],
+  view: Views
+): Column[] => {
+  if (isArray(columns)) {
+    return (
+      columns
+        // Remove fields that should be hidden on index
+        .filter((column: Column) =>
+          column.baseOptions.visibility.includes(view)
+        )
+        // Remove disconnected fields
+        .filter((column: Column) => !column?.baseOptions.disconnected)
+    );
+  } else {
+    return [];
+  }
 };

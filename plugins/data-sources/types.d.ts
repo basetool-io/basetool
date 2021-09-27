@@ -8,7 +8,7 @@ export type QueryResponse = {
 
 export interface IQueryServiceWrapper {
   runQuery(name: keyof IQueryService, payload?: unknown);
-  runQueries(queries: {name: keyof IQueryService, payload?: unknown}[]);
+  runQueries(queries: { name: keyof IQueryService; payload?: unknown }[]);
 }
 export interface IQueryService {
   dataSource: DataSource | undefined;
@@ -25,16 +25,21 @@ export interface IQueryService {
     tableName: string;
     storedColumns?: Column[];
   }): Promise<Column[]>;
-  getRecords({
-    tableName: string,
-    filters: string,
-    limit: number,
-    offset: number,
-    orderBy: string,
-    orderDirection: string,
+  getRecords(payload: {
+    tableName: string;
+    filters: IFilter[];
+    limit?: number;
+    offset?: number;
+    orderBy: string;
+    orderDirection: string;
+    select: string[];
   }): Promise<[]>;
   getRecordsCount({ tableName: string }): Promise<number>;
-  getRecord({ tableName: string, recordId: string }): Promise<unknown>;
+  getRecord(payload: {
+    tableName: string;
+    recordId: string;
+    select: string[];
+  }): Promise<Record<string, unknown> | undefined>;
   updateRecord({
     tableName: string,
     recordId: string,

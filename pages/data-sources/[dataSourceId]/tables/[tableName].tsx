@@ -11,7 +11,8 @@ import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
-import { isArray, isEmpty } from "lodash";
+import { getFilteredColumns } from "@/features/fields";
+import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
@@ -248,14 +249,9 @@ function TablesShow() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column?.baseOptions.visibility?.includes(Views.index)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   return (
     <Layout>

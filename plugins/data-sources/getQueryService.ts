@@ -17,6 +17,7 @@ const getQueryService = async (payload: {
     return new QueryServiceWrapper(queryService, payload);
   } catch (error: any) {
     if (error.code === "MODULE_NOT_FOUND") {
+      // return "null" QueryServiceWrapper
       return {
         runQuery(name, payload) {
           return null;

@@ -13,7 +13,11 @@ import {
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { diff as difference } from "deep-object-diff";
-import { getColumnNameLabel, getColumnOptions, iconForField } from "@/features/fields";
+import {
+  getColumnNameLabel,
+  getColumnOptions,
+  iconForField,
+} from "@/features/fields";
 import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
@@ -61,16 +65,13 @@ const ColumnEditor = ({
   column: Column;
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) => {
-  const columnOptions = useMemo(
-    () => {
-      if (column) {
-        return getColumnOptions(column)
-      }else{
-        return []
-      }
-    },
-    [column]
-  );
+  const columnOptions = useMemo(() => {
+    if (column) {
+      return getColumnOptions(column);
+    } else {
+      return [];
+    }
+  }, [column]);
 
   const InspectorComponent = useMemo(
     () =>
@@ -87,7 +88,13 @@ const ColumnEditor = ({
       {column?.name && (
         <div className="w-full">
           <div>
-            <h3 className="uppercase text-md font-semibold">{getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name)}</h3>
+            <h3 className="uppercase text-md font-semibold">
+              {getColumnNameLabel(
+                column?.baseOptions?.label,
+                column?.label,
+                column?.name
+              )}
+            </h3>
           </div>
           <div className="divide-y">
             <OptionWrapper
@@ -119,6 +126,24 @@ const ColumnEditor = ({
             </OptionWrapper>
 
             <OptionWrapper
+              helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
+            >
+              <FormLabel>Disconnect field</FormLabel>
+              <Checkbox
+                isChecked={column.baseOptions.disconnected}
+                onChange={() =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.disconnected",
+                    !column.baseOptions.disconnected
+                  )
+                }
+              >
+                Disconnected
+              </Checkbox>
+            </OptionWrapper>
+
+            <OptionWrapper
               helpText={`By default, all fields are visible in all views.
 But maybe some shouldn't be? 🤔
 You can control where the field is visible here.`}
@@ -129,12 +154,31 @@ You can control where the field is visible here.`}
                   setColumnOption(column, "baseOptions.visibility", value)
                 }
               >
-                <FormLabel>Visibility</FormLabel>
                 <Stack direction="column">
-                  <Checkbox value="index">Index</Checkbox>
-                  <Checkbox value="show">Show</Checkbox>
-                  <Checkbox value="edit">Edit</Checkbox>
-                  <Checkbox value="new">New</Checkbox>
+                  <Checkbox
+                    value="index"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Index
+                  </Checkbox>
+                  <Checkbox
+                    value="show"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Show
+                  </Checkbox>
+                  <Checkbox
+                    value="edit"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Edit
+                  </Checkbox>
+                  <Checkbox
+                    value="new"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    New
+                  </Checkbox>
                 </Stack>
               </CheckboxGroup>
             </OptionWrapper>
@@ -158,7 +202,9 @@ You can control where the field is visible here.`}
                     )
                   }
                 />
-                <FormHelperText>Original name for this field is <Code>{column.name}</Code>.</FormHelperText>
+                <FormHelperText>
+                  Original name for this field is <Code>{column.name}</Code>.
+                </FormHelperText>
               </FormControl>
             </OptionWrapper>
 
@@ -355,11 +401,17 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                   return (
                     <ColumnListItem
                       key={col.name}
-                      icon={<IconElement className="h-4 mr-2 flex flex-shrink-0" />}
+                      icon={
+                        <IconElement className="h-4 mr-2 flex flex-shrink-0" />
+                      }
                       active={col.name === column?.name}
                       onClick={() => setColumn(col)}
                     >
-                      {getColumnNameLabel(col.baseOptions.label, col.label, col.name)}{" "}
+                      {getColumnNameLabel(
+                        col.baseOptions.label,
+                        col.label,
+                        col.name
+                      )}{" "}
                       {col.baseOptions.required && (
                         <sup className="text-red-600">*</sup>
                       )}

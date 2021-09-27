@@ -1,16 +1,15 @@
+import { ArrayOrObject } from '@/types'
 import { isString } from 'lodash'
 import isObject from 'lodash/isObject'
 
-type ObjectType = [] | Record<string, any> | undefined
-
-export const encodeObject = (payload: ObjectType): string => {
+export const encodeObject = (payload: ArrayOrObject | undefined): string => {
   let toEncode = ''
   if (isObject(payload)) toEncode = JSON.stringify(payload)
 
   return Buffer.from(toEncode).toString('base64')
 }
 
-export const decodeObject = (text: string): ObjectType => {
+export const decodeObject = (text: string): ArrayOrObject | undefined => {
   if (!isString(text)) return
 
   const decodedString = Buffer.from(text, 'base64').toString()

@@ -198,19 +198,19 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
+    select,
   }: {
     tableName: string;
-    filters: [];
-    limit: number;
-    offset: number;
+    filters: IFilter[];
+    limit?: number;
+    offset?: number;
     orderBy: string;
     orderDirection: string;
+    select: string[]
   }): Promise<[]> {
     const query = this.client.table(tableName);
-    // @todo: bring in joins
-
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select();
+      query.limit(limit).offset(offset).select(select);
     }
 
     if (filters) {
@@ -237,17 +237,19 @@ class QueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
+    select,
   }: {
     tableName: string;
     recordId: string;
-  }): Promise<unknown> {
+    select: string[];
+  }): Promise<Record<string, unknown> | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select()
+      .select(select)
       .where(pk, recordId)
       .table(tableName);
 
