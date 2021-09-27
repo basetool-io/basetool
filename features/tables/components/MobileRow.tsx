@@ -2,7 +2,7 @@ import { Checkbox } from "@chakra-ui/react";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
 import { usePrefetch } from "@/features/records/api-slice";
-import { useSelectRecords, useSidebarsVisible } from "@/hooks";
+import { useSelectRecords } from "@/hooks";
 import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
@@ -36,15 +36,13 @@ const MobileRow = ({
   prepareRow: (row: Row) => void;
   index: number;
 }) => {
-  const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
-    <a
-      // {...row.getRowProps()}
+    <div
       onMouseOver={() => {
         const id = row.original?.id?.toString();
 
@@ -60,7 +58,6 @@ const MobileRow = ({
         "bg-white": index % 2 === 0,
         "bg-gray-50": index % 2 !== 0,
       })}
-      onClick={() => setSidebarVisible(false)}
     >
       <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
         <Checkbox
@@ -75,7 +72,7 @@ const MobileRow = ({
       {row.cells.map((cell) => (
         <IndexFieldWrapper cell={cell} />
       ))}
-    </a>
+    </div>
   );
 };
 

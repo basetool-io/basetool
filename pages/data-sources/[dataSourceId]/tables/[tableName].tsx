@@ -21,6 +21,7 @@ import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
+import ItemControls from "@/features/tables/components/ItemControls";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -42,6 +43,12 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   );
 };
 
+const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
+  <div className="flex items-center justify-center h-full">
+    <ItemControls recordId={row?.original?.id} />
+  </div>
+);
+
 const ResourcesIndex = memo(
   ({
     dataSourceId,
@@ -53,17 +60,29 @@ const ResourcesIndex = memo(
     columns: Column[];
   }) => {
     const router = useRouter();
+
     const checkboxColumn = {
-      Header: "record_selector",
-      accessor: (row: any, i: number) => `record_selector_${i}`,
+      Header: "selector_column",
+      accessor: (row: any, i: number) => `selector_column_${i}`,
       Cell: CheckboxColumnCell,
       width: 70,
       minWidth: 70,
       maxWidth: 70,
     };
+
+    const controlsColumn = {
+      Header: "controls_column",
+      accessor: (row: any, i: number) => `controls_column_${i}`,
+      Cell: SelectorColumnCell,
+      width: 104,
+      minWidth: 104,
+      maxWidth: 104,
+    };
+
     const parsedColumns = [
       checkboxColumn,
       ...parseColumns({ dataSourceId, columns, tableName }),
+      controlsColumn,
     ];
     const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
     const [orderDirection, setOrderDirection] = useState<OrderDirection>(
