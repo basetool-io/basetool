@@ -247,7 +247,7 @@ class QueryService implements IQueryService {
   public async getRecord(
     tableName: string,
     recordId: string,
-    columnsToSelect: string[],
+    select: string[],
   ) {
     const pk = await this.getPrimaryKeyColumn(tableName);
 
@@ -255,7 +255,7 @@ class QueryService implements IQueryService {
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select(columnsToSelect)
+      .select(select)
       .where(pk, recordId)
       .table(tableName);
 
