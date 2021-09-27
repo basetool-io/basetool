@@ -34,7 +34,19 @@ export default function SignIn() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6">
+          <form
+            className="space-y-6"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setIsDisabled(true);
+              await signIn("credentials", {
+                redirect: false,
+                email,
+                password,
+              });
+              setIsDisabled(false);
+            }}
+          >
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input
@@ -89,18 +101,9 @@ export default function SignIn() {
 
             <div>
               <Button
+                type="submit"
                 disabled={isDisabled}
                 isLoading={isDisabled}
-                onClick={async (e) => {
-                  e.preventDefault();
-                  setIsDisabled(true);
-                  await signIn("credentials", {
-                    redirect: false,
-                    email,
-                    password,
-                  });
-                  setIsDisabled(false);
-                }}
                 colorScheme="blue"
                 width="100%"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

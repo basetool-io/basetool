@@ -1,5 +1,6 @@
 import { isNull } from "lodash";
-import { useGetDataSourceQuery, useGetTablesQuery } from "@/features/data-sources/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice"
 import { useRouter } from "next/router";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
 import Layout from "@/components/Layout";

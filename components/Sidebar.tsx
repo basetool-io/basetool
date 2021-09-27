@@ -1,8 +1,9 @@
 import { ListTable } from "@/plugins/data-sources/postgresql/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { getLabel } from "@/features/data-sources";
-import { useGetDataSourceQuery, useGetTablesQuery } from "@/features/data-sources/api-slice";
-import { usePrefetch } from "@/features/tables/api-slice";
+import { useAccessControl } from "@/hooks";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
@@ -33,6 +34,8 @@ const Sidebar = () => {
   );
 
   const prefetchColumns = usePrefetch("getColumns");
+
+  const ac = useAccessControl();
 
   return (
     <div className="relative py-2 pl-2 w-full">
@@ -67,20 +70,18 @@ const Sidebar = () => {
               .filter((table: ListTable) =>
                 table.schemaname ? table.schemaname === "public" : true
               )
-              .map((table: ListTable, idx: number) => (
-                <SidebarItem
-                  key={idx}
-                  active={table.name === tableName}
-                  label={getLabel(table)}
-                  link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-                  onMouseOver={() => {
-                    prefetchColumns({
-                      dataSourceId,
-                      tableName: table.name,
-                    });
-                  }}
-                />
-              ))}
+              .filter((table: ListTable) => ac.canViewTable(table))
+              .map((table: ListTable, idx: number) => <SidebarItem
+                key={idx}
+                active={table.name === tableName}
+                label={getLabel(table)}
+                link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                onMouseOver={() => {
+                  prefetchColumns({
+                    dataSourceId,
+                    tableName: table.name,
+                  })
+                } } />)}
         </div>
       </div>
     </div>
