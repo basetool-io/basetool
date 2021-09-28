@@ -3,7 +3,6 @@ import {
   DataSource,
   Organization,
   OrganizationUser,
-  Role,
   User,
 } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
@@ -31,7 +30,7 @@ import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
 import { useSession } from "next-auth/client";
-import AccessControlService from "@/features/roles/AccessControlService";
+import AccessControlService, { Role } from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
 import store from "@/lib/store";
 
