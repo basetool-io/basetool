@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
@@ -142,7 +142,9 @@ const Form = ({
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: Object.fromEntries(Object.entries(diff).map(([key]) => [key, getValues(key)])),
+            changes: Object.fromEntries(
+              Object.entries(diff).map(([key]) => [key, getValues(key)])
+            ),
           },
         });
         router.push(backLink);
@@ -160,59 +162,64 @@ const Form = ({
     <>
       <PageWrapper
         icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
-        heading={formForCreate ? "Create record" : "Edit record"}
+        crumbs={[
+          router.query.tableName as string,
+          formForCreate ? "Create record" : "Edit record",
+        ]}
         flush={true}
-        buttons={
-          <>
-            <ButtonGroup size="sm">
-              <BackButton href={backLink} />
+        buttons={<BackButton href={backLink} />}
+        footer={
+          <PageWrapper.Footer
+            center={
               <Button
+                type="submit"
                 colorScheme="blue"
+                size="sm"
+                width="300px"
                 isLoading={isLoading}
-                onClick={() => {
-                  handleSubmit(onSubmit)();
-                }}
               >
                 <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
               </Button>
-            </ButtonGroup>
-          </>
+            }
+          />
         }
       >
-        <>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {columns &&
-              columns.map((column: Column) => {
-                if (!formData) return null;
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="w-full h-full flex-1 flex flex-col justify-between">
+            <div>
+              {columns &&
+                columns.map((column: Column) => {
+                  if (!formData) return null;
 
-                const field = makeField({
-                  record: formData as Record,
-                  column,
-                  tableName: router.query.tableName as string,
-                });
-                let schemaForColumn;
-                try {
-                  schemaForColumn = schema.extract(column.name);
-                } catch (error) {}
+                  const field = makeField({
+                    record: formData as Record,
+                    column,
+                    tableName: router.query.tableName as string,
+                  });
+                  let schemaForColumn;
+                  try {
+                    schemaForColumn = schema.extract(column.name);
+                  } catch (error) {}
 
-                const Element = getField(column, Views.edit);
+                  const Element = getField(column, Views.edit);
 
-                return (
-                  <Element
-                    key={column.name}
-                    field={field}
-                    formState={formState}
-                    register={register}
-                    setValue={setValue}
-                    schema={schemaForColumn}
-                  />
-                );
-              })}
-            {isCreating && <LoadingOverlay label="Creating..." />}
-            {isUpdating && <LoadingOverlay label="Updating..." />}
-            <input type="submit" value="Submit" className="hidden" />
-          </form>
-        </>
+                  return (
+                    <Element
+                      key={column.name}
+                      field={field}
+                      formState={formState}
+                      register={register}
+                      setValue={setValue}
+                      schema={schemaForColumn}
+                    />
+                  );
+                })}
+              {isCreating && <LoadingOverlay label="Creating..." />}
+              {isUpdating && <LoadingOverlay label="Updating..." />}
+              <input type="submit" value="Submit" className="hidden" />
+            </div>
+          </div>
+        </form>
       </PageWrapper>
 
       {/* <pre>{JSON.stringify(diff, null, 2)}</pre> */}

@@ -393,39 +393,48 @@ const RecordsTable = ({
         </div>
       )}
       <nav
-        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b"
+        className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
         aria-label="Pagination"
       >
-        <div className="inline-block text-gray-500 text-sm">
-          {/* @todo: show a pretty numebr (2.7K in total) */}
-          Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
-          {meta?.count
-            ? `${
-                meta.count < 1000
-                  ? meta.count
-                  : numeral(meta.count).format("0.0a")
-              } in total`
-            : ""}
-        </div>
-        <div className="flex justify-between sm:justify-end">
-          <Button
-            size="sm"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-          >
-            <ChevronLeftIcon className="h-4 text-gray-600" />
-          </Button>
-          <div className="flex items-center px-2 space-x-1">
-            <span className="text-gray-500 mr-1">page</span> {page}{" "}
-            <span className="pl-1">
-              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
-            </span>
+        <div className="flex-1 flex justify-start">
+          <div className="inline-block text-gray-500 text-sm">
+            {/* @todo: show a pretty numebr (2.7K in total) */}
+            Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
+            {meta?.count
+              ? `${
+                  meta.count < 1000
+                    ? meta.count
+                    : numeral(meta.count).format("0.0a")
+                } in total`
+              : ""}
           </div>
-          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
-            <ChevronRightIcon className="h-4 text-gray-600" />
-          </Button>
         </div>
-        <div></div>
+        <div>
+          <div className="flex justify-between sm:justify-end">
+            <Button
+              size="sm"
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+            >
+              <ChevronLeftIcon className="h-4 text-gray-600" />
+            </Button>
+            <div className="flex items-center px-2 space-x-1">
+              <span className="text-gray-500 mr-1">page</span> {page}{" "}
+              <span className="pl-1">
+                of{" "}
+                {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+            >
+              <ChevronRightIcon className="h-4 text-gray-600" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 flex justify-end"></div>
       </nav>
     </div>
   );

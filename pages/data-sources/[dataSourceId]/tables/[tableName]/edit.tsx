@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonGroup,
   Checkbox,
   CheckboxGroup,
   Code,
@@ -12,6 +11,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { Save } from "react-feather";
 import { diff as difference } from "deep-object-diff";
 import {
   getColumnNameLabel,
@@ -356,8 +356,8 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     }
   };
 
-  const saveTableSettings = () => {
-    updateTable({
+  const saveTableSettings = async () => {
+    await updateTable({
       dataSourceId: router.query.dataSourceId as string,
       tableName: router.query.tableName as string,
       body: {
@@ -376,19 +376,26 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     <>
       <PageWrapper
         heading={`Edit '${router.query.tableName}' table`}
-        buttons={
-          <ButtonGroup size="sm">
-            <BackButton href={backLink} />
-            <Button
-              colorScheme="blue"
-              disabled={!isDirty}
-              onClick={saveTableSettings}
-            >
-              Save
-            </Button>
-          </ButtonGroup>
-        }
+        buttons={<BackButton href={backLink} />}
         flush={true}
+        footer={
+          <PageWrapper.Footer
+            center={
+              <Button
+                className="text-red-600 text-sm cursor-pointer"
+                colorScheme="blue"
+                size="sm"
+                width="300px"
+                leftIcon={<Save className="h-4" />}
+                isLoading={isUpdating}
+                disabled={!isDirty}
+                onClick={saveTableSettings}
+              >
+                Save settings
+              </Button>
+            }
+          />
+        }
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">

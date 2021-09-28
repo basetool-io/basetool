@@ -9,9 +9,12 @@ const OrganizationsBlock = () => {
 
   return (
     <PageWrapper.Section>
-      <PageWrapper.Heading>Organizations</PageWrapper.Heading>
+      <PageWrapper.Heading>Your Organizations</PageWrapper.Heading>
       <PageWrapper.Blocks>
         <>
+          {organizations &&
+            organizations.length === 0 &&
+            `You don't belong to any Basetool organizations.`}
           {organizations &&
             organizations.map(
               (

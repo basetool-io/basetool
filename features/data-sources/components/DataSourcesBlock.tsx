@@ -1,6 +1,7 @@
 import { DataSource, Organization } from "@prisma/client";
 import { useGetDataSourcesQuery } from "../api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
+import Link from "next/link"
 import PageWrapper from "@/components/PageWrapper";
 import ProfileContext from "@/lib/ProfileContext";
 import React, { useContext } from "react";
@@ -17,18 +18,20 @@ const DataSourcesBlock = () => {
 
   return (
     <PageWrapper.Section>
-      <PageWrapper.Heading>DataSources</PageWrapper.Heading>
+      <PageWrapper.Heading>Your DataSources</PageWrapper.Heading>
+      {dataSourcesResponse?.data.length === 0 && <>You don't have any Basetool data sources. <Link href="/data-sources/new"><a className="text-blue-600 underline">Add one</a></Link> now.</>}
       <PageWrapper.Blocks>
         <>
           {isLoading && (
             <PageWrapper.Block href={`#`}>
               <div className="text-lg font-bold text-gray-800 mb-2">
-                <Shimmer />
+                Loading
               </div>
               <br />
               <Shimmer />
             </PageWrapper.Block>
           )}
+
           {!isLoading &&
             dataSourcesResponse?.ok &&
             dataSourcesResponse?.data.map((dataSource: DataSource) => {

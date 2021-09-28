@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
@@ -90,42 +90,43 @@ function RecordsShow() {
           <>
             <PageWrapper
               icon={<EyeIcon className="inline h-5 text-gray-500" />}
-              heading="View record"
+              crumbs={[router.query.tableName as string, "View record"]}
               flush={true}
-              buttons={
-                <>
-                  <ButtonGroup size="sm">
-                    <BackButton href={backLink} />
-                    {ac.deleteAny("record").granted && (
-                      <>
+              buttons={<BackButton href={backLink} />}
+              footer={
+                <PageWrapper.Footer
+                  left={
+                    ac.deleteAny("record").granted && (
+                      <Button
+                        className="text-red-600 text-sm cursor-pointer"
+                        onClick={() => !isDeleting && handleDelete()}
+                        variant="link"
+                        colorScheme="red"
+                        leftIcon={<TrashIcon className="h-4" />}
+                      >
+                        Delete
+                      </Button>
+                    )
+                  }
+                  center={
+                    ac.updateAny("record").granted && (
+                      <Link
+                        href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                        passHref
+                      >
                         <Button
-                          isLoading={isDeleting}
-                          colorScheme="red"
-                          leftIcon={<TrashIcon className="h-4" />}
-                          onClick={handleDelete}
+                          as="a"
+                          colorScheme="blue"
+                          size="sm"
+                          width="300px"
+                          leftIcon={<PencilAltIcon className="h-4" />}
                         >
-                          Delete
+                          Edit
                         </Button>
-                      </>
-                    )}
-                    {ac.updateAny("record").granted && (
-                      <>
-                        <Link
-                          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
-                          passHref
-                        >
-                          <Button
-                            as="a"
-                            colorScheme="blue"
-                            leftIcon={<PencilAltIcon className="h-4" />}
-                          >
-                            Edit
-                          </Button>
-                        </Link>
-                      </>
-                    )}
-                  </ButtonGroup>
-                </>
+                      </Link>
+                    )
+                  }
+                />
               }
             >
               <>
