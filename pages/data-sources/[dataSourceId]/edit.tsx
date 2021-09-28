@@ -324,7 +324,7 @@ function Edit() {
           <PageWrapper
             crumbs={[dataSourceResponse?.data?.name, "Edit"]}
             buttons={
-              <ButtonGroup size="sm">
+              <ButtonGroup size="xs">
                 <BackButton href={backLink} />
                 <Button
                   colorScheme="red"

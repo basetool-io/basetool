@@ -32,6 +32,7 @@ import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { Save } from "react-feather";
 
 type ChangesObject = Record<string, unknown>;
 
@@ -356,8 +357,8 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     }
   };
 
-  const saveTableSettings = () => {
-    updateTable({
+  const saveTableSettings = async () => {
+    await updateTable({
       dataSourceId: router.query.dataSourceId as string,
       tableName: router.query.tableName as string,
       body: {
@@ -376,19 +377,27 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     <>
       <PageWrapper
         heading={`Edit '${router.query.tableName}' table`}
-        buttons={
-          <ButtonGroup size="sm">
-            <BackButton href={backLink} />
+        buttons={<BackButton href={backLink} />}
+        flush={true}
+        footer={
+          <div className="flex justify-between items-center px-4">
+            <div></div>
+
             <Button
+              className="text-red-600 text-sm cursor-pointer"
               colorScheme="blue"
+              size="sm"
+              width="300px"
+              leftIcon={<Save className="h-4" />}
+              isLoading={isUpdating}
               disabled={!isDirty}
               onClick={saveTableSettings}
             >
-              Save
+              Save settings
             </Button>
-          </ButtonGroup>
+            <div></div>
+          </div>
         }
-        flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">

@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
@@ -90,42 +90,42 @@ function RecordsShow() {
           <>
             <PageWrapper
               icon={<EyeIcon className="inline h-5 text-gray-500" />}
-              heading="View record"
+              crumbs={[router.query.tableName as string, "View record"]}
               flush={true}
-              buttons={
-                <>
-                  <ButtonGroup size="sm">
-                    <BackButton href={backLink} />
-                    {ac.deleteAny("record").granted && (
-                      <>
-                        <Button
-                          isLoading={isDeleting}
-                          colorScheme="red"
-                          leftIcon={<TrashIcon className="h-4" />}
-                          onClick={handleDelete}
-                        >
-                          Delete
-                        </Button>
-                      </>
-                    )}
+              buttons={<BackButton href={backLink} />}
+              footer={
+                <div className="flex justify-between items-center px-4">
+                  {ac.deleteAny("record").granted && (
+                    <Button
+                      className="text-red-600 text-sm cursor-pointer"
+                      onClick={() => !isDeleting && handleDelete()}
+                      variant="link"
+                      colorScheme="red"
+                      leftIcon={<TrashIcon className="h-4" />}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                  <div>
                     {ac.updateAny("record").granted && (
-                      <>
-                        <Link
-                          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
-                          passHref
+                      <Link
+                        href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                        passHref
+                      >
+                        <Button
+                          as="a"
+                          colorScheme="blue"
+                          size="sm"
+                          width="300px"
+                          leftIcon={<PencilAltIcon className="h-4" />}
                         >
-                          <Button
-                            as="a"
-                            colorScheme="blue"
-                            leftIcon={<PencilAltIcon className="h-4" />}
-                          >
-                            Edit
-                          </Button>
-                        </Link>
-                      </>
+                          Edit
+                        </Button>
+                      </Link>
                     )}
-                  </ButtonGroup>
-                </>
+                  </div>
+                  <div></div>
+                </div>
               }
             >
               <>

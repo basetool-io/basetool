@@ -7,8 +7,10 @@ function BackButton({ href }: { href: string }) {
   return (
     <Link href={href} passHref>
       <Button
+        size="xs"
         as="a"
         colorScheme="blackAlpha"
+        variant="ghost"
         leftIcon={<BackspaceIcon className="h-4" />}
       >
         Back
