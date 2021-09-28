@@ -1,15 +1,15 @@
 import { Code } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { useProfile } from "@/hooks";
 import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 function Index() {
-  const { user } = useContext(ProfileContext);
+  const { user, isLoading: profileIsLoading } = useProfile();
 
   const {
     data: dataSourcesResponse,
@@ -54,7 +54,9 @@ function Index() {
 
   return (
     <Layout hideSidebar={true}>
-      <PageWrapper heading={`Welcome ${user?.firstName}`}>
+      <PageWrapper
+        heading={`Welcome ${profileIsLoading ? "" : user?.firstName}`}
+      >
         <>
           <DataSourcesBlock />
           <OrganizationsBlock />

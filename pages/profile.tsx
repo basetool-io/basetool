@@ -1,13 +1,13 @@
 import { Button } from "@chakra-ui/react";
 import { signOut } from "next-auth/client";
+import { useProfile } from "@/hooks";
 import Layout from "@/components/Layout";
-import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock"
+import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext";
-import React, { useContext } from "react";
+import React from "react";
 
 function Profile() {
-  const { organizations, user, role } = useContext(ProfileContext);
+  const { user, role, isLoading } = useProfile();
 
   return (
     <Layout>
@@ -18,11 +18,16 @@ function Profile() {
               <PageWrapper.Section>
                 <>
                   <PageWrapper.Heading>General</PageWrapper.Heading>
-                  <div>
-                    Name: {user?.firstName} {user?.lastName}
-                  </div>
-                  <div>Email: {user?.email}</div>
-                  <div>Role: {role?.name}</div>
+                  {isLoading && "Loading"}
+                  {!isLoading && (
+                    <>
+                      <div>
+                        Name: {user?.firstName} {user?.lastName}
+                      </div>
+                      <div>Email: {user?.email}</div>
+                      <div>Role: {role?.name}</div>
+                    </>
+                  )}
                 </>
               </PageWrapper.Section>
               <OrganizationsBlock />

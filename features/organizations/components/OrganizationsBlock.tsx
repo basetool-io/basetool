@@ -1,50 +1,56 @@
-import { DataSource, Organization, User } from "@prisma/client";
+import { useProfile } from "@/hooks";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext";
-import React, { useContext } from "react";
+import React from "react";
+import Shimmer from "@/components/Shimmer";
 import pluralize from "pluralize";
 
 const OrganizationsBlock = () => {
-  const { organizations } = useContext(ProfileContext);
+  const { organizations, isLoading } = useProfile();
 
   return (
     <PageWrapper.Section>
       <PageWrapper.Heading>Your Organizations</PageWrapper.Heading>
+      {!isLoading &&
+        organizations &&
+        organizations.length === 0 &&
+        `You don't belong to any Basetool organizations.`}
       <PageWrapper.Blocks>
         <>
+          {isLoading && (
+            <PageWrapper.Block href={`#`}>
+              <div className="text-lg font-bold text-gray-800 mb-2">
+                Loading
+              </div>
+              <br />
+              <Shimmer />
+            </PageWrapper.Block>
+          )}
+
           {organizations &&
-            organizations.length === 0 &&
-            `You don't belong to any Basetool organizations.`}
-          {organizations &&
-            organizations.map(
-              (
-                org: Organization & { users: User[]; dataSources: DataSource[] }
-              ) => {
-                return (
-                  <PageWrapper.Block
-                    href={`/organizations/${org.slug}/members`}
-                    key={org.id}
-                  >
-                    <div className="text-lg font-bold text-gray-800 mb-2">
-                      {org.name}
+            organizations.map((org) => {
+              return (
+                <PageWrapper.Block
+                  href={`/organizations/${org.slug}/members`}
+                  key={org.id}
+                >
+                  <div className="text-lg font-bold text-gray-800 mb-2">
+                    {org.name}
+                  </div>
+                  <br />
+                  {org?.dataSources && (
+                    <div className="text-sm">
+                      {org.dataSources.length}{" "}
+                      {pluralize("data source", org.dataSources.length)}
                     </div>
-                    <br />
-                    {org?.dataSources && (
-                      <div className="text-sm">
-                        {org.dataSources.length}{" "}
-                        {pluralize("data source", org.dataSources.length)}
-                      </div>
-                    )}
-                    {org?.users && (
-                      <div className="text-sm">
-                        {org.users.length}{" "}
-                        {pluralize("member", org.users.length)}
-                      </div>
-                    )}
-                  </PageWrapper.Block>
-                );
-              }
-            )}
+                  )}
+                  {org?.users && (
+                    <div className="text-sm">
+                      {org.users.length} {pluralize("member", org.users.length)}
+                    </div>
+                  )}
+                </PageWrapper.Block>
+              );
+            })}
         </>
       </PageWrapper.Blocks>
     </PageWrapper.Section>

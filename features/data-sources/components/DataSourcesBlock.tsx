@@ -1,25 +1,29 @@
-import { DataSource, Organization } from "@prisma/client";
+import { DataSource } from "@prisma/client";
 import { useGetDataSourcesQuery } from "../api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
-import Link from "next/link"
+import { useProfile } from "@/hooks";
+import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
-import ProfileContext from "@/lib/ProfileContext";
-import React, { useContext } from "react";
+import React from "react";
 import Shimmer from "@/components/Shimmer";
 
 const DataSourcesBlock = () => {
-  const {
-    data: dataSourcesResponse,
-    isLoading,
-    error,
-  } = useGetDataSourcesQuery();
-  const { organizations } = useContext(ProfileContext);
+  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const { organizations } = useProfile();
   const prefetchTables = usePrefetch("getTables");
 
   return (
     <PageWrapper.Section>
       <PageWrapper.Heading>Your DataSources</PageWrapper.Heading>
-      {dataSourcesResponse?.data.length === 0 && <>You don't have any Basetool data sources. <Link href="/data-sources/new"><a className="text-blue-600 underline">Add one</a></Link> now.</>}
+      {dataSourcesResponse?.data.length === 0 && (
+        <>
+          You don't have any Basetool data sources.{" "}
+          <Link href="/data-sources/new">
+            <a className="text-blue-600 underline">Add one</a>
+          </Link>{" "}
+          now.
+        </>
+      )}
       <PageWrapper.Blocks>
         <>
           {isLoading && (
@@ -35,12 +39,9 @@ const DataSourcesBlock = () => {
           {!isLoading &&
             dataSourcesResponse?.ok &&
             dataSourcesResponse?.data.map((dataSource: DataSource) => {
-              let organization: Organization | undefined = undefined;
-              try {
-                organization = organizations.find(
-                  ({ id }) => id === dataSource?.organizationId
-                ) as any;
-              } catch (error) {}
+              const organization = organizations.find(
+                ({ id }) => id === dataSource?.organizationId
+              );
 
               return (
                 <PageWrapper.Block
