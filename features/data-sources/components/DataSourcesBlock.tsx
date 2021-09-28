@@ -22,7 +22,7 @@ const DataSourcesBlock = () => {
       {dataSourcesResponse?.data.length === 0 && <>You don't have any Basetool data sources. <Link href="/data-sources/new"><a className="text-blue-600 underline">Add one</a></Link> now.</>}
       <PageWrapper.Blocks>
         <>
-          {isLoading || true && (
+          {isLoading && (
             <PageWrapper.Block href={`#`}>
               <div className="text-lg font-bold text-gray-800 mb-2">
                 Loading
