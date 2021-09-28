@@ -45,6 +45,7 @@ const Edit = ({
   // Pleasing TypeScript
   setValue: (name: string, value: unknown, config?: unknown) => void;
 }) => {
+  console.log('process.env.TZ->', process.env.TZ)
   const timezone = getBrowserTimezone();
 
   const register = registerMethod(field.column.name);
