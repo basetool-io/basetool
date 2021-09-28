@@ -94,20 +94,22 @@ function RecordsShow() {
               flush={true}
               buttons={<BackButton href={backLink} />}
               footer={
-                <div className="flex justify-between items-center px-4">
-                  {ac.deleteAny("record").granted && (
-                    <Button
-                      className="text-red-600 text-sm cursor-pointer"
-                      onClick={() => !isDeleting && handleDelete()}
-                      variant="link"
-                      colorScheme="red"
-                      leftIcon={<TrashIcon className="h-4" />}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                  <div>
-                    {ac.updateAny("record").granted && (
+                <PageWrapper.Footer
+                  left={
+                    ac.deleteAny("record").granted && (
+                      <Button
+                        className="text-red-600 text-sm cursor-pointer"
+                        onClick={() => !isDeleting && handleDelete()}
+                        variant="link"
+                        colorScheme="red"
+                        leftIcon={<TrashIcon className="h-4" />}
+                      >
+                        Delete
+                      </Button>
+                    )
+                  }
+                  center={
+                    ac.updateAny("record").granted && (
                       <Link
                         href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                         passHref
@@ -122,10 +124,9 @@ function RecordsShow() {
                           Edit
                         </Button>
                       </Link>
-                    )}
-                  </div>
-                  <div></div>
-                </div>
+                    )
+                  }
+                />
               }
             >
               <>

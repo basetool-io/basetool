@@ -379,23 +379,22 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
         buttons={<BackButton href={backLink} />}
         flush={true}
         footer={
-          <div className="flex justify-between items-center px-4">
-            <div></div>
-
-            <Button
-              className="text-red-600 text-sm cursor-pointer"
-              colorScheme="blue"
-              size="sm"
-              width="300px"
-              leftIcon={<Save className="h-4" />}
-              isLoading={isUpdating}
-              disabled={!isDirty}
-              onClick={saveTableSettings}
-            >
-              Save settings
-            </Button>
-            <div></div>
-          </div>
+          <PageWrapper.Footer
+            center={
+              <Button
+                className="text-red-600 text-sm cursor-pointer"
+                colorScheme="blue"
+                size="sm"
+                width="300px"
+                leftIcon={<Save className="h-4" />}
+                isLoading={isUpdating}
+                disabled={!isDirty}
+                onClick={saveTableSettings}
+              >
+                Save settings
+              </Button>
+            }
+          />
         }
       >
         <div className="relative flex-1 max-w-full w-full flex">

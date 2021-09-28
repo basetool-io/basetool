@@ -158,9 +158,9 @@ const ResourcesIndex = memo(
           </ButtonGroup>
         }
         footer={
-          <div className="flex justify-between items-center px-4">
-            <div className="flex">
-              {ac.deleteAny("record").granted && (
+          <PageWrapper.Footer
+            left={
+              ac.deleteAny("record").granted && (
                 <Tooltip label={deleteMessage} placement="bottom" gutter={10}>
                   <Button
                     className="text-red-600 text-sm cursor-pointer"
@@ -172,10 +172,10 @@ const ResourcesIndex = memo(
                     onClick={handleDeleteMultiple}
                   />
                 </Tooltip>
-              )}
-            </div>
-            <div>
-              {ac.createAny("record").granted && (
+              )
+            }
+            center={
+              ac.createAny("record").granted && (
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                   passHref
@@ -190,10 +190,9 @@ const ResourcesIndex = memo(
                     Create record
                   </Button>
                 </Link>
-              )}
-            </div>
-            <div></div>
-          </div>
+              )
+            }
+          />
         }
       >
         <>

@@ -69,6 +69,24 @@ const TitleCrumbs = ({ crumbs }: { crumbs: Array<string | undefined> }) => {
   );
 };
 
+const Footer = ({
+  left,
+  center,
+  right,
+}: {
+  left?: ReactNode;
+  center?: ReactNode;
+  right?: ReactNode;
+}) => (
+  <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)]">
+    <div className="flex justify-evenly items-center px-4">
+      <div className="flex-1 flex justify-start">{left}</div>
+      <div>{center}</div>
+      <div className="flex-1 flex justify-end">{right}</div>
+    </div>
+  </div>
+);
+
 function PageWrapper({
   heading,
   crumbs,
@@ -139,11 +157,7 @@ function PageWrapper({
           >
             {isLoading && <LoadingOverlay inPageWrapper />}
             {children}
-            {footer && (
-              <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)]">
-                {footer}
-              </div>
-            )}
+            {footer && footer}
           </div>
         </div>
       </div>
@@ -156,5 +170,6 @@ PageWrapper.Heading = Heading;
 PageWrapper.Section = Section;
 PageWrapper.Blocks = Blocks;
 PageWrapper.Block = Block;
+PageWrapper.Footer = Footer;
 
 export default PageWrapper;
