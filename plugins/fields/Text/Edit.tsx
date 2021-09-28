@@ -26,8 +26,6 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
-
-  // field.baseOptions
   const placeholder = field?.column?.baseOptions?.placeholder
     ? field.column.baseOptions.placeholder
     : "";
@@ -41,12 +39,24 @@ const Edit = ({
         isInvalid={hasError}
         isDisabled={readonly}
       >
-        <Input
-          type="text"
-          id={fieldId(field)}
-          {...register}
-          placeholder={placeholder}
-        />
+
+        {field.column.fieldOptions.displayAsEmail === true && (
+          <Input
+            type="email"
+            pattern={field.column.fieldOptions.emailPattern as string}
+            id={fieldId(field)}
+            {...register}
+            placeholder={placeholder}
+          />
+        )}
+        {field.column.fieldOptions.displayAsEmail === true || (
+          <Input
+            type="text"
+            id={fieldId(field)}
+            {...register}
+            placeholder={placeholder}
+          />
+        )}
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
