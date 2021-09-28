@@ -71,7 +71,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     recordId: req.query.recordId as string,
     select: filteredColumns,
   });
-  console.log('record->', record)
 
   res.json(ApiResponse.withData(record));
 }
