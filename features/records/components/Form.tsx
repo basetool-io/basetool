@@ -142,7 +142,7 @@ const Form = ({
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: diff,
+            changes: Object.fromEntries(Object.entries(diff).map(([key]) => [key, getValues(key)])),
           },
         });
         router.push(backLink);
