@@ -12,13 +12,13 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
-import { cloneDeep, isEmpty, without } from "lodash";
 import { diff as difference } from "deep-object-diff";
 import {
   getColumnNameLabel,
   getColumnOptions,
   iconForField,
 } from "@/features/fields";
+import { isEmpty, without } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -68,7 +68,7 @@ const NULL_VALUES = [
     label: "'' (empty string)",
   },
   {
-    value: 0,
+    value: "0",
     label: "0"
   },
   // {
@@ -101,18 +101,26 @@ const ColumnEditor = ({
     [column?.fieldType]
   );
 
-  const setNullValue = (checked: boolean, value: any) => {
-    let newNullValues = cloneDeep(column.baseOptions.nullValues);
+  // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
+  useEffect(() => {
+    if (column.baseOptions.required) {
+      setColumnOption(
+        column,
+        "baseOptions.nullable",
+        false
+      );
+    }
+  }, [column.baseOptions.required])
 
-    if(checked) newNullValues.push(value);
-    else newNullValues = without(newNullValues, value);
-
-    setColumnOption(
-      column,
-      "baseOptions.nullValues",
-      newNullValues
-    );
-  };
+  useEffect(() => {
+    if (column.baseOptions.nullable) {
+      setColumnOption(
+        column,
+        "baseOptions.required",
+        false
+      );
+    }
+  }, [column.baseOptions.nullable])
 
   return (
     <>
@@ -290,6 +298,7 @@ You can control where the field is visible here.`}
                 <Checkbox
                   id="nullable"
                   isChecked={column.baseOptions.nullable}
+                  isDisabled={column.dataSourceInfo.nullable === false}
                   onChange={() =>
                     setColumnOption(
                       column,
@@ -300,6 +309,11 @@ You can control where the field is visible here.`}
                 >
                   Nullable
                 </Checkbox>
+                {column.dataSourceInfo.nullable === false &&
+                  <FormHelperText>
+                    Has to be nullable in the DB in order to use this option.
+                  </FormHelperText>
+                }
               </FormControl>
               {column.baseOptions.nullable === true && (
                 <Stack pl={6} mt={1} spacing={1}>
@@ -309,7 +323,18 @@ You can control where the field is visible here.`}
                         <Checkbox
                           id={`null_value_${label}`}
                           isChecked={Object.values(column.baseOptions.nullValues).includes(value)}
-                          onChange={(e) => setNullValue(e.currentTarget.checked, value)}
+                          onChange={(e) => {
+                            let newNullValues = Object.values({...column.baseOptions.nullValues});
+
+                            if(e.currentTarget.checked) newNullValues.push(value);
+                            else newNullValues = without(newNullValues, value);
+
+                            setColumnOption(
+                              column,
+                              "baseOptions.nullValues",
+                              newNullValues
+                            );
+                          }}
                         >
                           {label}
                         </Checkbox>

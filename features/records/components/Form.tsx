@@ -146,13 +146,12 @@ const Form = ({
           return [key, getValues(key)];
         }));
 
-        console.log('changes->', changes)
         const response = await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: changes,
+            changes,
           },
         });
         router.push(backLink);

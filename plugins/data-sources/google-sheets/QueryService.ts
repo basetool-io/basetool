@@ -4,8 +4,8 @@ import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { IQueryService } from "../types";
 import { OAuth2Client } from "google-auth-library";
-import { Views } from "@/features/fields/enums";
 import { decrypt, encrypt } from "@/lib/crypto";
+import { getBaseOptions } from "@/features/fields";
 import { isNull, isNumber, isUndefined, merge } from "lodash";
 import { logger } from "@sentry/utils";
 import BasetoolError from "@/lib/BasetoolError";
@@ -141,16 +141,9 @@ class QueryService implements IQueryService {
               storedColumns && storedColumns[headerName as any];
 
             const fieldType = columnSettings?.fieldType || "Text";
+
             const baseOptions = merge(
-              {
-                visibility: ["index", "show", "edit", "new"],
-                required: false,
-                nullable: true,
-                nullValues: [],
-                readonly: false,
-                placeholder: "",
-                help: "",
-              },
+              getBaseOptions(),
               columnSettings?.baseOptions
             );
             const fieldOptions = merge({}, columnSettings?.fieldOptions);
@@ -172,17 +165,7 @@ class QueryService implements IQueryService {
           label: "id",
           fieldType: "Id",
           primaryKey: true,
-          baseOptions: {
-            visibility: [Views.index, Views.show, Views.edit, Views.new],
-            required: false,
-            nullable: true,
-            nullValues: [],
-            readonly: false,
-            placeholder: "",
-            help: "",
-            label: "",
-            disconnected: false,
-          },
+          baseOptions: getBaseOptions(),
           dataSourceInfo: {},
           fieldOptions: {},
         });
