@@ -10,10 +10,10 @@ import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
 import { inProduction } from "@/lib/environment";
 import { useRouter } from "next/router";
-import ProductionScripts from "@/components/ProductionScripts"
+import ProductionScripts from "@/components/ProductionScripts";
 import React, { useEffect } from "react";
-import ShowErrorMessages from "@/components/ShowErrorMessages"
-import getChakraTheme from "@/lib/chakra"
+import ShowErrorMessages from "@/components/ShowErrorMessages";
+import getChakraTheme from "@/lib/chakra";
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
 
@@ -24,7 +24,7 @@ Tooltip.defaultProps = {
   placement: "top",
 };
 
-const theme = getChakraTheme()
+const theme = getChakraTheme();
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();

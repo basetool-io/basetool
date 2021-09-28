@@ -6,7 +6,7 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 function Index() {
   const { user, isLoading: profileIsLoading } = useProfile();
@@ -46,6 +46,11 @@ function Index() {
       isVisible: false,
     },
   ]);
+
+  const hasDataSources = useMemo(
+    () => dataSourcesResponse?.ok && dataSourcesResponse.data.length > 0,
+    [dataSourcesResponse]
+  );
 
   return (
     <Layout hideSidebar={true}>
