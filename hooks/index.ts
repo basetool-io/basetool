@@ -30,7 +30,9 @@ import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
 import { useSession } from "next-auth/client";
-import AccessControlService, { Role } from "@/features/roles/AccessControlService";
+import AccessControlService, {
+  Role,
+} from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
 import store from "@/lib/store";
 
@@ -207,28 +209,27 @@ export const useSelectRecords = () => {
   };
 };
 
-export const useProfile = (): {
-  user: User;
-  organizations: Array<
-    Organization & {
-      users: Array<OrganizationUser & { user: User }>;
-      dataSources: DataSource[];
-    }
-  >;
-  role: Role;
-  isLoading: boolean;
-} => {
+export const useProfile = () => {
   const [session, sessionIsLoading] = useSession();
   const { data: profileResponse, isLoading: profileIsLoading } =
     useGetProfileQuery(null, {
       skip: !session,
     });
 
-  const { user, organizations, role } = useMemo(
+  const { user, organizations, role } = useMemo<{
+    user: User;
+    organizations: Array<
+      Organization & {
+        users: Array<OrganizationUser & { user: User }>;
+        dataSources: DataSource[];
+      }
+    >;
+    role: Role;
+  }>(
     () =>
       profileResponse?.ok
         ? profileResponse?.data
-        : { user: {}, organizations: [], role: {} },
+        : { user: {}, organizations: [], role: undefined },
     [profileResponse, profileIsLoading]
   );
 
