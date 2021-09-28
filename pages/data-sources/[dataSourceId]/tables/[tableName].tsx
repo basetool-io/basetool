@@ -195,45 +195,43 @@ const ResourcesIndex = memo(
           />
         }
       >
-        <>
-          <div className="relative flex flex-col flex-1 w-full h-full">
-            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
-              {filtersPanelVisible && (
-                <FiltersPanel ref={filtersPanel} columns={columns} />
-              )}
-              <div className="flex flex-shrink-0">
-                <Button
-                  onClick={() => toggleFiltersPanelVisible()}
-                  variant="link"
-                  ref={filtersButton}
-                >
-                  <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
-                </Button>
-                <div className="text-sm text-gray-600">
-                  {!isEmpty(appliedFilters) && (
-                    <div>
-                      ({appliedFilters.length} applied){" "}
-                      <Button size="xs" onClick={resetFilters}>
-                        <XIcon className="h-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+        <div className="relative flex flex-col flex-1 w-full h-full">
+          <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
+            {filtersPanelVisible && (
+              <FiltersPanel ref={filtersPanel} columns={columns} />
+            )}
+            <div className="flex flex-shrink-0">
+              <Button
+                onClick={() => toggleFiltersPanelVisible()}
+                variant="link"
+                ref={filtersButton}
+              >
+                <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
+              </Button>
+              <div className="text-sm text-gray-600">
+                {!isEmpty(appliedFilters) && (
+                  <div>
+                    ({appliedFilters.length} applied){" "}
+                    <Button size="xs" onClick={resetFilters}>
+                      <XIcon className="h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="relative flex-1 flex h-full max-w-full w-full">
-              <RecordsTable
-                columns={parsedColumns}
-                orderBy={orderBy}
-                setOrderBy={setOrderBy}
-                orderDirection={orderDirection}
-                setOrderDirection={setOrderDirection}
-                tableName={tableName}
-                dataSourceId={dataSourceId}
-              />
-            </div>
           </div>
-        </>
+          <div className="relative flex-1 flex h-full max-w-full w-full">
+            <RecordsTable
+              columns={parsedColumns}
+              orderBy={orderBy}
+              setOrderBy={setOrderBy}
+              orderDirection={orderDirection}
+              setOrderDirection={setOrderDirection}
+              tableName={tableName}
+              dataSourceId={dataSourceId}
+            />
+          </div>
+        </div>
       </PageWrapper>
     );
   }

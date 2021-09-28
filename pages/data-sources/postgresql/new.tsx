@@ -5,14 +5,11 @@ import {
   FormHelperText,
   FormLabel,
   Input,
-  Select,
 } from "@chakra-ui/react";
-import { availableDataSources } from "@/plugins/data-sources";
+import { PlusIcon } from "@heroicons/react/outline"
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
-import {
-  useAddDataSourceMutation,
-} from "@/features/data-sources/api-slice";
+import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
@@ -38,7 +35,7 @@ function New() {
 
     let response;
     try {
-        response = await addDataSource({ body: formData }).unwrap();
+      response = await addDataSource({ body: formData }).unwrap();
     } catch (error) {
       setIsLoading(false);
     }
@@ -74,49 +71,58 @@ function New() {
 
   return (
     <Layout>
-      <PageWrapper heading="Add data source">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <FormControl id="name">
-            <FormLabel>Name</FormLabel>
-            <Input
-              type="string"
-              placeholder="My Postgres DB"
-              {...register("name")}
-            />
-            <FormHelperText>The name of your data source.</FormHelperText>
-          </FormControl>
+      <PageWrapper
+        heading="Add data source"
+        footer={
+          <PageWrapper.Footer
+            center={
+              <Button
+                colorScheme="blue"
+                size="sm"
+                width="300px"
+                type="submit"
+                disabled={isLoading}
+                onClick={() => handleSubmit(onSubmit)()}
+                leftIcon={<PlusIcon className="h-4" />}
+              >
+                Create
+              </Button>
+            }
+          />
+        }
+      >
+        <div className="relative flex flex-col flex-1 w-full h-full">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormControl id="name">
+              <FormLabel>Name</FormLabel>
+              <Input
+                type="string"
+                placeholder="My Postgres DB"
+                {...register("name")}
+              />
+              <FormHelperText>The name of your data source.</FormHelperText>
+            </FormControl>
 
-          <FormControl id="url">
-            <FormLabel>URL</FormLabel>
-            <Input
-              type="string"
-              placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
-              {...register("credentials.url")}
-            />
-            <FormHelperText>The URL of your Postgres DB.</FormHelperText>
-          </FormControl>
+            <FormControl id="url">
+              <FormLabel>URL</FormLabel>
+              <Input
+                type="string"
+                placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1]"
+                {...register("credentials.url")}
+              />
+              <FormHelperText>
+                The URL of your Postgres DB. The credentials are safely
+                encrypted. We'll never show these credentials again.
+              </FormHelperText>
+            </FormControl>
 
-          <FormControl id="type">
-            <FormLabel>Data source type</FormLabel>
-            <Select {...register("type")}>
-              <option disabled>Select data source</option>
-              {availableDataSources.map(({ id, label, enabled }) => (
-                <option key={id} value={id} disabled={!enabled}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl id="credentials_useSsl">
-            <FormLabel>Use SSL</FormLabel>
-            <Checkbox {...register("credentials.useSsl")} defaultIsChecked />
-          </FormControl>
-          <input type="submit" className="hidden invisible" />
-          <Button className="mt-4" type="submit" disabled={isLoading}>
-            Create
-          </Button>
-        </form>
+            <FormControl id="credentials_useSsl">
+              <FormLabel>Use SSL</FormLabel>
+              <Checkbox {...register("credentials.useSsl")} defaultIsChecked />
+            </FormControl>
+            <input type="submit" className="hidden invisible" />
+          </form>
+        </div>
       </PageWrapper>
     </Layout>
   );

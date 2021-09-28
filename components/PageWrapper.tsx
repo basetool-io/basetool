@@ -114,8 +114,9 @@ function PageWrapper({
     <>
       <div
         className={classNames(
-          "flex flex-col flex-1 px-2 py-2 min-w-64 w-full",
-          className
+          "flex flex-col flex-1 px-2 pt-2 min-w-64 w-full",
+          className,
+          {'pb-2': !footer},
         )}
       >
         <div
@@ -157,8 +158,8 @@ function PageWrapper({
           >
             {isLoading && <LoadingOverlay inPageWrapper />}
             {children}
-            {footer && footer}
           </div>
+          {footer && footer}
         </div>
       </div>
     </>
