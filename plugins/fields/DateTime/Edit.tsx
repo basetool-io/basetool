@@ -4,6 +4,8 @@ import {
   FormErrorMessage,
   FormHelperText,
   Input,
+  InputGroup,
+  InputRightAddon,
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@heroicons/react/outline";
 import { DateTime } from "luxon";
@@ -27,7 +29,11 @@ const CustomInput = forwardRef(
     ref: any
   ) => {
     return (
-      <Button onClick={onClick} ref={ref}>
+      <Button
+        onClick={onClick}
+        ref={ref}
+        className="p-0 flex h-full w-full justify-center items-center"
+      >
         <CalendarIcon className="h-4" />
       </Button>
     );
@@ -136,25 +142,25 @@ const Edit = ({
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError || !isValid} isDisabled={readonly}>
         <div className="flex w-full">
-          <div className="flex-1 flex">
+          <InputGroup>
             <Input
               type="text"
               onChange={(e) => setLocalValue(e.currentTarget.value)}
               value={parsedValue}
               placeholder={placeholder}
             />
-          </div>
 
-          <div className="w-16">
-            <DatePicker
-              selected={placeholderValue}
-              onChange={handleOnChange}
-              showTimeSelect
-              timeIntervals={15}
-              timeCaption="Time"
-              customInput={<CustomInput />}
-            />
-          </div>
+            <InputRightAddon padding={0}>
+              <DatePicker
+                selected={placeholderValue}
+                onChange={handleOnChange}
+                showTimeSelect
+                timeIntervals={15}
+                timeCaption="Time"
+                customInput={<CustomInput />}
+              />
+            </InputRightAddon>
+          </InputGroup>
         </div>
 
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
