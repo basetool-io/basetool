@@ -12,13 +12,13 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { cloneDeep, isEmpty, without } from "lodash";
 import { diff as difference } from "deep-object-diff";
 import {
   getColumnNameLabel,
   getColumnOptions,
   iconForField,
 } from "@/features/fields";
-import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -58,6 +58,25 @@ const getDynamicInspector = (fieldType: string) => {
   }
 };
 
+const NULL_VALUES = [
+  {
+    value: "null",
+    label: "'null' (as a string)"
+  },
+  {
+    value: "",
+    label: "'' (empty string)",
+  },
+  {
+    value: 0,
+    label: "0"
+  },
+  // {
+  //   value: "{}",
+  //   label: "{} (empty object)"
+  // },
+]
+
 const ColumnEditor = ({
   column,
   setColumnOption,
@@ -82,11 +101,27 @@ const ColumnEditor = ({
     [column?.fieldType]
   );
 
+  const setNullValue = (checked: boolean, value: any) => {
+    let newNullValues = cloneDeep(column.baseOptions.nullValues);
+
+    if(checked) newNullValues.push(value);
+    else newNullValues = without(newNullValues, value);
+
+    setColumnOption(
+      column,
+      "baseOptions.nullValues",
+      newNullValues
+    );
+  };
+
   return (
     <>
       {!column?.name && "👈 Please select a field"}
       {column?.name && (
         <div className="w-full">
+          <pre>
+            {JSON.stringify(column, null, 2)}
+          </pre>
           <div>
             <h3 className="uppercase text-md font-semibold">
               {getColumnNameLabel(
@@ -247,6 +282,41 @@ You can control where the field is visible here.`}
                   Required
                 </Checkbox>
               </FormControl>
+            </OptionWrapper>
+
+            <OptionWrapper helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}>
+              <FormControl id="nullable">
+                <FormLabel>Nullable</FormLabel>
+                <Checkbox
+                  id="nullable"
+                  isChecked={column.baseOptions.nullable}
+                  onChange={() =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.nullable",
+                      !column.baseOptions.nullable
+                    )
+                  }
+                >
+                  Nullable
+                </Checkbox>
+              </FormControl>
+              {column.baseOptions.nullable === true && (
+                <Stack pl={6} mt={1} spacing={1}>
+                  {NULL_VALUES &&
+                    NULL_VALUES.map(({ value, label }) => (
+                      <div key={label}>
+                        <Checkbox
+                          id={`null_value_${label}`}
+                          isChecked={Object.values(column.baseOptions.nullValues).includes(value)}
+                          onChange={(e) => setNullValue(e.currentTarget.checked, value)}
+                        >
+                          {label}
+                        </Checkbox>
+                      </div>
+                    ))}
+                </Stack>
+              )}
             </OptionWrapper>
 
             <OptionWrapper

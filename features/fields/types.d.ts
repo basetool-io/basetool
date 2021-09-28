@@ -27,6 +27,7 @@ export type ForeignKey = {
 export type BaseOptions = {
   visibility: Views[];
   nullable: boolean;
+  nullValues: any[];
   required: boolean;
   readonly: boolean;
   placeholder: string;

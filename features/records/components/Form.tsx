@@ -137,12 +137,22 @@ const Form = ({
         router.query.tableName &&
         record.id
       ) {
+        const changes = Object.fromEntries(Object.entries(diff).map(([key]) => {
+          // handle nullable and nullValues
+          const column = columns.find(c => c.name === key);
+          if(column && column.baseOptions.nullable === true && Object.values(column.baseOptions.nullValues).includes(getValues(key)))
+            return [key, null]
+
+          return [key, getValues(key)];
+        }));
+
+        console.log('changes->', changes)
         const response = await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: Object.fromEntries(Object.entries(diff).map(([key]) => [key, getValues(key)])),
+            changes: changes,
           },
         });
         router.push(backLink);
