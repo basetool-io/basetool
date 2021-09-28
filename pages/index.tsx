@@ -7,7 +7,6 @@ import React, { useContext } from "react";
 
 function Index() {
   const { user } = useContext(ProfileContext);
-  console.log('process.env.TZ->', process.env.TZ)
 
   return (
     <Layout hideSidebar={true}>
