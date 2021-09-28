@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonGroup,
   Checkbox,
   CheckboxGroup,
   Code,
@@ -12,6 +11,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { Save } from "react-feather";
 import { diff as difference } from "deep-object-diff";
 import {
   getColumnNameLabel,
@@ -32,7 +32,6 @@ import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Save } from "react-feather";
 
 type ChangesObject = Record<string, unknown>;
 
