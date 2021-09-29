@@ -1,13 +1,13 @@
 import { OrganizationUser, User } from "@prisma/client";
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
+import { pick } from "lodash"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { pick } from "lodash"
 
 const handler = async (
   req: NextApiRequest,
