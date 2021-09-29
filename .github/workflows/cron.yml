@@ -1,0 +1,16 @@
+name: Cron
+
+on:
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run every 10 minutes
+    - cron: '*/10 * * * *'
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Keep functions alive
+      run: "yarn zx scripts/cron.mjs"
