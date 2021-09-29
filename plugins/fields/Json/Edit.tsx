@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Textarea,
 } from "@chakra-ui/react";
+import { Views } from "@/features/fields/enums";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -16,9 +17,10 @@ const Edit = ({
   register: registerMethod,
   setValue,
   schema,
+  view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const errors = useMemo(() => formState.errors, [formState])
+  const errors = useMemo(() => formState.errors, [formState]);
   const { name } = register;
 
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -37,6 +39,10 @@ const Edit = ({
   } catch (e) {
     initialValue = "{}";
   }
+  const defaultValue = field?.column?.baseOptions?.defaultValue
+    ? JSON.stringify(JSON.parse(field.column.baseOptions.defaultValue), null, 2)
+    : null;
+  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   const handleOnChange = (value: string) => {
     if (isEmpty(value)) {
@@ -75,14 +81,14 @@ const Edit = ({
     <EditFieldWrapper field={field} schema={schema}>
       <pre>{JSON.stringify(this, null, 2)}</pre>
       <FormControl
-        isInvalid={(hasError) || !isNull(jsonError)}
+        isInvalid={hasError || !isNull(jsonError)}
         id={fieldId(field)}
       >
         <Textarea
           rows={10}
           placeholder={placeholder as string}
           id={fieldId(field)}
-          defaultValue={initialValue}
+          defaultValue={hasDefaultValue ? defaultValue : initialValue}
           onChange={(e) => {
             handleOnChange(e.currentTarget.value);
           }}

@@ -66,4 +66,5 @@ export type EditFieldProps = {
   register: any;
   schema?: AnySchema;
   setValue?: (name: string, value: unknown, config?: unknown) => void;
+  view?: Views;
 };

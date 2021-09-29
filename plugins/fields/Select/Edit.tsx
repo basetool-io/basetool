@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Select,
 } from "@chakra-ui/react";
+import { Views } from "@/features/fields/enums";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -16,6 +17,7 @@ const Edit = ({
   formState,
   register: registerMethod,
   schema,
+  view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
   const errors = useMemo(() => formState.errors, [formState])
@@ -37,6 +39,10 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
+  const defaultValue = field?.column?.baseOptions?.defaultValue
+  ? field.column.baseOptions.defaultValue
+  : null;
+  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
@@ -44,8 +50,7 @@ const Edit = ({
         isInvalid={hasError}
         isDisabled={readonly}
       >
-        <Select id={fieldId(field)} {...register} placeholder={placeholder}>
-          {/* {placeholder && <option disabled>{placeholder}</option> } */}
+        <Select id={fieldId(field)} {...register} placeholder={placeholder} defaultValue={hasDefaultValue ? defaultValue : null} >
           {options &&
             options.map((option: string, index: number) => (
               <option key={index} value={option}>
