@@ -49,35 +49,31 @@ function Inspector({
   //   }
   // }, [column.fieldOptions.displayAsEmail]);
 
-  const setTheColumnOption = async (c: Column, name: string, value: any) => {
-    await setColumnOption(c, name, value);
-  };
-
   useEffect(() => {
     switch (displayAs) {
       case "link":
         console.log("link->");
-        setTheColumnOption(column, "fieldOptions.displayAsLink", true);
-        setTheColumnOption(column, "fieldOptions.displayAsImage", false);
-        setTheColumnOption(column, "fieldOptions.displayAsEmail", false);
+        setColumnOption(column, "fieldOptions.displayAsLink", true);
+        setColumnOption(column, "fieldOptions.displayAsImage", false);
+        setColumnOption(column, "fieldOptions.displayAsEmail", false);
         break;
       case "image":
         console.log("img->");
-        setTheColumnOption(column, "fieldOptions.displayAsImage", true);
-        setTheColumnOption(column, "fieldOptions.displayAsLink", false);
-        setTheColumnOption(column, "fieldOptions.displayAsEmail", false);
+        setColumnOption(column, "fieldOptions.displayAsImage", true);
+        setColumnOption(column, "fieldOptions.displayAsLink", false);
+        setColumnOption(column, "fieldOptions.displayAsEmail", false);
         break;
       case "email":
         console.log("email->");
-        setTheColumnOption(column, "fieldOptions.displayAsEmail", true);
-        setTheColumnOption(column, "fieldOptions.displayAsImage", false);
-        setTheColumnOption(column, "fieldOptions.displayAsLink", false);
+        setColumnOption(column, "fieldOptions.displayAsEmail", true);
+        setColumnOption(column, "fieldOptions.displayAsImage", false);
+        setColumnOption(column, "fieldOptions.displayAsLink", false);
         break;
       default:
         console.log("def->");
-        setTheColumnOption(column, "fieldOptions.displayAsEmail", false);
-        setTheColumnOption(column, "fieldOptions.displayAsImage", false);
-        setTheColumnOption(column, "fieldOptions.displayAsLink", false);
+        setColumnOption(column, "fieldOptions.displayAsEmail", false);
+        setColumnOption(column, "fieldOptions.displayAsImage", false);
+        setColumnOption(column, "fieldOptions.displayAsLink", false);
         break;
     }
   }, [displayAs]);

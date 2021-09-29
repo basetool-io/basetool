@@ -39,24 +39,12 @@ const Edit = ({
         isInvalid={hasError}
         isDisabled={readonly}
       >
-
-        {field.column.fieldOptions.displayAsEmail === true && (
-          <Input
-            type="email"
-            pattern={field.column.fieldOptions.emailPattern as string}
-            id={fieldId(field)}
-            {...register}
-            placeholder={placeholder}
-          />
-        )}
-        {field.column.fieldOptions.displayAsEmail === true || (
-          <Input
-            type="text"
-            id={fieldId(field)}
-            {...register}
-            placeholder={placeholder}
-          />
-        )}
+        <Input
+          type={field.column.fieldOptions.displayAsEmail === true ? "email" : "text"}
+          id={fieldId(field)}
+          {...register}
+          placeholder={placeholder}
+        />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
