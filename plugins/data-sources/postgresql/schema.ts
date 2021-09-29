@@ -6,5 +6,4 @@ export const schema = Joi.object({
     url: Joi.string().required(),
     useSsl: Joi.boolean(),
   }),
-  type: Joi.string().valid("postgresql").required(),
 });

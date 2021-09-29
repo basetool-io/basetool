@@ -43,7 +43,7 @@ function New() {
     setIsLoading(false);
 
     if (response && response.ok) {
-      router.push(`/data-sources/${response.data.id}`);
+      await router.push(`/data-sources/${response.data.id}`);
     }
   };
 
