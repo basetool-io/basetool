@@ -1,5 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@heroicons/react/outline";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { SerializedError } from "@reduxjs/toolkit";
 import { Sidebar } from "react-feather";
 import { useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
@@ -97,6 +99,7 @@ function PageWrapper({
   isLoading = false,
   className,
   footer,
+  error,
 }: {
   heading?: string | ReactElement;
   crumbs?: Array<string | undefined>;
@@ -107,6 +110,7 @@ function PageWrapper({
   isLoading?: boolean;
   className?: string;
   footer?: ReactElement;
+  error?: FetchBaseQueryError | SerializedError | undefined;
 }) {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
 
@@ -116,7 +120,7 @@ function PageWrapper({
         className={classNames(
           "flex flex-col flex-1 px-2 pt-2 min-w-64 w-full",
           className,
-          {'pb-2': !footer},
+          { "pb-2": !footer }
         )}
       >
         <div
@@ -141,9 +145,18 @@ function PageWrapper({
                   <Sidebar className="h-4 w-4" />
                 </Button>
                 <div className="text-xl text-gray-800 flex items-center space-x-1">
-                  {icon}
-                  {heading && <span>{heading}</span>}
-                  {crumbs && <TitleCrumbs crumbs={crumbs} />}
+                  {!error && (
+                    <>
+                      {icon}
+                      {heading && <span>{heading}</span>}
+                      {crumbs && <TitleCrumbs crumbs={crumbs} />}
+                    </>
+                  )}
+
+                  {error &&
+                    (("status" in error && error.status) ||
+                      ("name" in error && error.name) ||
+                      "Error")}
                 </div>
               </div>
               <div className="flex justify-start md:justify-end items-center">
@@ -157,7 +170,22 @@ function PageWrapper({
             })}
           >
             {isLoading && <LoadingOverlay inPageWrapper />}
-            {children}
+            {!error && children}
+            {error && "data" in error && (
+              <div className="p-4">
+                {(error as any)?.data?.messages[0]}
+                {(error as any)?.data?.meta?.errorMessage && (
+                  <>
+                    <div className="uppercase font-bold text-sm mt-4">
+                      Message:
+                    </div>
+                    <div className="text-sm">
+                      {(error as any)?.data?.meta?.errorMessage}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
           {footer && footer}
         </div>

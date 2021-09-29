@@ -11,6 +11,6 @@ jobs:
 
     steps:
       - name: Install zx
-        run: yarn global add zx
+        run: npm install -g zx
       - name: Keep functions alive
-        run: yarn zx scripts/cron.mjs
+        run: npx zx scripts/cron.mjs

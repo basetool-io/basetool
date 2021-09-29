@@ -22,7 +22,7 @@ import {
   useUpdateDataSourceMutation,
 } from "@/features/data-sources/api-slice";
 import { useGetRolesQuery } from "@/features/roles/api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice"
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/components/ColumnListItem";
@@ -247,16 +247,19 @@ function Edit() {
   const dataSourceId = router.query.dataSourceId as string;
   const [currentTableName, setCurrentTableName] = useState<string>();
   const [hasBeenRemoved, setHasBeenRemoved] = useState(false); // This is used to update the UI about the removal of the DS
-  const { data: dataSourceResponse, error: dataSourceError, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery(
-      { dataSourceId },
-      {
-        skip: !dataSourceId,
-      }
-    );
+  const {
+    data: dataSourceResponse,
+    error: dataSourceError,
+    isLoading: dataSourceIsLoading,
+  } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
   const {
     data: tablesResponse,
-    error,
+    error: tablesError,
     isLoading,
     isFetching,
     refetch: refetchTables,
@@ -318,65 +321,60 @@ function Edit() {
       {(isLoading || isFetching || rolesIsLoading || dataSourceIsLoading) && (
         <LoadingOverlay transparent={true} />
       )}
-      {dataSourceError && <div>Error: {JSON.stringify(dataSourceError)}</div>}
-      {dataSourceResponse?.ok && (
-        <>
-          <PageWrapper
-            crumbs={[dataSourceResponse?.data?.name, "Edit"]}
-            buttons={
-              <ButtonGroup size="xs">
-                <BackButton href={backLink} />
-                <Button
-                  colorScheme="red"
-                  onClick={handleRemove}
-                  isLoading={dataSourceIsRemoving}
-                  leftIcon={<TrashIcon className="h-4" />}
-                >
-                  {hasBeenRemoved
-                    ? "Removed"
-                    : dataSourceIsRemoving
-                    ? "Removing"
-                    : "Remove data source"}
-                </Button>
-              </ButtonGroup>
-            }
-            flush={true}
-          >
-            <div className="relative flex-1 max-w-full w-full flex">
-              <div className="flex flex-shrink-0 w-1/4 border-r">
-                <div className="w-full relative p-4">
-                  <div className="mb-2">Tables</div>
-                  {tables &&
-                    tables.map((table: ListTable) => {
-                      return (
-                        <ColumnListItem
-                          key={table.name}
-                          active={table.name === currentTable?.name}
-                          onClick={() => setCurrentTableName(table.name)}
-                        >
-                          {/* <pre>{JSON.stringify(table, null, 2)}</pre> */}
-                          {getLabel(table)}
-                        </ColumnListItem>
-                      );
-                    })}
-                </div>
-              </div>
-              <div className="flex-1 p-4">
-                {!currentTable && "👈 Please select a table"}
-                {currentTable && (
-                  <TableEditor
-                    currentTable={currentTable}
-                    selectTable={async (name: string) => {
-                      await refetchTables();
-                      setCurrentTableName(name);
-                    }}
-                  />
-                )}
-              </div>
+      <PageWrapper
+        error={dataSourceError}
+        crumbs={[dataSourceResponse?.data?.name, "Edit"]}
+        buttons={
+          <ButtonGroup size="xs">
+            <BackButton href={backLink} />
+            <Button
+              colorScheme="red"
+              onClick={handleRemove}
+              isLoading={dataSourceIsRemoving}
+              leftIcon={<TrashIcon className="h-4" />}
+            >
+              {hasBeenRemoved
+                ? "Removed"
+                : dataSourceIsRemoving
+                ? "Removing"
+                : "Remove data source"}
+            </Button>
+          </ButtonGroup>
+        }
+        flush={true}
+      >
+        <div className="relative flex-1 max-w-full w-full flex">
+          <div className="flex flex-shrink-0 w-1/4 border-r">
+            <div className="w-full relative p-4">
+              <div className="mb-2">Tables</div>
+              {tables &&
+                tables.map((table: ListTable) => {
+                  return (
+                    <ColumnListItem
+                      key={table.name}
+                      active={table.name === currentTable?.name}
+                      onClick={() => setCurrentTableName(table.name)}
+                    >
+                      {getLabel(table)}
+                    </ColumnListItem>
+                  );
+                })}
             </div>
-          </PageWrapper>
-        </>
-      )}
+          </div>
+          <div className="flex-1 p-4">
+            {!currentTable && "👈 Please select a table"}
+            {currentTable && (
+              <TableEditor
+                currentTable={currentTable}
+                selectTable={async (name: string) => {
+                  await refetchTables();
+                  setCurrentTableName(name);
+                }}
+              />
+            )}
+          </div>
+        </div>
+      </PageWrapper>
     </Layout>
   );
 }
