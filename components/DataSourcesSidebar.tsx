@@ -37,7 +37,7 @@ const DataSourceItem = ({
   compact?: boolean;
   flush?: boolean;
   onClick?: () => void;
-  [name: string]: any
+  [name: string]: any;
 }) => {
   const linkElement = (
     <a className="block" onClick={onClick} {...rest}>
@@ -105,8 +105,11 @@ const DataSourcesSidebar = () => {
                       <span
                         className={classNames(
                           "flex items-center justify-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
-                          { "hover:bg-cool-gray-600": router.asPath === '/' },
-                          { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":router.asPath === '/' },
+                          { "hover:bg-cool-gray-600": router.asPath === "/" },
+                          {
+                            "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":
+                              router.asPath === "/",
+                          }
                         )}
                       >
                         <HomeIcon className="h-6 inline-block" />
@@ -176,13 +179,23 @@ const DataSourcesSidebar = () => {
               {/* @todo: link to docs */}
               {/* @todo: link to feature request */}
               {/* @todo: link to complaints */}
-              {/* <DataSourceItem
-                active={router.asPath.includes(`/settings`)}
-                compact={compact}
-                icon={<CogIcon className="h-6 w-6 text-white" />}
-                link={`/settings`}
-                label="Settings"
-              /> */}
+              <Link href="/beta" passHref>
+                <a className="block">
+                  <div
+                    className={classNames(
+                      "flex-1 flex text-gray-300 hover:text-white font-normal cursor-pointer text-sm rounded-md leading-none p-1",
+                      {
+                        "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow leading-none":
+                          router.asPath === `/beta`,
+                      }
+                    )}
+                  >
+                    <div className="w-full text-center uppercase text-sm font-bold">
+                      Beta
+                    </div>
+                  </div>
+                </a>
+              </Link>
               <DataSourceItem
                 active={router.asPath.includes(`/profile`)}
                 compact={compact}
