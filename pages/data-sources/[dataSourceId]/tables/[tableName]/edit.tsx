@@ -321,7 +321,8 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     { isLoading: isUpdating }, // This is the destructured mutation result
   ] = useUpdateColumnsMutation();
 
-  const setColumnOption = (column: Column, name: string, value: any) => {
+  const setColumnOption = async (column: Column, name: string, value: any) => {
+    console.log('IN SET COLUMN OPTION column, name, value->', column, name, value)
     const newColumns = [...columns];
     let namespace: "baseOptions" | "fieldOptions" | undefined;
     let newColumn: Column;
@@ -349,10 +350,11 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
 
     const index = newColumns.findIndex((c: Column) => c.name === column.name);
 
+    console.log('newColumn->', newColumn)
     if (index > -1) {
       newColumns[index] = newColumn;
-      setColumn(newColumn);
-      setColumns(newColumns);
+      await setColumn(newColumn);
+      await setColumns(newColumns);
     }
   };
 
