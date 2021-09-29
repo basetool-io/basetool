@@ -4,6 +4,7 @@ import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
 import { isNumber } from "lodash"
 import ApiResponse from "./ApiResponse";
+import VerifyKeepAlive from "./middlewares/VerifyKeepAlive"
 
 export type MiddlewareTuple = [
   (
@@ -13,7 +14,9 @@ export type MiddlewareTuple = [
   Record<string, unknown>
 ];
 
-const startMiddlewares: MiddlewareTuple[] = [];
+const startMiddlewares: MiddlewareTuple[] = [
+  [VerifyKeepAlive, {}]
+];
 
 const endMiddlewares: MiddlewareTuple[] = [];
 
