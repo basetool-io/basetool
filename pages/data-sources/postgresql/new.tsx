@@ -5,20 +5,24 @@ import {
   FormHelperText,
   FormLabel,
   Input,
+  Select,
 } from "@chakra-ui/react";
-import { PlusIcon } from "@heroicons/react/outline"
+import { PlusIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
 import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
+import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
+import classNames from "classnames";
 export interface IFormFields {
   id?: number;
   name: string;
   type: "postgresql";
+  organizationId: number;
   credentials: {
     url: string;
     useSsl: boolean;
@@ -29,6 +33,7 @@ function New() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [addDataSource] = useAddDataSourceMutation();
+  const { organizations } = useProfile();
 
   const onSubmit = async (formData: IFormFields) => {
     setIsLoading(true);
@@ -43,20 +48,27 @@ function New() {
     setIsLoading(false);
 
     if (response && response.ok) {
-      router.push(`/data-sources/${response.data.id}`);
+      await router.push(`/data-sources/${response.data.id}`);
     }
   };
 
-  const { register, handleSubmit, setValue } = useForm({
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      name: router.query.name || "",
+      type: "postgresql",
+      organizationId:
+        organizations && organizations.length > 0 ? organizations[0].id : "",
+      credentials: {
+        url: router.query.credentials ? router.query.credentials : "",
+        useSsl: true,
+      },
+    },
     resolver: joiResolver(schema),
   });
 
   useEffect(() => {
     if (router.query.credentials) {
-      // If we get the credentials in a params, set it in the form
-      setValue("name", router.query.name as string);
-      setValue("credentials.url", router.query.credentials as string);
-      // reset the URL for added security
+      // reset the URL if we get the credentials through the params for added security
       router.push(
         {
           pathname: router.pathname,
@@ -116,9 +128,23 @@ function New() {
               </FormHelperText>
             </FormControl>
 
+            <FormControl
+              id="condition"
+              // We're hiding this select if there's only one organization
+              className={classNames({ hidden: organizations.length === 1 })}
+            >
+              <Select {...register("organizationId")}>
+                {organizations.map(({ id, name }) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
             <FormControl id="credentials_useSsl">
               <FormLabel>Use SSL</FormLabel>
-              <Checkbox {...register("credentials.useSsl")} defaultIsChecked />
+              <Checkbox {...register("credentials.useSsl")} />
             </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>

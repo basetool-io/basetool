@@ -247,7 +247,7 @@ function Edit() {
   const dataSourceId = router.query.dataSourceId as string;
   const [currentTableName, setCurrentTableName] = useState<string>();
   const [hasBeenRemoved, setHasBeenRemoved] = useState(false); // This is used to update the UI about the removal of the DS
-  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
+  const { data: dataSourceResponse, error: dataSourceError, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(
       { dataSourceId },
       {
@@ -318,8 +318,8 @@ function Edit() {
       {(isLoading || isFetching || rolesIsLoading || dataSourceIsLoading) && (
         <LoadingOverlay transparent={true} />
       )}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
-      {tablesResponse?.ok && (
+      {dataSourceError && <div>Error: {JSON.stringify(dataSourceError)}</div>}
+      {dataSourceResponse?.ok && (
         <>
           <PageWrapper
             crumbs={[dataSourceResponse?.data?.name, "Edit"]}
