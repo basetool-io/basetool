@@ -129,10 +129,11 @@ function New() {
             </FormControl>
 
             <FormControl
-              id="condition"
+              id="organization"
               // We're hiding this select if there's only one organization
               className={classNames({ hidden: organizations.length === 1 })}
             >
+              <FormLabel>Organization</FormLabel>
               <Select {...register("organizationId")}>
                 {organizations.map(({ id, name }) => (
                   <option key={id} value={id}>
