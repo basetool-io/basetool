@@ -83,23 +83,18 @@ const DataSourcesSidebar = () => {
   const router = useRouter();
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
-  // const visible = true;
-  // const [compact, setCompact] = useLocalStorage(
-  //   `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
-  //   true,
-  // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
   const prefetchTables = usePrefetch("getTables");
 
   return (
     <div
-      className={classNames("flex flex-grow-0 flex-shrink-0", {
+      className={classNames("flex flex-1 flex-grow-0 flex-shrink-0", {
         "w-2 md:w-[4rem]": !sidebarsVisible,
         "w-[4rem]": sidebarsVisible,
       })}
     >
-      <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">
+      <div className="py-2 px-2 flex-1 h-screen bg-cool-gray-700 text-white w-full overflow-y-auto">
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
