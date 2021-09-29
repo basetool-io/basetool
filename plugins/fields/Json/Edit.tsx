@@ -88,7 +88,7 @@ const Edit = ({
           rows={10}
           placeholder={placeholder as string}
           id={fieldId(field)}
-          defaultValue={hasDefaultValue ? defaultValue : initialValue}
+          defaultValue={hasDefaultValue ? defaultValue as string : initialValue}
           onChange={(e) => {
             handleOnChange(e.currentTarget.value);
           }}
