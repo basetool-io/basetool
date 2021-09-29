@@ -271,6 +271,28 @@ You can control where the field is visible here.`}
               </FormControl>
             </OptionWrapper>
 
+            <OptionWrapper
+              helpText={`Default value for create view.`}
+            >
+              <FormControl id="defaultValue">
+                <FormLabel>Default value</FormLabel>
+                <Input
+                  type="text"
+                  name="default value"
+                  placeholder="Default value"
+                  required={false}
+                  value={column.baseOptions.defaultValue}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.defaultValue",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+
             <InspectorComponent
               column={column}
               setColumnOption={setColumnOption}

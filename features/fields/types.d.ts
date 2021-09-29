@@ -33,6 +33,7 @@ export type BaseOptions = {
   help: string;
   label: string;
   disconnected: boolean;
+  defaultValue: string;
 };
 
 export type Column<
