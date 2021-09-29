@@ -39,9 +39,17 @@ const Edit = ({
   } catch (e) {
     initialValue = "{}";
   }
-  const defaultValue = field?.column?.baseOptions?.defaultValue
-    ? JSON.stringify(JSON.parse(field.column.baseOptions.defaultValue), null, 2)
+
+  let defaultValue = field?.column?.baseOptions?.defaultValue
+    ? field.column.baseOptions.defaultValue
     : null;
+  try {
+    defaultValue = isNull(defaultValue)
+      ? "{}"
+      : JSON.stringify(JSON.parse(defaultValue as string), null, 2);
+  } catch (e) {
+    defaultValue = "{}";
+  }
   const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   const handleOnChange = (value: string) => {
