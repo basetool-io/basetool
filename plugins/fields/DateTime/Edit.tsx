@@ -10,7 +10,6 @@ import {
 import { CalendarIcon } from "@heroicons/react/outline";
 import { DateTime } from "luxon";
 import { EditFieldProps } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { dateTimeFormat, getBrowserTimezone } from "@/lib/time";
 import { isArray, isDate, isFunction, isUndefined } from "lodash";
 import DatePicker from "react-datepicker";
@@ -103,10 +102,8 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  const defaultValue = field?.column?.baseOptions?.defaultValue
-    ? field.column.baseOptions.defaultValue
-    : null;
-  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
+  // const defaultValue = field?.column?.baseOptions?.defaultValue ? field.column.baseOptions.defaultValue : null;
+  // const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   // const date = DateTime.fromISO(field.value as string);
   // const formattedDate = date.setZone(getBrowserTimezone()).toLocaleString(DateTime.DATETIME_MED);
