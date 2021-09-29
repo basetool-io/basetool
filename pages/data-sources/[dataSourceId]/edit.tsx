@@ -355,7 +355,6 @@ function Edit() {
                       active={table.name === currentTable?.name}
                       onClick={() => setCurrentTableName(table.name)}
                     >
-                      {/* <pre>{JSON.stringify(table, null, 2)}</pre> */}
                       {getLabel(table)}
                     </ColumnListItem>
                   );

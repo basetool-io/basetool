@@ -48,8 +48,9 @@ const Sidebar = () => {
             ) : (
               <span>{dataSourceResponse?.data?.name}</span>
             )}
+            <br />
             <Link href={`/data-sources/${dataSourceId}/edit`}>
-              <a className="mt-1 flex items-center text-xs text-gray-600 cursor-pointer">
+              <a className="mt-1 flex-inline items-center text-xs text-gray-600 cursor-pointer">
                 <PencilAltIcon className="h-4 inline" /> Edit
               </a>
             </Link>

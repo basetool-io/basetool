@@ -1,7 +1,8 @@
 import { OrganizationUser, User } from "@prisma/client";
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
-import { withMiddlewares } from "@/features/api/middleware"
+import { pick } from "lodash"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import getSchema from "@/plugins/data-sources/getSchema";
@@ -77,45 +78,22 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
-  const user = (await prisma.user.findUnique({
-    where: {
-      email: session?.user?.email as string,
-    },
-    include: {
-      organizations: {
-        include: {
-          organization: true,
-        },
-      },
-    },
-  })) as User & {
-    organizations: OrganizationUser[];
-  };
-
-  const { organizations } = user;
-  const [firstOrganizationPivot] = organizations;
-  const organizationId = firstOrganizationPivot.organizationId;
-
   // encrypt the credentials
   const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials));
-  const data = {
-    name: req.body.name,
-    type: req.body.type,
-    organizationId,
-    encryptedCredentials,
-  };
-
   const dataSource = await prisma.dataSource.create({
-    data,
+    data: {
+      name: req.body.name,
+      type: req.body.type,
+      encryptedCredentials,
+      organizationId: parseInt(req.body.organizationId as string),
+    },
   });
 
   return res.json(
-    ApiResponse.withData(dataSource, { message: "Data source created" })
+    ApiResponse.withData(pick(dataSource, ['id']), { message: "Data source created" })
   );
 }
 
 export default withMiddlewares(handler, {
-  middlewares: [
-    [IsSignedIn, {}],
-  ],
+  middlewares: [[IsSignedIn, {}]],
 });
