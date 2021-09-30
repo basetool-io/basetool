@@ -1,5 +1,5 @@
 import { Field } from '../../types'
-import { ReactNode } from 'react'
+import { ReactNode, memo } from 'react'
 
 const IndexFieldWrapper = ({
   children,
@@ -7,9 +7,9 @@ const IndexFieldWrapper = ({
   field: Field;
   children: ReactNode;
 }) => (
-  <div className="px-4 py-2 leading-tight whitespace-no-wrap">
+  <div className="py-2 leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis">
     {children}
   </div>
 )
 
-export default IndexFieldWrapper
+export default memo(IndexFieldWrapper)

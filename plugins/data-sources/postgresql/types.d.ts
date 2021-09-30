@@ -9,12 +9,16 @@ export type AxiosErrorWithMessage = {
 export type ListTable = {
   name: string;
   schemaname: string;
+  label?: string;
+  authorizedRoles?: string[];
 };
 
 export type Table = {
   columns?: {
     [columnName: string]: Column
   }
+  label?: string
+  authorizedRoles?: string[];
 }
 
 export type Tables = {

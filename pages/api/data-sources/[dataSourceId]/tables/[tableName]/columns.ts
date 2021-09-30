@@ -1,15 +1,17 @@
+import { Column } from "@/features/fields/types";
+import { DataSource } from "@prisma/client";
 import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withSentry } from "@sentry/nextjs";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middleware/IsSignedIn";
-import OwnsDataSource from "@/features/api/middleware/OwnsDataSource";
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const handle = async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -27,28 +29,40 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = await getDataSourceFromRequest(req);
 
   if (!dataSource) return res.status(404).send("");
+  const tableName = req.query.tableName as string;
 
+  const columns = await getColumns({ dataSource, tableName });
+
+  res.json(ApiResponse.withData(columns));
+}
+
+export const getColumns = async ({
+  dataSource,
+  tableName,
+}: {
+  dataSource: DataSource;
+  tableName: string;
+}): Promise<Column[]> => {
   // If the data source has columns stored, send those in.
   const storedColumns = get(dataSource, [
     "options",
     "tables",
-    req.query.tableName as string,
+    tableName as string,
     "columns",
   ]);
 
-  const service = await getQueryService({dataSource});
+  const service = await getQueryService({
+    dataSource,
+    options: { cache: false },
+  });
 
-  await service.connect();
+  const columns = await service.runQuery("getColumns", {
+    tableName: tableName as string,
+    storedColumns,
+  });
 
-  const columns = await service.getColumns(
-    req.query.tableName as string,
-    storedColumns
-  );
-
-  await service.disconnect();
-
-  res.json(ApiResponse.withData(columns));
-}
+  return columns;
+};
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = (await getDataSourceFromRequest(
@@ -63,8 +77,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       "options",
       "tables",
       req.query.tableName as string,
-      "columns",
     ]);
+
+    const tableColumnOptions = tableOptions?.columns;
+
     const result = await prisma.dataSource.update({
       where: {
         id: parseInt(req.query.dataSourceId as string, 10),
@@ -73,8 +89,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
         options: {
           ...dataSource.options,
           tables: {
+            ...dataSource.options.tables,
             [req.query.tableName as string]: {
-              columns: merge(tableOptions, req.body.changes),
+              ...tableOptions,
+              columns: merge(tableColumnOptions, req.body.changes),
             },
           },
         },
@@ -87,4 +105,9 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   res.status(404).send("");
 }
 
-export default withSentry(IsSignedIn(OwnsDataSource(handle)))
+export default withMiddlewares(handler, {
+  middlewares: [
+    [IsSignedIn, {}],
+    [OwnsDataSource, {}],
+  ],
+});

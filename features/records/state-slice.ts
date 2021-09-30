@@ -9,6 +9,7 @@ interface AppState {
   orderBy: string;
   orderDirection: OrderDirection;
   filtersPanelVisible: boolean;
+  selectedRecords: number[];
 }
 
 const initialState: AppState = {
@@ -18,6 +19,7 @@ const initialState: AppState = {
   orderBy: "",
   orderDirection: "",
   filtersPanelVisible: false,
+  selectedRecords: [],
 };
 
 const recordsStateSlice = createSlice({
@@ -49,6 +51,20 @@ const recordsStateSlice = createSlice({
       const { idx, filter } = action.payload;
       state.filters[idx] = filter;
     },
+    toggleRecordSelection(state, action: PayloadAction<number>) {
+      const index = state.selectedRecords.indexOf(action.payload);
+      if(index >= 0) {
+        state.selectedRecords.splice(index, 1);
+      } else {
+        state.selectedRecords.push(action.payload);
+      }
+    },
+    setRecordsSelected(state, action: PayloadAction<number[]>) {
+      state.selectedRecords = action.payload;
+    },
+    resetRecordsSelection(state) {
+      state.selectedRecords = [];
+    },
   },
 });
 
@@ -72,6 +88,8 @@ export const allFiltersAppliedSelector = createSelector(
     JSON.stringify(filters) === JSON.stringify(appliedFilters)
 );
 
+export const selectedRecordsSelector = ({ recordsState }: { recordsState: AppState }) => recordsState.selectedRecords;
+
 export const {
   resetState,
   addFilter,
@@ -79,6 +97,9 @@ export const {
   setAppliedFilters,
   removeFilter,
   updateFilter,
+  toggleRecordSelection,
+  setRecordsSelected,
+  resetRecordsSelection,
 } = recordsStateSlice.actions;
 
 export default recordsStateSlice.reducer;

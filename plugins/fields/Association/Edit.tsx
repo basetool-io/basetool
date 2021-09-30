@@ -22,7 +22,7 @@ const Edit = ({
   setValue,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const { errors } = formState;
+  const errors = useMemo(() => formState.errors, [formState])
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -45,10 +45,7 @@ const Edit = ({
   const tableName = field?.column?.foreignKeyInfo?.foreignTableName;
   const getForeignName = useForeignName(field);
 
-  const {
-    data: recordsResponse,
-    isLoading,
-  } = useGetRecordsQuery(
+  const { data: recordsResponse, isLoading } = useGetRecordsQuery(
     {
       dataSourceId,
       tableName,
@@ -59,7 +56,7 @@ const Edit = ({
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl
-        isInvalid={hasError && formState.isDirty}
+        isInvalid={hasError}
         isDisabled={readonly}
       >
         {/* @todo: use regular text inoput when failed to fetch all the records for the association */}
@@ -79,7 +76,9 @@ const Edit = ({
           >
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
-                <option value={record.id}>{getForeignName(record)}</option>
+                <option key={record.id} value={record.id}>
+                  {getForeignName(record)}
+                </option>
               ))}
           </Select>
         )}

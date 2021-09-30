@@ -13,7 +13,13 @@ cp .env.sample .env
 # set your DATABASE_URL
 # generate a SECRET with openssl rand -hex 32
 yarn prisma migrate dev
+# seed
+SEED_PASSWORD=secret yarn prisma db seed --preview-feature
 ```
+
+You may now log in with `ted.lasso@apple.com` and password `secret`.
+
+There's also a `prisma/sample-seed.sql` file that you can use to create a sample database.
 
 ## Run
 
@@ -26,6 +32,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 # Development
 
 We're using [google/zx](https://github.com/google/zx) to help us run scripts.
+
+## Timezones
+
+`.env` holds the `TZ=UTC` entry to simulate server conditions (`TZ=UTC`).
 
 # Testing
 
@@ -52,3 +62,6 @@ We're going to run a separate server for our testing needs on port `4099`.
 
 To run both the test server and cypress run `yarn test:start-cypress`.
 
+## Emails
+
+When on production, emails will be sent using mailgun. On all other environments (event vercel preview) you will need a [mailtrap.io](https://mailtra.io) account. Fill in the `MAILTRAP_USERNAME` and `MAILTRAP_PASSWORD` variables.

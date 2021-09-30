@@ -1,18 +1,23 @@
 import {
   Button,
-  ButtonGroup,
   Checkbox,
   CheckboxGroup,
+  Code,
   FormControl,
+  FormHelperText,
   FormLabel,
   Input,
   Select,
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { Save } from "react-feather";
 import { diff as difference } from "deep-object-diff";
-import { getColumnOptions, iconForField } from "@/features/fields";
-import { inDevelopment } from "@/lib/environment";
+import {
+  getColumnNameLabel,
+  getColumnOptions,
+  iconForField,
+} from "@/features/fields";
 import { isEmpty } from "lodash";
 import {
   useGetColumnsQuery,
@@ -60,10 +65,13 @@ const ColumnEditor = ({
   column: Column;
   setColumnOption: (c: Column, name: string, value: any) => void;
 }) => {
-  const columnOptions = useMemo(
-    () => (column ? getColumnOptions(column) : []),
-    [column]
-  );
+  const columnOptions = useMemo(() => {
+    if (column) {
+      return getColumnOptions(column);
+    } else {
+      return [];
+    }
+  }, [column]);
 
   const InspectorComponent = useMemo(
     () =>
@@ -80,7 +88,13 @@ const ColumnEditor = ({
       {column?.name && (
         <div className="w-full">
           <div>
-            <h3 className="uppercase text-md font-semibold">{column.name}</h3>
+            <h3 className="uppercase text-md font-semibold">
+              {getColumnNameLabel(
+                column?.baseOptions?.label,
+                column?.label,
+                column?.name
+              )}
+            </h3>
           </div>
           <div className="divide-y">
             <OptionWrapper
@@ -112,6 +126,24 @@ const ColumnEditor = ({
             </OptionWrapper>
 
             <OptionWrapper
+              helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
+            >
+              <FormLabel>Disconnect field</FormLabel>
+              <Checkbox
+                isChecked={column.baseOptions.disconnected}
+                onChange={() =>
+                  setColumnOption(
+                    column,
+                    "baseOptions.disconnected",
+                    !column.baseOptions.disconnected
+                  )
+                }
+              >
+                Disconnected
+              </Checkbox>
+            </OptionWrapper>
+
+            <OptionWrapper
               helpText={`By default, all fields are visible in all views.
 But maybe some shouldn't be? 🤔
 You can control where the field is visible here.`}
@@ -122,14 +154,58 @@ You can control where the field is visible here.`}
                   setColumnOption(column, "baseOptions.visibility", value)
                 }
               >
-                <FormLabel>Visibility</FormLabel>
                 <Stack direction="column">
-                  <Checkbox value="index">Index</Checkbox>
-                  <Checkbox value="show">Show</Checkbox>
-                  <Checkbox value="edit">Edit</Checkbox>
-                  <Checkbox value="new">New</Checkbox>
+                  <Checkbox
+                    value="index"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Index
+                  </Checkbox>
+                  <Checkbox
+                    value="show"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Show
+                  </Checkbox>
+                  <Checkbox
+                    value="edit"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    Edit
+                  </Checkbox>
+                  <Checkbox
+                    value="new"
+                    isDisabled={column.baseOptions.disconnected}
+                  >
+                    New
+                  </Checkbox>
                 </Stack>
               </CheckboxGroup>
+            </OptionWrapper>
+
+            <OptionWrapper
+              helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
+            >
+              <FormControl id="label">
+                <FormLabel>Label</FormLabel>
+                <Input
+                  type="text"
+                  name="label value"
+                  placeholder="Label value"
+                  required={false}
+                  value={column.baseOptions.label}
+                  onChange={(e) =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.label",
+                      e.currentTarget.value
+                    )
+                  }
+                />
+                <FormHelperText>
+                  Original name for this field is <Code>{column.name}</Code>.
+                </FormHelperText>
+              </FormControl>
             </OptionWrapper>
 
             <OptionWrapper
@@ -280,8 +356,8 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     }
   };
 
-  const saveTableSettings = () => {
-    updateTable({
+  const saveTableSettings = async () => {
+    await updateTable({
       dataSourceId: router.query.dataSourceId as string,
       tableName: router.query.tableName as string,
       body: {
@@ -300,29 +376,26 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     <>
       <PageWrapper
         heading={`Edit '${router.query.tableName}' table`}
-        status={
-          <>
-            {inDevelopment && (
-              <div className="text-xs inline-flex">
-                {isDirty && "Dirty"}
-                {!isDirty && "Clean"}
-              </div>
-            )}
-          </>
-        }
-        buttons={
-          <ButtonGroup size="sm">
-            <BackButton href={backLink} />
-            <Button
-              colorScheme="blue"
-              disabled={!isDirty}
-              onClick={saveTableSettings}
-            >
-              Save
-            </Button>
-          </ButtonGroup>
-        }
+        buttons={<BackButton href={backLink} />}
         flush={true}
+        footer={
+          <PageWrapper.Footer
+            center={
+              <Button
+                className="text-red-600 text-sm cursor-pointer"
+                colorScheme="blue"
+                size="sm"
+                width="300px"
+                leftIcon={<Save className="h-4" />}
+                isLoading={isUpdating}
+                disabled={!isDirty}
+                onClick={saveTableSettings}
+              >
+                Save settings
+              </Button>
+            }
+          />
+        }
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">
@@ -335,11 +408,17 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                   return (
                     <ColumnListItem
                       key={col.name}
-                      icon={<IconElement className="inline h-4 mr-2" />}
+                      icon={
+                        <IconElement className="h-4 mr-2 flex flex-shrink-0" />
+                      }
                       active={col.name === column?.name}
                       onClick={() => setColumn(col)}
                     >
-                      {col.name}{" "}
+                      {getColumnNameLabel(
+                        col.baseOptions.label,
+                        col.label,
+                        col.name
+                      )}{" "}
                       {col.baseOptions.required && (
                         <sup className="text-red-600">*</sup>
                       )}

@@ -75,7 +75,7 @@ export const recordsApiSlice = createApi({
       }),
       createRecord: builder.mutation<
         ApiResponse,
-        Partial<{ dataSourceId: string; tableName: string; body: object }>
+        Partial<{ dataSourceId: string; tableName: string; body: Record<string, unknown> }>
       >({
         query: ({ dataSourceId, tableName, body }) => ({
           url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records`,
@@ -90,7 +90,7 @@ export const recordsApiSlice = createApi({
           dataSourceId: string;
           tableName: string;
           recordId: string;
-          body: object;
+          body: Record<string, unknown>;
         }>
       >({
         query: ({ dataSourceId, tableName, recordId, body }) => ({
@@ -102,6 +102,44 @@ export const recordsApiSlice = createApi({
           { type: "Record", id: recordId },
         ],
       }),
+      deleteRecord: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          recordId: string;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, recordId }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { recordId }) => [
+          { type: "Record", id: recordId },
+        ],
+      }),
+      deleteBulkRecords: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          recordIds: number[];
+        }>
+      >({
+        query: ({ dataSourceId, tableName, recordIds }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records/bulk`,
+          method: "DELETE",
+          body: recordIds,
+        }),
+        invalidatesTags: (result, error, { recordIds }) => {
+
+          if(!recordIds) return [{ type: "Record", id: "LIST" }];
+
+          const tagsForRecords = recordIds.map((recordId) => ({ type: "Record", id: recordId.toString() }));
+
+          return [...tagsForRecords, { type: "Record", id: "LIST" }] as { type: "Record", id: string }[];
+        },
+      }),
     };
   },
 });
@@ -112,4 +150,6 @@ export const {
   useCreateRecordMutation,
   useUpdateRecordMutation,
   usePrefetch,
+  useDeleteRecordMutation,
+  useDeleteBulkRecordsMutation,
 } = recordsApiSlice;

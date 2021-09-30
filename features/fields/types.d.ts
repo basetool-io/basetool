@@ -31,6 +31,8 @@ export type BaseOptions = {
   readonly: boolean;
   placeholder: string;
   help: string;
+  label: string;
+  disconnected: boolean;
 };
 
 export type Column<

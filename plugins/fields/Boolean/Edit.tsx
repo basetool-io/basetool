@@ -17,7 +17,7 @@ const Edit = ({
   register: registerMethod,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const { errors } = formState;
+  const errors = useMemo(() => formState.errors, [formState])
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -37,7 +37,7 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field}>
-      <FormControl isInvalid={hasError && formState.isDirty}>
+      <FormControl isInvalid={hasError}>
         <Checkbox isChecked={isChecked} {...register} isDisabled={readonly} />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (

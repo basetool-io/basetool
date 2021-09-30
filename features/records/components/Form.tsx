@@ -1,5 +1,7 @@
-import { Button, ButtonGroup } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
+import { PencilAltIcon } from "@heroicons/react/outline";
+import { Save } from "react-feather";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
@@ -15,9 +17,9 @@ import {
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
-import BackButton from "./BackButton"
+import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
@@ -37,7 +39,8 @@ const makeSchema = async (record: Record, columns: Column[]) => {
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
     } catch (error: any) {
-      if (error.code !== 'MODULE_NOT_FOUND') logger.warn("Error importing field schema->", error);
+      if (error.code !== "MODULE_NOT_FOUND")
+        logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
     }
     if (isFunction(fieldSchema)) {
@@ -74,6 +77,7 @@ const Form = ({
 
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
+      mode: "onTouched",
       defaultValues: record,
       resolver: joiResolver(schema),
     });
@@ -85,18 +89,18 @@ const Form = ({
   const backLink = useMemo(() => {
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`
-      }else{
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+      } else {
+        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
       }
     }
 
     if (formForCreate) {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
     } else {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`
+      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`;
     }
-  }, [router.query])
+  }, [router.query]);
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
@@ -105,13 +109,23 @@ const Form = ({
     let response;
 
     setIsLoading(true);
+
+    // Send only touched fields to de-risk fields that alter the content on load (datetime fields)
+    const touchedFields = Object.entries(formState.touchedFields)
+      .filter(([name, touched]) => touched)
+      .map(([name]) => name);
+
     try {
       if (formForCreate) {
         response = await createRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           body: {
-            record: formData,
+            record: Object.fromEntries(
+              Object.entries(formData).filter(([name]) =>
+                touchedFields.includes(name)
+              )
+            ),
           },
         });
 
@@ -123,7 +137,7 @@ const Form = ({
           const { data } = apiResponse;
           const { id } = data;
           if (apiResponse.ok) {
-            router.push(
+            await router.push(
               `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
             );
           }
@@ -133,21 +147,19 @@ const Form = ({
         router.query.tableName &&
         record.id
       ) {
-        const response = await updateRecord({
+        await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: diff,
+            changes: Object.fromEntries(
+              Object.entries(diff)
+                .filter(([name]) => touchedFields.includes(name))
+                .map(([name]) => [name, getValues(name)])
+            ),
           },
         });
-
-        if ("data" in response && response?.data?.ok) {
-          // @todo: make these updates into a pretty message
-          const updates = JSON.stringify(diff);
-        }
-
-        router.push(backLink);
+        await router.push(backLink);
       } else {
         toast.error("Not enough data.");
       }
@@ -161,95 +173,67 @@ const Form = ({
   return (
     <>
       <PageWrapper
-        heading="Edit record"
-        status={
-          <>
-            <div>
-              {/* <div className="flex">
-                {formState.isDirty || (
-                  <span className="text-xs text-gray-600">
-                    <SparklesIcon className="inline h-4" /> Clean
-                  </span>
-                )}
-                {formState.isDirty && (
-                  <>
-                    {formState.isValid && (
-                      <span className="text-xs text-green-600">
-                        <CheckCircleIcon className="inline h-4" /> Valid
-                      </span>
-                    )}
-                    {formState.isValid || (
-                      <span className="text-xs text-red-600">
-                        <XCircleIcon className="inline h-4" /> Invalid
-                      </span>
-                    )}
-                  </>
-                )}
-                {isLoading && (
-                  <span className="text-xs text-gray-600">
-                    <ClockIcon className="inline h-4" /> Loading
-                  </span>
-                )}
-              </div> */}
-            </div>
-          </>
-        }
-        buttons={
-          <>
-            <ButtonGroup size="sm">
-              <BackButton href={backLink} />
+        icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
+        crumbs={[
+          router.query.tableName as string,
+          formForCreate ? "Create record" : "Edit record",
+        ]}
+        flush={true}
+        buttons={<BackButton href={backLink} />}
+        footer={
+          <PageWrapper.Footer
+            center={
               <Button
+                type="submit"
                 colorScheme="blue"
-                onClick={() => {
-                  handleSubmit(onSubmit)();
-                }}
+                size="sm"
+                width="300px"
+                isLoading={isLoading}
+                onClick={handleSubmit(onSubmit)}
               >
-                {formForCreate ? "Create" : "Save"}
+                <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
               </Button>
-            </ButtonGroup>
-          </>
+            }
+          />
         }
       >
-        <>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {columns &&
-              columns.map((column: Column) => {
-                if (!formData) return null;
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="w-full h-full flex-1 flex flex-col justify-between">
+            <div>
+              {columns &&
+                columns.map((column: Column) => {
+                  if (!formData) return null;
 
-                const field = makeField({
-                  record: formData as Record,
-                  column,
-                  tableName: router.query.tableName as string,
-                });
-                let schemaForColumn;
-                try {
-                  schemaForColumn = schema.extract(column.name);
-                } catch (error) {}
+                  const field = makeField({
+                    record: formData as Record,
+                    column,
+                    tableName: router.query.tableName as string,
+                  });
+                  let schemaForColumn;
+                  try {
+                    schemaForColumn = schema.extract(column.name);
+                  } catch (error) {}
 
-                const Element = getField(column, Views.edit);
+                  const Element = getField(column, Views.edit);
 
-                return (
-                  <Element
-                    key={column.name}
-                    field={field}
-                    formState={formState}
-                    register={register}
-                    setValue={setValue}
-                    schema={schemaForColumn}
-                  />
-                );
-              })}
-            {isCreating && <LoadingOverlay label="Creating..." />}
-            {isUpdating && <LoadingOverlay label="Updating..." />}
-            <input type="submit" value="Submit" className="hidden" />
-          </form>
-        </>
+                  return (
+                    <Element
+                      key={column.name}
+                      field={field}
+                      formState={formState}
+                      register={register}
+                      setValue={setValue}
+                      schema={schemaForColumn}
+                    />
+                  );
+                })}
+              {isCreating && <LoadingOverlay label="Creating..." />}
+              {isUpdating && <LoadingOverlay label="Updating..." />}
+              <input type="submit" value="Submit" className="hidden" />
+            </div>
+          </div>
+        </form>
       </PageWrapper>
-
-      {/* <pre>{JSON.stringify(diff, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(record, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(formData, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(formState, null, 2)}</pre> */}
     </>
   );
 };

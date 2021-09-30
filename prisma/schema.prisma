@@ -25,17 +25,28 @@ model Organization {
 
 model OrganizationUser {
   id             Int          @id @default(autoincrement())
-  user           User         @relation(references: [id], fields: [userId])
+  user           User         @relation(references: [id], fields: [userId], onDelete: Cascade)
   userId         Int
-  organization   Organization @relation(references: [id], fields: [organizationId])
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
-  role           Role?        @relation(references: [id], fields: [roleId])
+  role           Role?        @relation(references: [id], fields: [roleId], onDelete: Cascade)
   roleId         Int?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
+  OrganizationInvitation OrganizationInvitation[]
   @@index([userId])
   @@index([organizationId])
+}
+
+model OrganizationInvitation {
+  uuid               String           @id @db.Uuid
+  organizationUser   OrganizationUser @relation(references: [id], fields: [organizationUserId], onDelete: Cascade)
+  organizationUserId Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([organizationUserId])
 }
 
 model DataSource {
@@ -80,18 +91,19 @@ model Session {
 }
 
 model User {
-  id            Int                @id @default(autoincrement())
-  email         String             @unique @db.VarChar(255)
-  emailVerified DateTime?
-  password      String             @default("") @db.VarChar(255)
-  image         String?
-  firstName     String?            @db.VarChar(255)
-  lastName      String?            @db.VarChar(255)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  organizations OrganizationUser[]
-  accounts      Account[]
-  sessions      Session[]
+  id             Int                @id @default(autoincrement())
+  email          String             @unique @db.VarChar(255)
+  emailVerified  DateTime?
+  password       String             @default("") @db.VarChar(255)
+  image          String?
+  firstName      String?            @db.VarChar(255)
+  lastName       String?            @db.VarChar(255)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  lastLoggedInAt DateTime?
+  organizations  OrganizationUser[]
+  accounts       Account[]
+  sessions       Session[]
 }
 
 model VerificationRequest {
@@ -106,14 +118,14 @@ model VerificationRequest {
 }
 
 model Role {
-  id               Int                @id @default(autoincrement())
-  name             String
-  options          Json               @default("{}")
-  organization     Organization       @relation(references: [id], fields: [organizationId])
-  organizationId   Int
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  OrganizationUser OrganizationUser[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  options           Json               @default("{}")
+  organization      Organization       @relation(references: [id], fields: [organizationId])
+  organizationId    Int
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  organizationUsers OrganizationUser[]
 
   @@index([organizationId])
 }

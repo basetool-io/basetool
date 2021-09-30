@@ -74,14 +74,6 @@ export type PostgresCredentials = {
   useSsl: boolean;
 };
 
-// is = "is",
-// is_not = "is_not",
-// contains = "contains",
-// not_contains = "not_contains",
-// starts_with = "starts_with",
-// ends_with = "ends_with",
-// is_empty = "is_empty",
-// is_not_empty = "is_not_empty",
 const getCondition = (filter: IFilter) => {
   switch (filter.condition) {
     case "is":
@@ -134,12 +126,6 @@ const getValue = (filter: IFilter) => {
   return "=";
 };
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
-  // console.log(
-  //   "addFilterToQuery->",
-  //   filter.columnName,
-  //   getCondition(filter),
-  //   getValue(filter)
-  // );
   query.where(filter.columnName, getCondition(filter), getValue(filter));
 };
 
@@ -187,6 +173,7 @@ class QueryService implements IQueryService {
     this.client = knex({
       client: "pg",
       connection,
+      debug: false,
     });
 
     this.dataSource = dataSource;
@@ -199,8 +186,7 @@ class QueryService implements IQueryService {
   }
 
   public async disconnect(): Promise<this> {
-    // This client does not need to disconnect
-    this.client.destroy();
+    await this.client.destroy();
 
     return this;
   }
@@ -212,19 +198,19 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
+    select,
   }: {
     tableName: string;
-    filters: [];
-    limit: number;
-    offset: number;
+    filters: IFilter[];
+    limit?: number;
+    offset?: number;
     orderBy: string;
     orderDirection: string;
+    select: string[]
   }): Promise<[]> {
     const query = this.client.table(tableName);
-    // @todo: bring in joins
-
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select();
+      query.limit(limit).offset(offset).select(select);
     }
 
     if (filters) {
@@ -238,35 +224,46 @@ class QueryService implements IQueryService {
     return query as unknown as [];
   }
 
-  public async getRecordsCount(tableName: string): Promise<number> {
+  public async getRecordsCount({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<number> {
     const [{ count }] = await this.client.count().table(tableName);
 
     return parseInt(count as string, 10);
   }
 
-  public async getRecord(
-    tableName: string,
-    recordId: string
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async getRecord({
+    tableName,
+    recordId,
+    select,
+  }: {
+    tableName: string;
+    recordId: string;
+    select: string[];
+  }): Promise<Record<string, unknown> | undefined> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select()
+      .select(select)
       .where(pk, recordId)
       .table(tableName);
 
     return rows[0];
   }
 
-  public async createRecord(
-    tableName: string,
-    recordId: string,
-    data: unknown
-  ): Promise<number | string> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async createRecord({
+    tableName,
+    data,
+  }: {
+    tableName: string;
+    data: unknown;
+  }): Promise<string | undefined> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -279,12 +276,16 @@ class QueryService implements IQueryService {
     return id as string;
   }
 
-  public async updateRecord(
-    tableName: string,
-    recordId: string,
-    data: unknown
-  ): Promise<unknown> {
-    const pk = await this.getPrimaryKeyColumn(tableName);
+  public async updateRecord({
+    tableName,
+    recordId,
+    data,
+  }: {
+    tableName: string;
+    recordId: string;
+    data: unknown;
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
@@ -293,6 +294,46 @@ class QueryService implements IQueryService {
       .table(tableName)
       .update(data as any)
       .where(pk, recordId);
+
+    return result;
+  }
+
+  public async deleteRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
+
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
+
+    const result = await this.client
+      .table(tableName)
+      .delete()
+      .where(pk, recordId);
+
+    return result;
+  }
+
+  public async deleteRecords({
+    tableName,
+    recordIds,
+  }: {
+    tableName: string;
+    recordIds: number[];
+  }): Promise<unknown> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
+
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
+
+    const result = await this.client
+      .table(tableName)
+      .delete()
+      .whereIn(pk, recordIds);
 
     return result;
   }
@@ -357,12 +398,15 @@ class QueryService implements IQueryService {
     return tables as [];
   }
 
-  public async getColumns(
-    tableName: string,
-    storedColumns?: Column[]
-  ): Promise<[]> {
+  public async getColumns({
+    tableName,
+    storedColumns,
+  }: {
+    tableName: string;
+    storedColumns?: Column[];
+  }): Promise<[]> {
     const rawColumns = await this.client.table(tableName).columnInfo();
-    const primaryKeyColumn = await this.getPrimaryKeyColumn(tableName);
+    const primaryKeyColumn = await this.getPrimaryKeyColumn({ tableName });
     const foreignKeys = await this.getForeignKeys(tableName);
     const foreignKeysByColumnName = Object.fromEntries(
       foreignKeys.map((fk: ForeignKeyInfo) => [fk.columnName, fk])
@@ -394,11 +438,22 @@ class QueryService implements IQueryService {
       }));
 
     const columnsWithFieldType: ColumnWithFieldType[] =
-      columnsWithBaseOptions.map((column) => ({
-        ...column,
-        fieldType: getFieldTypeFromColumnInfo(column),
-      }));
+      columnsWithBaseOptions.map((column) => {
+        const storedColumn = !isUndefined(storedColumns)
+          ? storedColumns[column.name as any]
+          : undefined;
 
+        // Try and find if the user defined this type in the DB
+        const fieldType =
+          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
+
+        return {
+          ...column,
+          fieldType,
+        };
+      });
+
+    // refactor to get all options for field type not for field name
     const fieldOptionsByFieldName = await getDefaultFieldOptionsForFields(
       columnsWithFieldType
     );
@@ -441,10 +496,6 @@ class QueryService implements IQueryService {
           },
         };
 
-        if (storedColumn?.fieldType) {
-          newColumn.fieldType = storedColumn.fieldType;
-        }
-
         return newColumn;
       });
 
@@ -458,19 +509,22 @@ class QueryService implements IQueryService {
     return columns as [];
   }
 
-  private async getPrimaryKeyColumn(
-    tableName: string
-  ): Promise<string | undefined> {
-    const query = `SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
-    FROM   pg_index i
-    JOIN   pg_attribute a ON a.attrelid = i.indrelid
-                         AND a.attnum = ANY(i.indkey)
-    WHERE  i.indrelid = ?::regclass
-    AND    i.indisprimary;`;
+  private async getPrimaryKeyColumn({
+    tableName,
+  }: {
+    tableName: string;
+  }): Promise<string | undefined> {
+    const query = `SELECT k.column_name
+FROM information_schema.table_constraints i
+JOIN information_schema.key_column_usage k
+USING(constraint_name,table_schema,table_name)
+WHERE
+  "table_name" = ?
+  AND "constraint_type" = 'PRIMARY KEY';`;
     const { rows } = await this.client.raw(query, [tableName]);
 
     if (!isEmpty(rows)) {
-      return rows[0].attname;
+      return rows[0].column_name;
     }
   }
 
@@ -589,13 +643,11 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        const t = [
+        return [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
-
-        return t;
       } catch (error: any) {
         if (error.code !== "MODULE_NOT_FOUND") {
           logger.warn({
