@@ -1,5 +1,7 @@
 name: Reviewdog
+
 on: [pull_request]
+
 jobs:
   eslint:
     name: runner / eslint
