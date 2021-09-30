@@ -45,6 +45,8 @@ We're using [google/zx](https://github.com/google/zx) to help us run scripts.
 cp .env.test.sample .env.test
 ```
 
+Update `YOUR_USERNAME` to match to your current username. Also make sure you have seeded the `sample-seed.sql` mentioned above.
+
 ### Setup the database
 
 Create a testing database `basetool_test`. Add those credentials in your `.env.test` file.

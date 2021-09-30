@@ -17,7 +17,6 @@ import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
-import classNames from "classnames";
 export interface IFormFields {
   id?: number;
   name: string;
@@ -52,7 +51,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, formState } = useForm({
     defaultValues: {
       name: router.query.name || "",
       type: "postgresql",
@@ -94,7 +93,9 @@ function New() {
                 width="300px"
                 type="submit"
                 disabled={isLoading}
-                onClick={() => handleSubmit(onSubmit)()}
+                onClick={(e) => {
+                  return handleSubmit(onSubmit)(e);
+                }}
                 leftIcon={<PlusIcon className="h-4" />}
               >
                 Create
@@ -128,11 +129,7 @@ function New() {
               </FormHelperText>
             </FormControl>
 
-            <FormControl
-              id="organization"
-              // We're hiding this select if there's only one organization
-              className={classNames({ hidden: organizations.length === 1 })}
-            >
+            <FormControl id="organization">
               <FormLabel>Organization</FormLabel>
               <Select {...register("organizationId")}>
                 {organizations.map(({ id, name }) => (
@@ -144,8 +141,8 @@ function New() {
             </FormControl>
 
             <FormControl id="credentials_useSsl">
-              <FormLabel>Use SSL</FormLabel>
-              <Checkbox {...register("credentials.useSsl")} />
+              <FormLabel htmlFor="credentials.useSsl">Use SSL</FormLabel>
+              <Checkbox id="credentials.useSsl" {...register("credentials.useSsl")} />
             </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>

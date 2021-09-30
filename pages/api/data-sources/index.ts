@@ -90,7 +90,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   });
 
   return res.json(
-    ApiResponse.withData(pick(dataSource, ['id']), { message: "Data source created" })
+    ApiResponse.withData(pick(dataSource, ['id']), { message: "Data source created 🚀" })
   );
 }
 

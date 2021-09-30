@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
+import { encrypt } from "@/lib/crypto";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export async function seed(options?: {user?: {email: string, password: string}}) {
-  const email = options?.user?.email || 'ted.lasso@apple.com'
-  const password = options?.user?.password || process.env.SEED_PASSWORD
+export async function seed(options?: {
+  user?: { email: string; password: string };
+}) {
+  const email = options?.user?.email || "ted.lasso@apple.com";
+  const password = options?.user?.password || process.env.SEED_PASSWORD;
 
   await prisma.dataSource.deleteMany({});
   await prisma.organizationUser.deleteMany({});
@@ -20,10 +23,10 @@ export async function seed(options?: {user?: {email: string, password: string}})
       roles: {
         create: [
           {
-            name: 'Owner',
+            name: "Owner",
           },
           {
-            name: 'Member',
+            name: "Member",
           },
         ],
       },
@@ -77,7 +80,31 @@ export async function seed(options?: {user?: {email: string, password: string}})
       roleId: organization.roles[1].id,
     },
   });
+
+  return { user, organization };
 }
+
+export const seedDataSource = async ({
+  name = "Avo Demo",
+  type = "postgresql",
+  organizationId = 1,
+  credentials = {
+    useSsl: false,
+    url: process.env.DATABASE_TEST_CREDENTIALS,
+  },
+}) => {
+  const encryptedCredentials = encrypt(JSON.stringify(credentials));
+  const dataSource = await prisma.dataSource.create({
+    data: {
+      name: name,
+      type: type,
+      encryptedCredentials,
+      organizationId,
+    },
+  });
+
+  return dataSource;
+};
 
 export const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(10);

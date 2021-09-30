@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { seed } from "@/prisma/seed-script";
+import { seed, seedDataSource } from "@/prisma/seed-script";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -19,11 +19,12 @@ export default async function handler(
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const user = req.body.user;
 
-  // Seed here
-  await seed({ user });
+  // Seed user & organization
+  const { organization } = await seed({ user });
 
-  // Clear the database
-  // Add seed user + organization & data source
+  await seedDataSource({
+    organizationId: organization.id,
+  });
 
   res.status(200).json({ name: "John Doe" });
 }
