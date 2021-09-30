@@ -47,31 +47,5 @@ describe("Data Sources", () => {
     cy.contains(/^users$/).click()
     cy.contains("Browse records")
     cy.contains("Filters")
-
-    // Set up interceptor for login set up
-    // cy.intercept("POST", "/api/data-source?").as("create");
-
-    // const credUrl = "postgresql://adrian@127.0.0.1/avodemo_development";
-
-    // cy.get("[name=name]").type("Demo DB");
-    // cy.get("[name='credentials.url']").type(credUrl);
-    // cy.get("#credentials_useSsl-label").click();
-    // cy.get('button[type="submit"]')
-    //   .should("be.visible")
-    //   .click()
-    //   .then((el) => {
-    //     cy.get(el[0]).click()
-    //   });
-
-    // cy.wait("@create");
-    // cy.get("@create").then((xhr) => {
-    //   expect(xhr.response.statusCode).to.eq(200);
-    //   cy.url().should(
-    //     "eql",
-    //     `${Cypress.config("baseUrl")}/data-sources/${xhr.response.body.data.id}`
-    //   );
-    // });
-
-    // cy.contains('Data source created 🚀')
   });
 });
