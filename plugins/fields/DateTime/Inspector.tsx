@@ -6,10 +6,13 @@ import React, { useEffect } from "react";
 
 function Inspector({
   column,
-  setColumnOption,
+  setColumnOptions,
 }: {
   column: Column;
-  setColumnOption: (c: Column, name: string, value: any) => void;
+  setColumnOptions: (
+    c: Column,
+    options: { name: string; value: any }[]
+  ) => void;
 }) {
   // We'll check the column type first
   const initialValue = !isUndefined(column.fieldOptions.onlyDate)
@@ -18,7 +21,9 @@ function Inspector({
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
-    setColumnOption(column, "fieldOptions.onlyDate", initialValue);
+    setColumnOptions(column, [
+      { name: "fieldOptions.onlyDate", value: initialValue },
+    ]);
   }, []);
 
   return (
@@ -27,11 +32,12 @@ function Inspector({
       <Checkbox
         isChecked={column.fieldOptions.onlyDate as boolean}
         onChange={() =>
-          setColumnOption(
-            column,
-            "fieldOptions.onlyDate",
-            !column.fieldOptions.onlyDate
-          )
+          setColumnOptions(column, [
+            {
+              name: "fieldOptions.onlyDate",
+              value: !column.fieldOptions.onlyDate,
+            },
+          ])
         }
       >
         Show only date picker
