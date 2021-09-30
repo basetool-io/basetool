@@ -52,7 +52,7 @@ export const createUser = async (data: {
     let slug = sluggifedOrgName
     let foundASlug = false
 
-    // We're going to try 20 times to generate a slug
+    // We're going to try 20 times to generate a slug.
     for (let slugTry = 1; slugTry <= 20; slugTry++) {
       const slugOrg = await prisma.organization.findFirst({
         where: {
