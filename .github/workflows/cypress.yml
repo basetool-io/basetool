@@ -9,7 +9,8 @@ on:
       - master
 
 jobs:
-  Tests:
+  tests:
+    name: Cypress tests
     env:
       ENV: test
       PGHOST: localhost
