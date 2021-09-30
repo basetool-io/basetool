@@ -177,6 +177,7 @@ const Form = ({
                 size="sm"
                 width="300px"
                 isLoading={isLoading}
+                onClick={handleSubmit(onSubmit)}
               >
                 <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
               </Button>
