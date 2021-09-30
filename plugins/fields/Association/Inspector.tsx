@@ -13,10 +13,7 @@ function Inspector({
   setColumnOptions,
 }: {
   column: Column;
-  setColumnOptions: (
-    c: Column,
-    options: { name: string; value: any }[]
-  ) => void;
+  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
   const router = useRouter();
   const initialValue = useMemo(
@@ -42,9 +39,7 @@ function Inspector({
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
-    setColumnOptions(column, [
-      { name: "fieldOptions.nameColumn", value: initialValue },
-    ]);
+    setColumnOptions(column, { "fieldOptions.nameColumn": initialValue });
   }, []);
 
   useEffect(() => {
@@ -63,12 +58,9 @@ function Inspector({
             className="font-mono"
             value={initialValue}
             onChange={(e) => {
-              setColumnOptions(column, [
-                {
-                  name: "fieldOptions.nameColumn",
-                  value: e.currentTarget.value,
-                },
-              ]);
+              setColumnOptions(column, {
+                "fieldOptions.nameColumn": e.currentTarget.value,
+              });
             }}
           >
             {columnsResponse.data &&
@@ -87,12 +79,9 @@ function Inspector({
             required={false}
             value={initialValue}
             onChange={(e) => {
-              setColumnOptions(column, [
-                {
-                  name: "fieldOptions.nameColumn",
-                  value: e.currentTarget.value,
-                },
-              ]);
+              setColumnOptions(column, {
+                "fieldOptions.nameColumn": e.currentTarget.value,
+              });
             }}
           />
         )}

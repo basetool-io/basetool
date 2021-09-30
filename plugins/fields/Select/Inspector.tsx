@@ -14,10 +14,7 @@ function Inspector({
   setColumnOptions,
 }: {
   column: Column;
-  setColumnOptions: (
-    c: Column,
-    options: { name: string; value: any }[]
-  ) => void;
+  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
   const defaultOptions = fieldOptions.options ? fieldOptions.options : "";
   const initialOptions = column.fieldOptions.options
@@ -26,9 +23,7 @@ function Inspector({
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
-    setColumnOptions(column, [
-      { name: "fieldOptions.options", value: initialOptions },
-    ]);
+    setColumnOptions(column, { "fieldOptions.options": initialOptions });
   }, []);
 
   return (
@@ -42,9 +37,9 @@ function Inspector({
           required={false}
           defaultValue={initialOptions as string}
           onChange={(e) => {
-            setColumnOptions(column, [
-              { name: "fieldOptions.options", value: e.currentTarget.value },
-            ]);
+            setColumnOptions(column, {
+              "fieldOptions.options": e.currentTarget.value,
+            });
           }}
         />
         <FormHelperText>Add the values comma separated.</FormHelperText>

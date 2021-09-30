@@ -17,10 +17,7 @@ function Inspector({
   setColumnOptions,
 }: {
   column: Column;
-  setColumnOptions: (
-    c: Column,
-    options: { name: string; value: any }[]
-  ) => void;
+  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
   let initiaiDisplayAs;
   if (column.fieldOptions.displayAsLink === true) initiaiDisplayAs = "link";
@@ -34,32 +31,32 @@ function Inspector({
   useEffect(() => {
     switch (displayAs) {
       case "link":
-        setColumnOptions(column, [
-          { name: "fieldOptions.displayAsLink", value: true },
-          { name: "fieldOptions.displayAsImage", value: false },
-          { name: "fieldOptions.displayAsEmail", value: false },
-        ]);
+        setColumnOptions(column, {
+          "fieldOptions.displayAsLink": true,
+          "fieldOptions.displayAsImage": false,
+          "fieldOptions.displayAsEmail": false,
+        });
         break;
       case "image":
-        setColumnOptions(column, [
-          { name: "fieldOptions.displayAsLink", value: false },
-          { name: "fieldOptions.displayAsImage", value: true },
-          { name: "fieldOptions.displayAsEmail", value: false },
-        ]);
+        setColumnOptions(column, {
+          "fieldOptions.displayAsLink": false,
+          "fieldOptions.displayAsImage": true,
+          "fieldOptions.displayAsEmail": false,
+        });
         break;
       case "email":
-        setColumnOptions(column, [
-          { name: "fieldOptions.displayAsLink", value: false },
-          { name: "fieldOptions.displayAsImage", value: false },
-          { name: "fieldOptions.displayAsEmail", value: true },
-        ]);
+        setColumnOptions(column, {
+          "fieldOptions.displayAsLink": false,
+          "fieldOptions.displayAsImage": false,
+          "fieldOptions.displayAsEmail": true,
+        });
         break;
       default:
-        setColumnOptions(column, [
-          { name: "fieldOptions.displayAsLink", value: false },
-          { name: "fieldOptions.displayAsImage", value: false },
-          { name: "fieldOptions.displayAsEmail", value: false },
-        ]);
+        setColumnOptions(column, {
+          "fieldOptions.displayAsLink": false,
+          "fieldOptions.displayAsImage": false,
+          "fieldOptions.displayAsEmail": false,
+        });
         break;
     }
   }, [displayAs]);
@@ -90,12 +87,9 @@ function Inspector({
               <Checkbox
                 isChecked={column.fieldOptions.openNewTab === true}
                 onChange={() =>
-                  setColumnOptions(column, [
-                    {
-                      name: "fieldOptions.openNewTab",
-                      value: !column.fieldOptions.openNewTab,
-                    },
-                  ])
+                  setColumnOptions(column, {
+                    "fieldOptions.openNewTab": !column.fieldOptions.openNewTab,
+                  })
                 }
               >
                 Open new Tab
@@ -110,12 +104,9 @@ function Inspector({
                 required={false}
                 value={column.fieldOptions.linkText as string}
                 onChange={(e) => {
-                  setColumnOptions(column, [
-                    {
-                      name: "fieldOptions.linkText",
-                      value: e.currentTarget.value,
-                    },
-                  ]);
+                  setColumnOptions(column, {
+                    "fieldOptions.linkText": e.currentTarget.value,
+                  });
                 }}
               />
             </FormControl>
