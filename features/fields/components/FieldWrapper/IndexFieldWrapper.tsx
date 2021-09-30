@@ -4,16 +4,16 @@ import classNames from 'classnames'
 
 const IndexFieldWrapper = ({
   children,
-  noPadding = false,
+  flush = false,
 }: {
   field: Field;
   children: ReactNode;
-  noPadding?: boolean;
+  flush?: boolean;
 }) => (
   <div className={classNames(
     "py-2 leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis",
     {
-      "py-0": noPadding,
+      "py-0": flush,
     }
   )}>
     {children}

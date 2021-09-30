@@ -8,6 +8,7 @@ import {
   Radio,
   RadioGroup,
 } from "@chakra-ui/react";
+import { Code } from "@chakra-ui/layout";
 import { Column } from "@/features/fields/types";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect } from "react";
@@ -20,12 +21,16 @@ function Inspector({
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
   let initiaiDisplayAs;
-  if (column.fieldOptions.displayAsLink === true) initiaiDisplayAs = "link";
-  else if (column.fieldOptions.displayAsImage === true)
+  if (column.fieldOptions.displayAsLink === true) {
+    initiaiDisplayAs = "link";
+  } else if (column.fieldOptions.displayAsImage === true) {
     initiaiDisplayAs = "image";
-  else if (column.fieldOptions.displayAsEmail === true)
+  } else if (column.fieldOptions.displayAsEmail === true) {
     initiaiDisplayAs = "email";
-  else initiaiDisplayAs = "text";
+  } else {
+    initiaiDisplayAs = "text";
+  }
+
   const [displayAs, setDisplayAs] = React.useState(initiaiDisplayAs);
 
   useEffect(() => {
@@ -63,7 +68,7 @@ function Inspector({
 
   return (
     <>
-      <OptionWrapper helpText="You can set how the text will be displayed.">
+      <OptionWrapper helpText="When you need a field to be displayed in a different way.">
         <FormControl as="fieldset">
           <FormLabel as="legend">Display as</FormLabel>
           <RadioGroup
@@ -78,7 +83,7 @@ function Inspector({
               <Radio value="email">Email</Radio>
             </HStack>
           </RadioGroup>
-          <FormHelperText>By default is set to text.</FormHelperText>
+          <FormHelperText>Default is <Code>text</Code></FormHelperText>
         </FormControl>
         {column.fieldOptions.displayAsLink === true && (
           <>

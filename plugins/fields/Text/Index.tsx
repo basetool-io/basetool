@@ -1,38 +1,63 @@
 import { Code } from "@chakra-ui/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
-import { Image, Link } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
 import { isEmpty, isNull } from "lodash";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
+import Link from "next/link";
 import React, { memo } from "react";
 
-const Index = ({ field }: { field: Field }) => (
-  <IndexFieldWrapper field={field} noPadding={field.column.fieldOptions.displayAsImage as boolean}>
-    {isNull(field.value) && <Code>null</Code>}
-    {!isNull(field.value) && field.column.fieldOptions.displayAsLink === true &&
-      <Link color="#2563eb" href={field.value as string} isExternal={field.column.fieldOptions.openNewTab as boolean}>
-        {!isEmpty(field.column.fieldOptions.linkText) && field.column.fieldOptions.linkText}
-        {!isEmpty(field.column.fieldOptions.linkText) || field.value}
-        {field.column.fieldOptions.openNewTab === true && <ExternalLinkIcon className="h-3 w-3 ml-1 inline-block" />}
-      </Link>
-    }
-    {!isNull(field.value) && field.column.fieldOptions.displayAsImage === true &&
-      <Image
-        boxSize="33px"
-        src={field.value as string}
-        alt={field.value as string}
-        // fallbackSrc="https://via.placeholder.com/33"
-      />
-    }
-    {!isNull(field.value) && field.column.fieldOptions.displayAsEmail === true &&
-      <Link color="#2563eb" href={"mailto: " + field.value as string}>
-        {field.value}
-      </Link>
-    }
-    {(!isNull(field.value) && field.column.fieldOptions.displayAsLink === false && field.column.fieldOptions.displayAsImage === false && field.column.fieldOptions.displayAsEmail === false) &&
-      field.value
-    }
-  </IndexFieldWrapper>
-);
+const Index = ({ field }: { field: Field }) => {
+  if (isNull(field.value))
+    return (
+      <IndexFieldWrapper field={field}>
+        <Code>null</Code>
+      </IndexFieldWrapper>
+    );
+
+  if (field.column.fieldOptions.displayAsLink === true)
+    return (
+      <IndexFieldWrapper field={field}>
+        <Link href={field.value as string}>
+          <a
+            className="text-blue-600"
+            target={
+              (field.column.fieldOptions.openNewTab as boolean) ? "_blank" : ""
+            }
+          >
+            {!isEmpty(field.column.fieldOptions.linkText) &&
+              field.column.fieldOptions.linkText}
+            {!isEmpty(field.column.fieldOptions.linkText) || field.value}
+            {field.column.fieldOptions.openNewTab === true && (
+              <ExternalLinkIcon className="h-3 w-3 ml-1 inline-block" />
+            )}
+          </a>
+        </Link>
+      </IndexFieldWrapper>
+    );
+
+  if (field.column.fieldOptions.displayAsImage === true)
+    return (
+      <IndexFieldWrapper field={field} flush={true}>
+        <Image
+          height="33px"
+          src={field.value as string}
+          alt={field.value as string}
+          fallbackSrc="https://via.placeholder.com/33"
+        />
+      </IndexFieldWrapper>
+    );
+
+  if (field.column.fieldOptions.displayAsEmail === true)
+    return (
+      <IndexFieldWrapper field={field}>
+        <Link href={("mailto: " + field.value) as string}>
+          <a className="text-blue-600">{field.value}</a>
+        </Link>
+      </IndexFieldWrapper>
+    );
+
+  return <IndexFieldWrapper field={field}>{field.value}</IndexFieldWrapper>;
+};
 
 export default memo(Index);
