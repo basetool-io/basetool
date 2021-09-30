@@ -38,7 +38,7 @@ const Sidebar = () => {
   const ac = useAccessControl();
 
   return (
-    <div className="relative py-2 pl-2 w-full">
+    <div className="relative py-2 pl-2 w-full overflow-y-auto">
       {!router.query.dataSourceId && "Select a data source"}
       <div className="relative space-y-x w-full h-full flex flex-col">
         {dataSourceResponse?.ok && (
@@ -48,8 +48,9 @@ const Sidebar = () => {
             ) : (
               <span>{dataSourceResponse?.data?.name}</span>
             )}
+            <br />
             <Link href={`/data-sources/${dataSourceId}/edit`}>
-              <a className="mt-1 flex items-center text-xs text-gray-600 cursor-pointer">
+              <a className="mt-1 flex-inline items-center text-xs text-gray-600 cursor-pointer">
                 <PencilAltIcon className="h-4 inline" /> Edit
               </a>
             </Link>

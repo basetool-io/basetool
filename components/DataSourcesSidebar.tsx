@@ -37,7 +37,7 @@ const DataSourceItem = ({
   compact?: boolean;
   flush?: boolean;
   onClick?: () => void;
-  [name: string]: any
+  [name: string]: any;
 }) => {
   const linkElement = (
     <a className="block" onClick={onClick} {...rest}>
@@ -83,23 +83,18 @@ const DataSourcesSidebar = () => {
   const router = useRouter();
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
-  // const visible = true;
-  // const [compact, setCompact] = useLocalStorage(
-  //   `${LOCAL_STORAGE_PREFIX}:datasources-sidebar-compact`,
-  //   true,
-  // );
   const [session, sessionIsLoading] = useSession();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
   const prefetchTables = usePrefetch("getTables");
 
   return (
     <div
-      className={classNames("flex flex-grow-0 flex-shrink-0", {
+      className={classNames("flex flex-1 flex-grow-0 flex-shrink-0", {
         "w-2 md:w-[4rem]": !sidebarsVisible,
         "w-[4rem]": sidebarsVisible,
       })}
     >
-      <div className="py-2 px-2 h-screen bg-cool-gray-700 text-white w-full">
+      <div className="py-2 px-2 flex-1 h-screen bg-cool-gray-700 text-white w-full overflow-y-auto">
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
@@ -110,8 +105,11 @@ const DataSourcesSidebar = () => {
                       <span
                         className={classNames(
                           "flex items-center justify-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
-                          { "hover:bg-cool-gray-600": router.asPath === '/' },
-                          { "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":router.asPath === '/' },
+                          { "hover:bg-cool-gray-600": router.asPath === "/" },
+                          {
+                            "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow":
+                              router.asPath === "/",
+                          }
                         )}
                       >
                         <HomeIcon className="h-6 inline-block" />
@@ -181,13 +179,23 @@ const DataSourcesSidebar = () => {
               {/* @todo: link to docs */}
               {/* @todo: link to feature request */}
               {/* @todo: link to complaints */}
-              {/* <DataSourceItem
-                active={router.asPath.includes(`/settings`)}
-                compact={compact}
-                icon={<CogIcon className="h-6 w-6 text-white" />}
-                link={`/settings`}
-                label="Settings"
-              /> */}
+              <Link href="/beta" passHref>
+                <a className="block">
+                  <div
+                    className={classNames(
+                      "flex-1 flex text-gray-300 hover:text-white font-normal cursor-pointer text-sm rounded-md leading-none p-1",
+                      {
+                        "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow leading-none":
+                          router.asPath === `/beta`,
+                      }
+                    )}
+                  >
+                    <div className="w-full text-center uppercase text-sm font-bold">
+                      Beta
+                    </div>
+                  </div>
+                </a>
+              </Link>
               <DataSourceItem
                 active={router.asPath.includes(`/profile`)}
                 compact={compact}

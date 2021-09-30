@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonGroup,
   Checkbox,
   CheckboxGroup,
   Code,
@@ -12,13 +11,14 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import { Save } from "react-feather";
 import { diff as difference } from "deep-object-diff";
 import {
   getColumnNameLabel,
   getColumnOptions,
   iconForField,
 } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, without } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -58,6 +58,21 @@ const getDynamicInspector = (fieldType: string) => {
   }
 };
 
+const NULL_VALUES = [
+  {
+    value: "",
+    label: "'' (empty string)",
+  },
+  {
+    value: "null",
+    label: "'null' (as a string)",
+  },
+  {
+    value: "0",
+    label: "0",
+  },
+];
+
 const ColumnEditor = ({
   column,
   setColumnOption,
@@ -81,6 +96,23 @@ const ColumnEditor = ({
       }>,
     [column?.fieldType]
   );
+
+  // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
+  useEffect(() => {
+    if (column.baseOptions.required) {
+      setColumnOption(column, "baseOptions.nullable", false);
+    }
+  }, [column.baseOptions.required]);
+
+  useEffect(() => {
+    if (column.baseOptions.nullable) {
+      setColumnOption(column, "baseOptions.required", false);
+
+      if (isEmpty(column.baseOptions.nullValues)) {
+        setColumnOption(column, "baseOptions.nullValues", [""]);
+      }
+    }
+  }, [column.baseOptions.nullable]);
 
   return (
     <>
@@ -250,6 +282,65 @@ You can control where the field is visible here.`}
             </OptionWrapper>
 
             <OptionWrapper
+              helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
+            >
+              <FormControl id="nullable">
+                <FormLabel>Nullable</FormLabel>
+                <Checkbox
+                  id="nullable"
+                  isChecked={column.baseOptions.nullable}
+                  isDisabled={column.dataSourceInfo.nullable === false}
+                  onChange={() =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.nullable",
+                      !column.baseOptions.nullable
+                    )
+                  }
+                >
+                  Nullable
+                </Checkbox>
+                {column.dataSourceInfo.nullable === false && (
+                  <FormHelperText>
+                    Has to be nullable in the DB in order to use this option.
+                  </FormHelperText>
+                )}
+              </FormControl>
+              {column.baseOptions.nullable === true && (
+                <Stack pl={6} mt={1} spacing={1}>
+                  {NULL_VALUES &&
+                    NULL_VALUES.map(({ value, label }) => (
+                      <div key={label}>
+                        <Checkbox
+                          id={`null_value_${label}`}
+                          isChecked={Object.values(
+                            column.baseOptions.nullValues
+                          ).includes(value)}
+                          onChange={(e) => {
+                            let newNullValues = Object.values({
+                              ...column.baseOptions.nullValues,
+                            });
+
+                            if (e.currentTarget.checked)
+                              newNullValues.push(value);
+                            else newNullValues = without(newNullValues, value);
+
+                            setColumnOption(
+                              column,
+                              "baseOptions.nullValues",
+                              newNullValues
+                            );
+                          }}
+                        >
+                          {label}
+                        </Checkbox>
+                      </div>
+                    ))}
+                </Stack>
+              )}
+            </OptionWrapper>
+
+            <OptionWrapper
               helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
             >
               <FormControl id="help">
@@ -270,6 +361,30 @@ You can control where the field is visible here.`}
                 />
               </FormControl>
             </OptionWrapper>
+
+            {(column.fieldType === "DateTime" || column.fieldType === "Id") || (
+              <OptionWrapper
+                helpText={`Default value for create view.`}
+              >
+                <FormControl id="defaultValue">
+                  <FormLabel>Default value</FormLabel>
+                  <Input
+                    type="text"
+                    name="default value"
+                    placeholder="Default value"
+                    required={false}
+                    value={column.baseOptions.defaultValue}
+                    onChange={(e) =>
+                      setColumnOption(
+                        column,
+                        "baseOptions.defaultValue",
+                        e.currentTarget.value
+                      )
+                    }
+                  />
+                </FormControl>
+              </OptionWrapper>
+            )}
 
             <InspectorComponent
               column={column}
@@ -358,8 +473,8 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     }
   };
 
-  const saveTableSettings = () => {
-    updateTable({
+  const saveTableSettings = async () => {
+    await updateTable({
       dataSourceId: router.query.dataSourceId as string,
       tableName: router.query.tableName as string,
       body: {
@@ -378,19 +493,26 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     <>
       <PageWrapper
         heading={`Edit '${router.query.tableName}' table`}
-        buttons={
-          <ButtonGroup size="sm">
-            <BackButton href={backLink} />
-            <Button
-              colorScheme="blue"
-              disabled={!isDirty}
-              onClick={saveTableSettings}
-            >
-              Save
-            </Button>
-          </ButtonGroup>
-        }
+        buttons={<BackButton href={backLink} />}
         flush={true}
+        footer={
+          <PageWrapper.Footer
+            center={
+              <Button
+                className="text-red-600 text-sm cursor-pointer"
+                colorScheme="blue"
+                size="sm"
+                width="300px"
+                leftIcon={<Save className="h-4" />}
+                isLoading={isUpdating}
+                disabled={!isDirty}
+                onClick={saveTableSettings}
+              >
+                Save settings
+              </Button>
+            }
+          />
+        }
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">
