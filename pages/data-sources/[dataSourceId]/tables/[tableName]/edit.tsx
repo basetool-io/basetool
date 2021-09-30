@@ -60,22 +60,18 @@ const getDynamicInspector = (fieldType: string) => {
 
 const NULL_VALUES = [
   {
-    value: "null",
-    label: "'null' (as a string)"
-  },
-  {
     value: "",
     label: "'' (empty string)",
   },
   {
-    value: "0",
-    label: "0"
+    value: "null",
+    label: "'null' (as a string)",
   },
-  // {
-  //   value: "{}",
-  //   label: "{} (empty object)"
-  // },
-]
+  {
+    value: "0",
+    label: "0",
+  },
+];
 
 const ColumnEditor = ({
   column,
@@ -104,32 +100,25 @@ const ColumnEditor = ({
   // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
   useEffect(() => {
     if (column.baseOptions.required) {
-      setColumnOption(
-        column,
-        "baseOptions.nullable",
-        false
-      );
+      setColumnOption(column, "baseOptions.nullable", false);
     }
-  }, [column.baseOptions.required])
+  }, [column.baseOptions.required]);
 
   useEffect(() => {
     if (column.baseOptions.nullable) {
-      setColumnOption(
-        column,
-        "baseOptions.required",
-        false
-      );
+      setColumnOption(column, "baseOptions.required", false);
+
+      if (isEmpty(column.baseOptions.nullValues)) {
+        setColumnOption(column, "baseOptions.nullValues", [""]);
+      }
     }
-  }, [column.baseOptions.nullable])
+  }, [column.baseOptions.nullable]);
 
   return (
     <>
       {!column?.name && "👈 Please select a field"}
       {column?.name && (
         <div className="w-full">
-          <pre>
-            {JSON.stringify(column, null, 2)}
-          </pre>
           <div>
             <h3 className="uppercase text-md font-semibold">
               {getColumnNameLabel(
@@ -292,7 +281,9 @@ You can control where the field is visible here.`}
               </FormControl>
             </OptionWrapper>
 
-            <OptionWrapper helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}>
+            <OptionWrapper
+              helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
+            >
               <FormControl id="nullable">
                 <FormLabel>Nullable</FormLabel>
                 <Checkbox
@@ -309,11 +300,11 @@ You can control where the field is visible here.`}
                 >
                   Nullable
                 </Checkbox>
-                {column.dataSourceInfo.nullable === false &&
+                {column.dataSourceInfo.nullable === false && (
                   <FormHelperText>
                     Has to be nullable in the DB in order to use this option.
                   </FormHelperText>
-                }
+                )}
               </FormControl>
               {column.baseOptions.nullable === true && (
                 <Stack pl={6} mt={1} spacing={1}>
@@ -322,11 +313,16 @@ You can control where the field is visible here.`}
                       <div key={label}>
                         <Checkbox
                           id={`null_value_${label}`}
-                          isChecked={Object.values(column.baseOptions.nullValues).includes(value)}
+                          isChecked={Object.values(
+                            column.baseOptions.nullValues
+                          ).includes(value)}
                           onChange={(e) => {
-                            let newNullValues = Object.values({...column.baseOptions.nullValues});
+                            let newNullValues = Object.values({
+                              ...column.baseOptions.nullValues,
+                            });
 
-                            if(e.currentTarget.checked) newNullValues.push(value);
+                            if (e.currentTarget.checked)
+                              newNullValues.push(value);
                             else newNullValues = without(newNullValues, value);
 
                             setColumnOption(
