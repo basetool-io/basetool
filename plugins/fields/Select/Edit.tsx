@@ -39,10 +39,9 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
-  const defaultValue = field?.column?.baseOptions?.defaultValue
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
   ? field.column.baseOptions.defaultValue
   : null;
-  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
@@ -50,7 +49,7 @@ const Edit = ({
         isInvalid={hasError}
         isDisabled={readonly}
       >
-        <Select id={fieldId(field)} {...register} placeholder={placeholder} defaultValue={hasDefaultValue ? defaultValue : null} >
+        <Select id={fieldId(field)} {...register} placeholder={placeholder} defaultValue={defaultValue} >
           {options &&
             options.map((option: string, index: number) => (
               <option key={index} value={option}>

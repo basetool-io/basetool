@@ -40,7 +40,7 @@ const Edit = ({
     initialValue = "{}";
   }
 
-  let defaultValue = field?.column?.baseOptions?.defaultValue
+  let defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
     ? field.column.baseOptions.defaultValue
     : null;
   try {
@@ -50,7 +50,6 @@ const Edit = ({
   } catch (e) {
     defaultValue = "{}";
   }
-  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   const handleOnChange = (value: string) => {
     if (isEmpty(value)) {
@@ -96,7 +95,7 @@ const Edit = ({
           rows={10}
           placeholder={placeholder as string}
           id={fieldId(field)}
-          defaultValue={hasDefaultValue ? defaultValue as string : initialValue}
+          defaultValue={!isNull(defaultValue) ? defaultValue as string : initialValue}
           onChange={(e) => {
             handleOnChange(e.currentTarget.value);
           }}

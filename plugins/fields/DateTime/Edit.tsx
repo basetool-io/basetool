@@ -102,11 +102,6 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  // const defaultValue = field?.column?.baseOptions?.defaultValue ? field.column.baseOptions.defaultValue : null;
-  // const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
-
-  // const date = DateTime.fromISO(field.value as string);
-  // const formattedDate = date.setZone(getBrowserTimezone()).toLocaleString(DateTime.DATETIME_MED);
 
   // This updates the local value when the filed loads for the first time of when a user has selected a value from the datepicker
   useEffect(() => {

@@ -36,10 +36,9 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  const defaultValue = field?.column?.baseOptions?.defaultValue
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
     ? field.column.baseOptions.defaultValue
     : null;
-  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
@@ -50,7 +49,7 @@ const Edit = ({
         <Input
           type="text"
           id={fieldId(field)}
-          defaultValue={hasDefaultValue ? defaultValue : null}
+          defaultValue={defaultValue}
           {...register}
           placeholder={placeholder}
         />

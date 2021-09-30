@@ -36,10 +36,9 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  const defaultValue = field?.column?.baseOptions?.defaultValue
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
     ? field.column.baseOptions.defaultValue === "true"
     : null;
-  const hasDefaultValue = !isNull(defaultValue) && view === Views.new;
 
   return (
     <EditFieldWrapper field={field}>
@@ -48,7 +47,7 @@ const Edit = ({
           isChecked={isChecked}
           {...register}
           isDisabled={readonly}
-          defaultChecked={hasDefaultValue ? defaultValue: false}
+          defaultChecked={defaultValue}
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
