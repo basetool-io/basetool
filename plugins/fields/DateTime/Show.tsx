@@ -1,14 +1,13 @@
 import { DateTime } from "luxon";
 import { Field } from "@/features/fields/types";
-import { dateTimeFormat, getBrowserTimezone } from "@/lib/time";
+import { dateFormat, dateTimeFormat, getBrowserTimezone } from "@/lib/time";
 import React, { memo } from "react";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 
 const Show = ({ field }: { field: Field }) => {
-  const date = DateTime.fromISO(field.value as string);
-  const formattedDate = date
+  const formattedDate = DateTime.fromISO(field.value as string)
     .setZone(getBrowserTimezone())
-    .toFormat(dateTimeFormat);
+    .toFormat(field.column.fieldOptions.onlyDate ? dateFormat : dateTimeFormat);
 
   return <ShowFieldWrapper field={field}>{formattedDate}</ShowFieldWrapper>;
 };
