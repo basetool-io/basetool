@@ -239,6 +239,7 @@ const Form = ({
                       register={register}
                       setValue={setValue}
                       schema={schemaForColumn}
+                      view={formForCreate ? Views.new : Views.edit}
                     />
                   );
                 })}
