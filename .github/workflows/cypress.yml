@@ -30,3 +30,8 @@ jobs:
 
     - name: Install deps
       run: yarn install
+
+    - name: Install PostgreSQL 11 client
+      run: |
+        sudo apt-get -yqq install libpq-dev
+
