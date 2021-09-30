@@ -4,5 +4,4 @@ export type SelectFieldOptions = {
   linkText: string;
   displayAsImage: boolean;
   displayAsEmail: boolean;
-  emailPattern: string;
 };

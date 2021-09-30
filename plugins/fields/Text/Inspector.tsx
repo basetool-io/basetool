@@ -85,7 +85,7 @@ function Inspector({
         </FormControl>
         {column.fieldOptions.displayAsLink === true && (
           <>
-            <FormControl id="openNewTab">
+            <FormControl id="openNewTab" className="mt-2">
               <FormLabel>Open new tab</FormLabel>
               <Checkbox
                 isChecked={column.fieldOptions.openNewTab === true}
@@ -101,7 +101,7 @@ function Inspector({
                 Open new Tab
               </Checkbox>
             </FormControl>
-            <FormControl id="linkText">
+            <FormControl id="linkText" className="mt-2">
               <FormLabel>Link Text</FormLabel>
               <Input
                 type="text"
@@ -120,27 +120,6 @@ function Inspector({
               />
             </FormControl>
           </>
-        )}
-        {column.fieldOptions.displayAsEmail === true && (
-          <FormControl id="emailPattern">
-            <FormLabel>Email Pattern</FormLabel>
-            <Input
-              type="text"
-              id="emailPattern"
-              name="emailPattern"
-              placeholder=".+@gmail\.com"
-              required={false}
-              value={column.fieldOptions.emailPattern as string}
-              onChange={(e) => {
-                setColumnOptions(column, [
-                  {
-                    name: "fieldOptions.emailPattern",
-                    value: e.currentTarget.value,
-                  },
-                ]);
-              }}
-            />
-          </FormControl>
         )}
       </OptionWrapper>
     </>
