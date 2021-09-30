@@ -14,7 +14,7 @@ function RecordsEdit() {
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
   const recordId = router.query.recordId as string;
-  const { data, error, isLoading } = useGetRecordQuery(
+  const { data: recordResponse, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
       tableName,
@@ -37,10 +37,10 @@ function RecordsEdit() {
 
   return (
     <Layout>
-      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
+      {isLoading && <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && columnsResponse?.ok && (
-        <Form record={data.data} columns={columns} />
+      {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
+        <Form record={recordResponse.data} columns={columns} />
       )}
     </Layout>
   );

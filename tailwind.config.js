@@ -73,6 +73,7 @@ module.exports = {
       boxShadow: {
         left: "rgba(0, 0, 0, 0.24) 0px 3px 8px, rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;",
         glow: "rgba(50, 50, 93, 0.15) 0px 50px 100px -20px, rgba(0, 0, 0, 0.1) 0px 30px 60px -30px",
+        'pw-footer': "0 2px 6px 1px rgba(0, 0, 0, 0.3)",
       },
       zIndex: {
         60: 60,

@@ -93,6 +93,7 @@ function Register() {
                 placeholder="ted@lasso.com"
                 required={true}
                 {...register("email")}
+                autofocus
               />
               <FormHelperText>We'll never share your email.</FormHelperText>
               <FormErrorMessage>

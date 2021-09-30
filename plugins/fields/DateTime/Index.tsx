@@ -1,13 +1,18 @@
 import { Code } from "@chakra-ui/layout";
 import { Field } from "@/features/fields/types";
 import { isNull } from "lodash";
+import { DateTime } from "luxon";
+import { dateTimeFormat, getBrowserTimezone } from "@/lib/time";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import React, { memo } from "react";
 
 const Show = ({ field }: { field: Field }) => {
-  const value = isNull(field.value) ? <Code>null</Code> : field.value;
+  const date = DateTime.fromISO(field.value as string);
+  const formattedDate = date
+    .setZone(getBrowserTimezone())
+    .toFormat(dateTimeFormat);
 
-  return <IndexFieldWrapper field={field}>{value}</IndexFieldWrapper>;
+  return <IndexFieldWrapper field={field}>{isNull(field.value) ? <Code>null</Code> : formattedDate}</IndexFieldWrapper>;
 };
 
 export default memo(Show);
