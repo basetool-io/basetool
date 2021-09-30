@@ -25,9 +25,10 @@ const Index = ({ field }: { field: Field }) => {
               (field.column.fieldOptions.openNewTab as boolean) ? "_blank" : ""
             }
           >
-            {!isEmpty(field.column.fieldOptions.linkText) &&
+			{isEmpty(field.column.fieldOptions.linkText) && field.value}
+            {isEmpty(field.column.fieldOptions.linkText) ||
               field.column.fieldOptions.linkText}
-            {!isEmpty(field.column.fieldOptions.linkText) || field.value}
+            
             {field.column.fieldOptions.openNewTab === true && (
               <ExternalLinkIcon className="h-3 w-3 ml-1 inline-block" />
             )}
