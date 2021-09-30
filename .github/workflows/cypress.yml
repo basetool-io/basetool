@@ -38,6 +38,14 @@ jobs:
       - name: Install deps
         run: yarn install
 
+      - name: Build project
+        run: yarn build
+
+      - name: Start server
+        run: yarn next start -p 4099
+
+      - name: Run tests
+        run: yarn cypress run
       - name: Install PostgreSQL 11 client
         run: |
           sudo apt-get -yqq install libpq-dev
