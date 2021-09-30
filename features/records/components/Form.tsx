@@ -147,16 +147,31 @@ const Form = ({
         router.query.tableName &&
         record.id
       ) {
+        const changes = Object.fromEntries(
+          Object.entries(diff)
+            .filter(([name]) => touchedFields.includes(name))
+            .map(([key]) => {
+              // handle nullable and nullValues
+              const column = columns.find((c) => c.name === key);
+              if (
+                column &&
+                column.baseOptions.nullable === true &&
+                Object.values(column.baseOptions.nullValues).includes(
+                  getValues(key)
+                )
+              )
+                return [key, null];
+
+              return [key, getValues(key)];
+            })
+        );
+
         await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: Object.fromEntries(
-              Object.entries(diff)
-                .filter(([name]) => touchedFields.includes(name))
-                .map(([name]) => [name, getValues(name)])
-            ),
+            changes,
           },
         });
         await router.push(backLink);

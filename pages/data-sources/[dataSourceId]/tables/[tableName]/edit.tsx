@@ -18,7 +18,7 @@ import {
   getColumnOptions,
   iconForField,
 } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, without } from "lodash";
 import {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -58,6 +58,21 @@ const getDynamicInspector = (fieldType: string) => {
   }
 };
 
+const NULL_VALUES = [
+  {
+    value: "",
+    label: "'' (empty string)",
+  },
+  {
+    value: "null",
+    label: "'null' (as a string)",
+  },
+  {
+    value: "0",
+    label: "0",
+  },
+];
+
 const ColumnEditor = ({
   column,
   setColumnOption,
@@ -81,6 +96,23 @@ const ColumnEditor = ({
       }>,
     [column?.fieldType]
   );
+
+  // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
+  useEffect(() => {
+    if (column.baseOptions.required) {
+      setColumnOption(column, "baseOptions.nullable", false);
+    }
+  }, [column.baseOptions.required]);
+
+  useEffect(() => {
+    if (column.baseOptions.nullable) {
+      setColumnOption(column, "baseOptions.required", false);
+
+      if (isEmpty(column.baseOptions.nullValues)) {
+        setColumnOption(column, "baseOptions.nullValues", [""]);
+      }
+    }
+  }, [column.baseOptions.nullable]);
 
   return (
     <>
@@ -247,6 +279,65 @@ You can control where the field is visible here.`}
                   Required
                 </Checkbox>
               </FormControl>
+            </OptionWrapper>
+
+            <OptionWrapper
+              helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
+            >
+              <FormControl id="nullable">
+                <FormLabel>Nullable</FormLabel>
+                <Checkbox
+                  id="nullable"
+                  isChecked={column.baseOptions.nullable}
+                  isDisabled={column.dataSourceInfo.nullable === false}
+                  onChange={() =>
+                    setColumnOption(
+                      column,
+                      "baseOptions.nullable",
+                      !column.baseOptions.nullable
+                    )
+                  }
+                >
+                  Nullable
+                </Checkbox>
+                {column.dataSourceInfo.nullable === false && (
+                  <FormHelperText>
+                    Has to be nullable in the DB in order to use this option.
+                  </FormHelperText>
+                )}
+              </FormControl>
+              {column.baseOptions.nullable === true && (
+                <Stack pl={6} mt={1} spacing={1}>
+                  {NULL_VALUES &&
+                    NULL_VALUES.map(({ value, label }) => (
+                      <div key={label}>
+                        <Checkbox
+                          id={`null_value_${label}`}
+                          isChecked={Object.values(
+                            column.baseOptions.nullValues
+                          ).includes(value)}
+                          onChange={(e) => {
+                            let newNullValues = Object.values({
+                              ...column.baseOptions.nullValues,
+                            });
+
+                            if (e.currentTarget.checked)
+                              newNullValues.push(value);
+                            else newNullValues = without(newNullValues, value);
+
+                            setColumnOption(
+                              column,
+                              "baseOptions.nullValues",
+                              newNullValues
+                            );
+                          }}
+                        >
+                          {label}
+                        </Checkbox>
+                      </div>
+                    ))}
+                </Stack>
+              )}
             </OptionWrapper>
 
             <OptionWrapper
