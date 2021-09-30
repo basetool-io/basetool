@@ -42,7 +42,8 @@ jobs:
         run: yarn build
 
       - name: Start server and run tests
-        run: concurrently "yarn cypress run" "yarn next start -p 4099" -s -k
+        run: npx concurrently "yarn cypress run" "DOTENV=$(yarn bin dotenv); $DOTENV -e .env.test -- yarn next start -p 4099" -s -k
+
 
       - name: Run tests
         run: yarn cypress run
