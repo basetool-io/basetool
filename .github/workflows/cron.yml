@@ -11,7 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Install zx
         run: npm install -g zx
+
       - name: Keep functions alive
         run: npx zx ./scripts/cron.mjs
