@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 export async function seed(options?: {user?: {email: string, password: string}}) {
-  const email = options?.user?.email || 'ted@afc.richmond'
+  const email = options?.user?.email || 'ted.lasso@apple.com'
   const password = options?.user?.password || process.env.SEED_PASSWORD
 
   await prisma.dataSource.deleteMany({});
@@ -15,8 +15,8 @@ export async function seed(options?: {user?: {email: string, password: string}})
 
   const organization = await prisma.organization.create({
     data: {
-      name: "AFC Richmond",
-      slug: "afc-richmond",
+      name: "Apple",
+      slug: "apple",
       roles: {
         create: [
           {
@@ -63,7 +63,7 @@ export async function seed(options?: {user?: {email: string, password: string}})
 
   const roy = await prisma.user.create({
     data: {
-      email: "roy@afc.richmond",
+      email: "roy.kent@apple.com",
       firstName: "Roy",
       lastName: "Kent",
     },
