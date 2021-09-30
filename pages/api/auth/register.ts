@@ -37,6 +37,7 @@ const handler = async (
     password: hashedPassword,
     firstName: payload.firstName,
     lastName: payload.lastName,
+    organization: payload.organization,
   };
 
   await createUser(data);

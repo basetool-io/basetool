@@ -108,7 +108,7 @@ function RecordsShow() {
                       </Button>
                     )
                   }
-                  center={
+                  right={
                     ac.updateAny("record").granted && (
                       <Link
                         href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
@@ -118,7 +118,7 @@ function RecordsShow() {
                           as="a"
                           colorScheme="blue"
                           size="sm"
-                          width="300px"
+                          variant="link"
                           leftIcon={<PencilAltIcon className="h-4" />}
                         >
                           Edit

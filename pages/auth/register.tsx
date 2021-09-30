@@ -1,4 +1,5 @@
 import {
+  Button,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -6,6 +7,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { getCsrfToken, useSession } from "next-auth/client";
+import { isEmpty } from "lodash"
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
@@ -20,6 +22,7 @@ export interface FormFields {
   password: string;
   firstName?: string;
   lastName?: string;
+  organization: string;
 }
 
 const useCsrfToken = () => {
@@ -30,7 +33,7 @@ const useCsrfToken = () => {
       const token = (await getCsrfToken()) as string;
       setCsrfToken(token);
     };
-    if (csrfToken === '') {
+    if (csrfToken === "") {
       setTheToken();
     }
   }, []);
@@ -42,25 +45,38 @@ function Register() {
   const api = useApi();
   const router = useRouter();
   const [session] = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (session) router.push('/')
-  }, [session])
+    if (session) router.push("/");
+  }, [session]);
 
   const onSubmit = async (formData: FormFields) => {
     const response = await api.createUser(formData);
+    setIsLoading(true);
 
     if (response.ok) {
       router.push("/auth/login");
     }
+
+    setIsLoading(false);
   };
 
+  const csrfToken = useCsrfToken();
+
   const { register, handleSubmit, formState, setValue } = useForm<FormFields>({
+    defaultValues: {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      organization: "",
+      csrfToken,
+    },
+    mode: "all",
     resolver: joiResolver(schema),
   });
-  const { isDirty, errors, isValid } = formState;
-
-  const csrfToken = useCsrfToken()
+  const { errors } = formState;
 
   useEffect(() => {
     setValue('csrfToken', csrfToken)
@@ -77,35 +93,26 @@ function Register() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <input
-              type="hidden"
-              {...register("csrfToken")}
-              value={csrfToken}
-              onChange={() => ''}
-            />
-            <FormControl
-              id="email"
-              isInvalid={errors?.email && isDirty}
-            >
-              <FormLabel>Email address</FormLabel>
+            <input type="hidden" {...register("csrfToken")} />
+            <FormControl id="email" isInvalid={!isEmpty(errors?.email)}>
+              <FormLabel>
+                Work email address <sup className="text-red-600">*</sup>
+              </FormLabel>
               <Input
                 type="email"
                 placeholder="ted@lasso.com"
                 required={true}
                 {...register("email")}
-                autofocus
+                autoFocus
               />
-              <FormHelperText>We'll never share your email.</FormHelperText>
-              <FormErrorMessage>
-                {errors?.email?.message}
-              </FormErrorMessage>
+              <FormHelperText>We'll never share your email</FormHelperText>
+              <FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              id="password"
-              isInvalid={errors?.password && isDirty}
-            >
-              <FormLabel>Password</FormLabel>
+            <FormControl id="password" isInvalid={!isEmpty(errors?.password)}>
+              <FormLabel>
+                Password <sup className="text-red-600">*</sup>
+              </FormLabel>
               <Input
                 type="password"
                 placeholder="your strong password"
@@ -113,9 +120,7 @@ function Register() {
                 {...register("password")}
               />
               <FormHelperText>Something strong.</FormHelperText>
-              <FormErrorMessage>
-                {errors?.password?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
 
             <div className="mt-6">
@@ -129,59 +134,65 @@ function Register() {
               </div>
             </div>
 
-            <div className="flex space-x-4">
-              <div className="w-1/2">
+            <div className="flex flex-col space-y-4">
+              <div className="w-full">
                 <FormControl
-                  id="firstName"
-                  isInvalid={errors?.firstName && isDirty}
+                  id="organization"
+                  isInvalid={!isEmpty(errors?.organization)}
                 >
-                  <FormLabel>First name</FormLabel>
+                  <FormLabel>
+                    Organization name <sup className="text-red-600">*</sup>
+                  </FormLabel>
                   <Input
                     type="text"
-                    placeholder="Ted"
-                    {...register("firstName")}
+                    placeholder="Apple Inc"
+                    {...register("organization")}
                   />
                   <FormErrorMessage>
-                    {errors?.firstName?.message}
+                    {errors?.organization?.message}
                   </FormErrorMessage>
                 </FormControl>
               </div>
-              <div className="w-1/2">
-                <FormControl
-                  id="lastName"
-                  isInvalid={errors?.lastName && isDirty}
-                >
-                  <FormLabel>First name</FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Lasso"
-                    {...register("lastName")}
-                  />
-                  <FormErrorMessage>
-                    {errors?.lastName?.message}
-                  </FormErrorMessage>
-                </FormControl>
+              <div className="flex space-x-4">
+                <div className="w-1/2">
+                  <FormControl
+                    id="firstName"
+                    isInvalid={!isEmpty(errors?.firstName)}
+                  >
+                    <FormLabel>First name</FormLabel>
+                    <Input
+                      type="text"
+                      placeholder="Ted"
+                      {...register("firstName")}
+                    />
+                    <FormErrorMessage>
+                      {errors?.firstName?.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                </div>
+                <div className="w-1/2">
+                  <FormControl
+                    id="lastName"
+                    isInvalid={!isEmpty(errors?.lastName)}
+                  >
+                    <FormLabel>First name</FormLabel>
+                    <Input
+                      type="text"
+                      placeholder="Lasso"
+                      {...register("lastName")}
+                    />
+                    <FormErrorMessage>
+                      {errors?.lastName?.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="rememberMe"
-                  name="rememberMe"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="rememberMe"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Remember me
-                </label>
-              </div>
-
+              <div className="flex items-center"></div>
               <div className="text-sm">
-                Have an account?{" "}
+                Already have an account?{" "}
                 <Link href="/auth/login">
                   <a className="font-medium text-indigo-600 hover:text-indigo-500">
                     Log in
@@ -191,12 +202,17 @@ function Register() {
             </div>
 
             <div>
-              <button
+              <Button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                colorScheme="blue"
+                width="100%"
+                disabled={isLoading}
+                isLoading={isLoading}
+                onClick={handleSubmit(onSubmit)}
               >
                 Register
-              </button>
+              </Button>
             </div>
           </form>
         </div>

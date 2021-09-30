@@ -9,6 +9,7 @@ export const schema = Joi.object({
     .email({ tlds: { allow: false } })
     .required(),
   password: Joi.string().label("Password").min(6).required(),
+  organization: Joi.string().label("Organization").required(),
   firstName: Joi.string().label("First name").allow(""),
   lastName: Joi.string().label("Last name").allow(""),
 });
