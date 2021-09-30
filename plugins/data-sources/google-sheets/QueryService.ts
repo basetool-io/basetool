@@ -141,6 +141,7 @@ class QueryService implements IQueryService {
               storedColumns && storedColumns[headerName as any];
 
             const fieldType = columnSettings?.fieldType || "Text";
+
             const baseOptions = merge(
               getBaseOptions(),
               columnSettings?.baseOptions

@@ -109,13 +109,23 @@ const Form = ({
     let response;
 
     setIsLoading(true);
+
+    // Send only touched fields to de-risk fields that alter the content on load (datetime fields)
+    const touchedFields = Object.entries(formState.touchedFields)
+      .filter(([name, touched]) => touched)
+      .map(([name]) => name);
+
     try {
       if (formForCreate) {
         response = await createRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           body: {
-            record: formData,
+            record: Object.fromEntries(
+              Object.entries(formData).filter(([name]) =>
+                touchedFields.includes(name)
+              )
+            ),
           },
         });
 
@@ -127,7 +137,7 @@ const Form = ({
           const { data } = apiResponse;
           const { id } = data;
           if (apiResponse.ok) {
-            router.push(
+            await router.push(
               `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
             );
           }
@@ -137,17 +147,34 @@ const Form = ({
         router.query.tableName &&
         record.id
       ) {
-        const response = await updateRecord({
+        const changes = Object.fromEntries(
+          Object.entries(diff)
+            .filter(([name]) => touchedFields.includes(name))
+            .map(([key]) => {
+              // handle nullable and nullValues
+              const column = columns.find((c) => c.name === key);
+              if (
+                column &&
+                column.baseOptions.nullable === true &&
+                Object.values(column.baseOptions.nullValues).includes(
+                  getValues(key)
+                )
+              )
+                return [key, null];
+
+              return [key, getValues(key)];
+            })
+        );
+
+        await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
-            changes: Object.fromEntries(
-              Object.entries(diff).map(([key]) => [key, getValues(key)])
-            ),
+            changes,
           },
         });
-        router.push(backLink);
+        await router.push(backLink);
       } else {
         toast.error("Not enough data.");
       }
@@ -177,6 +204,7 @@ const Form = ({
                 size="sm"
                 width="300px"
                 isLoading={isLoading}
+                onClick={handleSubmit(onSubmit)}
               >
                 <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
               </Button>
@@ -222,11 +250,6 @@ const Form = ({
           </div>
         </form>
       </PageWrapper>
-
-      {/* <pre>{JSON.stringify(diff, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(record, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(formData, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(formState, null, 2)}</pre> */}
     </>
   );
 };

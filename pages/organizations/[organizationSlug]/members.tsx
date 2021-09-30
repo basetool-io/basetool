@@ -17,7 +17,7 @@ import {
   useUpdateMemberRoleMutation,
 } from "@/features/organizations/api-slice";
 import { useInviteMemberMutation } from "@/features/organizations/api-slice";
-import { useOrganizationFromContext } from "@/hooks";
+import { useOrganizationFromContext, useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -40,6 +40,7 @@ const RolesSelector = ({
   organizationSlug: string;
 }) => {
   const router = useRouter();
+  const { role: profileRole } = useProfile();
 
   const handleChange = async (e: any) => {
     if (e.currentTarget.value === ADD_NEW_ROLE_ID) {
@@ -53,11 +54,17 @@ const RolesSelector = ({
     <FormControl id="role">
       <FormLabel>Role</FormLabel>
       <Select value={roleId} onChange={handleChange}>
-        {roles.map((role: Record<string, any>) => (
-          <option key={role.id} value={role.id}>
-            {role.name}
-          </option>
-        ))}
+        {roles
+          .filter(
+            (role: Record<string, any>) =>
+              profileRole.name === OWNER_ROLE ||
+              (profileRole.name !== OWNER_ROLE && role.name !== OWNER_ROLE)
+          )
+          .map((role: Record<string, any>) => (
+            <option key={role.id} value={role.id}>
+              {role.name}
+            </option>
+          ))}
         <optgroup label="-"></optgroup>
         <option value={ADD_NEW_ROLE_ID}>+ Add new role</option>
       </Select>

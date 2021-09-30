@@ -66,9 +66,11 @@
     "react-toastify": "^8.0.2",
     "react-use": "^17.2.4",
     "react-use-intercom": "^1.4.0",
+    "slugify": "^1.6.0",
     "tailwindcss": "^2.2.15",
     "urijs": "^1.19.7",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zx": "^4.2.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.0",

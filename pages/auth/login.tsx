@@ -56,7 +56,7 @@ export default function SignIn() {
                 required={true}
                 value={email}
                 onChange={(e) => setEmail(e.currentTarget.value)}
-                autofocus
+                autoFocus
               />
               <FormHelperText>We'll never share your email.</FormHelperText>
             </FormControl>
