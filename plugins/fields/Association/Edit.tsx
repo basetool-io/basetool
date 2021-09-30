@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Select,
 } from "@chakra-ui/react";
+import { Views } from "@/features/fields/enums";
 import { isEmpty, isFunction, isNull } from "lodash";
 import { useForeignName } from "./hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
@@ -20,6 +21,7 @@ const Edit = ({
   register: registerMethod,
   schema,
   setValue,
+  view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
   const errors = useMemo(() => formState.errors, [formState])
@@ -38,6 +40,9 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+    ? field.column.baseOptions.defaultValue
+    : null;
 
   // Get all the options
   const router = useRouter();
@@ -64,6 +69,7 @@ const Edit = ({
         {isLoading || (
           <Select
             placeholder={placeholder}
+            defaultValue={defaultValue}
             {...register}
             onChange={(e) =>
               isFunction(setValue) &&

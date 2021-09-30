@@ -143,11 +143,13 @@ export const getBaseOptions = () => ({
   visibility: [Views.index, Views.show, Views.edit, Views.new],
   required: false,
   nullable: false,
+  nullValues: [],
   readonly: false,
   placeholder: "",
   help: "",
   label: "",
   disconnected: false,
+  defaultValue: "",
 });
 
 export const getColumnNameLabel = (...args: any[]) => {

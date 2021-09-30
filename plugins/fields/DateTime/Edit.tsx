@@ -47,6 +47,7 @@ const Edit = ({
   register: registerMethod,
   setValue,
   schema,
+  view,
 }: EditFieldProps & {
   // Pleasing TypeScript
   setValue: (name: string, value: unknown, config?: unknown) => void;
@@ -100,9 +101,6 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-
-  // const date = DateTime.fromISO(field.value as string);
-  // const formattedDate = date.setZone(getBrowserTimezone()).toLocaleString(DateTime.DATETIME_MED);
 
   // This updates the local value when the filed loads for the first time of when a user has selected a value from the datepicker
   useEffect(() => {
