@@ -31,25 +31,19 @@ const Edit = ({
 
   const placeholder = field.column.fieldOptions.placeholder;
 
-  let initialValue = "{}";
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+  ? field.column.baseOptions.defaultValue
+  : null;
+
+  let initialValue;
   try {
-    initialValue = isUndefined(field.value)
-      ? "{}"
+    initialValue = isUndefined(field.value) || isNull(field.value)
+      ? (isNull(defaultValue) ? null : JSON.stringify(JSON.parse(defaultValue as string), null, 2))
       : JSON.stringify(JSON.parse(field.value as string), null, 2);
   } catch (e) {
-    initialValue = "{}";
+    initialValue = null;
   }
 
-  let defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
-    ? field.column.baseOptions.defaultValue
-    : null;
-  try {
-    defaultValue = isNull(defaultValue)
-      ? "{}"
-      : JSON.stringify(JSON.parse(defaultValue as string), null, 2);
-  } catch (e) {
-    defaultValue = "{}";
-  }
 
   const handleOnChange = (value: string) => {
     if (isEmpty(value)) {
@@ -95,7 +89,7 @@ const Edit = ({
           rows={10}
           placeholder={placeholder as string}
           id={fieldId(field)}
-          defaultValue={!isNull(defaultValue) ? defaultValue as string : initialValue}
+          defaultValue={initialValue as string}
           onChange={(e) => {
             handleOnChange(e.currentTarget.value);
           }}
