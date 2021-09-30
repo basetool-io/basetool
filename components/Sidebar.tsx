@@ -38,7 +38,7 @@ const Sidebar = () => {
   const ac = useAccessControl();
 
   return (
-    <div className="relative py-2 pl-2 w-full">
+    <div className="relative py-2 pl-2 w-full overflow-y-auto">
       {!router.query.dataSourceId && "Select a data source"}
       <div className="relative space-y-x w-full h-full flex flex-col">
         {dataSourceResponse?.ok && (

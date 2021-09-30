@@ -10,7 +10,7 @@ import {
 import { CalendarIcon } from "@heroicons/react/outline";
 import { DateTime } from "luxon";
 import { EditFieldProps } from "@/features/fields/types";
-import { dateTimeFormat, getBrowserTimezone } from "@/lib/time";
+import { dateFormat, dateTimeFormat, getBrowserTimezone } from "@/lib/time";
 import { isArray, isDate, isFunction, isUndefined } from "lodash";
 import DatePicker from "react-datepicker";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -52,6 +52,7 @@ const Edit = ({
   setValue: (name: string, value: unknown, config?: unknown) => void;
 }) => {
   const timezone = getBrowserTimezone();
+  const format = field.column.fieldOptions.onlyDate ? dateFormat : dateTimeFormat
 
   const register = registerMethod(field.column.name);
   const errors = useMemo(() => formState.errors, [formState]);
@@ -96,8 +97,6 @@ const Edit = ({
   const placeholder = field?.column?.baseOptions?.placeholder
     ? field.column.baseOptions.placeholder
     : "";
-
-  // options
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
@@ -111,14 +110,14 @@ const Edit = ({
       setLocalValue(
         DateTime.fromISO(field.value as string)
           .setZone(timezone)
-          .toFormat(dateTimeFormat)
+          .toFormat(format)
       );
     }
   }, [field.value]);
 
   // Set the value in the formData if it's valid
   useEffect(() => {
-    const value = DateTime.fromFormat(localValue, dateTimeFormat).setZone(
+    const value = DateTime.fromFormat(localValue, format).setZone(
       timezone
     );
     if (value.isValid) {
@@ -128,11 +127,11 @@ const Edit = ({
 
   // This memo holds returns the parsed value, if it's valid and if necesarry why the date is invalid.
   const [parsedValue, isValid, invalidReason] = useMemo(() => {
-    const parsed = DateTime.fromFormat(localValue, dateTimeFormat).setZone(
+    const parsed = DateTime.fromFormat(localValue, format).setZone(
       timezone
     );
     if (parsed.isValid) {
-      return [parsed.toFormat(dateTimeFormat), parsed.isValid, null];
+      return [parsed.toFormat(format), parsed.isValid, null];
     }
 
     return [localValue, false, parsed.invalidReason];
@@ -154,7 +153,7 @@ const Edit = ({
               <DatePicker
                 selected={placeholderValue}
                 onChange={handleOnChange}
-                showTimeSelect
+                showTimeSelect={!field.column.fieldOptions.onlyDate as boolean}
                 timeIntervals={15}
                 timeCaption="Time"
                 customInput={<CustomInput />}
