@@ -5,8 +5,11 @@ import type { Record } from "@/features/records/types";
 const schema = (record: Record, column: Column) => {
   let rule = Joi.number();
 
-  if (column.baseOptions.required) rule = rule.required();
-  else rule = rule.allow(null, "", NaN);
+  if (column.baseOptions.required) {
+    rule = rule.required();
+  } else {
+    rule = rule.allow(null, "", NaN);
+  }
 
   return rule;
 };
