@@ -28,8 +28,6 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
-
-  // field.baseOptions
   const placeholder = field?.column?.baseOptions?.placeholder
     ? field.column.baseOptions.placeholder
     : "";
@@ -47,7 +45,7 @@ const Edit = ({
         isDisabled={readonly}
       >
         <Input
-          type="text"
+          type={field.column.fieldOptions.displayAsEmail === true ? "email" : "text"}
           id={fieldId(field)}
           defaultValue={defaultValue}
           {...register}

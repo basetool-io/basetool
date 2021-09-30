@@ -75,10 +75,10 @@ const NULL_VALUES = [
 
 const ColumnEditor = ({
   column,
-  setColumnOption,
+  setColumnOptions,
 }: {
   column: Column;
-  setColumnOption: (c: Column, name: string, value: any) => void;
+  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) => {
   const columnOptions = useMemo(() => {
     if (column) {
@@ -92,7 +92,10 @@ const ColumnEditor = ({
     () =>
       getDynamicInspector(column?.fieldType) as React.ComponentType<{
         column: Column;
-        setColumnOption: (c: Column, name: string, value: any) => void;
+        setColumnOptions: (
+          c: Column,
+          options: Record<string, unknown>
+        ) => void;
       }>,
     [column?.fieldType]
   );
@@ -100,16 +103,16 @@ const ColumnEditor = ({
   // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
   useEffect(() => {
     if (column.baseOptions.required) {
-      setColumnOption(column, "baseOptions.nullable", false);
+      setColumnOptions(column, { "baseOptions.nullable": false });
     }
   }, [column.baseOptions.required]);
 
   useEffect(() => {
     if (column.baseOptions.nullable) {
-      setColumnOption(column, "baseOptions.required", false);
+      setColumnOptions(column, { "baseOptions.required": false });
 
       if (isEmpty(column.baseOptions.nullValues)) {
-        setColumnOption(column, "baseOptions.nullValues", [""]);
+        setColumnOptions(column, { "baseOptions.nullValues": [""] });
       }
     }
   }, [column.baseOptions.nullable]);
@@ -139,11 +142,9 @@ const ColumnEditor = ({
                 <Select
                   value={column.fieldType}
                   onChange={(e) => {
-                    setColumnOption(
-                      column,
-                      "fieldType",
-                      e.currentTarget.value as FieldType
-                    );
+                    setColumnOptions(column, {
+                      fieldType: e.currentTarget.value as FieldType,
+                    });
                   }}
                 >
                   <option disabled>Select field type</option>
@@ -164,11 +165,10 @@ const ColumnEditor = ({
               <Checkbox
                 isChecked={column.baseOptions.disconnected}
                 onChange={() =>
-                  setColumnOption(
-                    column,
-                    "baseOptions.disconnected",
-                    !column.baseOptions.disconnected
-                  )
+                  setColumnOptions(column, {
+                    "baseOptions.disconnected":
+                      !column.baseOptions.disconnected,
+                  })
                 }
               >
                 Disconnected
@@ -183,7 +183,7 @@ You can control where the field is visible here.`}
               <CheckboxGroup
                 value={column.baseOptions.visibility}
                 onChange={(value) =>
-                  setColumnOption(column, "baseOptions.visibility", value)
+                  setColumnOptions(column, { "baseOptions.visibility": value })
                 }
               >
                 <Stack direction="column">
@@ -227,11 +227,9 @@ You can control where the field is visible here.`}
                   required={false}
                   value={column.baseOptions.label}
                   onChange={(e) =>
-                    setColumnOption(
-                      column,
-                      "baseOptions.label",
-                      e.currentTarget.value
-                    )
+                    setColumnOptions(column, {
+                      "baseOptions.label": e.currentTarget.value,
+                    })
                   }
                 />
                 <FormHelperText>
@@ -252,11 +250,9 @@ You can control where the field is visible here.`}
                   required={false}
                   value={column.baseOptions.placeholder}
                   onChange={(e) =>
-                    setColumnOption(
-                      column,
-                      "baseOptions.placeholder",
-                      e.currentTarget.value
-                    )
+                    setColumnOptions(column, {
+                      "baseOptions.placeholder": e.currentTarget.value,
+                    })
                   }
                 />
               </FormControl>
@@ -269,11 +265,9 @@ You can control where the field is visible here.`}
                   id="required"
                   isChecked={column.baseOptions.required === true}
                   onChange={() =>
-                    setColumnOption(
-                      column,
-                      "baseOptions.required",
-                      !column.baseOptions.required
-                    )
+                    setColumnOptions(column, {
+                      "baseOptions.required": !column.baseOptions.required,
+                    })
                   }
                 >
                   Required
@@ -291,11 +285,9 @@ You can control where the field is visible here.`}
                   isChecked={column.baseOptions.nullable}
                   isDisabled={column.dataSourceInfo.nullable === false}
                   onChange={() =>
-                    setColumnOption(
-                      column,
-                      "baseOptions.nullable",
-                      !column.baseOptions.nullable
-                    )
+                    setColumnOptions(column, {
+                      "baseOptions.nullable": !column.baseOptions.nullable,
+                    })
                   }
                 >
                   Nullable
@@ -325,11 +317,9 @@ You can control where the field is visible here.`}
                               newNullValues.push(value);
                             else newNullValues = without(newNullValues, value);
 
-                            setColumnOption(
-                              column,
-                              "baseOptions.nullValues",
-                              newNullValues
-                            );
+                            setColumnOptions(column, {
+                              "baseOptions.nullValues": newNullValues,
+                            });
                           }}
                         >
                           {label}
@@ -352,20 +342,16 @@ You can control where the field is visible here.`}
                   required={false}
                   value={column.baseOptions.help}
                   onChange={(e) =>
-                    setColumnOption(
-                      column,
-                      "baseOptions.help",
-                      e.currentTarget.value
-                    )
+                    setColumnOptions(column, {
+                      "baseOptions.help": e.currentTarget.value,
+                    })
                   }
                 />
               </FormControl>
             </OptionWrapper>
 
-            {(column.fieldType === "DateTime" || column.fieldType === "Id") || (
-              <OptionWrapper
-                helpText={`Default value for create view.`}
-              >
+            {column.fieldType === "DateTime" || column.fieldType === "Id" || (
+              <OptionWrapper helpText={`Default value for create view.`}>
                 <FormControl id="defaultValue">
                   <FormLabel>Default value</FormLabel>
                   <Input
@@ -375,11 +361,9 @@ You can control where the field is visible here.`}
                     required={false}
                     value={column.baseOptions.defaultValue}
                     onChange={(e) =>
-                      setColumnOption(
-                        column,
-                        "baseOptions.defaultValue",
-                        e.currentTarget.value
-                      )
+                      setColumnOptions(column, {
+                        "baseOptions.defaultValue": e.currentTarget.value,
+                      })
                     }
                   />
                 </FormControl>
@@ -388,7 +372,7 @@ You can control where the field is visible here.`}
 
             <InspectorComponent
               column={column}
-              setColumnOption={setColumnOption}
+              setColumnOptions={setColumnOptions}
             />
           </div>
         </div>
@@ -436,38 +420,44 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     { isLoading: isUpdating }, // This is the destructured mutation result
   ] = useUpdateColumnsMutation();
 
-  const setColumnOption = (column: Column, name: string, value: any) => {
+  const setColumnOptions = async (
+    column: Column,
+    options: Record<string, unknown>
+  ) => {
     const newColumns = [...columns];
     let namespace: "baseOptions" | "fieldOptions" | undefined;
-    let newColumn: Column;
+    let newColumn: Column = column;
 
-    const segments = name.split(".");
-    if (segments && segments.length === 2) {
-      namespace = segments[0] as "baseOptions" | "fieldOptions";
-      name = segments[1];
-    }
+    Object.entries(options).forEach(([key, value]) => {
+      const segments = key.split(".");
+      if (segments && segments.length === 2) {
+        namespace = segments[0] as "baseOptions" | "fieldOptions";
+        key = segments[1];
+      }
 
-    if (namespace) {
-      newColumn = {
-        ...column,
-        [namespace]: {
-          ...column[namespace],
-          [name]: value,
-        },
-      };
-    } else {
-      newColumn = {
-        ...column,
-        [name]: value,
-      };
-    }
+      if (namespace) {
+        newColumn = {
+          ...column,
+          [namespace]: {
+            ...column[namespace],
+            [key]: value,
+          },
+        };
+      } else {
+        newColumn = {
+          ...column,
+          [key]: value,
+        };
+      }
+      column = newColumn;
+    });
 
     const index = newColumns.findIndex((c: Column) => c.name === column.name);
 
     if (index > -1) {
       newColumns[index] = newColumn;
-      setColumn(newColumn);
-      setColumns(newColumns);
+      await setColumn(newColumn);
+      await setColumns(newColumns);
     }
   };
 
@@ -545,7 +535,10 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
           <div className="flex-1 p-4">
             {isUpdating && <LoadingOverlay />}
             {column && (
-              <ColumnEditor column={column} setColumnOption={setColumnOption} />
+              <ColumnEditor
+                column={column}
+                setColumnOptions={setColumnOptions}
+              />
             )}
           </div>
         </div>
