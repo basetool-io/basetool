@@ -41,8 +41,8 @@ jobs:
       - name: Build project
         run: yarn build
 
-      - name: Start server
-        run: yarn next start -p 4099
+      - name: Start server and run tests
+        run: concurrently "yarn cypress run" "yarn next start -p 4099" -s -k
 
       - name: Run tests
         run: yarn cypress run
