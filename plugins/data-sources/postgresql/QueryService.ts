@@ -643,13 +643,11 @@ async function getDefaultFieldOptionsForFields(
   const fieldOptionsTuple = await Promise.all(
     columns.map(async (column) => {
       try {
-        const t = [
+        return [
           column.name,
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
-
-        return t;
       } catch (error: any) {
         if (error.code !== "MODULE_NOT_FOUND") {
           logger.warn({
