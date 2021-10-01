@@ -10,7 +10,7 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
-import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { Role } from "@prisma/client";
 import { TrashIcon } from "@heroicons/react/outline";
 import { get, isEmpty, isNull, isUndefined } from "lodash";

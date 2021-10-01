@@ -1,4 +1,4 @@
-import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { getLabel } from "@/features/data-sources";
 import { useAccessControl } from "@/hooks";
@@ -69,7 +69,7 @@ const Sidebar = () => {
           {tablesResponse?.ok &&
             tablesResponse.data
               .filter((table: ListTable) =>
-                table.schema ? table.schema === "public" : true
+                dataSourceResponse?.data.type === 'postgresql' && table.schema ? table.schema === "public" : true
               )
               .filter((table: ListTable) => ac.canViewTable(table))
               .map((table: ListTable, idx: number) => <SidebarItem

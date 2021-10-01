@@ -1,6 +1,5 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -72,7 +71,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
 
-  const dataSourceOptions = merge(dataSource.options, {
+  const options = merge(dataSource.options, {
     tables: {
       [req.query.tableName as string]: {
         columns: {
@@ -87,7 +86,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: dataSourceOptions,
+      options,
     },
   });
 

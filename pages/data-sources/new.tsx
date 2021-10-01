@@ -10,8 +10,8 @@ function New() {
     <Layout>
       <PageWrapper heading="Select data source type">
         <div className="flex justify-center">
-          <div className="max-w-lg">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="max-w-3xl">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {availableDataSources.map(({ id, label, enabled }) => (
                 <Link href={`/data-sources/${id}/new`} key={id}>
                   <a key={id} className="border shadow-md px-12 py-8 rounded text-center">

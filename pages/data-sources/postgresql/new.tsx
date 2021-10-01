@@ -124,8 +124,8 @@ function New() {
                 {...register("credentials.url")}
               />
               <FormHelperText>
-                The URL of your Postgres DB. The credentials are safely
-                encrypted. We'll never show these credentials again.
+                The credentials are safely encrypted. We'll never show these
+                credentials again.
               </FormHelperText>
             </FormControl>
 
@@ -142,7 +142,10 @@ function New() {
 
             <FormControl id="credentials_useSsl">
               <FormLabel htmlFor="credentials.useSsl">Use SSL</FormLabel>
-              <Checkbox id="credentials.useSsl" {...register("credentials.useSsl")} />
+              <Checkbox
+                id="credentials.useSsl"
+                {...register("credentials.useSsl")}
+              />
             </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>
