@@ -14,7 +14,7 @@ cp .env.sample .env
 # generate a SECRET with openssl rand -hex 32
 yarn prisma migrate dev
 # seed
-SEED_PASSWORD=secret yarn prisma db seed --preview-feature
+SEED_PASSWORD=secret yarn prisma db seed
 ```
 
 You may now log in with `ted.lasso@apple.com` and password `secret`.
