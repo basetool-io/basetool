@@ -5,7 +5,7 @@ import { IQueryService } from "../types";
 import { PostgresqlColumnOptions } from "./types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector"
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
-import { camelCase, isEmpty, isNumber, isUndefined } from "lodash";
+import { camelCase, isNumber, isUndefined } from "lodash";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
@@ -464,18 +464,9 @@ class QueryService implements IQueryService {
   }: {
     tableName: string;
   }): Promise<string | undefined> {
-    const query = `SELECT k.column_name
-FROM information_schema.table_constraints i
-JOIN information_schema.key_column_usage k
-USING(constraint_name,table_schema,table_name)
-WHERE
-  "table_name" = ?
-  AND "constraint_type" = 'PRIMARY KEY';`;
-    const { rows } = await this.client.raw(query, [tableName]);
+    const columnInfo = await this.inspector.columnInfo(tableName)
 
-    if (!isEmpty(rows)) {
-      return rows[0].column_name;
-    }
+    return columnInfo.find(({is_primary_key}) => is_primary_key === true)?.name
   }
 
   private async getForeignKeys(tableName: string): Promise<ForeignKeyInfo[]> {
