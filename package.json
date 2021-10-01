@@ -45,6 +45,7 @@
     "ioredis": "^4.27.9",
     "joi": "^17.4.2",
     "knex": "^0.95.10",
+    "knex-schema-inspector": "^1.6.2",
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
     "mailgun.js": "^3.5.9",
