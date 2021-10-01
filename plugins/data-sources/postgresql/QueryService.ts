@@ -3,15 +3,15 @@ import { DataSource } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { PostgresqlColumnOptions } from "./types";
-import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector"
+import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
-import { camelCase, isNumber, isUndefined } from "lodash";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
+import { isNumber, isUndefined } from "lodash";
 import { knex } from "knex";
 import logger from "@/lib/logger";
-import schemaInspector from 'knex-schema-inspector';
+import schemaInspector from "knex-schema-inspector";
 import type { Knex } from "knex";
 
 export type FieldOptions = Record<string, unknown>;
@@ -36,13 +36,14 @@ export type DBForeignKeyInfo = {
 
 // Removed the schema bc we can't access information_schema.constraint_column_usage on supabase
 export type ForeignKeyInfo = {
-  // tableSchema: string;
-  constraintName: string;
+  constraintName: string | null;
   tableName: string;
   columnName: string;
-  // foreignTableSchema: string;
   foreignTableName: string;
   foreignColumnName: string;
+  foreignTableSchema: string | undefined;
+  onUpdate: string | null;
+  onDelete: string | null;
 };
 
 export type ColumnWithSourceInfo = {
@@ -212,7 +213,7 @@ class QueryService implements IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    select: string[]
+    select: string[];
   }): Promise<[]> {
     const query = this.client.table(tableName);
     if (isNumber(limit) && isNumber(offset)) {
@@ -345,7 +346,7 @@ class QueryService implements IQueryService {
   }
 
   public async getTables(): Promise<[]> {
-    return await this.inspector.tableInfo() as [];
+    return (await this.inspector.tableInfo()) as [];
   }
 
   public async getColumns({
@@ -464,65 +465,27 @@ class QueryService implements IQueryService {
   }: {
     tableName: string;
   }): Promise<string | undefined> {
-    const columnInfo = await this.inspector.columnInfo(tableName)
+    const columnInfo = await this.inspector.columnInfo(tableName);
 
-    return columnInfo.find(({is_primary_key}) => is_primary_key === true)?.name
+    return columnInfo.find(({ is_primary_key }) => is_primary_key === true)
+      ?.name;
   }
 
   private async getForeignKeys(tableName: string): Promise<ForeignKeyInfo[]> {
-    // We can't use this query bc we can't accss information_schema.constraint_column_usage in supabase
-    //     const query = `SELECT
-    //     tc.table_schema,
-    //     tc.constraint_name,
-    //     tc.table_name,
-    //     kcu.column_name,
-    //     ccu.table_schema AS foreign_table_schema,
-    //     ccu.table_name AS foreign_table_name,
-    //     ccu.column_name AS foreign_column_name
-    // FROM
-    //     information_schema.table_constraints AS tc
-    //     JOIN information_schema.key_column_usage AS kcu
-    //       ON tc.constraint_name = kcu.constraint_name
-    //       AND tc.table_schema = kcu.table_schema
-    //     JOIN information_schema.constraint_column_usage AS ccu
-    //       ON ccu.constraint_name = tc.constraint_name
-    //       AND ccu.table_schema = tc.table_schema
-    // WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=?;
-    // `;
+    const foreignKeys = (await this.inspector.foreignKeys())
+      .filter(({ table }) => table === tableName)
+      .map((fkInfo) => ({
+        constraintName: fkInfo.constraint_name,
+        tableName: fkInfo.table,
+        columnName: fkInfo.column,
+        foreignTableName: fkInfo.foreign_key_table,
+        foreignColumnName: fkInfo.foreign_key_column,
+        foreignTableSchema: fkInfo.foreign_key_schema,
+        onUpdate: fkInfo.on_update,
+        onDelete: fkInfo.on_delete,
+      }));
 
-    const query = `
-    WITH unnested_confkey AS (
-      SELECT oid, unnest(confkey) as confkey
-      FROM pg_constraint
-    ),
-    unnested_conkey AS (
-      SELECT oid, unnest(conkey) as conkey
-      FROM pg_constraint
-    )
-    select
-      c.conname                   AS constraint_name,
-      c.contype                   AS constraint_type,
-      tbl.relname                 AS table_name,
-      col.attname                 AS column_name,
-      referenced_tbl.relname      AS foreign_table_name,
-      referenced_field.attname    AS foreign_column_name,
-      pg_get_constraintdef(c.oid) AS definition
-    FROM pg_constraint c
-    LEFT JOIN unnested_conkey con ON c.oid = con.oid
-    LEFT JOIN pg_class tbl ON tbl.oid = c.conrelid
-    LEFT JOIN pg_attribute col ON (col.attrelid = tbl.oid AND col.attnum = con.conkey)
-    LEFT JOIN pg_class referenced_tbl ON c.confrelid = referenced_tbl.oid
-    LEFT JOIN unnested_confkey conf ON c.oid = conf.oid
-    LEFT JOIN pg_attribute referenced_field ON (referenced_field.attrelid = c.confrelid AND referenced_field.attnum = conf.confkey)
-    WHERE c.contype = 'f' and tbl.relname = ?;
-`;
-    const { rows } = await this.client.raw(query, [tableName]);
-
-    return rows.map((fk: ForeignKeyInfo) =>
-      Object.fromEntries(
-        Object.entries(fk).map(([key, value]) => [camelCase(key), value])
-      )
-    );
+    return foreignKeys;
   }
 }
 
