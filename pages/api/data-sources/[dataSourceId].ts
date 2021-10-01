@@ -49,12 +49,20 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource) return res.status(404).send("");
+
+  const options = merge(dataSource.options, {
+    tables: req.body.tables,
+  });
+
   const result = await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: data,
+      options,
     },
   });
 

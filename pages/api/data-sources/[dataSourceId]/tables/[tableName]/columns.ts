@@ -65,44 +65,33 @@ export const getColumns = async ({
 };
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = (await getDataSourceFromRequest(
-    req
-  )) as PostgresqlDataSource | null;
+  const dataSource = await getDataSourceFromRequest(req);
 
   if (!req.body.changes)
     return res.send(ApiResponse.withError("No changes sent."));
 
-  if (dataSource && req?.query?.tableName) {
-    const tableOptions = get(dataSource, [
-      "options",
-      "tables",
-      req.query.tableName as string,
-    ]);
+  if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
 
-    const tableColumnOptions = tableOptions?.columns;
-
-    const result = await prisma.dataSource.update({
-      where: {
-        id: parseInt(req.query.dataSourceId as string, 10),
-      },
-      data: {
-        options: {
-          ...dataSource.options,
-          tables: {
-            ...dataSource.options.tables,
-            [req.query.tableName as string]: {
-              ...tableOptions,
-              columns: merge(tableColumnOptions, req.body.changes),
-            },
-          },
+  const dataSourceOptions = merge(dataSource.options, {
+    tables: {
+      [req.query.tableName as string]: {
+        columns: {
+          ...req.body.changes,
         },
       },
-    });
+    },
+  });
 
-    return res.json(ApiResponse.withData(result, { message: "Updated" }));
-  }
+  const result = await prisma.dataSource.update({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+    data: {
+      options: dataSourceOptions,
+    },
+  });
 
-  res.status(404).send("");
+  return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
 export default withMiddlewares(handler, {
