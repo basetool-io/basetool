@@ -2,7 +2,8 @@ import { BaseOptions, Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
-import { ListTable, PostgresqlColumnOptions } from "./types";
+import { PostgresqlColumnOptions } from "./types";
+import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector"
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { camelCase, isEmpty, isNumber, isUndefined } from "lodash";
 import { decrypt } from "@/lib/crypto";
@@ -10,6 +11,7 @@ import { getBaseOptions, idColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { knex } from "knex";
 import logger from "@/lib/logger";
+import schemaInspector from 'knex-schema-inspector';
 import type { Knex } from "knex";
 
 export type FieldOptions = Record<string, unknown>;
@@ -132,6 +134,8 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
 class QueryService implements IQueryService {
   public client: Knex;
 
+  public inspector: SchemaInspector;
+
   public dataSource: PostgresqlDataSource;
 
   public queryResult: unknown = {};
@@ -175,6 +179,8 @@ class QueryService implements IQueryService {
       connection,
       debug: false,
     });
+
+    this.inspector = schemaInspector(this.client);
 
     this.dataSource = dataSource;
   }
@@ -339,63 +345,7 @@ class QueryService implements IQueryService {
   }
 
   public async getTables(): Promise<[]> {
-    const query = `SELECT *
-    FROM pg_catalog.pg_tables
-    WHERE schemaname != 'pg_catalog' AND
-        schemaname != 'information_schema';`;
-    const getTableInfoQuery = (tables: string[]) => `SELECT
-    table_name,
-    column_name,
-    data_type
-  FROM
-    information_schema.columns
-    WHERE
-      table_name
-    IN (${tables.map((table) => `'${table}'`).join(",")});
-    `;
-
-    const {
-      rows: rawTables,
-    }: { rows: { tablename: string; schemaname: string }[] } =
-      await this.client.raw(query);
-
-    const tablesList = getTableInfoQuery(
-      rawTables.map(({ tablename }) => tablename)
-    );
-
-    const {
-      rows: columnsInfoResults,
-    }: {
-      rows: {
-        table_name: string;
-        column_name: string;
-        data_type: string;
-      }[];
-    } = await this.client.raw(tablesList);
-    const tables: ListTable[] = [];
-
-    const columnsInfo: {
-      [tableName: string]: { name: string; type: string }[];
-    } = {};
-    columnsInfoResults.forEach((tableInfo) => {
-      if (!columnsInfo[tableInfo.table_name])
-        columnsInfo[tableInfo.table_name] = [];
-
-      const column = {
-        name: tableInfo.column_name,
-        type: tableInfo.data_type,
-      };
-      columnsInfo[tableInfo.table_name].push(column);
-    });
-
-    rawTables.forEach((tableInfo) => {
-      tables.push({
-        name: tableInfo.tablename,
-        schemaname: tableInfo.schemaname,
-      });
-    });
-
-    return tables as [];
+    return await this.inspector.tableInfo() as [];
   }
 
   public async getColumns({
