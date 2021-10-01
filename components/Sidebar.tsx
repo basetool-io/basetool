@@ -69,7 +69,7 @@ const Sidebar = () => {
           {tablesResponse?.ok &&
             tablesResponse.data
               .filter((table: ListTable) =>
-                table.schemaname ? table.schemaname === "public" : true
+                table.schema ? table.schema === "public" : true
               )
               .filter((table: ListTable) => ac.canViewTable(table))
               .map((table: ListTable, idx: number) => <SidebarItem
