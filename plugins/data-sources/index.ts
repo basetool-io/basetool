@@ -17,11 +17,6 @@ const availableDataSources = [
     enabled: true,
   },
   {
-    id: "google-sheets",
-    label: "Google Sheets (beta)",
-    enabled: true,
-  },
-  {
     id: "mssql",
     label: "MSSQL",
     enabled: true,
@@ -32,24 +27,34 @@ const availableDataSources = [
     enabled: true,
   },
   {
-    id: "sq_lite3",
-    label: "SQLite3 (coming soon)",
-    enabled: false,
+    id: "google-sheets",
+    label: "Google Sheets",
+    enabled: true,
+    beta: true,
   },
   {
-    id: "oracle",
-    label: "Oracle (coming soon)",
-    enabled: false,
+    id: "stripe",
+    label: "Stripe",
+    enabled: true,
+    comingSoon: true,
   },
   {
     id: "amazon_redshift",
-    label: "Amazon Redshift (coming soon)",
+    label: "Amazon Redshift",
     enabled: false,
+    comingSoon: true,
   },
   {
     id: "airtable",
-    label: "Airtable (coming soon)",
+    label: "Airtable",
     enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "github",
+    label: "GitHub",
+    enabled: false,
+    comingSoon: true,
   },
 ];
 
