@@ -141,7 +141,7 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
-    case Gravatar:
+    case "Gravatar":
       return GravatarIndexField;
   }
 };

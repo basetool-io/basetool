@@ -7,6 +7,9 @@
 const { withSentryConfig } = require("@sentry/nextjs");
 
 const moduleExports = {
+  images: {
+    domains: ["www.gravatar.com"],
+  },
   reactStrictMode: true,
   async redirects() {
     return [];
