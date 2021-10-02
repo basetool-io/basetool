@@ -2,13 +2,15 @@
   "name": "basetool",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
     "lint": "yarn tsc && next lint --quiet",
     "try": "yarn build && yarn start",
-    "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "vercel-build": "prisma migrate deploy && next build",
     "postinstall": "prisma generate"
   },
@@ -16,13 +18,14 @@
     "@chakra-ui/react": "^1.6.6",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@fontsource/nunito": "^4.5.0",
     "@headlessui/react": "^1.4.1",
     "@heroicons/react": "^1.0.4",
     "@hookform/resolvers": "^2.8.0",
     "@next-auth/prisma-adapter": "^0.5.4",
     "@prisma/client": "^3.1.1",
     "@reduxjs/toolkit": "^1.6.1",
-    "@sentry/nextjs": "^6.12.0",
+    "@sentry/nextjs": "^6.13.2",
     "@types/bcrypt": "^5.0.0",
     "accesscontrol": "^2.2.1",
     "autoprefixer": "^10.3.2",
@@ -76,6 +79,7 @@
     "@types/ioredis": "^4.27.2",
     "@types/lodash": "^4.14.172",
     "@types/mailgun-js": "^0.22.12",
+    "@types/node": "^16.10.1",
     "@types/numeral": "^2.0.1",
     "@types/pg": "^8.6.1",
     "@types/pluralize": "^0.0.29",
@@ -96,7 +100,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
     "eslint-plugin-unused-imports": "^1.1.4",
-    "ts-node": "^10.2.0",
-    "typescript": "4.3.5"
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
   }
 }

@@ -1,5 +1,5 @@
 const fieldOptions = {
   min: 0,
-  max: 101
+  max: 100
 };
 export default fieldOptions;

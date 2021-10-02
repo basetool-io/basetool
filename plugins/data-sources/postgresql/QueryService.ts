@@ -617,7 +617,7 @@ const getFieldTypeFromColumnInfo = (
     case "double precision":
     case "money":
       if (idColumns.includes(name)) return "Id";
-      else return "Number"; //this is where I had to change Number into ProgressBar when had to check if ProgressBar is rendering
+      else return "Number";
   }
 };
 

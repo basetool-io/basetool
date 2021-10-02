@@ -91,7 +91,7 @@ export const getFieldForEdit = (column: Column) => {
       return JsonEditField;
     case "Association":
       return AssociationEditField;
-       case "ProgressBar":
+    case "ProgressBar":
       return ProgressBarEditField;
   }
 };

@@ -49,11 +49,11 @@ const Edit = ({
         isDisabled={readonly}
       >
         <Input
-          type="range"
+          type="number"
           id={fieldId(field)}
-          value="50"
-          min='1'
-          max='100'
+          value={field.value}
+          min={field.column.fieldOptions.min}
+          max={field.column.fieldOptions.max}
           {...register}
           placeholder={placeholder}
           className="text-center text-sm font-semibold w-full leading-none mb-1"
