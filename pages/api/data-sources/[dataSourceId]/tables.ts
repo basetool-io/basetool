@@ -1,6 +1,9 @@
-import { ListTable, PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
+import {
+  ListTable,
+  PostgresqlDataSource,
+} from "@/plugins/data-sources/postgresql/types";
 import { getDataSourceFromRequest } from "@/features/api";
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -28,17 +31,23 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  await service.connect();
+  const tables = (await service.runQuery("getTables")) as ListTable[];
+  const storedTableData = dataSource.options.tables;
 
-  const tables = await service.getTables() as ListTable[];
-
-  tables.forEach((table: ListTable) => {
-    if (dataSource?.options?.tables && dataSource?.options?.tables[table.name]?.label) {
-      table.label = (dataSource.options.tables as any)[table.name].label;
-    }
-  })
-
-  await service.disconnect();
+  // If we have any, we'll assign the stored data to the tables we return.
+  if (storedTableData) {
+    tables.forEach((table) => {
+      if (storedTableData[table.name]) {
+        if (storedTableData[table.name].label) {
+          table.label = storedTableData[table.name].label;
+        }
+        if (storedTableData[table.name].authorizedRoles) {
+          table.authorizedRoles ||=
+            storedTableData[table.name]?.authorizedRoles;
+        }
+      }
+    });
+  }
 
   res.json(ApiResponse.withData(tables));
 }

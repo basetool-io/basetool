@@ -1,6 +1,11 @@
 import { AppDispatch, RootState } from "@/lib/store";
+import {
+  DataSource,
+  Organization,
+  OrganizationUser,
+  User,
+} from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
-import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
@@ -20,12 +25,15 @@ import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
-import { useContext, useMemo } from "react";
 import { useEffect } from "react";
+import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useMedia } from "react-use";
-import AccessControlService from "@/features/roles/AccessControlService";
+import { useMemo } from "react";
+import { useSession } from "next-auth/client";
+import AccessControlService, {
+  Role,
+} from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
-import ProfileContext from "@/lib/ProfileContext";
 import store from "@/lib/store";
 
 export const useApi = () => new ApiService();
@@ -122,11 +130,8 @@ export const useFilters = (
 };
 
 export const useAccessControl = () => {
-  const profile = useContext(ProfileContext);
-  const ac = useMemo(
-    () => new AccessControlService(profile.role),
-    [profile.role]
-  );
+  const { role } = useProfile();
+  const ac = useMemo(() => new AccessControlService(role), [role]);
 
   return ac;
 };
@@ -165,13 +170,12 @@ export const useOrganizationFromContext = ({
 }):
   | (Organization & {
       users: Array<OrganizationUser & { user: User }>;
-      roles: Role[];
     })
   | undefined => {
-  const { organizations } = useContext(ProfileContext);
-  const organization: Organization | undefined = useMemo(
+  const { organizations } = useProfile();
+  const organization = useMemo(
     () =>
-      organizations?.find((o: Organization) => {
+      organizations?.find((o) => {
         if (slug) return o.slug === slug;
         if (id) return o.id === id;
       }),
@@ -203,4 +207,36 @@ export const useSelectRecords = () => {
     setRecordsSelected,
     resetRecordsSelection,
   };
+};
+
+export const useProfile = () => {
+  const [session, sessionIsLoading] = useSession();
+  const { data: profileResponse, isLoading: profileIsLoading } =
+    useGetProfileQuery(null, {
+      skip: !session,
+    });
+
+  const { user, organizations, role } = useMemo<{
+    user: User;
+    organizations: Array<
+      Organization & {
+        users: Array<OrganizationUser & { user: User }>;
+        dataSources: DataSource[];
+      }
+    >;
+    role: Role;
+  }>(
+    () =>
+      profileResponse?.ok
+        ? profileResponse?.data
+        : { user: {}, organizations: [], role: undefined },
+    [profileResponse, profileIsLoading]
+  );
+
+  const isLoading = useMemo<boolean>(
+    () => sessionIsLoading || profileIsLoading,
+    [sessionIsLoading, profileIsLoading]
+  );
+
+  return { user, role, organizations, isLoading };
 };

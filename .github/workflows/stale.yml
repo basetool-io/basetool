@@ -1,4 +1,5 @@
 name: 'Close stale issues and PRs'
+
 on:
   schedule:
     - cron: '39 1 * * *'
@@ -13,5 +14,7 @@ jobs:
     steps:
       - uses: actions/stale@v4
         with:
-          stale-issue-message: 'This issue has been marked as stale because there was no activity for the last 60 days'
-          stale-pr-message: 'This PR has been marked as stale because there was no activity for the last 60 days'
+          stale-issue-message: This issue hasn't been updated in 60 days. We'll mark it as stale. Would you mind letting us know if you've got updates on it and you want to re-open it? Thanks 🙏
+          stale-pr-message: This PR hasn't been updated in 60 days. We'll mark it as stale. Would you mind letting us know if you've got updates on it and you want to re-open it? Thanks 🙏
+          close-issue-message: This issue hasn't been updated in 60 days. We'll close it for now. Would you mind letting us know if you've got updates on it and you want to re-open it? Thanks 🙏
+          close-pr-message: This PR hasn't been updated in 60 days. We'll close it for now. Would you mind letting us know if you've got updates on it and you want to re-open it? Thanks 🙏

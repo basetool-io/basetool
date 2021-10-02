@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Input,
 } from "@chakra-ui/react";
+import { Views } from "@/features/fields/enums";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -16,6 +17,7 @@ const Edit = ({
   formState,
   register: registerMethod,
   schema,
+  view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name, {
     // React hook form casts empty values to 0 or NaN instead of null. We're overriding that here.
@@ -25,7 +27,7 @@ const Edit = ({
       return null;
     },
   });
-  const errors = useMemo(() => formState.errors, [formState])
+  const errors = useMemo(() => formState.errors, [formState]);
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -41,16 +43,17 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+    ? field.column.baseOptions.defaultValue
+    : null;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl
-        isInvalid={hasError}
-        isDisabled={readonly}
-      >
+      <FormControl isInvalid={hasError} isDisabled={readonly}>
         <Input
           type="number"
           id={fieldId(field)}
+          defaultValue={defaultValue}
           {...register}
           placeholder={placeholder}
         />

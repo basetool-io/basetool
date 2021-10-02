@@ -11,7 +11,8 @@ import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
-import { isArray, isEmpty } from "lodash";
+import { getFilteredColumns } from "@/features/fields";
+import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
@@ -20,14 +21,16 @@ import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
+import ItemControls from "@/features/tables/components/ItemControls";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
+import pluralize from "pluralize";
 
-const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
+const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
@@ -41,6 +44,12 @@ const CheckboxColumnCell = ({ row }: { row: Row<any>}) => {
   );
 };
 
+const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
+  <div className="flex items-center justify-center h-full">
+    <ItemControls recordId={row?.original?.id} />
+  </div>
+);
+
 const ResourcesIndex = memo(
   ({
     dataSourceId,
@@ -52,17 +61,29 @@ const ResourcesIndex = memo(
     columns: Column[];
   }) => {
     const router = useRouter();
+
     const checkboxColumn = {
-      Header: 'record_selector',
-      accessor: (row: any, i: number) => `record_selector_${i}`,
+      Header: "selector_column",
+      accessor: (row: any, i: number) => `selector_column_${i}`,
       Cell: CheckboxColumnCell,
       width: 70,
       minWidth: 70,
       maxWidth: 70,
     };
+
+    const controlsColumn = {
+      Header: "controls_column",
+      accessor: (row: any, i: number) => `controls_column_${i}`,
+      Cell: SelectorColumnCell,
+      width: 104,
+      minWidth: 104,
+      maxWidth: 104,
+    };
+
     const parsedColumns = [
       checkboxColumn,
       ...parseColumns({ dataSourceId, columns, tableName }),
+      controlsColumn,
     ];
     const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
     const [orderDirection, setOrderDirection] = useState<OrderDirection>(
@@ -105,106 +126,112 @@ const ResourcesIndex = memo(
       }
     };
 
+    const deleteMessage = useMemo(
+      () =>
+        `Delete ${selectedRecords.length} ${pluralize(
+          "record",
+          selectedRecords.length
+        )}`,
+      [selectedRecords.length]
+    );
+
     return (
       <PageWrapper
         heading="Browse records"
         flush={true}
         buttons={
-          <>
-            <ButtonGroup size="sm">
-              {ac.hasRole(OWNER_ROLE) && (
-                <>
-                  <Link
-                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
-                    passHref
+          <ButtonGroup size="xs">
+            {ac.hasRole(OWNER_ROLE) && (
+              <Link
+                href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
+                passHref
+              >
+                <Button
+                  colorScheme="blue"
+                  variant="ghost"
+                  leftIcon={<PencilAltIcon className="h-4" />}
+                >
+                  Edit columns
+                </Button>
+              </Link>
+            )}
+          </ButtonGroup>
+        }
+        footer={
+          <PageWrapper.Footer
+            left={
+              ac.deleteAny("record").granted && (
+                <Tooltip label={deleteMessage} placement="bottom" gutter={10}>
+                  <Button
+                    className="text-red-600 text-sm cursor-pointer"
+                    variant="link"
+                    colorScheme="red"
+                    leftIcon={<TrashIcon className="h-4" />}
+                    isLoading={isDeleting}
+                    isDisabled={selectedRecords.length == 0}
+                    onClick={handleDeleteMultiple}
+                  />
+                </Tooltip>
+              )
+            }
+            center={
+              ac.createAny("record").granted && (
+                <Link
+                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                  passHref
+                >
+                  <Button
+                    as="a"
+                    colorScheme="blue"
+                    size="sm"
+                    width="300px"
+                    leftIcon={<PlusIcon className="h-4" />}
                   >
-                    <Button
-                      colorScheme="blue"
-                      variant="outline"
-                      leftIcon={<PencilAltIcon className="h-4" />}
-                    >
-                      Edit columns
-                    </Button>
-                  </Link>
-                </>
-              )}
-              {ac.deleteAny("record").granted && (
-                <>
-                  <Tooltip
-                    label={"Delete " + selectedRecords.length + " record(s)"}
-                    placement="bottom"
-                    gutter={10}
-                  >
-                    <Button
-                      colorScheme="red"
-                      variant="outline"
-                      isLoading={isDeleting}
-                      isDisabled={selectedRecords.length == 0}
-                      onClick={handleDeleteMultiple}
-                    >
-                      <TrashIcon className="h-4" />
-                    </Button>
-                  </Tooltip>
-                </>
-              )}
-              {ac.createAny("record").granted && (
-                <>
-                  <Link
-                    href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
-                    passHref
-                  >
-                    <Button
-                      colorScheme="blue"
-                      leftIcon={<PlusIcon className="h-4" />}
-                    >
-                      Create record
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </ButtonGroup>
-          </>
+                    Create record
+                  </Button>
+                </Link>
+              )
+            }
+          />
         }
       >
-        <>
-          <div className="relative flex flex-col flex-1 w-full h-full">
-            <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
-              {filtersPanelVisible && (
-                <FiltersPanel ref={filtersPanel} columns={columns} />
-              )}
-              <div className="flex flex-shrink-0">
-                <Button
-                  onClick={() => toggleFiltersPanelVisible()}
-                  variant="link"
-                  ref={filtersButton}
-                >
-                  <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
-                </Button>
-                <div className="text-sm text-gray-600">
-                  {!isEmpty(appliedFilters) && (
-                    <div>
-                      ({appliedFilters.length} applied){" "}
-                      <Button size="xs" onClick={resetFilters}>
-                        <XIcon className="h-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+        <div className="relative flex flex-col flex-1 w-full h-full">
+          <div className="relative flex justify-between w-full py-2 px-2 bg-white shadow z-20 rounded">
+            {filtersPanelVisible && (
+              <FiltersPanel ref={filtersPanel} columns={columns} />
+            )}
+            <div className="flex flex-shrink-0">
+              <Button
+                onClick={() => toggleFiltersPanelVisible()}
+                variant="link"
+                ref={filtersButton}
+              >
+                <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
+              </Button>
+              <div className="text-sm text-gray-600">
+                {!isEmpty(appliedFilters) && (
+                  <div>
+                    ({appliedFilters.length} applied){" "}
+                    <Button size="xs" onClick={resetFilters}>
+                      <XIcon className="h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="relative flex-1 flex h-full max-w-full w-full">
-              <RecordsTable
-                columns={parsedColumns}
-                orderBy={orderBy}
-                setOrderBy={setOrderBy}
-                orderDirection={orderDirection}
-                setOrderDirection={setOrderDirection}
-                tableName={tableName}
-                dataSourceId={dataSourceId}
-              />
-            </div>
           </div>
-        </>
+          <div className="relative flex-1 flex h-full max-w-full w-full">
+            <RecordsTable
+              columns={parsedColumns}
+              orderBy={orderBy}
+              setOrderBy={setOrderBy}
+              orderDirection={orderDirection}
+              setOrderDirection={setOrderDirection}
+              tableName={tableName}
+              dataSourceId={dataSourceId}
+            />
+          </div>
+        </div>
       </PageWrapper>
     );
   }
@@ -229,14 +256,9 @@ function TablesShow() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column?.baseOptions.visibility?.includes(Views.index)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   return (
     <Layout>

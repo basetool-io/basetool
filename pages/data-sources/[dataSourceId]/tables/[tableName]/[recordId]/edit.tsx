@@ -1,21 +1,20 @@
-import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
-import { isEmpty } from "lodash"
+import { getFilteredColumns } from "@/features/fields"
+import { isEmpty } from "lodash";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
-import LoadingOverlay from "@/components/LoadingOverlay"
+import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { useMemo } from "react";
-import isArray from "lodash/isArray";
 
 function RecordsEdit() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
   const recordId = router.query.recordId as string;
-  const { data, error, isLoading } = useGetRecordQuery(
+  const { data: recordResponse, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
       tableName,
@@ -32,21 +31,16 @@ function RecordsEdit() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column.baseOptions.visibility?.includes(Views.edit)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   return (
     <Layout>
-      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
+      {isLoading && <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && data?.ok && columnsResponse?.ok && (
-        <Form record={data.data} columns={columns} />
+      {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
+        <Form record={recordResponse.data} columns={columns} />
       )}
     </Layout>
   );

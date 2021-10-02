@@ -51,7 +51,8 @@ export const dataSourcesApiSlice = createApi({
           { type: "Sheets", id: "LIST" },
         ],
       }),
-      // Google heets 👆
+      // Google Sheets 👆
+
       getDataSource: builder.query<
         ApiResponse,
         Partial<{ dataSourceId: string }>
@@ -103,14 +104,8 @@ export const dataSourcesApiSlice = createApi({
           body,
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
-          { type: "Table", id: dataSourceId },
+          { type: "DataSource", id: dataSourceId },
         ],
-      }),
-      getTables: builder.query<ApiResponse, {dataSourceId: string}>({
-        query({dataSourceId}) {
-          return `/data-sources/${dataSourceId}/tables`
-        },
-        providesTags: (response, error, { dataSourceId }) => [{ type: 'Table', id: dataSourceId }],
       }),
     };
   },
@@ -125,6 +120,5 @@ export const {
   useAddDataSourceMutation,
   useRemoveDataSourceMutation,
   useUpdateDataSourceMutation,
-  useGetTablesQuery,
   usePrefetch,
 } = dataSourcesApiSlice;
