@@ -26,12 +26,6 @@ function Layout({
     if (sidebar) return false;
     if (hideSidebar) return false;
 
-    if (router.pathname.includes("/profile")) return false;
-    if (router.pathname === "/data-sources") return false;
-    if (router.pathname === "/data-sources/google-sheets/new") return false;
-    if (router.pathname === "/data-sources/postgresql/new") return false;
-    if (router.pathname === "/data-sources/new") return false;
-
     return true;
   }, [router.pathname]);
   // temporarily returning false until we figure out a better way of injecting the sidebar with dynamic values 👇
