@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { PlusIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
-import { schema } from "@/plugins/data-sources/mysql/schema";
+import { schema } from "@/plugins/data-sources/mssql/schema";
 import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
@@ -24,7 +24,7 @@ import isUndefined from "lodash/isUndefined";
 export interface IFormFields {
   id?: number;
   name: string;
-  type: "mysql";
+  type: "mssql";
   organizationId: number;
   credentials: {
     host: string;
@@ -62,7 +62,7 @@ function New() {
   const { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
       name: router.query.name || "",
-      type: "mysql",
+      type: "mssql",
       organizationId:
         organizations && organizations.length > 0 ? organizations[0].id : "",
       credentials: {
