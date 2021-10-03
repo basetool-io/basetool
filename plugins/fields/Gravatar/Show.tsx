@@ -11,7 +11,7 @@ const Show = ({ field }: { field: Field }) => {
 
   return <ShowFieldWrapper field={field}>
     <Image
-      src={`https://www.gravatar.com/avatar/${Md5.hashStr(value as string)}`}
+      src={`https://www.gravatar.com/avatar/${Md5.hashStr(value as string)}?s=${field.column.fieldOptions.showWidth as number}`}
       width={field.column.fieldOptions.showWidth as number}
       height={field.column.fieldOptions.showHeight as number}
       alt={value as string}
