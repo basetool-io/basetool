@@ -5,25 +5,23 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React from "react";
+import React, { useState } from "react";
 
 function New() {
   const router = useRouter();
+  const [dataSourceId, setDataSourceId] = useState("");
 
-  const next = () => {
-    console.log("next->");
+  const next = async () => {
+    await router.push({
+      pathname: `/data-sources/${dataSourceId}/new`,
+    });
   };
   const selectDataSource = async (id: string) => {
-    await router.push({
-      pathname: router.pathname,
-      query: {
-        type: id,
-      },
-    });
+    setDataSourceId(id);
   };
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <PageWrapper
         heading="Select data source type"
         footer={
@@ -48,16 +46,20 @@ function New() {
               {availableDataSources.map(({ id, label, beta, comingSoon }) => (
                 <a
                   key={id}
-                  className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-gray-100 hover:to-blue-gray-200"
-                  onClick={() => !comingSoon && selectDataSource(id)}
+                  className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-cool-gray-100 hover:to-blue-gray-200"
+                  onClick={() => {
+                    if (!comingSoon) {
+                      selectDataSource(id);
+                    }
+                  }}
                 >
                   {beta && (
-                    <div className="absolute text-center top-0 right-0 m-0 -mt-4 -mr-14 transform rotate-45 uppercase font-bold text-white py-2 pt-8 px-12 bg-green-400">
+                    <div className="absolute text-center top-0 right-0 m-0 -mt-4 -mr-14 transform rotate-45 uppercase font-bold text-white py-2 pt-8 px-12 bg-green-400 shadow-md text-sm">
                       Beta
                     </div>
                   )}
                   {comingSoon && (
-                    <div className="absolute text-center top-auto bottom-0 right-0 uppercase font-bold text-sm text-white py-1 w-full bg-blue-400">
+                    <div className="absolute text-center top-auto bottom-0 right-0 uppercase font-bold text-xs text-white py-1 w-full bg-blue-400">
                       Coming soon
                     </div>
                   )}
@@ -65,7 +67,7 @@ function New() {
                     <input
                       type="radio"
                       className="w-5 h-5"
-                      checked={!comingSoon && router.query.type === id}
+                      checked={!comingSoon && id === dataSourceId}
                       disabled={comingSoon}
                     />
                   </div>

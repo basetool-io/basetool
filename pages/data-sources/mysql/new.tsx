@@ -15,6 +15,7 @@ import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
+import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
@@ -95,9 +96,10 @@ function New() {
   }, []);
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <PageWrapper
         heading="Add data source"
+        buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
             center={

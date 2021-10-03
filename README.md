@@ -17,7 +17,7 @@ yarn prisma migrate dev
 SEED_PASSWORD=secret yarn prisma db seed
 ```
 
-You may now log in with `ted.lasso@apple.com` and password `secret`.
+You may now log in with `ted.lasso@apple.com` and password `secret`. The seed script will not seed a datasource. Only the user and it's organization.
 
 There's also a `prisma/sample-seed.sql` file that you can use to create a sample database.
 
