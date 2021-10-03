@@ -56,7 +56,7 @@ const Sidebar = () => {
             </Link>
           </div>
         )}
-        {error && <div>Error: {(error as any).error}</div>}
+        {error && <div>{'data' in error && (error?.data as any)?.messages[0]}</div>}
         {isLoading && (
           <LoadingOverlay
             transparent={isEmpty(tablesResponse?.data)}
