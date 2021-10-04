@@ -44,7 +44,7 @@ function Layout({
 
   useEffect(() => {
     // Update Intercom with the user's info
-    if ((inProduction || true) && !sessionIsLoading && session) {
+    if (inProduction && !sessionIsLoading && session) {
       // Update Intercom identification
       update({
         name: session?.user?.name,
