@@ -10,6 +10,7 @@ import {
   useGetRecordQuery,
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head";
@@ -17,7 +18,7 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function RecordsShow() {
@@ -25,6 +26,12 @@ function RecordsShow() {
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
   const recordId = router.query.recordId as string;
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
   const { data, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
@@ -78,6 +85,21 @@ function RecordsShow() {
     }
   };
 
+  const canRead = useMemo(
+    () => ac.readAny("record").granted,
+    [ac, dataSourceResponse]
+  );
+
+  // Redirect to record page if the user can't read
+  useEffect(() => {
+    if (!canRead && router) {
+      router.push(`/data-sources/${dataSourceId}/tables/${tableName}`);
+    }
+  }, [canRead, router]);
+
+  // Don't show them the show page if the user can't read
+  if (!canRead) return "";
+
   return (
     <>
       <Layout>
@@ -109,7 +131,8 @@ function RecordsShow() {
                     )
                   }
                   right={
-                    ac.updateAny("record").granted && (
+                    ac.updateAny("record").granted &&
+                    !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                       <Link
                         href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                         passHref

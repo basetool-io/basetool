@@ -44,9 +44,15 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   );
 };
 
-const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
+const SelectorColumnCell = ({
+  row,
+  dataSourceId,
+}: {
+  row: Row<any>;
+  dataSourceId: string;
+}) => (
   <div className="flex items-center justify-center h-full">
-    <ItemControls recordId={row?.original?.id} />
+    <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
   </div>
 );
 
@@ -94,7 +100,10 @@ function TablesShow() {
   const controlsColumn = {
     Header: "controls_column",
     accessor: (row: any, i: number) => `controls_column_${i}`,
-    Cell: SelectorColumnCell,
+    // eslint-disable-next-line react/display-name
+    Cell: (row: any) => (
+      <SelectorColumnCell row={row.row} dataSourceId={dataSourceId} />
+    ),
     width: 104,
     minWidth: 104,
     maxWidth: 104,

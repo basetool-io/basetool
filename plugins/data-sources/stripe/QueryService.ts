@@ -1,8 +1,13 @@
 import { DataSource } from "@prisma/client";
+import { FieldType } from "@/features/fields/types";
 import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { decrypt } from "@/lib/crypto";
+import { getColumnLabel } from "..";
+import { isBoolean, isNumber, isObjectLike } from "lodash";
+import { singular } from "pluralize";
 import Stripe from "stripe";
+import openApiSpec from "@/plugins/data-sources/stripe/openapi_fixtures3.json";
 
 export interface StripeDataSource extends DataSource {
   options: {
@@ -68,54 +73,17 @@ class QueryService implements IQueryService {
     tableName: string;
     storedColumns?: [];
   }) {
-    return [
-      {
-        name: "id",
-        label: "ID",
-        dataSourceInfo: {},
-        primaryKey: true,
-        baseOptions: {
-          visibility: ["index", "show", "edit", "new"],
-          required: false,
-          nullable: false,
-          nullValues: [],
-          readonly: false,
-          placeholder: "",
-          help: "",
-          label: "",
-          disconnected: false,
-          defaultValue: "",
-        },
-        fieldType: "Id",
-        fieldOptions: {},
-      },
-      {
-        name: "email",
-        label: "Email",
-        dataSourceInfo: {},
-        primaryKey: false,
-        baseOptions: {
-          visibility: ["index", "show", "edit", "new"],
-          required: false,
-          nullable: false,
-          nullValues: [],
-          readonly: false,
-          placeholder: "",
-          help: "",
-          label: "",
-          disconnected: false,
-          defaultValue: "",
-        },
-        fieldType: "Text",
-        "fieldOptions": {
-          "displayAsLink": false,
-          "openNewTab": false,
-          "linkText": "",
-          "displayAsImage": false,
-          "displayAsEmail": false
-        }
-      },
-    ];
+    const resourceName = singular(tableName);
+    const specColumns = (openApiSpec?.resources as any)[resourceName] as Record<
+      string,
+      unknown
+    >;
+
+    if (!specColumns) return [];
+
+    const columns = specToColumns(specColumns);
+
+    return columns;
   }
 
   public async getRecords({
@@ -135,16 +103,15 @@ class QueryService implements IQueryService {
     orderDirection: string;
     select: string[];
   }) {
-
     const records = await this.client.customers.list({
-      limit: 10
+      limit: 10,
     });
 
     return records?.data || [];
   }
 
   public async getRecordsCount(payload: any): Promise<number | undefined> {
-    return undefined
+    return undefined;
   }
 
   public async getRecord({
@@ -156,10 +123,52 @@ class QueryService implements IQueryService {
     recordId: string;
     select: string[];
   }) {
-    if ('retrieve' in this.client[tableName as keyof Stripe]) {
+    if ("retrieve" in this.client[tableName as keyof Stripe]) {
       return await this.client[tableName as keyof Stripe]?.retrieve(recordId);
     }
   }
 }
 
 export default QueryService;
+
+const specToColumns = (specColumns: Record<string, string | number | boolean | null>) => {
+  return Object.entries(specColumns).map(([key, value]) => {
+    const column = {
+      name: key,
+      label: getColumnLabel({ name: key }),
+      dataSourceInfo: {},
+      primaryKey: key === "id",
+      baseOptions: {
+        visibility: ["index", "show", "edit", "new"],
+        required: false,
+        nullable: false,
+        nullValues: [],
+        readonly: false,
+        placeholder: "",
+        help: "",
+        label: "",
+        disconnected: false,
+        defaultValue: "",
+      },
+      fieldType: getFieldTypeFromColumnInfo(key, value),
+      fieldOptions: {},
+    };
+
+    return column;
+  });
+};
+
+const getFieldTypeFromColumnInfo = (
+  key: string,
+  value: string | number | boolean | null
+): FieldType => {
+  if (key === "id") return "Id";
+
+  if (["created", "updated"].includes(key)) return "DateTime";
+
+  if (isNumber(value)) return "Number";
+  if (isBoolean(value)) return "Boolean";
+  if (isObjectLike(value)) return "Json";
+
+  return "Text";
+};

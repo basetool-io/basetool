@@ -17,7 +17,7 @@ import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspect
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, idColumns } from "@/features/fields";
-import { humanize } from "@/lib/humanize";
+import { getColumnLabel } from "..";
 import { isNumber, isUndefined } from "lodash";
 import logger from "@/lib/logger";
 import schemaInspector from "knex-schema-inspector";
@@ -425,12 +425,6 @@ abstract class AbstractQueryService implements IQueryService {
 
   abstract getClient(): Knex;
 }
-
-const getColumnLabel = (column: { name: string }) => {
-  if (column.name === "id") return "ID";
-
-  return humanize(column.name);
-};
 
 const getFieldTypeFromColumnInfo = (
   column: ColumnWithBaseOptions
