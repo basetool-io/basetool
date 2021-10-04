@@ -56,6 +56,11 @@ const availableDataSources = [
   //   label: "Google Sheets (coming soon)",
   //   enabled: false,
   // },
+  {
+    id: "stripe",
+    label: "Stripe",
+    enabled: true,
+  },
 ];
 
 export {availableDataSources}
