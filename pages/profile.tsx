@@ -10,7 +10,7 @@ function Profile() {
   const { user, role, isLoading } = useProfile();
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <PageWrapper heading={`Profile`}>
         <>
           <div className="w-full h-full flex-1 flex flex-col justify-between">

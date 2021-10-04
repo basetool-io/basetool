@@ -1,4 +1,5 @@
 import { inProduction } from "@/lib/environment";
+import { segment } from "@/lib/track"
 import { useIntercom } from "react-use-intercom";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
@@ -26,14 +27,9 @@ function Layout({
     if (sidebar) return false;
     if (hideSidebar) return false;
 
-    if (router.pathname.includes("/profile")) return false;
-    if (router.pathname === "/data-sources") return false;
-    if (router.pathname === "/data-sources/google-sheets/new") return false;
-    if (router.pathname === "/data-sources/postgresql/new") return false;
-    if (router.pathname === "/data-sources/new") return false;
-
     return true;
   }, [router.pathname]);
+
   // temporarily returning false until we figure out a better way of injecting the sidebar with dynamic values 👇
   const settingsSidebarVisible = useMemo(
     () => false && router.pathname.includes("/settings"),
@@ -49,11 +45,18 @@ function Layout({
   useEffect(() => {
     // Update Intercom with the user's info
     if (inProduction && !sessionIsLoading && session) {
+      // Update Intercom identification
       update({
         name: session?.user?.name,
         email: session?.user?.email,
         createdAt: session?.user?.createdAt?.toString(),
         userHash: session?.user?.intercomUserHash,
+      });
+
+      // Update Segment identification
+      segment().identify(undefined, {
+        name: session?.user?.name,
+        email: session?.user?.email,
       });
     }
   }, [sessionIsLoading, session]);

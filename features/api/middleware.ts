@@ -48,7 +48,7 @@ export const withMiddlewares =
       captureException(error);
 
       // Show a prety message in production and throw the error in development
-      if (inProduction) {
+      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON) {
         if (!res.headersSent) {
           const status = error.code && isNumber(error.code) ? error.code : 500
 

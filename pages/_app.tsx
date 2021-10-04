@@ -9,6 +9,7 @@ import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
 import { inProduction } from "@/lib/environment";
+import { segment } from "@/lib/track"
 import { useRouter } from "next/router";
 import ProductionScripts from "@/components/ProductionScripts";
 import React, { useEffect } from "react";
@@ -33,6 +34,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       gtag.pageview(url);
+      segment().page()
     };
     router.events.on("routeChangeComplete", handleRouteChange);
 
