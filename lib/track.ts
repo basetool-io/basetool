@@ -6,11 +6,8 @@ export const segment = () => {
   }
 
   return {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    page() {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    identify() {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    track() {},
+    page: () => undefined,
+    identify: (...args: any) => undefined,
+    track: (...args: any) => undefined,
   };
 };
