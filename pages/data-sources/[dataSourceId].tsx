@@ -28,7 +28,7 @@ function DataSourcesShow() {
   return (
     <Layout>
       {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
+      {error && <div>Error: {'data' in error && (error?.data as any)?.messages[0]}</div>}
       {!isLoading && data?.ok && (
         <>
           {showSetup && <GoogleSheetsSetup />}
