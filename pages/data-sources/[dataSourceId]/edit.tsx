@@ -10,11 +10,11 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
-import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { Role } from "@prisma/client";
 import { TrashIcon } from "@heroicons/react/outline";
+import { get, isEmpty, isNull, isUndefined } from "lodash";
 import { getLabel } from "@/features/data-sources";
-import { isEmpty, isNull, isUndefined } from "lodash";
 import { toast } from "react-toastify";
 import {
   useGetDataSourceQuery,
@@ -85,8 +85,8 @@ const TableEditor = ({
   }, [table, dataSourceResponse?.data?.options]);
 
   const storedTabledOptions = useMemo(
-    () => dataSourceResponse?.data?.options.tables[table.name],
-    [dataSourceResponse?.data?.options.tables[table.name]]
+    () => get(dataSourceResponse?.data?.options?.tables, table.name) || {},
+    [dataSourceResponse?.data?.options?.tables]
   );
   const authorizedRoles: string[] | undefined = useMemo(
     () => storedTabledOptions?.authorizedRoles,

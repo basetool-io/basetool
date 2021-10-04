@@ -1,5 +1,6 @@
 import { getDataSourceFromRequest } from "@/features/api";
-import { withMiddlewares } from "@/features/api/middleware"
+import { merge } from "lodash";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "../../../features/api/middlewares/OwnsDataSource";
@@ -49,12 +50,20 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource) return res.status(404).send("");
+
+  const options = merge(dataSource.options, {
+    tables: req.body.tables,
+  });
+
   const result = await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: data,
+      options,
     },
   });
 

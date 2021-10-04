@@ -14,6 +14,7 @@ import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
+import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
@@ -81,9 +82,10 @@ function New() {
   }, []);
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <PageWrapper
         heading="Add data source"
+        buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
             center={
@@ -124,8 +126,8 @@ function New() {
                 {...register("credentials.url")}
               />
               <FormHelperText>
-                The URL of your Postgres DB. The credentials are safely
-                encrypted. We'll never show these credentials again.
+                The credentials are safely encrypted. We'll never show these
+                credentials again.
               </FormHelperText>
             </FormControl>
 
@@ -142,7 +144,10 @@ function New() {
 
             <FormControl id="credentials_useSsl">
               <FormLabel htmlFor="credentials.useSsl">Use SSL</FormLabel>
-              <Checkbox id="credentials.useSsl" {...register("credentials.useSsl")} />
+              <Checkbox
+                id="credentials.useSsl"
+                {...register("credentials.useSsl")}
+              />
             </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>

@@ -1,5 +1,5 @@
 import { AccessControl, Permission } from 'accesscontrol';
-import { Table } from '@/plugins/data-sources/postgresql/types';
+import { Table } from '@/plugins/data-sources/abstract-sql-query-service/types';
 import { isEmpty, isUndefined } from 'lodash';
 
 export type Role = {
