@@ -67,7 +67,7 @@ function New() {
         organizations && organizations.length > 0 ? organizations[0].id : "",
       credentials: {
         host: "",
-        port: 3306,
+        port: 1433,
         database: "",
         user: "",
         password: "",
