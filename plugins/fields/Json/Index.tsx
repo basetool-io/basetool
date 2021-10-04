@@ -15,7 +15,7 @@ const Index = ({ field }: { field: Field }) => {
     value = "{}";
   }
 
-  return <IndexFieldWrapper field={field}>{isNull(value) ? <Code>null</Code> : value}</IndexFieldWrapper>;
+  return <IndexFieldWrapper field={field}>{isNull(value) ? <Code>null</Code> : <span className="font-mono">{value}</span>}</IndexFieldWrapper>;
 };
 
 export default memo(Index);
