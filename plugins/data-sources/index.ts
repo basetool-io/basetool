@@ -37,6 +37,7 @@ const availableDataSources = [
     label: "Stripe",
     enabled: true,
     comingSoon: false,
+    beta: true,
   },
   {
     id: "amazon_redshift",

@@ -78,6 +78,7 @@ function New() {
                       className="w-5 h-5"
                       checked={!comingSoon && id === dataSourceId}
                       disabled={comingSoon}
+                      onChange={() => undefined} // React squaks if onChange is missing with checked
                     />
                   </div>
                   <div className="relative h-12 mb-4">
