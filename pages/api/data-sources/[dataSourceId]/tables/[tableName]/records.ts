@@ -1,3 +1,4 @@
+import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { decodeObject } from "@/lib/encoding";
 import { getColumns } from "./columns";
@@ -39,9 +40,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName: req.query.tableName as string,
   });
 
-  const filteredColumns = getFilteredColumns(columns, Views.index).map(
-    ({ name }) => name
-  );
+  console.log('columns->', columns)
+
+  const filteredColumns = getFilteredColumns(columns, Views.index)
+    // Remove fields that are computed
+    .filter((column: Column) =>
+      column.fieldType !== "Computed"
+    ).map(
+      ({ name }) => name
+    );
 
   const [records, count] = await service.runQueries([
     {

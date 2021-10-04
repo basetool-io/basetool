@@ -43,7 +43,6 @@ export const getColumns = async ({
   dataSource: DataSource;
   tableName: string;
 }): Promise<Column[]> => {
-
   // If the data source has columns stored, send those in.
 
   // aici gasesc computed field
@@ -54,7 +53,13 @@ export const getColumns = async ({
     "columns",
   ]);
 
-  console.log('storedColumns->', storedColumns)
+  const computedColumns = Object.values(storedColumns).filter(
+    (column: any) => column?.fieldType === "Computed"
+  );
+
+  // console.log("computedColumns->", computedColumns);
+
+  // console.log('storedColumns->', storedColumns)
 
   const service = await getQueryService({
     dataSource,
@@ -63,16 +68,20 @@ export const getColumns = async ({
 
   //merge stored columns with db columns
 
-  const columns = await service.runQuery("getColumns", {
+  let columns = await service.runQuery("getColumns", {
     tableName: tableName as string,
     storedColumns,
   });
+
+  if (computedColumns) {
+    columns = columns.concat(computedColumns);
+  }
 
   return columns;
 };
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  console.log('req.body->', req.body)
+  console.log("req.body->", req.body);
   const dataSource = (await getDataSourceFromRequest(
     req
   )) as PostgresqlDataSource | null;

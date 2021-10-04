@@ -199,6 +199,7 @@ class QueryService implements IQueryService {
     orderBy,
     orderDirection,
     select,
+    //columns (scot select)
   }: {
     tableName: string;
     filters: IFilter[];

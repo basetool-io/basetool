@@ -1,4 +1,5 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
+import { Column } from "@/features/fields/types";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
 import { getColumns } from "../columns";
@@ -62,9 +63,13 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   // Get columns and filter them based on visibility
   const columns = await getColumns({ dataSource, tableName });
 
-  const filteredColumns = getFilteredColumns(columns, Views.show).map(
-    ({ name }) => name
-  );
+  const filteredColumns = getFilteredColumns(columns, Views.show)
+    // Remove fields that are computed
+    .filter((column: Column) =>
+      column.fieldType !== "Computed"
+    ).map(
+      ({ name }) => name
+    );
 
   const record = await service.runQuery("getRecord", {
     tableName: req.query.tableName as string,

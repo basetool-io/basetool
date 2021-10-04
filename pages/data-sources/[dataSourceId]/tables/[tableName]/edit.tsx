@@ -222,6 +222,28 @@ You can control where the field is visible here.`}
               </CheckboxGroup>
             </OptionWrapper>
 
+            {column.fieldType === "Computed" && (
+            <OptionWrapper
+              helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
+            >
+              <FormControl id="name">
+                <FormLabel>Name</FormLabel>
+                <Input
+                  type="text"
+                  name="name value"
+                  placeholder="Name value"
+                  required={false}
+                  value={column.name}
+                  onChange={(e) =>
+                    setColumnOptions(column, {
+                      "name": e.currentTarget.value,
+                    })
+                  }
+                />
+              </FormControl>
+            </OptionWrapper>
+            )}
+
             <OptionWrapper
               helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
             >
@@ -597,7 +619,8 @@ console.log('newColumns->', newColumns)
                       // "help": "",
                       label: "",
                       // "disconnected": false,
-                      // "defaultValue": ""
+                      // "defaultValue": "",
+                      computed: true,
                     },
                     fieldType: "Computed",
                     fieldOptions: {
