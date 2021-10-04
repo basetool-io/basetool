@@ -157,13 +157,8 @@ abstract class AbstractQueryService implements IQueryService {
   }): Promise<[]> {
     const query = this.client.table(tableName);
 
-    const select = getFilteredColumns(columns, Views.index)
-      // Remove fields that are computed
-      .filter((column: Column) => column.fieldType !== "Computed")
-      .map(({ name }) => name);
-
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select(select);
+      query.limit(limit).offset(offset).select();
     }
 
     if (filters) {
@@ -184,7 +179,7 @@ abstract class AbstractQueryService implements IQueryService {
       const editorData = computedColumn.fieldOptions.value;
       const computedName = computedColumn.name;
       records.forEach((record: any) => {
-        const queryableData = record;
+        const queryableData = { record };
         if (editorData) {
           try {
             const template = Handlebars.compile(editorData);
@@ -196,6 +191,16 @@ abstract class AbstractQueryService implements IQueryService {
           }
         }
       });
+    });
+
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    records.forEach((record, index, array) => {
+      array[index] = Object.fromEntries(
+        Object.entries(record).filter(([key]) => filteredColumns.includes(key))
+      );
     });
 
     return records as unknown as [];
@@ -222,19 +227,11 @@ abstract class AbstractQueryService implements IQueryService {
   }): Promise<Record<string, unknown> | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
-    const select = getFilteredColumns(columns, Views.show)
-      // Remove fields that are computed
-      .filter((column: Column) =>
-        column.fieldType !== "Computed"
-      ).map(
-        ({ name }) => name
-      );
-
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select(select)
+      .select()
       .where(pk, recordId)
       .table(tableName);
 
@@ -245,7 +242,7 @@ abstract class AbstractQueryService implements IQueryService {
     computedColumns.forEach((computedColumn) => {
       const editorData = computedColumn.fieldOptions.value;
       const computedName = computedColumn.name;
-      const queryableData = rows[0];
+      const queryableData = { record: rows[0] };
       if (editorData) {
         try {
           const template = Handlebars.compile(editorData);
@@ -258,7 +255,13 @@ abstract class AbstractQueryService implements IQueryService {
       }
     });
 
-    return rows[0];
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    return Object.fromEntries(
+      Object.entries(rows[0]).filter(([key]) => filteredColumns.includes(key))
+    );
   }
 
   public async createRecord({

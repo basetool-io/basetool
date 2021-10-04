@@ -1,6 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -43,8 +43,6 @@ export const getColumns = async ({
   tableName: string;
 }): Promise<Column[]> => {
   // If the data source has columns stored, send those in.
-
-  // aici gasesc computed field
   const storedColumns = get(dataSource, [
     "options",
     "tables",
@@ -52,28 +50,23 @@ export const getColumns = async ({
     "columns",
   ]);
 
-  const computedColumns = Object.values(storedColumns).filter(
-    (column: any) => column?.fieldType === "Computed"
-  );
-
-  // console.log("computedColumns->", computedColumns);
-
-  // console.log('storedColumns->', storedColumns)
-
   const service = await getQueryService({
     dataSource,
     options: { cache: false },
   });
-
-  //merge stored columns with db columns
 
   let columns = await service.runQuery("getColumns", {
     tableName: tableName as string,
     storedColumns,
   });
 
-  if (computedColumns) {
-    columns = columns.concat(computedColumns);
+  if (!isEmpty(storedColumns)) {
+    const computedColumns = Object.values(storedColumns).filter(
+      (column: any) => column?.fieldType === "Computed"
+    );
+    if (!isEmpty(computedColumns)) {
+      columns = columns.concat(computedColumns);
+    }
   }
 
   return columns;
