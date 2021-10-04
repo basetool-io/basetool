@@ -293,7 +293,7 @@ const RecordsTable = ({
             {isMd && (
               <div className="bg-gray-50 rounded-t">
                 {headerGroups.map((headerGroup) => (
-                  <div {...headerGroup.getHeaderGroupProps()} className="tr">
+                  <div {...headerGroup.getHeaderGroupProps()} className="tr group">
                     {headerGroup.headers.map((column: any) => {
                       const isRecordSelectorColumn =
                         column.Header === "selector_column";
@@ -350,7 +350,7 @@ const RecordsTable = ({
                           )}
                           <div
                             {...column.getResizerProps()}
-                            className={classNames("resizer", {
+                            className={classNames("resizer group-hover:block hidden", {
                               isResizing: column.isResizing,
                             })}
                           >
