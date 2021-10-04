@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Button } from "@chakra-ui/react";
 import { availableDataSources } from "@/plugins/data-sources";
+import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Layout from "@/components/Layout";
@@ -47,7 +48,15 @@ function New() {
                 <a
                   key={id}
                   className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-cool-gray-100 hover:to-blue-gray-200"
+                  onMouseEnter={() =>
+                    segment().track("Hovered over new data source type", {
+                      id,
+                    })
+                  }
                   onClick={() => {
+                    segment().track("Selected new data source type", {
+                      id,
+                    });
                     if (!comingSoon) {
                       selectDataSource(id);
                     }
