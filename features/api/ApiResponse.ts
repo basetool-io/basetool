@@ -56,7 +56,7 @@ class ApiResponse {
 
   public static withData(
     data: any,
-    options: IApiResponse & { message?: string } = {},
+    options: IApiResponse & { message?: string, meta?: Record<string, unknown> } = {},
   ) {
     const { message } = options
 

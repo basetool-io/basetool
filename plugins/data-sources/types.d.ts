@@ -1,5 +1,11 @@
 import type { Column } from "@/features/fields/types";
 
+export type DataSourceInfo = {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export type QueryResponse = {
   data: unknown;
   meta: unknown;
@@ -34,7 +40,7 @@ export interface IQueryService {
     orderDirection: string;
     select: string[];
   }): Promise<[]>;
-  getRecordsCount({ tableName: string }): Promise<number>;
+  getRecordsCount({ tableName: string }): Promise<number | undefined>;
   getRecord(payload: {
     tableName: string;
     recordId: string;

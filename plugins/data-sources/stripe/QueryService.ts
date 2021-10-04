@@ -150,16 +150,11 @@ class QueryService implements IQueryService {
       limit: 10
     });
 
-
     return records?.data || [];
   }
 
-  public async getRecordsCount({
-    tableName,
-  }: {
-    tableName: string;
-  }): Promise<number> {
-    return null
+  public async getRecordsCount(payload: any): Promise<number | undefined> {
+    return undefined
   }
 
   public async getRecord({
