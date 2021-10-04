@@ -3,7 +3,7 @@ name: Cron
 on:
   schedule:
     # Run every 10 minutes
-    - cron: '*/10 * * * *'
+    - cron: '*/5 * * * *'
 
 jobs:
   cron:
