@@ -1,9 +1,6 @@
-import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { decodeObject } from "@/lib/encoding";
 import { getColumns } from "./columns";
 import { getDataSourceFromRequest } from "@/features/api";
-import { getFilteredColumns } from "@/features/fields";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -40,16 +37,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName: req.query.tableName as string,
   });
 
-  console.log('columns->', columns)
-
-  const filteredColumns = getFilteredColumns(columns, Views.index)
-    // Remove fields that are computed
-    .filter((column: Column) =>
-      column.fieldType !== "Computed"
-    ).map(
-      ({ name }) => name
-    );
-
   const [records, count] = await service.runQueries([
     {
       name: "getRecords",
@@ -62,7 +49,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           : null,
         orderBy: req.query.orderBy as string,
         orderDirection: req.query.orderDirection as string,
-        select: filteredColumns,
+        columns: columns,
       },
     },
     {

@@ -4,7 +4,7 @@ import React, { memo } from "react";
 
 const Index = ({ field }: { field: Field }) => {
 
-  return <IndexFieldWrapper field={field}>{field.column.label}</IndexFieldWrapper>;
+  return <IndexFieldWrapper field={field}>{field.value}</IndexFieldWrapper>;
 };
 
 export default memo(Index);

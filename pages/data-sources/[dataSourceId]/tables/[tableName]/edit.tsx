@@ -489,8 +489,6 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
       column = newColumn;
     });
 
-    console.log('newColumn->', newColumn)
-console.log('newColumns->', newColumns)
     const index = newColumns.findIndex((c: Column) => c.name === column.name);
 
     if (index > -1) {

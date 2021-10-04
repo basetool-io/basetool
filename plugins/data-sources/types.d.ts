@@ -32,13 +32,13 @@ export interface IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    select: string[];
+    columns: Column[];
   }): Promise<[]>;
   getRecordsCount({ tableName: string }): Promise<number>;
   getRecord(payload: {
     tableName: string;
     recordId: string;
-    select: string[];
+    columns: Column[];
   }): Promise<Record<string, unknown> | undefined>;
   updateRecord({
     tableName: string,
