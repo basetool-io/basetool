@@ -2,8 +2,8 @@ name: Cron
 
 on:
   schedule:
-    # Run every 10 minutes
-    - cron: '*/10 * * * *'
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
 
 jobs:
   cron:
