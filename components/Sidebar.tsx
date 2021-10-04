@@ -78,10 +78,13 @@ const Sidebar = () => {
                 label={getLabel(table)}
                 link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                 onMouseOver={() => {
-                  prefetchColumns({
-                    dataSourceId,
-                    tableName: table.name,
-                  })
+                  // If the datasource supports columns request we'll prefetch it on hover.
+                  if (dataSourceResponse?.meta?.dataSourceInfo?.requests?.columns) {
+                    prefetchColumns({
+                      dataSourceId,
+                      tableName: table.name,
+                    })
+                  }
                 } } />)}
         </div>
       </div>

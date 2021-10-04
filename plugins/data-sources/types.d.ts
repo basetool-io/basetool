@@ -4,6 +4,10 @@ export type DataSourceInfo = {
   id: string;
   name: string;
   description: string;
+  readOnly: boolean;
+  requests?: {
+    [name: string]: boolean
+  };
 }
 
 export type QueryResponse = {

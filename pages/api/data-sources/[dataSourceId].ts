@@ -4,10 +4,10 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "../../../features/api/middlewares/OwnsDataSource";
+import getDataSourceInfo from "@/plugins/data-sources/getDataSourceInfo";
 import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
-import getDataSource from "@/plugins/data-sources/getDataSourceInfo"
 
 const handler = async (
   req: NextApiRequest,
@@ -35,9 +35,21 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       organizationId: true,
     },
   });
-  const dataSourceInfo = await getDataSourceInfo(dataSource.type)
 
-  res.json(ApiResponse.withData(dataSource, { meta: dataSourceInfo: {readOnly: dataSourceInfo.readOnly } }));
+  if (!dataSource) return res.status(404).send("");
+
+  const dataSourceInfo = await getDataSourceInfo(dataSource.type);
+
+  res.json(
+    ApiResponse.withData(dataSource, {
+      meta: {
+        dataSourceInfo: {
+          readOnly: dataSourceInfo?.readOnly || false,
+          requests: dataSourceInfo?.requests || {},
+        },
+      },
+    })
+  );
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {

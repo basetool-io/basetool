@@ -72,12 +72,7 @@ class QueryService implements IQueryService {
       {
         name: "id",
         label: "ID",
-        dataSourceInfo: {
-          type: "bigint",
-          maxLength: null,
-          nullable: false,
-          defaultValue: "nextval('projects_users_id_seq'::regclass)",
-        },
+        dataSourceInfo: {},
         primaryKey: true,
         baseOptions: {
           visibility: ["index", "show", "edit", "new"],
@@ -97,12 +92,7 @@ class QueryService implements IQueryService {
       {
         name: "email",
         label: "Email",
-        dataSourceInfo: {
-          type: "bigint",
-          maxLength: null,
-          nullable: false,
-          defaultValue: "nextval('projects_users_id_seq'::regclass)",
-        },
+        dataSourceInfo: {},
         primaryKey: false,
         baseOptions: {
           visibility: ["index", "show", "edit", "new"],
