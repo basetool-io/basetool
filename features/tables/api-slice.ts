@@ -26,7 +26,6 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
       }),
-
       getTables: builder.query<ApiResponse, { dataSourceId: string }>({
         query({ dataSourceId }) {
           return `/data-sources/${dataSourceId}/tables`;
@@ -34,6 +33,15 @@ export const tablesApiSlice = createApi({
         providesTags: (response, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
         ],
+      }),
+      deleteColumn: builder.mutation<ApiResponse, Partial<{dataSourceId: string, tableName: string, columnName: string}>>({
+        query: ({
+          dataSourceId, tableName, columnName,
+        }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns/${columnName}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
       }),
     }
   },
@@ -43,5 +51,6 @@ export const {
   useGetColumnsQuery,
   useUpdateColumnsMutation,
   useGetTablesQuery,
+  useDeleteColumnMutation,
   usePrefetch,
 } = tablesApiSlice

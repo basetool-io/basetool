@@ -49,7 +49,7 @@ export type Column<
   primaryKey?: boolean;
 
   baseOptions: BaseOptions;
-  dataSourceInfo: DataSourceColumnInfo;
+  dataSourceInfo?: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
   foreignKeyInfo?: ForeignKeyInfo;
 };
