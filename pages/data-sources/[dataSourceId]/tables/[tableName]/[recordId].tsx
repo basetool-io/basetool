@@ -4,6 +4,7 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
+import { segment } from "@/lib/track";
 import { useAccessControl } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -74,7 +75,15 @@ function RecordsShow() {
         recordId: record.id.toString(),
       }).unwrap();
 
-      if (response?.ok) router.push(backLink);
+      if (response?.ok) {
+        router.push(backLink);
+
+        segment().track("Deleted record (from ShowView) ", {
+          dataSourceId: router.query.dataSourceId,
+          tableName: router.query.tableName,
+          recordId: record.id.toString(),
+        });
+      }
     }
   };
 

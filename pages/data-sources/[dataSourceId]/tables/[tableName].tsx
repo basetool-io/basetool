@@ -14,6 +14,7 @@ import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
+import { segment } from "@/lib/track";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
@@ -122,6 +123,12 @@ const ResourcesIndex = memo(
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordIds: selectedRecords as number[],
+        });
+
+        segment().track("Deleted records bulk ", {
+          dataSourceId: router.query.dataSourceId,
+          tableName: router.query.tableName,
+          recordIds: selectedRecords,
         });
       }
     };

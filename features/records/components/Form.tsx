@@ -8,6 +8,7 @@ import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
+import { segment } from "@/lib/track";
 import { toast } from "react-toastify";
 import { useBoolean } from "react-use";
 import {
@@ -140,6 +141,12 @@ const Form = ({
             await router.push(
               `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
             );
+
+            segment().track("Created record ", {
+              dataSourceId: router.query.dataSourceId,
+              tableName: router.query.tableName,
+              recordId: id,
+            });
           }
         }
       } else if (
@@ -175,6 +182,11 @@ const Form = ({
           },
         });
         await router.push(backLink);
+        segment().track("Updated record ", {
+          dataSourceId: router.query.dataSourceId,
+          tableName: router.query.tableName,
+          recordId: record.id.toString(),
+        });
       } else {
         toast.error("Not enough data.");
       }

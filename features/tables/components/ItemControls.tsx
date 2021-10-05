@@ -1,5 +1,6 @@
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
+import { segment } from "@/lib/track";
 import { useAccessControl, useResponsive } from "@/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
@@ -19,6 +20,12 @@ function ItemControls({recordId}: {recordId: string}) {
       await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
         tableName: router.query.tableName as string,
+        recordId: recordId,
+      });
+
+      segment().track("Deleted record (from ItemControls) ", {
+        dataSourceId: router.query.dataSourceId,
+        tableName: router.query.tableName,
         recordId: recordId,
       });
     }
