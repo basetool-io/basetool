@@ -23,6 +23,7 @@ import {
 import { isEmpty, without } from "lodash";
 import { useBoolean } from "react-use";
 import {
+  useCreateColumnMutation,
   useDeleteColumnMutation,
   useGetColumnsQuery,
   useUpdateColumnsMutation,
@@ -551,11 +552,6 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
       newColumns[index] = newColumn;
       await setColumn(newColumn);
       await setColumns(newColumns);
-    } else {
-      newColumns.push(newColumn);
-      await setColumn(newColumn);
-      await setColumns(newColumns);
-      toggleAddNewField(false);
     }
   };
 
@@ -576,6 +572,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
   const backLink = `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
 
   const [deleteColumn, { isLoading: isDeleting }] = useDeleteColumnMutation();
+  const [createColumn, { isLoading: isCreating }] = useCreateColumnMutation();
 
   const handleDeleteField = async () => {
     if (confirm("Are you sure you want to remove this field?")) {
@@ -589,9 +586,17 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     }
   };
 
-  const createField = () => {
-    if (column) {
-      setColumnOptions(column, { name: createName });
+  const createField = async () => {
+    const newColumn = { ...column, name: createName }
+    const response = await createColumn({
+      dataSourceId: router.query.dataSourceId as string,
+      tableName: router.query.tableName as string,
+      body: newColumn,
+    });
+
+    if ((response as any)?.data?.ok) {
+      toggleAddNewField(false);
+      setColumn(newColumn as Column)
     }
   };
 
@@ -631,7 +636,7 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                     <Save className="h-4" />
                   )
                 }
-                isLoading={isUpdating}
+                isLoading={isCreating || isUpdating}
                 disabled={
                   addNewField
                     ? allColumnNames.includes(createName) ||

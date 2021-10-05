@@ -43,6 +43,16 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
       }),
+      createColumn: builder.mutation<ApiResponse, Partial<{dataSourceId: string, tableName: string, body: Record<string, unknown>}>>({
+        query: ({
+          dataSourceId, tableName, body,
+        }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns`,
+          method: 'POST',
+          body,
+        }),
+        invalidatesTags: (result, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
+      }),
     }
   },
 })
@@ -52,5 +62,6 @@ export const {
   useUpdateColumnsMutation,
   useGetTablesQuery,
   useDeleteColumnMutation,
+  useCreateColumnMutation,
   usePrefetch,
 } = tablesApiSlice

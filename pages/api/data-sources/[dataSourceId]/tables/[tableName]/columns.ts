@@ -19,6 +19,8 @@ const handler = async (
       return handleGET(req, res);
     case "PUT":
       return handlePUT(req, res);
+    case "POST":
+      return handlePOST(req, res);
     default:
       return res.status(404).send("");
   }
@@ -100,6 +102,33 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   });
 
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
+}
+
+async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
+
+  const options = merge(dataSource.options, {
+    tables: {
+      [req.query.tableName as string]: {
+        columns: {
+          [req.body.name]: req.body,
+        },
+      },
+    },
+  });
+
+  const result = await prisma.dataSource.update({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+    data: {
+      options,
+    },
+  });
+
+  return res.json(ApiResponse.withData(result, { message: `Added field ${req.body.name}` }));
 }
 
 export default withMiddlewares(handler, {
