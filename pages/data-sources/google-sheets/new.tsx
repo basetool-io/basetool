@@ -1,4 +1,5 @@
 import { Button } from "@chakra-ui/react";
+import { segment } from "@/lib/track";
 import { useGetAuthUrlQuery } from "@/features/data-sources/api-slice";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
@@ -10,10 +11,17 @@ function New() {
   const { data: authUrlResponse, isLoading } = useGetAuthUrlQuery({
     dataSourceName: "google-sheets",
   });
-  const authUrl = useMemo(
-    () => (authUrlResponse?.ok ? authUrlResponse?.data?.url : "/"),
-    [authUrlResponse]
-  );
+  const authUrl = useMemo(() => {
+    if (authUrlResponse?.ok) {
+      authUrlResponse?.data?.url;
+      segment().track("Added new data source ", {
+        dataSourceType: "google-sheets",
+        authUrlResponse: authUrlResponse?.data?.url,
+      });
+    } else {
+      ("/");
+    }
+  }, [authUrlResponse]);
 
   return (
     <Layout hideSidebar={true}>

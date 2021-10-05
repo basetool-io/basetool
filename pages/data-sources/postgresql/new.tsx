@@ -10,6 +10,7 @@ import {
 import { PlusIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
+import { segment } from "@/lib/track";
 import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
@@ -49,6 +50,10 @@ function New() {
 
     if (response && response.ok) {
       await router.push(`/data-sources/${response.data.id}`);
+      segment().track("Added new data source ", {
+        dataSourceType: "postgresql",
+        dataSourceId: response.data.id,
+      });
     }
   };
 
