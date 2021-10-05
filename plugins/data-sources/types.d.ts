@@ -22,7 +22,6 @@ export interface IQueryServiceWrapper {
 }
 export interface IQueryService {
   dataSource: DataSource | undefined;
-  queryResult: unknown;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
@@ -50,17 +49,17 @@ export interface IQueryService {
     recordId: string;
     select: string[];
   }): Promise<Record<string, unknown> | undefined>;
-  updateRecord({
+  updateRecord?({
     tableName: string,
     recordId: string,
     data: unknown,
   }): Promise<unknown>;
-  createRecord({
+  createRecord?({
     tableName: string,
     data: unknown,
   }): Promise<string | undefined>;
-  deleteRecord({ tableName: string, recordId: string }): Promise<unknown>;
-  deleteRecords(payload: {
+  deleteRecord?({ tableName: string, recordId: string }): Promise<unknown>;
+  deleteRecords?(payload: {
     tableName: string;
     recordIds: number[];
   }): Promise<unknown>;

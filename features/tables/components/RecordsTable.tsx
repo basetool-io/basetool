@@ -285,7 +285,6 @@ const RecordsTable = ({
         </div>
       )}
       {tableIsVisible && (
-        // <div className="flex-1 flex max-h-full w-full">
         <div
           className={
             "table-widget relative divide-y bg-blue-gray-100 divide-gray-200 overflow-auto w-full md:w-auto"
@@ -390,7 +389,6 @@ const RecordsTable = ({
             );
           })}
         </div>
-        // </div>
       )}
       <nav
         className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"

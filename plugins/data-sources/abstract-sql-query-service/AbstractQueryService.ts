@@ -85,8 +85,6 @@ abstract class AbstractQueryService implements IQueryService {
 
   public dataSource: DataSource;
 
-  public queryResult: unknown = {};
-
   public options?: {
     queryParams?: {
       [name: string]: string;
