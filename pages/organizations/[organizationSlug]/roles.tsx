@@ -13,6 +13,7 @@ import { Organization, Role } from "@prisma/client";
 import { PlusIcon } from "@heroicons/react/outline";
 import { diff } from "deep-object-diff";
 import { isEmpty, isFunction, omit } from "lodash";
+import { segment } from "@/lib/track";
 import { useBoolean } from "react-use";
 import {
   useCreateRoleMutation,
@@ -94,6 +95,9 @@ const RoleEditor = ({
         },
       });
       selectRole({ name: (response as any)?.data?.data?.name });
+      segment().track("Added new role ", {
+        roleName: (response as any)?.data?.data?.name,
+      });
     } else {
       const response = await updateRole({
         organizationId: organization?.id.toString(),
@@ -103,6 +107,9 @@ const RoleEditor = ({
         },
       });
       selectRole({ name: (response as any)?.data?.data?.name });
+      segment().track("Updated role ", {
+        roleName: (response as any)?.data?.data?.name,
+      });
     }
   };
 
@@ -114,6 +121,9 @@ const RoleEditor = ({
       });
 
       if (isFunction(selectRole)) selectRole({ name: OWNER_ROLE });
+      segment().track("Deleted role ", {
+        roleName: roleId,
+      });
     }
   };
 
