@@ -104,7 +104,7 @@ function PageWrapper({
   heading?: string | ReactElement;
   crumbs?: Array<string | undefined>;
   buttons?: ReactElement;
-  children: ReactElement | string;
+  children?: ReactElement | string;
   icon?: ReactElement;
   flush?: boolean;
   isLoading?: boolean;
