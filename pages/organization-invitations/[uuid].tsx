@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/features/organizations/invitationsSchema";
+import { segment } from "@/lib/track";
 import { useAcceptInvitationMutation } from "@/features/organizations/api-slice";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -42,6 +43,12 @@ function Uuid({ invitation }: { invitation: any }) {
 
     if (response?.ok) {
       await router.push(`/organizations/${organization.slug}`);
+
+      segment().track("Accept invitation ", {
+        organizationId: organization.id.toString(),
+        invitationUuid: invitation.uuid,
+        formData: formData,
+      });
     }
   };
 

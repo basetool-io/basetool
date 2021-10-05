@@ -10,6 +10,7 @@ import { OWNER_ROLE } from "@/features/roles";
 import { Organization, OrganizationUser, Role, User } from "@prisma/client";
 import { PlusIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
+import { segment } from "@/lib/track";
 import { useBoolean } from "react-use";
 import {
   useGetOrganizationQuery,
@@ -89,6 +90,12 @@ const EditCurrentUser = ({
         roleId: parseInt(roleId),
       },
     });
+
+    segment().track("Update member ", {
+      organizationId: organization.id.toString(),
+      userId: organizationUser?.id?.toString(),
+      roleId: roleId,
+    });
   };
 
   const [removeMember, { isLoading: isRemoving }] = useRemoveMemberMutation();
@@ -99,6 +106,11 @@ const EditCurrentUser = ({
     if (confirm("Are you sure you want to remove this member?")) {
       await removeMember({
         organizationId: organization?.id?.toString(),
+        userId: organizationUser.id,
+      });
+
+      segment().track("Delete member ", {
+        organizationId: organization.id.toString(),
         userId: organizationUser.id,
       });
     }
@@ -158,6 +170,11 @@ const CreateUser = ({ organization }: { organization: CustomOrganization }) => {
     await inviteMember({
       organizationId: organization.id.toString(),
       body: user,
+    });
+
+    segment().track("Invite member ", {
+      organizationId: organization.id.toString(),
+      user: user,
     });
 
     setUser({
