@@ -33,7 +33,7 @@ const DataSourcesBlock = () => {
                 Loading
               </div>
               <br />
-              <Shimmer />
+              <Shimmer height={20}/>
             </PageWrapper.Block>
           )}
 

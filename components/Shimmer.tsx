@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 
 function Shimmer({
-  width = 100,
+  width = "100%",
   height = "auto",
 }: {
   width?: string | number;
@@ -12,7 +12,7 @@ function Shimmer({
     height,
   };
 
-  return <div className="shimmer-bg content-line" style={styles}></div>;
+  return <div className="shimmer-bg rounded-md" style={styles}></div>;
 }
 
 export default memo(Shimmer);
