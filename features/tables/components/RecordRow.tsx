@@ -8,13 +8,11 @@ const RecordRow = ({
   dataSourceId,
   tableName,
   prepareRow,
-  index,
 }: {
   row: Row<any>;
   dataSourceId: string;
   tableName: string;
   prepareRow: (row: Row) => void;
-  index: number;
 }) => {
   const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
@@ -35,11 +33,7 @@ const RecordRow = ({
         }
       }}
       className={classNames(
-        "tr relative hover:bg-sky-50 border-b last:border-b-0",
-        {
-          "bg-white": index % 2 === 0,
-          "bg-gray-50": index % 2 !== 0,
-        }
+        "tr relative hover:bg-sky-50 bg-white"
       )}
       ref={rowRef}
     >

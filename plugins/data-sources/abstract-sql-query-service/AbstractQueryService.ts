@@ -176,7 +176,7 @@ abstract class AbstractQueryService implements IQueryService {
     if (filters) {
       filters.forEach((filter) => addFilterToQuery(query, filter));
     }
-    const [{ count }] = await query.count('id', {as: 'count'});
+    const [{ count }] = await query.count("id", { as: "count" });
 
     return parseInt(count as string, 10);
   }

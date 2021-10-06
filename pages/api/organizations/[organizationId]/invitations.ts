@@ -11,8 +11,8 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import BasetoolError from "@/lib/BasetoolError";
 import Joi from "joi";
+import email from "@/lib/email";
 import logger from "@/lib/logger";
-import mailgun from "@/lib/mailgun";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -101,7 +101,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     const owner = org?.roles[0]?.organizationUsers[0].user;
 
     // Send email to owner
-    await mailgun.send({
+    await email.send({
       to: owner?.email as string,
       subject: "Good news from Basetool",
       text: `${req.body.formData.firstName} ${req.body.formData.lastName} has accepted your invitation to Basetool.`,
@@ -234,7 +234,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   });
 
   try {
-    await mailgun.send(emailData);
+    await email.send(emailData);
   } catch (error: any) {
     logger.debug(error);
     captureMessage(`Failed to send email ${error.message}`);
