@@ -170,7 +170,7 @@ abstract class AbstractQueryService implements IQueryService {
   }: {
     tableName: string;
   }): Promise<number> {
-    const [{ count }] = await this.client.count().table(tableName);
+    const [{ count }] = await this.client(tableName).count('id', {as: 'count'});
 
     return parseInt(count as string, 10);
   }
