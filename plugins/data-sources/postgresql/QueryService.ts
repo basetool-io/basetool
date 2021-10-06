@@ -1,20 +1,20 @@
-import { PostgresCredentials } from "./types"
+import { PostgresCredentials } from "./types";
 import { knex } from "knex";
-import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService"
+import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService";
 import type { Knex } from "knex";
 
 class QueryService extends AbstractQueryService {
   public getCredentials() {
-    const credentials = this.getParsedCredentials() as PostgresCredentials
+    const credentials = this.getParsedCredentials() as PostgresCredentials;
 
     if (!credentials || !credentials.url)
       throw new Error("No credentials on record.");
 
-    return credentials
+    return credentials;
   }
 
   getClient(): Knex {
-    const credentials = this.getCredentials()
+    const credentials = this.getCredentials();
 
     const connectionString = credentials.url;
     const connection: Knex.StaticConnectionConfig = {
@@ -26,12 +26,12 @@ class QueryService extends AbstractQueryService {
     }
 
     const client = knex({
-      client: 'pg',
+      client: "pg",
       connection,
       debug: false,
     });
 
-    return client
+    return client;
   }
 }
 

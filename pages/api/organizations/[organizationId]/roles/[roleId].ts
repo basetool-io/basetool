@@ -1,9 +1,11 @@
-import { OWNER_ROLE } from "@/features/roles"
-import { pick } from "lodash"
+import { OWNER_ROLE } from "@/features/roles";
+import { getUserFromRequest } from "@/features/api";
+import { pick } from "lodash";
 import { schema } from "@/features/roles/schema";
-import { withMiddlewares } from "@/features/api/middleware"
+import { serverSegment } from "@/lib/track";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization"
+import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -23,13 +25,15 @@ const handler = async (
 };
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const data = pick(req.body.changes, ['name', 'options']);
+  const data = pick(req.body.changes, ["name", "options"]);
 
   const validator = schema.validate(data, { abortEarly: false });
 
   if (validator.error) {
     return res.json(ApiResponse.withValidation(validator));
   }
+
+  const user = await getUserFromRequest(req);
 
   const result = await prisma.role.update({
     where: {
@@ -38,18 +42,35 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     data,
   });
 
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated organization role",
+    properties: {
+      roleId: req.query.roleId,
+    },
+  });
+
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req);
   await prisma.role.deleteMany({
     where: {
       AND: {
         id: parseInt(req.query.roleId as string, 10),
         NOT: {
-          name: OWNER_ROLE
-        }
-      }
+          name: OWNER_ROLE,
+        },
+      },
+    },
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Deleted organization role",
+    properties: {
+      roleId: req.query.roleId,
     },
   });
 

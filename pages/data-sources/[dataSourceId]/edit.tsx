@@ -24,6 +24,7 @@ import {
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import { useSegment } from "@/hooks"
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -97,6 +98,10 @@ const TableEditor = ({
     [rolesResponse]
   );
 
+  const track = useSegment("Visited edit data source page", {
+    page: "edit data source",
+  });
+
   const [updateTable, { isLoading: isUpdating }] =
     useUpdateDataSourceMutation();
 
@@ -107,6 +112,8 @@ const TableEditor = ({
       dataSourceId,
       body: options,
     });
+
+    track('Updated data source')
 
     selectTable(currentTable.name);
   };

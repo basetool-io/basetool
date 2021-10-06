@@ -91,6 +91,7 @@ class EmailService {
     this.domain = process.env.MAILGUN_DOMAIN as string;
     this.from = process.env.EMAIL_FROM || "Basetool <adrian@basetool.io>";
 
+    console.log('inProduction->', inProduction, this.domain, this.from, process.env.MAILGUN_PUBLIC_KEY)
     if (inProduction) {
       this.client = new MailgunClient(this.domain, this.from);
     } else {

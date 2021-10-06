@@ -22,7 +22,7 @@ const OrganizationsBlock = () => {
                 Loading
               </div>
               <br />
-              <Shimmer />
+              <Shimmer height={40}/>
             </PageWrapper.Block>
           )}
 

@@ -1,12 +1,13 @@
 import { inProduction } from "@/lib/environment";
-import { segment } from "@/lib/track"
+import { segment } from "@/lib/track";
 import { useIntercom } from "react-use-intercom";
+import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/hooks";
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
+import Favicons from "./Favicons";
 import Head from "next/head";
+import PageWrapper from "./PageWrapper";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
@@ -22,7 +23,7 @@ function Layout({
   sidebar?: ReactNode;
 }) {
   const router = useRouter();
-  const [session, sessionIsLoading] = useSession();
+  const { session, isLoading: profileIsLoading } = useProfile();
   const tablesSidebarVisible = useMemo(() => {
     if (sidebar) return false;
     if (hideSidebar) return false;
@@ -44,7 +45,7 @@ function Layout({
 
   useEffect(() => {
     // Update Intercom with the user's info
-    if (inProduction && !sessionIsLoading && session) {
+    if (inProduction && !profileIsLoading && session) {
       // Update Intercom identification
       update({
         name: session?.user?.name,
@@ -59,17 +60,42 @@ function Layout({
         email: session?.user?.email,
       });
     }
-  }, [sessionIsLoading, session]);
+  }, [profileIsLoading, session]);
 
   const [sidebarsVisible] = useSidebarsVisible();
+
+  const meta = {
+    name: 'basetool',
+    separator: '·',
+    description: 'All your data under the same roof',
+    url: 'https://basetool.io',
+    image: 'img/cover.jpg',
+    twitter: {
+      handle: '@basetool',
+    }
+  }
+  const title = `${meta.name} ${meta.separator} ${meta.description}`
+  const imagePath = `${meta.url}/${meta.image}`
 
   return (
     <Authenticated>
       <>
         <Head>
-          <title>👋 Basetool!</title>
-          <meta name="description" content="The Airtable to your database" />
-          <link rel="icon" href="/favicon.ico" />
+          <title>{title} 👋</title>
+          <meta name="description" content={meta.description} />
+          <meta name="twitter:title" content={title}/>
+          <meta name="twitter:description" content={meta.description}/>
+          <meta name="twitter:card" content="summary_large_image"/>
+          <meta name="twitter:site" content={meta.twitter.handle}/>
+          <meta name="twitter:image" content={imagePath}/>
+          <meta property="og:title" content={title}/>
+          <meta property="og:description" content={meta.description}/>
+          <meta property="og:type" content="website"/>
+          <meta property="og:url" content={meta.url}/>
+          <meta property="og:image" content={imagePath}/>
+          <meta property="og:image:width" content="1376"/>
+          <meta property="og:image:height" content="604"/>
+          <Favicons />
         </Head>
         <div className="flex w-screen h-screen">
           <DataSourcesSidebar />
@@ -97,7 +123,8 @@ function Layout({
             )}
             <div className="flex-1 flex flex-col w-full h-full overflow-auto">
               <div className="relative flex flex-1 w-full max-h-full">
-                {children}
+                {profileIsLoading && <PageWrapper isLoading={true} />}
+                {profileIsLoading || children}
               </div>
             </div>
           </div>

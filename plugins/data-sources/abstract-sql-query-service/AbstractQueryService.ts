@@ -165,10 +165,16 @@ abstract class AbstractQueryService implements IQueryService {
 
   public async getRecordsCount({
     tableName,
+    filters,
   }: {
     tableName: string;
+    filters: IFilter[];
   }): Promise<number> {
-    const [{ count }] = await this.client.count().table(tableName);
+    const query = this.client.table(tableName);
+    if (filters) {
+      filters.forEach((filter) => addFilterToQuery(query, filter));
+    }
+    const [{ count }] = await query.count('id', {as: 'count'});
 
     return parseInt(count as string, 10);
   }

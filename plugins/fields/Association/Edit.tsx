@@ -1,16 +1,19 @@
-import { EditFieldProps } from "@/features/fields/types";
 import {
+  Code,
   FormControl,
   FormErrorMessage,
   FormHelperText,
   Select,
 } from "@chakra-ui/react";
+import { EditFieldProps } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
+import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
 import { useForeignName } from "./hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
+import Link from "next/link";
 import React, { memo, useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import parse from "html-react-parser";
@@ -24,7 +27,7 @@ const Edit = ({
   view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const errors = useMemo(() => formState.errors, [formState])
+  const errors = useMemo(() => formState.errors, [formState]);
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -40,9 +43,10 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
-    ? field.column.baseOptions.defaultValue
-    : null;
+  const defaultValue =
+    field?.column?.baseOptions?.defaultValue && view === Views.new
+      ? field.column.baseOptions.defaultValue
+      : null;
 
   // Get all the options
   const router = useRouter();
@@ -60,12 +64,9 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl
-        isInvalid={hasError}
-        isDisabled={readonly}
-      >
+      <FormControl isInvalid={hasError} isDisabled={readonly}>
         {/* @todo: use regular text inoput when failed to fetch all the records for the association */}
-        {isLoading && <Shimmer width={120} />}
+        {isLoading && <Shimmer width={"100%"} height={33} />}
         {isLoading || (
           <Select
             placeholder={placeholder}
@@ -87,6 +88,19 @@ const Edit = ({
                 </option>
               ))}
           </Select>
+        )}
+        {isEmpty(field.column.fieldOptions.nameColumn) && (
+          <FormHelperText>
+            You can change the label from id to something more meaningful like{" "}
+            {humanize(field.column.name)} <Code>name</Code> or{" "}
+            <Code>title</Code>{" "}
+            <Link
+              href={`/data-sources/${dataSourceId}/tables/${router.query.tableName}/edit`}
+            >
+              <a className="text-blue-600 cursor-pointer">here</a>
+            </Link>
+            .
+          </FormHelperText>
         )}
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (

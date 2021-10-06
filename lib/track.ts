@@ -1,4 +1,5 @@
-import isUndefined from "lodash/isUndefined"
+import Analytics from "analytics-node";
+import isUndefined from "lodash/isUndefined";
 
 export const segment = () => {
   if (!isUndefined(window) && window?.analytics) {
@@ -10,4 +11,8 @@ export const segment = () => {
     identify: (...args: any) => undefined,
     track: (...args: any) => undefined,
   };
+};
+
+export const serverSegment = () => {
+  return new Analytics(process.env.NEXT_PUBLIC_SEGMENT_PUBLIC_KEY as string);
 };
