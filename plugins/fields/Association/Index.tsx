@@ -29,8 +29,9 @@ const Index = ({ field }: { field: Field }) => {
   const getForeignName = useForeignName(field);
 
   return (
-    <IndexFieldWrapper field={field}>
-      {isLoading && <Shimmer width={80} />}{" "}
+    <IndexFieldWrapper field={field} >
+      {isLoading && <Shimmer height={16.5} />}
+      {isLoading || <>
       {getForeignName(recordResponse?.data) || field.value}
       <Link
         href={`/data-sources/${router.query.dataSourceId}/tables/${field.column.foreignKeyInfo.foreignTableName}/${field.value}?fromTable=${router.query.tableName}`}
@@ -38,11 +39,12 @@ const Index = ({ field }: { field: Field }) => {
         <a title="Go to record" className="ml-1 text-blue-600 cursor-pointer">
           <Tooltip label="Go to record">
             <span className="inline-flex">
-              <ArrowRightIcon className="inline-block h-4" />
+              <ArrowRightIcon className="inline-block h-3" />
             </span>
           </Tooltip>
         </a>
       </Link>
+      </>}
     </IndexFieldWrapper>
   );
 };

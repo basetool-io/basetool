@@ -80,7 +80,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   const data = await service.runQuery("createRecord", {
     tableName: req.query.tableName as string,
-    record,
+    data: record,
   });
 
   res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));
