@@ -33,24 +33,26 @@ import numeral from "numeral";
 
 const DEFAULT_PER_PAGE = 24;
 
-const Cell = ({
-  row,
-  column,
-  tableName,
-}: {
-  row: Row;
-  column: { meta: BaseToolColumn };
-  tableName: string;
-}) => {
-  const field = makeField({
-    record: row.original,
-    column: column?.meta,
+const Cell = memo(
+  ({
+    row,
+    column,
     tableName,
-  });
-  const Element = getField(column.meta, Views.index);
+  }: {
+    row: Row;
+    column: { meta: BaseToolColumn };
+    tableName: string;
+  }) => {
+    const field = makeField({
+      record: row.original,
+      column: column?.meta,
+      tableName,
+    });
+    const Element = getField(column.meta, Views.index);
 
-  return <Element field={field} />;
-};
+    return <Element field={field} />;
+  }
+);
 
 const usePagination = ({ perPage }: { perPage: number }) => {
   const router = useRouter();
@@ -288,113 +290,109 @@ const RecordsTable = ({
         </div>
       )}
       {tableIsVisible && (
-        <div className="flex-1 flex max-h-full w-full">
-          <div
-            className={
-              "table-widget relative divide-y divide-gray-200 overflow-auto w-full md:w-auto"
-            }
-            {...getTableProps()}
-          >
-            {isMd && (
-              <div className="bg-gray-50 rounded-t">
-                {headerGroups.map((headerGroup) => (
-                  <div {...headerGroup.getHeaderGroupProps()} className="tr">
-                    {headerGroup.headers.map((column: any) => {
-                      const isRecordSelectorColumn =
-                        column.Header === "selector_column";
-                      const isControlsColumn =
-                        column.Header === "controls_column";
+        <div
+          className={
+            "table-widget relative divide-y bg-blue-gray-100 divide-blue-gray-100 overflow-auto w-full md:w-auto"
+          }
+          {...getTableProps()}
+        >
+          {isMd && (
+            <div className="bg-blue-gray-100 rounded-t">
+              {headerGroups.map((headerGroup) => (
+                <div
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr flex group"
+                >
+                  {headerGroup.headers.map((column: any) => {
+                    const isRecordSelectorColumn =
+                      column.Header === "selector_column";
+                    const isControlsColumn =
+                      column.Header === "controls_column";
 
-                      const IconElement = column?.meta
-                        ? iconForField(column.meta)
-                        : () => "" as any;
+                    const IconElement = column?.meta
+                      ? iconForField(column.meta)
+                      : () => "" as any;
 
-                      return (
-                        <div
-                          {...column.getHeaderProps()}
-                          className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          {isRecordSelectorColumn && (
-                            <div className="flex items-center justify-center h-4">
-                              <Checkbox
-                                colorScheme="gray"
-                                isChecked={allChecked}
-                                isIndeterminate={isIndeterminate}
-                                onChange={(e: any) =>
-                                  setCheckedItems(e.target.checked)
-                                }
-                              />
-                            </div>
-                          )}
-                          {isControlsColumn || isRecordSelectorColumn || (
-                            <div
-                              className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
-                              onClick={() =>
-                                !isRecordSelectorColumn &&
-                                handleOrder(column.meta.name)
+                    return (
+                      <div
+                        {...column.getHeaderProps()}
+                        className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
+                      >
+                        {isRecordSelectorColumn && (
+                          <div className="flex items-center justify-center h-4 py-4">
+                            <Checkbox
+                              colorScheme="gray"
+                              isChecked={allChecked}
+                              isIndeterminate={isIndeterminate}
+                              onChange={(e: any) =>
+                                setCheckedItems(e.target.checked)
                               }
-                            >
-                              <IconElement className="h-3 inline-block mr-2" />
-                              <span className="h-4 inline-block">
-                                <>
-                                  {column.render("Header")}
-                                  {column?.meta &&
-                                    column.meta.name === orderBy && (
-                                      <>
-                                        {orderDirection === "desc" && (
-                                          <SortDescendingIcon className="h-4 inline" />
-                                        )}
-                                        {orderDirection === "asc" && (
-                                          <SortAscendingIcon className="h-4 inline" />
-                                        )}
-                                      </>
-                                    )}
-                                </>
-                              </span>
-                            </div>
-                          )}
-                          <div
-                            {...column.getResizerProps()}
-                            className={classNames("resizer", {
-                              isResizing: column.isResizing,
-                            })}
-                          >
-                            <div className="resizer-bar" />
+                            />
                           </div>
+                        )}
+                        {isControlsColumn || isRecordSelectorColumn || (
+                          <div
+                            className="flex items-center header-content overflow-hidden whitespace-nowrap cursor-pointer py-4 h-4"
+                            onClick={() =>
+                              !isRecordSelectorColumn &&
+                              handleOrder(column.meta.name)
+                            }
+                          >
+                            <IconElement className="h-3 inline-block mr-2" />
+                            <span className="inline-block leading-none">
+                              <>
+                                {column.render("Header")}
+                                {column?.meta && column.meta.name === orderBy && (
+                                  <>
+                                    {orderDirection === "desc" && (
+                                      <SortDescendingIcon className="h-4 inline" />
+                                    )}
+                                    {orderDirection === "asc" && (
+                                      <SortAscendingIcon className="h-4 inline" />
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            </span>
+                          </div>
+                        )}
+                        <div
+                          {...column.getResizerProps()}
+                          className={classNames(
+                            "resizer group-hover:block hidden",
+                            {
+                              isResizing: column.isResizing,
+                            }
+                          )}
+                        >
+                          <div className="resizer-bar" />
                         </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {isMd ||
-              rows.map((row: Row<any>, index) => (
-                <RowComponent
-                  key={index}
-                  index={index}
-                  row={row}
-                  dataSourceId={dataSourceId}
-                  tableName={tableName}
-                  prepareRow={prepareRow}
-                />
+                      </div>
+                    );
+                  })}
+                </div>
               ))}
-            {isMd && (
-              <div {...getTableBodyProps()}>
-                {rows.map((row: Row<any>, index) => (
-                  <RowComponent
-                    key={index}
-                    index={index}
-                    row={row}
-                    dataSourceId={dataSourceId}
-                    tableName={tableName}
-                    prepareRow={prepareRow}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {rows.map((row: Row<any>, index) => {
+            const component = (
+              <RowComponent
+                key={index}
+                row={row}
+                dataSourceId={dataSourceId}
+                tableName={tableName}
+                prepareRow={prepareRow}
+              />
+            );
+
+            return (
+              <>
+                {isMd || component}
+                {isMd && <div {...getTableBodyProps()}>{component}</div>}
+              </>
+            );
+          })}
         </div>
       )}
       <nav
