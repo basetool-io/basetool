@@ -1,5 +1,6 @@
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { merge } from "lodash";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
@@ -54,6 +55,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
+  const user = await getUserFromRequest(req);
+
   const options = merge(dataSource.options, {
     tables: req.body.tables,
   });
@@ -67,13 +70,36 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated data source",
+    properties: {
+      id: dataSource.type,
+    },
+  });
+
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req)
+  const dataSource = await prisma.dataSource.findFirst({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    }
+  })
+
   await prisma.dataSource.delete({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
+    },
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Deleted data source",
+    properties: {
+      id: dataSource?.type,
     },
   });
 

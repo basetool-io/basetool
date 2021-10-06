@@ -1,5 +1,6 @@
 import { decrypt, encrypt } from "@/lib/crypto";
 import { google } from "googleapis";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -68,6 +69,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
    */
   await client.getToken(code, async (err, tokens) => {
     if (err) {
+      serverSegment().track({
+        userId: user ? user.id : "",
+        event: "Error getting Google tokens",
+      });
+
       console.error("Error getting oAuth tokens:");
       throw err;
     }
@@ -89,8 +95,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (dataSource && dataSource.id) {
+      serverSegment().track({
+        userId: user ? user.id : "",
+        event: "Connected Google account",
+      });
+
       res.redirect(`/data-sources/${dataSource.id}`);
     } else {
+      serverSegment().track({
+        userId: user ? user.id : "",
+        event: "Error finding Google Sheets data source",
+        properties: {
+          id: dataSource.type,
+          columnNames: Object.keys(req.body.changes),
+        },
+      });
+
       res.redirect(
         "/data-sources/google-sheets/new?errorMessage=Failed to find a data source."
       );
