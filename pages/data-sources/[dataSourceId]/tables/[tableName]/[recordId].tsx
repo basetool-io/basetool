@@ -17,7 +17,7 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function RecordsShow() {
