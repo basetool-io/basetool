@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { signOut } from "next-auth/client";
-import { useProfile } from "@/hooks";
+import { useProfile, useSegment } from "@/hooks";
 import Layout from "@/components/Layout";
 import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock";
 import PageWrapper from "@/components/PageWrapper";
@@ -8,6 +8,10 @@ import React from "react";
 
 function Profile() {
   const { user, role, isLoading } = useProfile();
+
+  useSegment("Visited profile page", {
+    page: "profile",
+  });
 
   return (
     <Layout hideSidebar={true}>
