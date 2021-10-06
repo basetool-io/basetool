@@ -9,8 +9,8 @@ export enum IntFilterConditions {
   gte = ">=",
   lt = "<",
   lte = "<=",
-  is_empty = "is empty",
-  is_not_empty = "is not empty",
+  is_empty = "is_empty",
+  is_not_empty = "is_not_empty",
 }
 
 function IntConditionComponent({
