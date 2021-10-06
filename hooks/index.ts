@@ -242,10 +242,14 @@ export const useProfile = () => {
   return { user, role, organizations, isLoading, session };
 };
 
+/*
+  This hook can be used in two ways.
 
-// This hook can be used in two ways.
-// 1. On the spot -> useSegment({event: 'Added data source', {id}})
-// 2. At a later date -> const track = useSegment()
+  1. On the spot and the event will be sent then and there
+    -> useSegment({event: 'Added data source', {id}})
+  2. At a later date; It returns the `track` method that you can use at a later date to track something.
+    -> const track = useSegment()
+*/
 export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
   const { session, isLoading } = useProfile();
   const track = (event: string, properties?: Record<string, unknown>) =>

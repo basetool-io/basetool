@@ -76,9 +76,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
             include: {
               dataSources: {
                 select: {
-                  // _count: {
                   id: true,
-                  // }
                 },
               },
             },
