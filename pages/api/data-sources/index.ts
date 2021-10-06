@@ -70,6 +70,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const user = (await getUserFromRequest(req, {
     select: {
+      id: true,
       organizations: {
         include: {
           organization: {
