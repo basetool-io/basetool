@@ -77,6 +77,6 @@ class GenericSMTPClient implements MailClient {
   }
 }
 
-const mailgun = new EmailService();
+const email = new EmailService();
 
-export default mailgun;
+export default email;
