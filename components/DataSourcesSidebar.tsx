@@ -5,13 +5,13 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
+import { OWNER_ROLE } from "@/features/roles"
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
+import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/hooks";
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
@@ -83,7 +83,7 @@ const DataSourcesSidebar = () => {
   const router = useRouter();
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
-  const [session, sessionIsLoading] = useSession();
+  const {role, isLoading: sessionIsLoading} = useProfile();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
   const prefetchTables = usePrefetch("getTables");
 
@@ -179,7 +179,9 @@ const DataSourcesSidebar = () => {
               {/* @todo: link to docs */}
               {/* @todo: link to feature request */}
               {/* @todo: link to complaints */}
-              <Link href="/beta" passHref>
+
+              {/* Show the beta page only to owners */}
+              {role && role.name === OWNER_ROLE && <Link href="/beta" passHref>
                 <a className="block">
                   <div
                     className={classNames(
@@ -195,7 +197,7 @@ const DataSourcesSidebar = () => {
                     </div>
                   </div>
                 </a>
-              </Link>
+              </Link>}
               <DataSourceItem
                 active={router.asPath.includes(`/profile`)}
                 compact={compact}
