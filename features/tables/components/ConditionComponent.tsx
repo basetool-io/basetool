@@ -15,6 +15,9 @@ function ConditionComponent({
 
   switch (column.fieldType) {
     case "Id":
+    case "Number":
+    case "Association":
+    case "Boolean":
       Component = IntConditionComponent;
       break;
     default:

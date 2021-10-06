@@ -1,15 +1,16 @@
 import { encrypt } from "@/lib/crypto";
-import { getSession } from "next-auth/client";
+import { getUserFromRequest } from "@/features/api";
 import { google } from "googleapis";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import plugin from "@/plugins/data-sources/google-sheets";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getSession({ req });
+  const user = await getUserFromRequest(req);
 
-  if (session) {
+  if (user) {
     // Create an oAuth2 client to authorize the API call
     const client = new google.auth.OAuth2(
       process.env.GSHEETS_CLIENT_ID,
@@ -19,7 +20,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Create a state payload to reference the user who made this auth request
     const payload = {
-      email: session?.user?.email,
+      email: user?.email,
       name: req.body.name,
     };
 
@@ -33,6 +34,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       scope: plugin.oauthScopes,
       // Add to the state so we know who made the request.
       state: `payload=${encryptedPayload}`,
+    });
+
+    serverSegment().track({
+      userId: user ? user.id : "",
+      event: "Requested Google Sheets auth url",
     });
 
     return res.send(ApiResponse.withData({ url }));

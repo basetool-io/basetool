@@ -24,6 +24,7 @@ import {
   useUpdateColumnsMutation,
 } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import { useSegment } from "@/hooks";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -87,6 +88,7 @@ const ColumnEditor = ({
       return [];
     }
   }, [column]);
+  const track = useSegment();
 
   const InspectorComponent = useMemo(
     () =>
@@ -138,10 +140,14 @@ const ColumnEditor = ({
                 <FormLabel>Field Type</FormLabel>
                 <Select
                   value={column.fieldType}
+                  onClick={() => {
+                    track("Clicked the field type selector");
+                  }}
                   onChange={(e) => {
                     setColumnOptions(column, {
                       fieldType: e.currentTarget.value as FieldType,
                     });
+                    track("Changed the field type selector");
                   }}
                 >
                   <option disabled>Select field type</option>
@@ -161,12 +167,14 @@ const ColumnEditor = ({
               <FormLabel>Disconnect field</FormLabel>
               <Checkbox
                 isChecked={column.baseOptions.disconnected}
-                onChange={() =>
-                  setColumnOptions(column, {
+                onChange={() => {
+                  track("Clicked the disconnect field option");
+
+                  return setColumnOptions(column, {
                     "baseOptions.disconnected":
                       !column.baseOptions.disconnected,
-                  })
-                }
+                  });
+                }}
               >
                 Disconnected
               </Checkbox>
@@ -379,6 +387,10 @@ You can control where the field is visible here.`}
 };
 
 const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
+  const track = useSegment("Visited edit columns page", {
+    page: "edit columns",
+  });
+
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [column, setColumn] = useState<Column>();
   const router = useRouter();
@@ -421,6 +433,10 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
     column: Column,
     options: Record<string, unknown>
   ) => {
+    track("Set the column options", {
+      columnName: column.name,
+      optionNames: Object.keys(options),
+    });
     const newColumns = [...columns];
     let namespace: "baseOptions" | "fieldOptions" | undefined;
     let newColumn: Column = column;
@@ -514,7 +530,11 @@ const FieldsEditor = ({ columns: initialColumns }: { columns: Column[] }) => {
                         <IconElement className="h-4 mr-2 flex flex-shrink-0" />
                       }
                       active={col.name === column?.name}
-                      onClick={() => setColumn(col)}
+                      onClick={() => {
+                        track("Selected column in edit columns");
+
+                        return setColumn(col);
+                      }}
                     >
                       {getColumnNameLabel(
                         col.baseOptions.label,
