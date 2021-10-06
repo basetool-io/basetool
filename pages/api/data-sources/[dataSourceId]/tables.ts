@@ -31,7 +31,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const storedTableData = (dataSource?.options as any)?.tables || {};
 
   // If we have any, we'll assign the stored data to the tables we return.
-  if (storedTableData) {
+  if (tables && storedTableData) {
     tables.forEach((table) => {
       if (storedTableData[table.name]) {
         if (storedTableData[table.name].label) {

@@ -82,12 +82,12 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
-  const user = await getUserFromRequest(req)
+  const user = await getUserFromRequest(req);
   const dataSource = await prisma.dataSource.findFirst({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
-    }
-  })
+    },
+  });
 
   await prisma.dataSource.delete({
     where: {

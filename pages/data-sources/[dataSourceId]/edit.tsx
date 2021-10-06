@@ -308,16 +308,8 @@ function Edit() {
       "Are you sure you want to remove this data source? All information about it (settings included) will be completely removed from our servers."
     );
     if (confirmed) {
-      toast(
-        "The data source has been removed. You will be redirected to the homepage. Thank you!"
-      );
-
-      await removeDataSource({ dataSourceId });
-      setHasBeenRemoved(true);
-
-      await setTimeout(async () => {
-        await router.push("/");
-      }, 3000);
+      await removeDataSource({ dataSourceId }).unwrap();
+      await router.push("/");
     }
   };
 
