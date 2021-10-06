@@ -60,7 +60,10 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
     {
       name: "getRecordsCount",
-      payload: { tableName: req.query.tableName as string },
+      payload: {
+        tableName: req.query.tableName as string,
+        filters,
+      },
     },
   ]);
 

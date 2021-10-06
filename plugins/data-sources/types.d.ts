@@ -34,7 +34,10 @@ export interface IQueryService {
     orderDirection: string;
     select: string[];
   }): Promise<[]>;
-  getRecordsCount({ tableName: string }): Promise<number>;
+  getRecordsCount(payload: {
+    tableName: string;
+    filters: IFilter[];
+  }): Promise<number>;
   getRecord(payload: {
     tableName: string;
     recordId: string;
