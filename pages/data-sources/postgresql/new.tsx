@@ -99,6 +99,7 @@ function New() {
                   return handleSubmit(onSubmit)(e);
                 }}
                 leftIcon={<PlusIcon className="h-4" />}
+                isLoading={isLoading}
               >
                 Create
               </Button>
