@@ -126,11 +126,9 @@ const Form = ({
         }).unwrap();
 
         if (response && "data" in response) {
-          const apiResponse: ApiResponse = response.data;
-
-          const { data } = apiResponse;
+          const { data } = response;
           const { id } = data;
-          if (apiResponse.ok) {
+          if (response.ok) {
             await router.push(
               `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
             );
@@ -176,7 +174,7 @@ const Form = ({
         toast.error("Not enough data.");
       }
     } catch (error: any) {
-      toast.error(error.data.meta.errorMessage);
+      toast.error(error?.data?.meta?.errorMessage);
     }
   };
 
