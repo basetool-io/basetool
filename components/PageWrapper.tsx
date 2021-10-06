@@ -80,7 +80,7 @@ const Footer = ({
   center?: ReactNode;
   right?: ReactNode;
 }) => (
-  <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)]">
+  <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
     <div className="flex justify-evenly items-center px-4">
       <div className="flex-1 flex justify-start">{left}</div>
       <div>{center}</div>
