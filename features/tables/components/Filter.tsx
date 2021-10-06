@@ -1,3 +1,4 @@
+import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
@@ -7,7 +8,10 @@ import { useFilters } from "@/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import React, { memo, useMemo } from "react";
 
-export type FilterConditions = IntFilterConditions | StringFilterConditions;
+export type FilterConditions =
+  | IntFilterConditions
+  | StringFilterConditions
+  | BooleanFilterConditions;
 export type FilterVerbs = "where" | "and" | "or";
 
 export type IFilter = {
@@ -17,6 +21,19 @@ export type IFilter = {
   condition: FilterConditions;
   value: string;
 };
+
+const CONDITIONS_WITHOUT_VALUE = [
+  IntFilterConditions.is_null,
+  IntFilterConditions.is_not_null,
+  StringFilterConditions.is_empty,
+  StringFilterConditions.is_not_empty,
+  StringFilterConditions.is_null,
+  StringFilterConditions.is_not_null,
+  BooleanFilterConditions.is_true,
+  BooleanFilterConditions.is_false,
+  BooleanFilterConditions.is_null,
+  BooleanFilterConditions.is_not_null,
+];
 
 const Filter = ({
   columns,
@@ -81,14 +98,18 @@ const Filter = ({
           filter={filter}
           onChange={(value: FilterConditions) => changeFilterCondition(value)}
         />
-        <FormControl id="value">
-          <Input
-            size="sm"
-            value={filter.value}
-            className="font-mono"
-            onChange={(e) => changeFilterValue(e.currentTarget.value)}
-          />
-        </FormControl>
+        <div className="min-w-[200px]">
+          {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
+            <FormControl id="value">
+              <Input
+                size="sm"
+                value={filter.value}
+                className="font-mono"
+                onChange={(e) => changeFilterValue(e.currentTarget.value)}
+              />
+            </FormControl>
+          )}
+        </div>
       </div>
     </>
   );

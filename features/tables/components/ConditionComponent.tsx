@@ -1,4 +1,5 @@
 import { FilterConditions, IFilter } from "@/features/tables/components/Filter";
+import BooleanConditionComponent from "./BooleanConditionComponent";
 import IntConditionComponent from "./IntConditionComponent";
 import StringConditionComponent from "./StringConditionComponent";
 
@@ -17,8 +18,10 @@ function ConditionComponent({
     case "Id":
     case "Number":
     case "Association":
-    case "Boolean":
       Component = IntConditionComponent;
+      break;
+    case "Boolean":
+      Component = BooleanConditionComponent;
       break;
     default:
     case "Text":
