@@ -92,10 +92,7 @@ const ColumnEditor = ({
     () =>
       getDynamicInspector(column?.fieldType) as React.ComponentType<{
         column: Column;
-        setColumnOptions: (
-          c: Column,
-          options: Record<string, unknown>
-        ) => void;
+        setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
       }>,
     [column?.fieldType]
   );

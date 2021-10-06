@@ -238,5 +238,5 @@ export const useProfile = () => {
     [sessionIsLoading, profileIsLoading]
   );
 
-  return { user, role, organizations, isLoading };
+  return { user, role, organizations, isLoading, session };
 };
