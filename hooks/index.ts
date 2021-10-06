@@ -21,6 +21,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
+import { segment } from "@/lib/track"
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
@@ -239,4 +240,28 @@ export const useProfile = () => {
   );
 
   return { user, role, organizations, isLoading, session };
+};
+
+/*
+  This hook can be used in two ways.
+
+  1. On the spot and the event will be sent then and there
+    -> useSegment({event: 'Added data source', {id}})
+  2. At a later date; It returns the `track` method that you can use at a later date to track something.
+    -> const track = useSegment()
+*/
+export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
+  const { session, isLoading } = useProfile();
+  const track = (event: string, properties?: Record<string, unknown>) =>
+    segment().track(event, properties);
+
+  useEffect(() => {
+    // If event was passed trigger the tracking action right away
+    if (!isLoading && session && event) {
+      track(event, properties);
+    }
+  }, [isLoading, session]);
+
+  // return the track method to be used at a later time
+  return track;
 };

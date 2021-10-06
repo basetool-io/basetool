@@ -1,8 +1,13 @@
+import { useSegment } from "@/hooks"
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React from "react";
 
 function Beta() {
+  useSegment("Visited beta page", {
+    page: "beta",
+  });
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper heading="basetool beta">

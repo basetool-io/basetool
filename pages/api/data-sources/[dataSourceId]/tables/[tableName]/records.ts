@@ -1,8 +1,9 @@
 import { Views } from "@/features/fields/enums";
 import { decodeObject } from "@/lib/encoding";
 import { getColumns } from "./columns";
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { getFilteredColumns } from "@/features/fields";
+import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -77,6 +78,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
+  const user = await getUserFromRequest(req)
+
   const service = await getQueryService({ dataSource });
 
   const { record } = req.body;
@@ -84,6 +87,14 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const data = await service.runQuery("createRecord", {
     tableName: req.query.tableName as string,
     record,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Created record",
+    properties: {
+      id: dataSource.type,
+    },
   });
 
   res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));

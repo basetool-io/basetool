@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { GoogleSheetsDataSource } from "@/plugins/data-sources/google-sheets/types";
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware"
 import ApiResponse from "@/features/api/ApiResponse";
 import GoogleDriveService from "@/plugins/data-sources/google-sheets/GoogleDriveService";
@@ -51,9 +52,9 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
     req
   )) as GoogleSheetsDataSource | null;
 
-  // return res.send(dataSource)
-
   if (!dataSource) return res.status(404).send("");
+
+  const user = await getUserFromRequest(req)
 
   const { spreadsheetId, spreadsheetName } = req.body;
 
@@ -68,6 +69,11 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
         spreadsheetId,
       },
     },
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Created Google Sheets data source",
   });
 
   return res.send(ApiResponse.withMessage("Updated!"));
