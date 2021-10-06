@@ -1,10 +1,8 @@
 import React from "react";
 
-function HeadContent() {
+function Favicons() {
   return (
     <>
-      <title>👋 basetool</title>
-      <meta name="description" content="All your data under one roof." />
       <link
         rel="apple-touch-icon"
         sizes="180x180"
@@ -36,4 +34,4 @@ function HeadContent() {
   );
 }
 
-export default HeadContent;
+export default Favicons;

@@ -1,13 +1,13 @@
 import { inProduction } from "@/lib/environment";
-import { segment } from "@/lib/track"
+import { segment } from "@/lib/track";
 import { useIntercom } from "react-use-intercom";
 import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
+import Favicons from "./Favicons";
 import Head from "next/head";
-import HeadContent from "./HeadContent"
-import PageWrapper from "./PageWrapper"
+import PageWrapper from "./PageWrapper";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
@@ -23,7 +23,7 @@ function Layout({
   sidebar?: ReactNode;
 }) {
   const router = useRouter();
-  const {session, isLoading: profileIsLoading} = useProfile()
+  const { session, isLoading: profileIsLoading } = useProfile();
   const tablesSidebarVisible = useMemo(() => {
     if (sidebar) return false;
     if (hideSidebar) return false;
@@ -68,7 +68,9 @@ function Layout({
     <Authenticated>
       <>
         <Head>
-          <HeadContent />
+          <title>basetool - All your data under the same roof 👋</title>
+          <meta name="description" content="All your data under one roof." />
+          <Favicons />
         </Head>
         <div className="flex w-screen h-screen">
           <DataSourcesSidebar />
