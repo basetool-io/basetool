@@ -4,6 +4,7 @@ import { schema } from "@/features/auth/signupSchema";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import email from "@/lib/email";
+import logger from "@/lib/logger"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -50,8 +51,11 @@ const handler = async (
       text: `New user with email ${payload.email} and organization ${payload.organization}`,
     });
 
-  } catch (error){
-    console.log(error)
+  } catch (error: any){
+    logger.error({
+      msg: `Failed to send registration email.`,
+      error,
+    })
   }
 
 
