@@ -43,6 +43,7 @@
     "google-auth-library": "^7.9.1",
     "google-spreadsheet": "^3.1.15",
     "googleapis": "^85.0.0",
+    "handlebars": "^4.7.7",
     "html-react-parser": "^1.2.8",
     "ioredis": "^4.27.9",
     "joi": "^17.4.2",

@@ -1,6 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -19,6 +19,8 @@ const handler = async (
       return handleGET(req, res);
     case "PUT":
       return handlePUT(req, res);
+    case "POST":
+      return handlePOST(req, res);
     default:
       return res.status(404).send("");
   }
@@ -55,10 +57,19 @@ export const getColumns = async ({
     options: { cache: false },
   });
 
-  const columns = await service.runQuery("getColumns", {
+  let columns = await service.runQuery("getColumns", {
     tableName: tableName as string,
     storedColumns,
   });
+
+  if (!isEmpty(storedColumns)) {
+    const computedColumns = Object.values(storedColumns).filter(
+      (column: any) => column?.fieldType === "Computed"
+    );
+    if (!isEmpty(computedColumns)) {
+      columns = columns.concat(computedColumns);
+    }
+  }
 
   return columns;
 };
@@ -91,6 +102,33 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   });
 
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
+}
+
+async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
+
+  const options = merge(dataSource.options, {
+    tables: {
+      [req.query.tableName as string]: {
+        columns: {
+          [req.body.name]: req.body,
+        },
+      },
+    },
+  });
+
+  const result = await prisma.dataSource.update({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+    data: {
+      options,
+    },
+  });
+
+  return res.json(ApiResponse.withData(result, { message: `Added field ${req.body.name}` }));
 }
 
 export default withMiddlewares(handler, {

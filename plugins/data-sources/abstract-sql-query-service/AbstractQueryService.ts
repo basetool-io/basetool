@@ -15,10 +15,16 @@ import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
+import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions, idColumns } from "@/features/fields";
+import {
+  getBaseOptions,
+  getFilteredColumns,
+  idColumns,
+} from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
+import Handlebars from "handlebars";
 import logger from "@/lib/logger";
 import schemaInspector from "knex-schema-inspector";
 import type { Knex } from "knex";
@@ -139,7 +145,7 @@ abstract class AbstractQueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
-    select,
+    columns,
   }: {
     tableName: string;
     filters: IFilter[];
@@ -147,11 +153,12 @@ abstract class AbstractQueryService implements IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    select: string[];
+    columns: Column[];
   }): Promise<[]> {
     const query = this.client.table(tableName);
+
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select(select);
+      query.limit(limit).offset(offset).select();
     }
 
     if (filters) {
@@ -162,7 +169,41 @@ abstract class AbstractQueryService implements IQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    return query as unknown as [];
+    const records = await query;
+
+    const computedColumns = columns.filter(
+      (column: Column) => column.fieldType === "Computed"
+    );
+
+    computedColumns.forEach((computedColumn) => {
+      const editorData = computedColumn.fieldOptions.value;
+      const computedName = computedColumn.name;
+      records.forEach((record: any) => {
+        const queryableData = { record };
+        if (editorData) {
+          try {
+            const template = Handlebars.compile(editorData);
+            const value = template(queryableData);
+
+            record[computedName] = value;
+          } catch (error) {
+            console.error("Couldn't parse value.", error);
+          }
+        }
+      });
+    });
+
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    records.forEach((record, index, array) => {
+      array[index] = Object.fromEntries(
+        Object.entries(record).filter(([key]) => filteredColumns.includes(key))
+      );
+    });
+
+    return records as unknown as [];
   }
 
   public async getRecordsCount({
@@ -178,11 +219,11 @@ abstract class AbstractQueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
-    select,
+    columns,
   }: {
     tableName: string;
     recordId: string;
-    select: string[];
+    columns: Column[];
   }): Promise<Record<string, unknown> | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
@@ -190,11 +231,37 @@ abstract class AbstractQueryService implements IQueryService {
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select(select)
+      .select()
       .where(pk, recordId)
       .table(tableName);
 
-    return rows[0];
+    const computedColumns = columns.filter(
+      (column: Column) => column.fieldType === "Computed"
+    );
+
+    computedColumns.forEach((computedColumn) => {
+      const editorData = computedColumn.fieldOptions.value;
+      const computedName = computedColumn.name;
+      const queryableData = { record: rows[0] };
+      if (editorData) {
+        try {
+          const template = Handlebars.compile(editorData);
+          const value = template(queryableData);
+
+          rows[0][computedName] = value;
+        } catch (error) {
+          console.error("Couldn't parse value.", error);
+        }
+      }
+    });
+
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    return Object.fromEntries(
+      Object.entries(rows[0]).filter(([key]) => filteredColumns.includes(key))
+    );
   }
 
   public async createRecord({

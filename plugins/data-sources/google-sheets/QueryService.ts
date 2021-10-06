@@ -197,7 +197,7 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
-    select,
+    columns,
   }: {
     tableName: string;
     filters: [];
@@ -205,7 +205,7 @@ class QueryService implements IQueryService {
     offset: number;
     orderBy: string;
     orderDirection: string;
-    select: string[];
+    columns: Column[];
   }): Promise<[]> {
     await this.loadInfo();
 
@@ -233,11 +233,11 @@ class QueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
-    select,
+    columns,
   }: {
     tableName: string;
     recordId: string;
-    select: string[];
+    columns: Column[];
   }): Promise<Record<string, unknown> | undefined> {
     await this.loadInfo();
 
