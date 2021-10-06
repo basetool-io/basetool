@@ -43,11 +43,17 @@ const handler = async (
 
   await createUser(data);
 
-  await email.send({
-    to: ["adrian@basetool.io", "david@basetool.io"],
-    subject: "New user signup",
-    text: `New user with email ${payload.email} and organization ${payload.organization}`,
-  });
+  try {
+    await email.send({
+      to: ["adrian@basetool.io", "david@basetool.io"],
+      subject: "New user signup",
+      text: `New user with email ${payload.email} and organization ${payload.organization}`,
+    });
+
+  } catch (error){
+    console.log(error)
+  }
+
 
   return res.json(ApiResponse.withMessage(successMessage));
 };
