@@ -32,8 +32,6 @@ const Filter = ({
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
-    // let condition = StringFilterConditions;
-    // if (column.fieldType === "Number") condition = IntFilterConditions;
     updateFilter(idx, {
       ...filter,
       column,

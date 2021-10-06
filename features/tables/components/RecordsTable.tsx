@@ -93,10 +93,6 @@ const usePagination = ({ perPage }: { perPage: number }) => {
     setPage(nextPageNumber);
   };
 
-  // const setPage = (page) => {
-  //   setPage
-  // }
-
   return { page, limit, offset, nextPage, previousPage, setPage };
 };
 
