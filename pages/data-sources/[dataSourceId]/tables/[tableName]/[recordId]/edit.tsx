@@ -35,9 +35,26 @@ function RecordsEdit() {
     [columnsResponse?.data]
   );
 
+  const ac = useAccessControl();
+  const canEdit = useMemo(() => ac.updateAny("record").granted, [ac]);
+
+  // Redirect to record page if the user can't edit
+  useEffect(() => {
+    if (!canEdit && router) {
+      router.push(
+        `/data-sources/${dataSourceId}/tables/${tableName}/${recordId}`
+      );
+    }
+  }, [canEdit, router]);
+
+  // Don't show them the edit page if the user can't edit
+  if (!canEdit) return "";
+
   return (
     <Layout>
-      {isLoading && <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />}
+      {isLoading && (
+        <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />
+      )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
       {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
         <Form record={recordResponse.data} columns={columns} />

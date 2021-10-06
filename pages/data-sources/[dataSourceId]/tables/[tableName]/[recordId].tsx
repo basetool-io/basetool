@@ -78,6 +78,18 @@ function RecordsShow() {
     }
   };
 
+  const canRead = useMemo(() => ac.readAny("record").granted, [ac]);
+
+  // Redirect to record page if the user can't read
+  useEffect(() => {
+    if (!canRead && router) {
+      router.push(`/data-sources/${dataSourceId}/tables/${tableName}`);
+    }
+  }, [canRead, router]);
+
+  // Don't show them the show page if the user can't read
+  if (!canRead) return "";
+
   return (
     <>
       <Layout>
