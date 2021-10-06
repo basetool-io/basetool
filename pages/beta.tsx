@@ -44,7 +44,7 @@ function Beta() {
               or through Intercom 👇
             </p>
 
-            <p className="mb-2 text-gray-500">* This page is only show to organization owners.</p>
+            <p className="mb-2 text-gray-500">* This page is only shown to organization owners.</p>
           </div>
         </>
       </PageWrapper>
