@@ -1,4 +1,10 @@
-import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Checkbox,
+  IconButton,
+  Tooltip,
+} from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import {
   FilterIcon,
@@ -201,23 +207,26 @@ const ResourcesIndex = memo(
               <FiltersPanel ref={filtersPanel} columns={columns} />
             )}
             <div className="flex flex-shrink-0">
-              <Button
-                onClick={() => toggleFiltersPanelVisible()}
-                variant="link"
-                ref={filtersButton}
-              >
-                <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
-              </Button>
-              <div className="text-sm text-gray-600">
+              <ButtonGroup size="sm" isAttached colorScheme="gray" variant="solid">
+                <Button
+                  onClick={() => toggleFiltersPanelVisible()}
+                  ref={filtersButton}
+                  leftIcon={<FilterIcon className="h-4 text-gray-600" />}
+                >
+                  <div className="text-gray-800">Filters</div>
+                  {!isEmpty(appliedFilters) && <>
+                    <div className="text-gray-600 font-thin mr-1 ml-1">|</div>
+                    <div className="text-blue-600 font-thin">{appliedFilters.length}</div>
+                  </>}
+                </Button>
                 {!isEmpty(appliedFilters) && (
-                  <div>
-                    ({appliedFilters.length} applied){" "}
-                    <Button size="xs" onClick={resetFilters}>
-                      <XIcon className="h-4" />
-                    </Button>
-                  </div>
+                  <IconButton
+                    aria-label="Remove filters"
+                    icon={<XIcon className="h-5" />}
+                    onClick={resetFilters}
+                  />
                 )}
-              </div>
+              </ButtonGroup>
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">
