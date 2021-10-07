@@ -1,29 +1,11 @@
-import { DataSource } from '@prisma/client'
-import type { Column } from '@/components/fields/types'
-import type { Knex } from 'knex'
+import { Column } from "@/features/fields/types"
+import { DataSource } from "@prisma/client"
+import { SqlColumnOptions, Tables } from "../abstract-sql-query-service/types"
 
-export type AxiosErrorWithMessage = {
-  message: string
-}
-
-export type ListTable = {
-  name: string;
-  schemaname: string;
-  label?: string;
-  authorizedRoles?: string[];
+export type PostgresCredentials = {
+  url: string;
+  useSsl: boolean;
 };
-
-export type Table = {
-  columns?: {
-    [columnName: string]: Column
-  }
-  label?: string
-  authorizedRoles?: string[];
-}
-
-export type Tables = {
-  [tableName: string]: Table
-}
 
 export interface PostgresqlDataSource extends DataSource implements DataSource {
   options: {
@@ -33,4 +15,5 @@ export interface PostgresqlDataSource extends DataSource implements DataSource {
   }
 }
 
-export type PostgresqlColumnOptions = Knex.ColumnInfo
+export type PostgresqlColumnOptions = SqlColumnOptions
+

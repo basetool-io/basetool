@@ -1,3 +1,5 @@
+import { getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -34,11 +36,21 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
+  const user = await getUserFromRequest(req);
+
   const result = await prisma.organizationUser.update({
     where: {
       id: parseInt(req.query.organizationUserId as string, 10),
     },
     data: data,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated role",
+    properties: {
+      organizationUserId: req.query.organizationUserId,
+    },
   });
 
   return res.json(ApiResponse.withData(result, { message: "Updated" }));

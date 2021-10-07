@@ -1,4 +1,4 @@
-import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { getLabel } from "@/features/data-sources";
 import { useAccessControl } from "@/hooks";
@@ -56,7 +56,7 @@ const Sidebar = () => {
             </Link>
           </div>
         )}
-        {error && <div>Error: {(error as any).error}</div>}
+        {error && <div>{'data' in error && (error?.data as any)?.messages[0]}</div>}
         {isLoading && (
           <LoadingOverlay
             transparent={isEmpty(tablesResponse?.data)}
@@ -69,7 +69,7 @@ const Sidebar = () => {
           {tablesResponse?.ok &&
             tablesResponse.data
               .filter((table: ListTable) =>
-                table.schemaname ? table.schemaname === "public" : true
+                dataSourceResponse?.data.type === 'postgresql' && table.schema ? table.schema === "public" : true
               )
               .filter((table: ListTable) => ac.canViewTable(table))
               .map((table: ListTable, idx: number) => <SidebarItem

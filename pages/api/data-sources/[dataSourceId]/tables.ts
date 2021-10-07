@@ -1,7 +1,5 @@
-import {
-  ListTable,
-  PostgresqlDataSource,
-} from "@/plugins/data-sources/postgresql/types";
+import { DataSource } from "@prisma/client";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -23,16 +21,14 @@ const handler = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = (await getDataSourceFromRequest(
-    req
-  )) as PostgresqlDataSource | null;
+  const dataSource = (await getDataSourceFromRequest(req)) as DataSource | null;
 
   if (!dataSource) return res.status(404).send("");
 
   const service = await getQueryService({ dataSource });
 
   const tables = (await service.runQuery("getTables")) as ListTable[];
-  const storedTableData = dataSource.options.tables;
+  const storedTableData = (dataSource?.options as any)?.tables || {};
 
   // If we have any, we'll assign the stored data to the tables we return.
   if (storedTableData) {

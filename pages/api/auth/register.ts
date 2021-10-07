@@ -1,8 +1,10 @@
 /* eslint-disable max-len */
 import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
-import { withMiddlewares } from "@/features/api/middleware"
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
+import email from "@/lib/email";
+import logger from "@/lib/logger"
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -31,7 +33,7 @@ const handler = async (
   }
 
   const { password } = payload;
-  const hashedPassword = await hashPassword(password)
+  const hashedPassword = await hashPassword(password);
   const data = {
     email: payload.email,
     password: hashedPassword,
@@ -41,6 +43,21 @@ const handler = async (
   };
 
   await createUser(data);
+
+  try {
+    await email.send({
+      to: ["adrian@basetool.io", "david@basetool.io"],
+      subject: "New user signup",
+      text: `New user with email ${payload.email} and organization ${payload.organization}`,
+    });
+
+  } catch (error: any){
+    logger.error({
+      msg: `Failed to send registration email.`,
+      error,
+    })
+  }
+
 
   return res.json(ApiResponse.withMessage(successMessage));
 };

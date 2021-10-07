@@ -14,10 +14,10 @@ cp .env.sample .env
 # generate a SECRET with openssl rand -hex 32
 yarn prisma migrate dev
 # seed
-SEED_PASSWORD=secret yarn prisma db seed --preview-feature
+SEED_PASSWORD=secret yarn prisma db seed
 ```
 
-You may now log in with `ted.lasso@apple.com` and password `secret`.
+You may now log in with `ted.lasso@apple.com` and password `secret`. The seed script will not seed a datasource. Only the user and it's organization.
 
 There's also a `prisma/sample-seed.sql` file that you can use to create a sample database.
 
@@ -31,7 +31,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Emails
 
-When on production, emails will be sent using mailgun. On all other environments (event vercel preview) you will need a [mailtrap.io](https://mailtra.io) account. Fill in the `MAILTRAP_USERNAME` and `MAILTRAP_PASSWORD` variables.
+Your `.env` file uld have the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` variables filled in. For development and staging we can use [mailtrap](https://mailtrap.io/). On production we use AWS SES.
 
 # Development
 
@@ -68,3 +68,4 @@ To migrate changes to your test db run `yarn test:migrate`. Cypress will automat
 ## Run Cypress
 
 To run both the test server and cypress locally run `yarn test:start-cypress`.
+

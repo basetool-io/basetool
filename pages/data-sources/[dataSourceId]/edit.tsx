@@ -10,11 +10,11 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
-import { ListTable } from "@/plugins/data-sources/postgresql/types";
+import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { Role } from "@prisma/client";
 import { TrashIcon } from "@heroicons/react/outline";
+import { get, isEmpty, isNull, isUndefined } from "lodash";
 import { getLabel } from "@/features/data-sources";
-import { isEmpty, isNull, isUndefined } from "lodash";
 import { toast } from "react-toastify";
 import {
   useGetDataSourceQuery,
@@ -24,6 +24,7 @@ import {
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import { useSegment } from "@/hooks"
 import BackButton from "@/features/records/components/BackButton";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -85,8 +86,8 @@ const TableEditor = ({
   }, [table, dataSourceResponse?.data?.options]);
 
   const storedTabledOptions = useMemo(
-    () => dataSourceResponse?.data?.options.tables[table.name],
-    [dataSourceResponse?.data?.options.tables[table.name]]
+    () => get(dataSourceResponse?.data?.options?.tables, table.name) || {},
+    [dataSourceResponse?.data?.options?.tables]
   );
   const authorizedRoles: string[] | undefined = useMemo(
     () => storedTabledOptions?.authorizedRoles,
@@ -96,6 +97,10 @@ const TableEditor = ({
     () => (rolesResponse?.ok ? rolesResponse?.data : []),
     [rolesResponse]
   );
+
+  const track = useSegment("Visited edit data source page", {
+    page: "edit data source",
+  });
 
   const [updateTable, { isLoading: isUpdating }] =
     useUpdateDataSourceMutation();
@@ -107,6 +112,8 @@ const TableEditor = ({
       dataSourceId,
       body: options,
     });
+
+    track('Updated data source')
 
     selectTable(currentTable.name);
   };

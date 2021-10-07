@@ -1,8 +1,8 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { PostgresqlDataSource } from "@/plugins/data-sources/postgresql/types";
 import { get, merge } from "lodash";
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -65,44 +65,43 @@ export const getColumns = async ({
 };
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = (await getDataSourceFromRequest(
-    req
-  )) as PostgresqlDataSource | null;
+  const user = await getUserFromRequest(req);
+  const dataSource = await getDataSourceFromRequest(req);
 
   if (!req.body.changes)
     return res.send(ApiResponse.withError("No changes sent."));
 
-  if (dataSource && req?.query?.tableName) {
-    const tableOptions = get(dataSource, [
-      "options",
-      "tables",
-      req.query.tableName as string,
-    ]);
+  if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
 
-    const tableColumnOptions = tableOptions?.columns;
-
-    const result = await prisma.dataSource.update({
-      where: {
-        id: parseInt(req.query.dataSourceId as string, 10),
-      },
-      data: {
-        options: {
-          ...dataSource.options,
-          tables: {
-            ...dataSource.options.tables,
-            [req.query.tableName as string]: {
-              ...tableOptions,
-              columns: merge(tableColumnOptions, req.body.changes),
-            },
-          },
+  const options = merge(dataSource.options, {
+    tables: {
+      [req.query.tableName as string]: {
+        columns: {
+          ...req.body.changes,
         },
       },
-    });
+    },
+  });
 
-    return res.json(ApiResponse.withData(result, { message: "Updated" }));
-  }
+  const result = await prisma.dataSource.update({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+    data: {
+      options,
+    },
+  });
 
-  res.status(404).send("");
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated columns",
+    properties: {
+      id: dataSource.type,
+      columnNames: Object.keys(req.body.changes)
+    },
+  });
+
+  return res.json(ApiResponse.withData(result, { message: "Updated" }));
 }
 
 export default withMiddlewares(handler, {

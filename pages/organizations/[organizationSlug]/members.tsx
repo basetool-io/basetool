@@ -17,7 +17,7 @@ import {
   useUpdateMemberRoleMutation,
 } from "@/features/organizations/api-slice";
 import { useInviteMemberMutation } from "@/features/organizations/api-slice";
-import { useOrganizationFromContext, useProfile } from "@/hooks";
+import { useOrganizationFromContext, useProfile, useSegment } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -49,6 +49,10 @@ const RolesSelector = ({
       onChange(e);
     }
   };
+
+  useSegment("Visited members page", {
+    page: "members",
+  });
 
   return (
     <FormControl id="role">

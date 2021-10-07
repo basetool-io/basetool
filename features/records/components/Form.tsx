@@ -9,7 +9,6 @@ import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
-import { useBoolean } from "react-use";
 import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
@@ -64,7 +63,6 @@ const Form = ({
   formForCreate?: boolean;
 }) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useBoolean(false);
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
 
   const setTheSchema = async () => {
@@ -108,8 +106,6 @@ const Form = ({
   const onSubmit = async (formData: any) => {
     let response;
 
-    setIsLoading(true);
-
     // Send only touched fields to de-risk fields that alter the content on load (datetime fields)
     const touchedFields = Object.entries(formState.touchedFields)
       .filter(([name, touched]) => touched)
@@ -127,16 +123,12 @@ const Form = ({
               )
             ),
           },
-        });
-
-        setIsLoading(false);
+        }).unwrap();
 
         if (response && "data" in response) {
-          const apiResponse: ApiResponse = response.data;
-
-          const { data } = apiResponse;
+          const { data } = response;
           const { id } = data;
-          if (apiResponse.ok) {
+          if (response.ok) {
             await router.push(
               `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
             );
@@ -166,23 +158,24 @@ const Form = ({
             })
         );
 
-        await updateRecord({
+        const response = await updateRecord({
           dataSourceId: router.query.dataSourceId as string,
           tableName: router.query.tableName as string,
           recordId: record.id.toString(),
           body: {
             changes,
           },
-        });
-        await router.push(backLink);
+        }).unwrap();
+
+        if (response?.ok) {
+          return await router.push(backLink);
+        }
       } else {
         toast.error("Not enough data.");
       }
-    } catch (error) {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast.error(error?.data?.meta?.errorMessage);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -203,7 +196,7 @@ const Form = ({
                 colorScheme="blue"
                 size="sm"
                 width="300px"
-                isLoading={isLoading}
+                isLoading={isCreating || isUpdating}
                 onClick={handleSubmit(onSubmit)}
               >
                 <Save className="h-4" /> {formForCreate ? "Create" : "Save"}
