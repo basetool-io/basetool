@@ -46,8 +46,9 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
         <div className="flex justify-between">
           <Button
             size="sm"
+            colorScheme="gray"
             onClick={addFilter}
-            leftIcon={<PlusIcon className="h-4" />}
+            leftIcon={<PlusIcon className="h-4 text-gray-600" />}
           >
             Add a filter
           </Button>
