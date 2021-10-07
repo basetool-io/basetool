@@ -20,7 +20,7 @@ import {
   useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/features/roles/api-slice";
-import { useOrganizationFromContext } from "@/hooks";
+import { useOrganizationFromContext, useSegment } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -55,6 +55,10 @@ const RoleEditor = ({
     () => currentRole?.name === OWNER_ROLE,
     [currentRole]
   );
+
+  useSegment("Visited roles page", {
+    page: "roles",
+  });
 
   useEffect(() => {
     if (currentRole.id !== "") {

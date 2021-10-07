@@ -9,7 +9,7 @@
   "extends": [
     // "airbnb-base",
     "plugin:@typescript-eslint/recommended",
-    // "plugin:cypress/recommended",
+    "plugin:cypress/recommended",
     "next",
     "next/core-web-vitals"
   ],
@@ -25,7 +25,7 @@
     "@typescript-eslint",
     "sort-imports-es6-autofix",
     "react-hooks",
-    "unused-imports"
+    "unused-imports",
   ],
   "rules": {
     "import/order": 0,

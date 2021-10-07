@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { useGetAuthUrlQuery } from "@/features/data-sources/api-slice";
+import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
@@ -15,8 +16,11 @@ function New() {
   );
 
   return (
-    <Layout>
-      <PageWrapper heading="Connect your Google account">
+    <Layout hideSidebar={true}>
+      <PageWrapper
+        heading="Connect your Google account"
+        buttons={<BackButton href="/data-sources/new" />}
+      >
         <>
           You will be prompted to share read-write permissions so you can access
           &amp; update your data.
@@ -28,9 +32,7 @@ function New() {
             )}
             {!isLoading && authUrl && (
               <Link href={authUrl} passHref>
-                <Button as="a">
-                  Authenticate with your Google Account
-                </Button>
+                <Button as="a">Authenticate with your Google Account</Button>
               </Link>
             )}
           </div>

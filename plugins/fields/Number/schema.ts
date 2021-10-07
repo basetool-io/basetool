@@ -3,15 +3,13 @@ import Joi from "joi";
 import type { Record } from "@/features/records/types";
 
 const schema = (record: Record, column: Column) => {
-  const rule = Joi.number().allow(null, "", NaN);
+  let rule = Joi.number();
 
-  // rule = rule.allow(null)
-  // if (column.nullable && !column.required) {
-  //   console.log('nullable', column.name)
-  //   rule = rule.allow(null)
-  // } else {
-  //   rule = rule.required()
-  // }
+  if (column.baseOptions.required) {
+    rule = rule.required();
+  } else {
+    rule = rule.allow(null, "", NaN);
+  }
 
   return rule;
 };

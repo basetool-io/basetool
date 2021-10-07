@@ -1,7 +1,6 @@
 import { Row } from "react-table";
 import { usePrefetch } from "@/features/records/api-slice";
-import ItemControls from "./ItemControls";
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import classNames from "classnames";
 
 const RecordRow = ({
@@ -9,19 +8,18 @@ const RecordRow = ({
   dataSourceId,
   tableName,
   prepareRow,
-  index,
 }: {
   row: Row<any>;
   dataSourceId: string;
   tableName: string;
   prepareRow: (row: Row) => void;
-  index: number;
 }) => {
+  const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
 
   return (
-    <a
+    <div
       {...row.getRowProps()}
       onMouseOver={() => {
         const id = row.original?.id?.toString();
@@ -35,12 +33,9 @@ const RecordRow = ({
         }
       }}
       className={classNames(
-        "tr relative hover:bg-sky-50 border-b last:border-b-0",
-        {
-          "bg-white": index % 2 === 0,
-          "bg-gray-50": index % 2 !== 0,
-        }
+        "tr relative hover:bg-sky-50 bg-white"
       )}
+      ref={rowRef}
     >
       {row.cells.map((cell) => (
         <div
@@ -50,10 +45,7 @@ const RecordRow = ({
           {cell.render("Cell")}
         </div>
       ))}
-      <div className="td px-1 py-3 whitespace-nowrap text-sm text-gray-500">
-        <ItemControls recordId={row?.original?.id} />
-      </div>
-    </a>
+    </div>
   );
 };
 

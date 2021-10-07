@@ -1,0 +1,32 @@
+name: Cypress tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  Test:
+    env:
+      ENV: test
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPORT: 5432
+      DATABASE_URL: postgresql://postgres@127.0.0.1/basetool
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11.5
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install deps
+      run: yarn install

@@ -5,6 +5,7 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
+import { Views } from "@/features/fields/enums";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
@@ -15,9 +16,10 @@ const Edit = ({
   field,
   formState,
   register: registerMethod,
+  view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const errors = useMemo(() => formState.errors, [formState])
+  const errors = useMemo(() => formState.errors, [formState]);
   const { name } = register;
 
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
@@ -34,11 +36,19 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+    ? field.column.baseOptions.defaultValue === "true"
+    : null;
 
   return (
     <EditFieldWrapper field={field}>
       <FormControl isInvalid={hasError}>
-        <Checkbox isChecked={isChecked} {...register} isDisabled={readonly} />
+        <Checkbox
+          isChecked={isChecked}
+          {...register}
+          isDisabled={readonly}
+          defaultChecked={defaultValue}
+        />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
