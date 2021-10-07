@@ -42,22 +42,26 @@ const handler = async (
     organization: payload.organization,
   };
 
-  await createUser(data);
+  const user = await createUser(data);
 
   try {
+    serverSegment().track({
+      userId: user ? user?.id : "",
+      event: "User registered",
+      properties: {},
+    });
+
     await email.send({
       to: ["adrian@basetool.io", "david@basetool.io"],
       subject: "New user signup",
       text: `New user with email ${payload.email} and organization ${payload.organization}`,
     });
-
-  } catch (error: any){
+  } catch (error: any) {
     logger.error({
       msg: `Failed to send registration email.`,
       error,
-    })
+    });
   }
-
 
   return res.json(ApiResponse.withMessage(successMessage));
 };
