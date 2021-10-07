@@ -12,7 +12,7 @@ import {
   SqlColumnOptions,
 } from "./types";
 import { DataSource } from "@prisma/client";
-import { IFilter } from "@/features/tables/components/Filter";
+import { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
@@ -95,11 +95,23 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   ];
 
   if (NULL_FILTERS.includes(filter.condition)) {
-    query.whereNull(filter.columnName);
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhereNull(filter.columnName);
+    } else {
+      query.whereNull(filter.columnName);
+    }
   } else if (NOT_NULL_FILTERS.includes(filter.condition)) {
-    query.whereNotNull(filter.columnName);
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhereNotNull(filter.columnName);
+    } else {
+      query.whereNotNull(filter.columnName);
+    }
   } else {
-    query.where(filter.columnName, getCondition(filter), getValue(filter));
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhere(filter.columnName, getCondition(filter), getValue(filter));
+    } else {
+      query.where(filter.columnName, getCondition(filter), getValue(filter));
+    }
   }
 };
 

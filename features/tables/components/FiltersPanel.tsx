@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, ReceiptRefundIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import Filter, { IFilter } from "@/features/tables/components/Filter";
+import Filter, { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty"
 
@@ -17,6 +17,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
       column: columns[0],
       condition: IntFilterConditions.is,
       value: "",
+      verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
     };
 
     setFilters([...filters, filter]);
