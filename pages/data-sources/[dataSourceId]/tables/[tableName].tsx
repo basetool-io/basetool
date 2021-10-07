@@ -170,7 +170,7 @@ function TablesShow() {
             {ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/edit`}
+                  href={`/data-sources/${router.query.dataSourceId}/edit/tables/${router.query.tableName}/columns`}
                   passHref
                 >
                   <Button

@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
 import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import email from "@/lib/email";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 

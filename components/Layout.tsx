@@ -97,7 +97,7 @@ function Layout({
           <meta property="og:image:height" content="604"/>
           <Favicons />
         </Head>
-        <div className="flex w-screen h-screen">
+        <div className="antialiased flex w-screen h-screen">
           <DataSourcesSidebar />
           <div
             className={classNames(
