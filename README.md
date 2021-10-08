@@ -31,7 +31,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Emails
 
-When on production, emails will be sent using mailgun. On all other environments (event vercel preview) you will need a [mailtrap.io](https://mailtra.io) account. Fill in the `MAILTRAP_USERNAME` and `MAILTRAP_PASSWORD` variables.
+Your `.env` file uld have the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` variables filled in. For development and staging we can use [mailtrap](https://mailtrap.io/). On production we use AWS SES.
 
 # Development
 
@@ -68,3 +68,4 @@ To migrate changes to your test db run `yarn test:migrate`. Cypress will automat
 ## Run Cypress
 
 To run both the test server and cypress locally run `yarn test:start-cypress`.
+

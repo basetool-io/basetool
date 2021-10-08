@@ -1,5 +1,6 @@
 import { DataSource } from "@prisma/client";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { merge } from "lodash"
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -23,10 +24,19 @@ const handler = async (
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = (await getDataSourceFromRequest(req)) as DataSource | null;
 
-  if (!req.body.columns)
-    return res.send(ApiResponse.withError("No columns sent."));
+  if (!dataSource) return res.status(404).send("");
+
+  if (!req.body)
+    return res.send(ApiResponse.withError("No data sent."));
 
   const user = await getUserFromRequest(req);
+  const dataSourceOptions = dataSource.options as Record<string, unknown>
+
+  const data = merge(dataSourceOptions, {
+    tables: {
+      [req.query.tableName as string]: req.body
+    }
+  })
 
   if (dataSource && dataSource?.options) {
     const result = await prisma.dataSource.update({
@@ -34,11 +44,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
         id: parseInt(req.query.dataSourceId as string, 10),
       },
       data: {
-        options: {
-          ...(dataSource.options as Record<string, unknown>),
-          columns: req.body.columns,
-        },
-      },
+        options: data as any,
+      }
     });
 
     serverSegment().track({

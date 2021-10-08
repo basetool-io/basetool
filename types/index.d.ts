@@ -9,3 +9,9 @@ declare global {
     };
   }
 }
+
+export type FooterElements = {
+  left?: ReactElement | string;
+  center?: ReactElement | string;
+  right?: ReactElement | string;
+}

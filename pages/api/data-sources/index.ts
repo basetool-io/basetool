@@ -62,6 +62,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         createdAt: "asc",
       },
     ],
+    select: {
+      id: true,
+      name: true,
+      organizationId: true,
+      type: true,
+    },
   });
 
   res.json(ApiResponse.withData(dataSources));

@@ -1,30 +1,44 @@
-import { apiUrl } from '../api/urls'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import ApiResponse from '../api/ApiResponse'
+import { apiUrl } from "../api/urls";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import ApiResponse from "../api/ApiResponse";
 
 export const tablesApiSlice = createApi({
-  reducerPath: 'tables',
+  reducerPath: "tables",
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ['Table', 'TableColumns'],
+  tagTypes: ["Table", "TableColumns"],
   endpoints(builder) {
     return {
-      getColumns: builder.query<ApiResponse, {dataSourceId: string, tableName: string}>({
+      getColumns: builder.query<
+        ApiResponse,
+        { dataSourceId: string; tableName: string }
+      >({
         query({ dataSourceId, tableName }) {
-          return `/data-sources/${dataSourceId}/tables/${tableName}/columns`
+          return `/data-sources/${dataSourceId}/tables/${tableName}/columns`;
         },
-        providesTags: (response, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
+        providesTags: (response, error, { tableName }) => [
+          { type: "TableColumns", id: tableName },
+          { type: "TableColumns", id: "LIST" },
+        ],
       }),
-      updateColumns: builder.mutation<ApiResponse, Partial<{dataSourceId: string, tableName: string, body: Record<string, unknown>}>>({
-        query: ({
-          dataSourceId, tableName, body,
-        }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns`,
-          method: 'PUT',
+      updateColumn: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          columnName: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, columnName, body }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns/${columnName}`,
+          method: "PUT",
           body,
         }),
-        invalidatesTags: (result, error, { tableName }) => [{ type: 'TableColumns', id: tableName }],
+        invalidatesTags: (result, error, { tableName }) => [
+          { type: "TableColumns", id: tableName },
+        ],
       }),
 
       getTables: builder.query<ApiResponse, { dataSourceId: string }>({
@@ -33,15 +47,34 @@ export const tablesApiSlice = createApi({
         },
         providesTags: (response, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
+          { type: "Table", id: "LIST" },
         ],
       }),
-    }
+      updateTable: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, body }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { dataSourceId }) => [
+          { type: "Table", id: dataSourceId },
+        ],
+      }),
+    };
   },
-})
+});
 
 export const {
   useGetColumnsQuery,
-  useUpdateColumnsMutation,
+  useUpdateColumnMutation,
   useGetTablesQuery,
+  useUpdateTableMutation,
   usePrefetch,
-} = tablesApiSlice
+} = tablesApiSlice;

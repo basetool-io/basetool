@@ -17,7 +17,7 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function RecordsShow() {
@@ -77,6 +77,18 @@ function RecordsShow() {
       if (response?.ok) router.push(backLink);
     }
   };
+
+  const canRead = useMemo(() => ac.readAny("record").granted, [ac]);
+
+  // Redirect to record page if the user can't read
+  useEffect(() => {
+    if (!canRead && router) {
+      router.push(`/data-sources/${dataSourceId}/tables/${tableName}`);
+    }
+  }, [canRead, router]);
+
+  // Don't show them the show page if the user can't read
+  if (!canRead) return "";
 
   return (
     <>
