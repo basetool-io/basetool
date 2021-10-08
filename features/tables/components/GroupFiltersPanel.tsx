@@ -53,14 +53,7 @@ const GroupFiltersPanel = (
 
   return (
     <div className="flex">
-      <div className="align-top pt-4">
-        <Tooltip label="Remove filter group">
-          <Button size="xs" variant="link" onClick={() => removeFilterGroup()}>
-            <XIcon className="h-5 text-gray-700" />
-          </Button>
-        </Tooltip>
-      </div>
-      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[75px] max-w-[75px] pt-2 mr-1" : "min-w-[75px] max-w-[75px] pt-4 mr-1"}>
+      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[75px] max-w-[75px] pt-2 mr-1" : "min-w-[75px] max-w-[75px] pt-3 mr-1"}>
         {parentIdx === 0 && (
           <div className="text-gray-800 text-right text-sm font-mono">
             where
@@ -74,7 +67,7 @@ const GroupFiltersPanel = (
 
         {parentIdx === 1 && (
           <Select
-            size="sm"
+            size="xs"
             className="font-mono"
             value={verb}
             onChange={(e) =>
@@ -109,16 +102,23 @@ const GroupFiltersPanel = (
           <div className="flex justify-between">
             <div className="space-x-2">
               <Button
-                size="sm"
+                size="xs"
                 colorScheme="gray"
                 onClick={addFilter}
-                leftIcon={<PlusIcon className="h-4 text-gray-600" />}
+                leftIcon={<PlusIcon className="h-3 text-gray-600" />}
               >
                 Add a filter
               </Button>
             </div>
           </div>
         </div>
+      </div>
+      <div className="align-top pt-2.5">
+        <Tooltip label="Remove filter group">
+          <Button size="xs" variant="link" onClick={() => removeFilterGroup()}>
+            <XIcon className="h-3 text-gray-700" />
+          </Button>
+        </Tooltip>
       </div>
     </div>
   );

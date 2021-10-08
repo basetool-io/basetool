@@ -92,28 +92,28 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
         <div className="flex justify-between">
           <div className="space-x-2">
             <Button
-              size="sm"
+              size="xs"
               colorScheme="gray"
               onClick={addFilter}
-              leftIcon={<PlusIcon className="h-4 text-gray-600" />}
+              leftIcon={<PlusIcon className="h-3 text-gray-600" />}
             >
               Add a filter
             </Button>
             <Button
-              size="sm"
+              size="xs"
               colorScheme="gray"
               onClick={addFilterGroup}
-              leftIcon={<FolderAddIcon className="h-4 text-gray-600" />}
+              leftIcon={<FolderAddIcon className="h-3 text-gray-600" />}
             >
               Add a filter group
             </Button>
           </div>
           <Button
-            size="sm"
+            size="xs"
             colorScheme="blue"
             onClick={() => applyFilters(filters)}
             disabled={allFiltersApplied}
-            leftIcon={<ReceiptRefundIcon className="h-4" />}
+            leftIcon={<ReceiptRefundIcon className="h-3" />}
           >
             Apply filters
           </Button>

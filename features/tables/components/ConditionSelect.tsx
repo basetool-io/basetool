@@ -13,7 +13,7 @@ function ConditionSelect({
   return (
     <FormControl id="condition" className="">
       <Select
-        size="sm"
+        size="xs"
         className="font-mono"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}

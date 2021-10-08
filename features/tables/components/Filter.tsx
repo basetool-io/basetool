@@ -190,11 +190,6 @@ const Filter = ({
   return (
     <>
       <div className="flex w-full items-center space-x-1">
-        <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
-            <XIcon className="h-5 text-gray-700" />
-          </Button>
-        </Tooltip>
         <FormControl id="verb" className="max-w-[75px]">
           {idx === 0 && (
             <div className="text-gray-800 text-right text-sm font-mono">
@@ -209,7 +204,7 @@ const Filter = ({
 
           {idx === 1 && (
             <Select
-              size="sm"
+              size="xs"
               className="font-mono"
               value={filter.verb}
               onChange={(e) =>
@@ -226,7 +221,7 @@ const Filter = ({
         </FormControl>
         <FormControl id="columns">
           <Select
-            size="sm"
+            size="xs"
             className="font-mono"
             value={filter.columnName}
             onChange={(e) => changeFilterColumn(e.currentTarget.value)}
@@ -247,7 +242,7 @@ const Filter = ({
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
               <Input
-                size="sm"
+                size="xs"
                 value={filter.value}
                 className="font-mono"
                 onChange={(e) => changeFilterValue(e.currentTarget.value)}
@@ -255,6 +250,11 @@ const Filter = ({
             </FormControl>
           )}
         </div>
+        <Tooltip label="Remove filter">
+          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
+            <XIcon className="h-3 text-gray-700" />
+          </Button>
+        </Tooltip>
       </div>
     </>
   );
