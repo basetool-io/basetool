@@ -195,9 +195,13 @@ function TablesShow() {
                     colorScheme="red"
                     leftIcon={<TrashIcon className="h-4" />}
                     isLoading={isDeleting}
-                    isDisabled={selectedRecords.length == 0}
+                    isDisabled={selectedRecords.length === 0}
                     onClick={handleDeleteMultiple}
-                  />
+                  >
+                    {selectedRecords.length > 0 && `Delete ${selectedRecords.length} ${pluralize('record', selectedRecords.length)}`}
+                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" is displayed */}
+                    {selectedRecords.length === 0 && <>&nbsp;&nbsp;&nbsp;&nbsp;</>}
+                  </Button>
                 </Tooltip>
               )
             }

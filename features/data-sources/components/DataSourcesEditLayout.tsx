@@ -17,7 +17,7 @@ const DataSourcesEditLayout = ({
   dataSourceId,
   backLink,
   crumbs,
-  isLoading,
+  isLoading = false,
   footerElements,
   children,
 }: {
@@ -34,7 +34,6 @@ const DataSourcesEditLayout = ({
 }) => {
   const router = useRouter();
   dataSourceId ||= router.query.dataSourceId as string;
-  isLoading ||= false;
 
   const {
     data: dataSourceResponse,
@@ -104,7 +103,7 @@ const DataSourcesEditLayout = ({
           </div>
           {children && children}
           {!children && (
-            <div className="flex-1 p-4">👈 Please select a table</div>
+            <div className="flex-1 p-4">👈 Select a table to get started</div>
           )}
         </div>
       </PageWrapper>
