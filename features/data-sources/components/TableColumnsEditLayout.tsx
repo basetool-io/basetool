@@ -12,7 +12,7 @@ const TableColumnsEditLayout = ({
   dataSourceId,
   backLink,
   crumbs,
-  isLoading,
+  isLoading = false,
   footerElements,
   children,
 }: {
@@ -27,19 +27,14 @@ const TableColumnsEditLayout = ({
   dataSourceId ||= router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
 
-  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery(
-      { dataSourceId },
-      {
-        skip: !dataSourceId,
-      }
-    );
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
-  const {
-    data: columnsResponse,
-    error,
-    isFetching: columnsAreFetching,
-  } = useGetColumnsQuery(
+  const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
       tableName,
@@ -53,9 +48,14 @@ const TableColumnsEditLayout = ({
 
   return (
     <DataSourcesEditLayout
-      backLink={`/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}`}
-      crumbs={[dataSourceResponse?.data.name, "Edit", tableName, "Columns"]}
-      isLoading={columnsAreFetching || dataSourceIsLoading}
+      backLink={
+        backLink ||
+        `/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}`
+      }
+      crumbs={
+        crumbs || [dataSourceResponse?.data.name, "Edit", tableName, "Columns"]
+      }
+      isLoading={isLoading}
       footerElements={footerElements}
     >
       <>
