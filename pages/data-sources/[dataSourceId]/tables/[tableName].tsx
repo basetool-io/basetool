@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
+import { Button, ButtonGroup, Checkbox, IconButton, Tooltip } from "@chakra-ui/react";
 import {
   FilterIcon,
   PencilAltIcon,
