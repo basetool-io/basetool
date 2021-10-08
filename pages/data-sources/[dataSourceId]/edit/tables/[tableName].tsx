@@ -18,6 +18,7 @@ import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import {
   useGetTablesQuery,
+  usePrefetch,
   useUpdateTableMutation,
 } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
@@ -26,6 +27,7 @@ import DataSourcesEditLayout from "@/features/data-sources/components/DataSource
 import Link from "next/link";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
+import Shimmer from "@/components/Shimmer";
 
 function Edit() {
   const router = useRouter();
@@ -48,7 +50,7 @@ function Edit() {
       { skip: !dataSourceResponse?.data?.organizationId }
     );
 
-  const { data: tablesResponse, isFetching } = useGetTablesQuery(
+  const { data: tablesResponse } = useGetTablesQuery(
     {
       dataSourceId,
     },
@@ -121,12 +123,13 @@ function Edit() {
 
     return false;
   }, [localTable]);
+  const prefetchColumns = usePrefetch("getColumns");
 
   return (
     <DataSourcesEditLayout
       backLink={`/data-sources/${router.query.dataSourceId}`}
       crumbs={[dataSourceResponse?.data.name, "Edit", table?.name]}
-      isLoading={isFetching || rolesAreFetching || dataSourceIsLoading}
+      isLoading={dataSourceIsLoading}
       footerElements={{
         center: (
           <Button
@@ -145,7 +148,18 @@ function Edit() {
             href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
             passHref
           >
-            <Button as="a" colorScheme="purple" size="xs" variant="outline">
+            <Button
+              as="a"
+              colorScheme="purple"
+              size="xs"
+              variant="outline"
+              onMouseEnter={() =>
+                prefetchColumns({
+                  dataSourceId,
+                  tableName,
+                })
+              }
+            >
               Edit columns
             </Button>
           </Link>
@@ -204,42 +218,47 @@ function Edit() {
                     >
                       <FormControl id="access">
                         <FormLabel>Access by role</FormLabel>
-                        <CheckboxGroup size="md" colorScheme="gray">
-                          <Checkbox
-                            isChecked={allRolesChecked}
-                            isDisabled={localTable.hidden}
-                            onChange={(e) =>
-                              setLocalTable({
-                                ...localTable,
-                                authorizedRoles: e.target.checked
-                                  ? null
-                                  : roles.map(({ name }) => name),
-                              })
-                            }
-                          >
-                            All roles
-                          </Checkbox>
-                          {!allRolesChecked && (
-                            <Stack pl={6} mt={1} spacing={1}>
-                              {roles &&
-                                roles.map((role: Role) => (
-                                  <div key={role.name}>
-                                    <Checkbox
-                                      id={`role_authorization_${role.name}`}
-                                      isChecked={localTable?.authorizedRoles?.includes(
-                                        role.name
-                                      )}
-                                      isDisabled={localTable.hidden}
-                                      onChange={() => toggleChecked(role.name)}
-                                      className="hidden"
-                                    >
-                                      {role.name}
-                                    </Checkbox>
-                                  </div>
-                                ))}
-                            </Stack>
-                          )}
-                        </CheckboxGroup>
+                        {rolesAreFetching && <Shimmer width={85} height={22} />}
+                        {rolesResponse?.ok && (
+                          <CheckboxGroup size="md" colorScheme="gray">
+                            <Checkbox
+                              isChecked={allRolesChecked}
+                              isDisabled={localTable.hidden}
+                              onChange={(e) =>
+                                setLocalTable({
+                                  ...localTable,
+                                  authorizedRoles: e.target.checked
+                                    ? null
+                                    : roles.map(({ name }) => name),
+                                })
+                              }
+                            >
+                              All roles
+                            </Checkbox>
+                            {!allRolesChecked && (
+                              <Stack pl={6} mt={1} spacing={1}>
+                                {roles &&
+                                  roles.map((role: Role) => (
+                                    <div key={role.name}>
+                                      <Checkbox
+                                        id={`role_authorization_${role.name}`}
+                                        isChecked={localTable?.authorizedRoles?.includes(
+                                          role.name
+                                        )}
+                                        isDisabled={localTable.hidden}
+                                        onChange={() =>
+                                          toggleChecked(role.name)
+                                        }
+                                        className="hidden"
+                                      >
+                                        {role.name}
+                                      </Checkbox>
+                                    </div>
+                                  ))}
+                              </Stack>
+                            )}
+                          </CheckboxGroup>
+                        )}
                       </FormControl>
                     </OptionWrapper>
 

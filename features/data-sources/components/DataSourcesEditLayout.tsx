@@ -49,13 +49,6 @@ const DataSourcesEditLayout = ({
   backLink ||= `/data-sources/${router.query.dataSourceId}/`;
   crumbs ||= [dataSourceResponse?.data?.name, "Edit"];
 
-  const { isFetching: rolesAreFetching } = useGetRolesQuery(
-    {
-      organizationId: dataSourceResponse?.data?.organizationId,
-    },
-    { skip: !dataSourceResponse?.data?.organizationId }
-  );
-
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
     useRemoveDataSourceMutation();
 
@@ -74,7 +67,7 @@ const DataSourcesEditLayout = ({
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
-        isLoading={rolesAreFetching || dataSourceIsLoading || isLoading}
+        isLoading={dataSourceIsLoading || isLoading}
         error={dataSourceError}
         crumbs={crumbs}
         footerElements={merge(
@@ -99,7 +92,7 @@ const DataSourcesEditLayout = ({
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r">
-            <DataSourceEditSidebar dataSourceId={dataSourceId} />
+            <DataSourceEditSidebar />
           </div>
           {children && children}
           {!children && (

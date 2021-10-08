@@ -73,13 +73,12 @@ function ColumnEdit() {
   const tableName = router.query.tableName as string;
   const columnName = router.query.columnName as string;
 
-  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery(
-      { dataSourceId },
-      {
-        skip: !dataSourceId,
-      }
-    );
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
   const setColumnOptions = async (
     column: Column,
@@ -119,11 +118,7 @@ function ColumnEdit() {
     setLocalColumn(newColumn);
   };
 
-  const {
-    data: columnsResponse,
-    error,
-    isFetching: columnsAreFetching,
-  } = useGetColumnsQuery(
+  const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
       tableName,
@@ -171,7 +166,7 @@ function ColumnEdit() {
         setColumnOptions(localColumn, { "baseOptions.nullValues": [""] });
       }
     }
-  }, [localColumn?.baseOptions?.required, column?.baseOptions?.nullable]);
+  }, [localColumn?.baseOptions?.required, localColumn?.baseOptions?.nullable]);
 
   const diff = useMemo(() => {
     if (!localColumn) return {};
@@ -240,7 +235,6 @@ function ColumnEdit() {
 
   return (
     <TableColumnsEditLayout
-      isLoading={dataSourceIsLoading || columnsAreFetching}
       crumbs={[
         dataSourceResponse?.data.name,
         "Edit",
