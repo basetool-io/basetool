@@ -4,6 +4,7 @@ import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
+import { isUndefined } from "lodash";
 import { useFilters } from "@/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import React, { memo } from "react";
@@ -76,7 +77,8 @@ const Filter = ({
         condition = StringFilterConditions.is;
         break;
     }
-    if (parentIdx) {
+
+    if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       newFilters[idx] = {
@@ -101,7 +103,7 @@ const Filter = ({
   };
 
   const changeFilterCondition = (condition: FilterConditions) => {
-    if (parentIdx) {
+    if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       newFilters[idx] = {
@@ -122,7 +124,7 @@ const Filter = ({
   };
 
   const changeFilterValue = (value: string) => {
-    if (parentIdx) {
+    if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       newFilters[idx] = {
@@ -143,7 +145,7 @@ const Filter = ({
   };
 
   const changeFilterVerb = (verb: FilterVerb) => {
-    if (parentIdx) {
+    if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       newFilters.forEach(
@@ -167,7 +169,7 @@ const Filter = ({
   };
 
   const removeFilterMethod = () => {
-    if (parentIdx) {
+    if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       if (newFilters.length > 1) {

@@ -20,10 +20,7 @@ const GroupFiltersPanel = (
   }: { columns: Column[]; verb: FilterVerb; filters: IFilter[]; idx: number },
   ref: any
 ) => {
-  // const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
-  const { filters, setFilters, removeFilter, updateFilter } = useFilters();
-
-  // const [localFilters, setLocalFilters] = useState<IFilter[]>(initialFilters);
+  const { filters, removeFilter, updateFilter } = useFilters();
 
   const addFilter = () => {
     const filter: IFilter = {
@@ -33,8 +30,6 @@ const GroupFiltersPanel = (
       value: "",
       verb: groupFilters.length > 1 ? groupFilters[1].verb : FilterVerbs.and,
     };
-
-    // setLocalFilters([...localFilters, filter]);
 
     const groupFilter = filters[parentIdx] as IFilterGroup;
     const newFilters = [...groupFilter.filters, filter];
@@ -56,15 +51,6 @@ const GroupFiltersPanel = (
     });
   };
 
-  // useEffect(() => {
-  //   const groupFilter = filters[parentIdx] as IFilterGroup;
-
-  //   updateFilter(parentIdx, {
-  //     ...groupFilter,
-  //     filters: localFilters,
-  //   });
-  // }, [localFilters])
-
   return (
     <div className="flex">
       <div className="align-top pt-4">
@@ -74,7 +60,7 @@ const GroupFiltersPanel = (
           </Button>
         </Tooltip>
       </div>
-      <FormControl id="verb" className="min-w-[75px] max-w-[75px] pt-4 mr-1">
+      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[75px] max-w-[75px] pt-2 mr-1" : "min-w-[75px] max-w-[75px] pt-4 mr-1"}>
         {parentIdx === 0 && (
           <div className="text-gray-800 text-right text-sm font-mono">
             where

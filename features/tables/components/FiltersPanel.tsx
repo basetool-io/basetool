@@ -66,7 +66,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
           )}
           {isEmpty(filters) ||
             filters.map((filter, idx) => {
-              if (filter?.isGroup) {
+              if ("isGroup" in filter && filter.isGroup) {
                 return (
                   <GroupFiltersPanel
                     key={idx}
