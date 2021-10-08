@@ -2,6 +2,7 @@ import { Button, FormControl, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
+import { useFilters } from "@/hooks";
 import Filter, {
   FilterVerb,
   FilterVerbs,
@@ -14,10 +15,12 @@ const GroupFiltersPanel = (
     columns,
     verb,
     filters: initialFilters,
-  }: { columns: Column[]; verb: FilterVerb; filters: IFilter[] },
+    idx: parentIdx,
+  }: { columns: Column[]; verb: FilterVerb; filters: IFilter[]; idx: number },
   ref: any
 ) => {
   // const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
+  const { removeFilter, updateFilter } = useFilters();
 
   const [filters, setFilters] = useState<IFilter[]>(initialFilters);
 
@@ -34,30 +37,15 @@ const GroupFiltersPanel = (
     setFilters([...filters, filter]);
   };
 
-  // const addFilterGroup = () => {
-  //   const filter: IFilterGroup = {
-  //     isGroup: true,
-  //     verb: FilterVerbs.and,
-  //     filters: [
-  //       {
-  //         columnName: columns[0].name,
-  //         columnLabel: columns[0].label,
-  //         column: columns[0],
-  //         condition: IntFilterConditions.is,
-  //         value: "",
-  //         verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
-  //       },
-  //     ],
-  //   };
-
-  //   setFilters([...filters, filter]);
-  // };
+  const removeFilterGroup = () => {
+    removeFilter(parentIdx);
+  }
 
   return (
     <div className="flex">
       <div className="align-top pt-4">
-        <Tooltip label="Remove filter">
-          <Button size="xs" variant="link">
+        <Tooltip label="Remove filter group">
+          <Button size="xs" variant="link" onClick={() => removeFilterGroup()}>
             <XIcon className="h-5 text-gray-700" />
           </Button>
         </Tooltip>
@@ -74,6 +62,7 @@ const GroupFiltersPanel = (
             {filters.map((filter, idx) => (
               <Filter
                 key={idx}
+                parentIdx={parentIdx}
                 idx={idx}
                 columns={columns}
                 filter={filter as IFilter}

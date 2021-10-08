@@ -71,7 +71,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
           {isEmpty(filters) ||
             filters.map((filter, idx) => {
               if(filter?.isGroup) {
-                return <GroupFiltersPanel columns={columns} verb={(filter as IFilterGroup).verb} filters={(filter as IFilter[]).filters}></GroupFiltersPanel>
+                return <GroupFiltersPanel key={idx} idx={idx} columns={columns} verb={(filter as IFilterGroup).verb} filters={(filter as IFilterGroup).filters}></GroupFiltersPanel>
               } else {
                 return <Filter key={idx} idx={idx} columns={columns} filter={filter as IFilter} />
               }

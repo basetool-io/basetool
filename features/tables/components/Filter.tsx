@@ -34,7 +34,7 @@ export type IFilter = {
 export type IFilterGroup = {
   isGroup: boolean;
   verb: FilterVerb;
-  filters: Array<IFilter | IFilterGroup>;
+  filters: IFilter[];
 };
 
 const CONDITIONS_WITHOUT_VALUE = [
@@ -54,10 +54,12 @@ const Filter = ({
   columns,
   filter,
   idx,
+  parentIdx,
 }: {
   columns: Column[];
   filter: IFilter;
   idx: number;
+  parentIdx?: number;
 }) => {
   const { removeFilter, updateFilter } = useFilters();
   // const verb = useMemo(() => (idx === 0 ? "where" : "and"), [idx]);
