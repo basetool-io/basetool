@@ -239,10 +239,9 @@ function TablesShow() {
             )}
             <div className="flex flex-shrink-0">
               <ButtonGroup
-                size="sm"
+                size="xs"
+                variant="outline"
                 isAttached
-                colorScheme="gray"
-                variant="solid"
               >
                 <Button
                   onClick={() => toggleFiltersPanelVisible()}
