@@ -84,9 +84,9 @@ const GroupFiltersPanel = (
       </FormControl>
       <div
         ref={ref}
-        className="border flex flex-1 rounded-md bg-white z-20 min-w-[20rem] min-h-[6rem] p-2"
+        className="border flex flex-1 bg-white z-20 min-w-[20rem] min-h-[3rem] p-2"
       >
-        <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-4">
+        <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-2">
           <div className="space-y-4">
             {groupFilters.map((filter, idx) => (
               <Filter

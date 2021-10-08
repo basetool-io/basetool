@@ -54,7 +54,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
       ref={ref}
       className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[25rem] min-h-[6rem] mt-8 p-4"
     >
-      <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-4">
+      <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-3">
         <div className="space-y-4">
           {isEmpty(filters) && (
             <div>
