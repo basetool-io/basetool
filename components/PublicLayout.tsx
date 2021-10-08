@@ -1,11 +1,9 @@
 import { inProduction } from "@/lib/environment";
 import { useIntercom } from "react-use-intercom";
 import { useSession } from "next-auth/client";
-import Favicons from "./Favicons"
-import Head from "next/head";
+import HeadSection from "./HeadSection";
 import React, { ReactNode, useEffect } from "react";
 import classNames from "classnames";
-import meta from "@/lib/siteMeta";
 
 function Layout({ children }: { children: ReactNode }) {
   const [session, sessionIsLoading] = useSession();
@@ -30,23 +28,7 @@ function Layout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <Head>
-        <title>{meta.title} 👋</title>
-        <meta name="description" content={meta.description} />
-        <meta name="twitter:title" content={meta.title} />
-        <meta name="twitter:description" content={meta.description} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content={meta.twitter.handle} />
-        <meta name="twitter:image" content={meta.imagePath} />
-        <meta property="og:title" content={meta.title} />
-        <meta property="og:description" content={meta.description} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={meta.url} />
-        <meta property="og:image" content={meta.imagePath} />
-        <meta property="og:image:width" content="1376" />
-        <meta property="og:image:height" content="604" />
-        <Favicons />
-      </Head>
+      <HeadSection />
       <div className="flex w-screen h-screen">
         <div
           className={classNames(
