@@ -61,7 +61,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     tables: req.body.tables,
   });
 
-  const result = await prisma.dataSource.update({
+  await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
@@ -78,16 +78,16 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  return res.json(ApiResponse.withData(result, { message: "Updated" }));
+  return res.json(ApiResponse.withMessage("Updated"));
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
-  const user = await getUserFromRequest(req)
+  const user = await getUserFromRequest(req);
   const dataSource = await prisma.dataSource.findFirst({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
-    }
-  })
+    },
+  });
 
   await prisma.dataSource.delete({
     where: {

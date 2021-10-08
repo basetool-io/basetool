@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
 import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import email from "@/lib/email";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -42,22 +43,26 @@ const handler = async (
     organization: payload.organization,
   };
 
-  await createUser(data);
+  const user = await createUser(data);
 
   try {
+    serverSegment().track({
+      userId: user ? user?.id : "",
+      event: "User registered",
+      properties: {},
+    });
+
     await email.send({
       to: ["adrian@basetool.io", "david@basetool.io"],
       subject: "New user signup",
       text: `New user with email ${payload.email} and organization ${payload.organization}`,
     });
-
-  } catch (error: any){
+  } catch (error: any) {
     logger.error({
       msg: `Failed to send registration email.`,
       error,
-    })
+    });
   }
-
 
   return res.json(ApiResponse.withMessage(successMessage));
 };
