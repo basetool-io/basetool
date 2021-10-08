@@ -3,26 +3,29 @@ import { getLabel } from "@/features/data-sources";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
-import React, { memo, useMemo } from "react";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import React, { memo } from "react";
 
 const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
   const router = useRouter();
   dataSourceId ||= router.query.dataSourceId as string;
-
-  const { data } = useGetTablesQuery(
+  const { data, isLoading } = useGetTablesQuery(
     {
       dataSourceId,
     },
     { skip: !dataSourceId }
   );
 
-  const tables = useMemo(() => (data?.ok ? data?.data : []), [data?.data]);
-
   return (
     <div className="w-full relative p-4">
-      <div className="mb-2 font-semibold text-gray-500">Tables</div>
-      {tables &&
-        tables.map((table: ListTable) => {
+      <div className="relative flex-1 mb-2 font-semibold text-gray-500">Tables</div>
+      {isLoading && (
+        <div className="flex-1 min-h-full">
+          <LoadingOverlay transparent={true} subTitle={false} />
+        </div>
+      )}
+      {data?.ok &&
+        data?.data.map((table: ListTable) => {
           return (
             <ColumnListItem
               key={table.name}

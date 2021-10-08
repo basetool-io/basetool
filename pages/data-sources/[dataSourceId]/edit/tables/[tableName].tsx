@@ -26,6 +26,7 @@ import DataSourcesEditLayout from "@/features/data-sources/components/DataSource
 import Link from "next/link";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
+import Shimmer from "@/components/Shimmer"
 
 function Edit() {
   const router = useRouter();
@@ -48,7 +49,7 @@ function Edit() {
       { skip: !dataSourceResponse?.data?.organizationId }
     );
 
-  const { data: tablesResponse, isFetching } = useGetTablesQuery(
+  const { data: tablesResponse } = useGetTablesQuery(
     {
       dataSourceId,
     },
@@ -126,7 +127,7 @@ function Edit() {
     <DataSourcesEditLayout
       backLink={`/data-sources/${router.query.dataSourceId}`}
       crumbs={[dataSourceResponse?.data.name, "Edit", table?.name]}
-      isLoading={isFetching || rolesAreFetching || dataSourceIsLoading}
+      isLoading={dataSourceIsLoading}
       footerElements={{
         center: (
           <Button
@@ -204,7 +205,8 @@ function Edit() {
                     >
                       <FormControl id="access">
                         <FormLabel>Access by role</FormLabel>
-                        <CheckboxGroup size="md" colorScheme="gray">
+                        {rolesAreFetching && <Shimmer width={85} height={22} />}
+                        {rolesResponse?.ok && <CheckboxGroup size="md" colorScheme="gray">
                           <Checkbox
                             isChecked={allRolesChecked}
                             isDisabled={localTable.hidden}
@@ -239,7 +241,7 @@ function Edit() {
                                 ))}
                             </Stack>
                           )}
-                        </CheckboxGroup>
+                        </CheckboxGroup>}
                       </FormControl>
                     </OptionWrapper>
 
