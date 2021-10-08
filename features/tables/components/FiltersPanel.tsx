@@ -1,11 +1,20 @@
 import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import {
+  FolderAddIcon,
+  PlusIcon,
+  ReceiptRefundIcon,
+} from "@heroicons/react/outline";
 import { IntFilterConditions } from "./IntConditionComponent";
-import { PlusIcon, ReceiptRefundIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import Filter, { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
+import Filter, {
+  FilterVerbs,
+  IFilter,
+  IFilterGroup,
+} from "@/features/tables/components/Filter";
+import GroupFiltersPanel from "./GroupFiltersPanel";
 import React, { forwardRef } from "react";
-import isEmpty from "lodash/isEmpty"
+import isEmpty from "lodash/isEmpty";
 
 const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
@@ -23,36 +32,71 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
     setFilters([...filters, filter]);
   };
 
+  const addFilterGroup = () => {
+    const filter: IFilterGroup = {
+      isGroup: true,
+      verb: FilterVerbs.and,
+      filters: [
+        {
+          columnName: columns[0].name,
+          columnLabel: columns[0].label,
+          column: columns[0],
+          condition: IntFilterConditions.is,
+          value: "",
+          verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
+        },
+      ],
+    };
+
+    setFilters([...filters, filter]);
+  };
+
   return (
-    <div ref={ref} className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[40rem] min-h-[6rem] mt-8 p-4">
+    <div
+      ref={ref}
+      className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[40rem] min-h-[6rem] mt-8 p-4"
+    >
       <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-4">
         <div className="space-y-4">
           {/* <pre>{JSON.stringify(filters, null, 2)}</pre> */}
           {/* <pre>{JSON.stringify(appliedFilters, null, 2)}</pre> */}
-          {isEmpty(filters) && <div>
-            No filters applied to this view
-            <div className="text-sm text-gray-600">Add a filter from the button below</div>
-          </div>}
+          {isEmpty(filters) && (
+            <div>
+              No filters applied to this view
+              <div className="text-sm text-gray-600">
+                Add a filter from the button below
+              </div>
+            </div>
+          )}
           {isEmpty(filters) ||
-            filters.map((filter, idx) => (
-              <Filter
-                key={idx}
-                idx={idx}
-                columns={columns}
-                filter={filter}
-              />
-            ))}
+            filters.map((filter, idx) => {
+              if(filter?.isGroup) {
+                return <GroupFiltersPanel columns={columns} verb={(filter as IFilterGroup).verb} filters={(filter as IFilter[]).filters}></GroupFiltersPanel>
+              } else {
+                return <Filter key={idx} idx={idx} columns={columns} filter={filter as IFilter} />
+              }
+            })}
         </div>
-        <hr/>
+        <hr />
         <div className="flex justify-between">
-          <Button
-            size="sm"
-            colorScheme="gray"
-            onClick={addFilter}
-            leftIcon={<PlusIcon className="h-4 text-gray-600" />}
-          >
-            Add a filter
-          </Button>
+          <div className="space-x-2">
+            <Button
+              size="sm"
+              colorScheme="gray"
+              onClick={addFilter}
+              leftIcon={<PlusIcon className="h-4 text-gray-600" />}
+            >
+              Add a filter
+            </Button>
+            <Button
+              size="sm"
+              colorScheme="gray"
+              onClick={addFilterGroup}
+              leftIcon={<FolderAddIcon className="h-4 text-gray-600" />}
+            >
+              Add a filter group
+            </Button>
+          </div>
           <Button
             size="sm"
             colorScheme="blue"

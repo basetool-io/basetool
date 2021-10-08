@@ -27,6 +27,14 @@ export type IFilter = {
   condition: FilterConditions;
   value: string;
   verb: FilterVerb;
+  // isInGroup: boolean;
+  // parentName?: string;
+};
+
+export type IFilterGroup = {
+  isGroup: boolean;
+  verb: FilterVerb;
+  filters: Array<IFilter | IFilterGroup>;
 };
 
 const CONDITIONS_WITHOUT_VALUE = [
