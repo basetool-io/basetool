@@ -28,13 +28,11 @@ const MobileRow = ({
   dataSourceId,
   tableName,
   prepareRow,
-  index,
 }: {
   row: Row<any>;
   dataSourceId: string;
   tableName: string;
   prepareRow: (row: Row) => void;
-  index: number;
 }) => {
   const prefetchRecord = usePrefetch("getRecord");
   prepareRow(row);
@@ -54,10 +52,9 @@ const MobileRow = ({
           });
         }
       }}
-      className={classNames("flex flex-col w-full hover:bg-gray-100 border-b", {
-        "bg-white": index % 2 === 0,
-        "bg-gray-50": index % 2 !== 0,
-      })}
+      className={classNames(
+        "flex flex-col w-full hover:bg-gray-100 bg-white"
+      )}
     >
       <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
         <Checkbox

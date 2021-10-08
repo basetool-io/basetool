@@ -29,23 +29,23 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const tables = (await service.runQuery("getTables")) as ListTable[];
   const storedTableData = (dataSource?.options as any)?.tables || {};
+  let newTableData = [...tables];
 
   // If we have any, we'll assign the stored data to the tables we return.
-  if (storedTableData) {
-    tables.forEach((table) => {
+  if (tables && storedTableData) {
+    newTableData = tables.map((table) => {
       if (storedTableData[table.name]) {
-        if (storedTableData[table.name].label) {
-          table.label = storedTableData[table.name].label;
-        }
-        if (storedTableData[table.name].authorizedRoles) {
-          table.authorizedRoles ||=
-            storedTableData[table.name]?.authorizedRoles;
-        }
+        return {
+          ...table,
+          ...storedTableData[table.name],
+        };
+      } else {
+        return table;
       }
     });
   }
 
-  res.json(ApiResponse.withData(tables));
+  res.json(ApiResponse.withData(newTableData));
 }
 
 export default withMiddlewares(handler, {
