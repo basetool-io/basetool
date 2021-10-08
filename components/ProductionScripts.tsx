@@ -1,4 +1,4 @@
-import * as snippet from "@segment/snippet";
+import * as segmentSnippet from "@segment/snippet";
 import { inProduction } from "@/lib/environment";
 import React, { memo } from "react";
 import Script from "next/script";
@@ -12,10 +12,10 @@ function renderSnippet() {
   };
 
   if (inProduction) {
-    return snippet.min(opts);
+    return segmentSnippet.min(opts);
   }
 
-  return snippet.max(opts);
+  return segmentSnippet.max(opts);
 }
 
 function ProductionScripts() {
