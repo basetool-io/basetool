@@ -1,4 +1,4 @@
-import { Button, FormControl, Tooltip } from "@chakra-ui/react";
+import { Button, FormControl, Select, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
@@ -7,39 +7,63 @@ import Filter, {
   FilterVerb,
   FilterVerbs,
   IFilter,
+  IFilterGroup,
 } from "@/features/tables/components/Filter";
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef } from "react";
 
 const GroupFiltersPanel = (
   {
     columns,
     verb,
-    filters: initialFilters,
+    filters: groupFilters,
     idx: parentIdx,
   }: { columns: Column[]; verb: FilterVerb; filters: IFilter[]; idx: number },
   ref: any
 ) => {
   // const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
-  const { removeFilter, updateFilter } = useFilters();
+  const { filters, setFilters, removeFilter, updateFilter } = useFilters();
 
-  const [filters, setFilters] = useState<IFilter[]>(initialFilters);
+  // const [localFilters, setLocalFilters] = useState<IFilter[]>(initialFilters);
 
   const addFilter = () => {
     const filter: IFilter = {
       columnName: columns[0].name,
-      columnLabel: columns[0].label,
       column: columns[0],
       condition: IntFilterConditions.is,
       value: "",
-      verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
+      verb: groupFilters.length > 1 ? groupFilters[1].verb : FilterVerbs.and,
     };
 
-    setFilters([...filters, filter]);
+    // setLocalFilters([...localFilters, filter]);
+
+    const groupFilter = filters[parentIdx] as IFilterGroup;
+    const newFilters = [...groupFilter.filters, filter];
+    updateFilter(parentIdx, {
+      ...groupFilter,
+      filters: newFilters,
+    });
   };
 
   const removeFilterGroup = () => {
     removeFilter(parentIdx);
-  }
+  };
+
+  const changeFilterGroupVerb = (verb: FilterVerb) => {
+    const groupFilter = filters[parentIdx];
+    updateFilter(parentIdx, {
+      ...groupFilter,
+      verb,
+    });
+  };
+
+  // useEffect(() => {
+  //   const groupFilter = filters[parentIdx] as IFilterGroup;
+
+  //   updateFilter(parentIdx, {
+  //     ...groupFilter,
+  //     filters: localFilters,
+  //   });
+  // }, [localFilters])
 
   return (
     <div className="flex">
@@ -51,7 +75,33 @@ const GroupFiltersPanel = (
         </Tooltip>
       </div>
       <FormControl id="verb" className="min-w-[75px] max-w-[75px] pt-4 mr-1">
-        <div className="text-gray-800 text-right text-sm font-mono">{verb}</div>
+        {parentIdx === 0 && (
+          <div className="text-gray-800 text-right text-sm font-mono">
+            where
+          </div>
+        )}
+        {parentIdx > 1 && (
+          <div className="text-gray-800 text-right text-sm font-mono">
+            {verb}
+          </div>
+        )}
+
+        {parentIdx === 1 && (
+          <Select
+            size="sm"
+            className="font-mono"
+            value={verb}
+            onChange={(e) =>
+              changeFilterGroupVerb(e.currentTarget.value as FilterVerb)
+            }
+          >
+            {Object.entries(FilterVerbs).map(([id, label]) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        )}
       </FormControl>
       <div
         ref={ref}
@@ -59,7 +109,7 @@ const GroupFiltersPanel = (
       >
         <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-4">
           <div className="space-y-4">
-            {filters.map((filter, idx) => (
+            {groupFilters.map((filter, idx) => (
               <Filter
                 key={idx}
                 parentIdx={parentIdx}

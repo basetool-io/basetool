@@ -22,7 +22,6 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   const addFilter = () => {
     const filter: IFilter = {
       columnName: columns[0].name,
-      columnLabel: columns[0].label,
       column: columns[0],
       condition: IntFilterConditions.is,
       value: "",
@@ -35,15 +34,14 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   const addFilterGroup = () => {
     const filter: IFilterGroup = {
       isGroup: true,
-      verb: FilterVerbs.and,
+      verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
       filters: [
         {
           columnName: columns[0].name,
-          columnLabel: columns[0].label,
           column: columns[0],
           condition: IntFilterConditions.is,
           value: "",
-          verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
+          verb: FilterVerbs.and,
         },
       ],
     };
@@ -58,8 +56,6 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
     >
       <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-4">
         <div className="space-y-4">
-          {/* <pre>{JSON.stringify(filters, null, 2)}</pre> */}
-          {/* <pre>{JSON.stringify(appliedFilters, null, 2)}</pre> */}
           {isEmpty(filters) && (
             <div>
               No filters applied to this view
@@ -70,10 +66,25 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
           )}
           {isEmpty(filters) ||
             filters.map((filter, idx) => {
-              if(filter?.isGroup) {
-                return <GroupFiltersPanel key={idx} idx={idx} columns={columns} verb={(filter as IFilterGroup).verb} filters={(filter as IFilterGroup).filters}></GroupFiltersPanel>
+              if (filter?.isGroup) {
+                return (
+                  <GroupFiltersPanel
+                    key={idx}
+                    idx={idx}
+                    columns={columns}
+                    verb={(filter as IFilterGroup).verb}
+                    filters={(filter as IFilterGroup).filters}
+                  />
+                );
               } else {
-                return <Filter key={idx} idx={idx} columns={columns} filter={filter as IFilter} />
+                return (
+                  <Filter
+                    key={idx}
+                    idx={idx}
+                    columns={columns}
+                    filter={filter as IFilter}
+                  />
+                );
               }
             })}
         </div>

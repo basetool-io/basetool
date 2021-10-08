@@ -15,7 +15,6 @@ export type FilterConditions =
 export type FilterVerb = FilterVerbs;
 
 export enum FilterVerbs {
-  // where = "where",
   and = "and",
   or = "or",
 }
@@ -23,12 +22,9 @@ export enum FilterVerbs {
 export type IFilter = {
   column: Column;
   columnName: string;
-  columnLabel: string;
   condition: FilterConditions;
   value: string;
   verb: FilterVerb;
-  // isInGroup: boolean;
-  // parentName?: string;
 };
 
 export type IFilterGroup = {
@@ -61,8 +57,7 @@ const Filter = ({
   idx: number;
   parentIdx?: number;
 }) => {
-  const { removeFilter, updateFilter } = useFilters();
-  // const verb = useMemo(() => (idx === 0 ? "where" : "and"), [idx]);
+  const { filters, removeFilter, updateFilter } = useFilters();
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
@@ -81,47 +76,133 @@ const Filter = ({
         condition = StringFilterConditions.is;
         break;
     }
-    updateFilter(idx, {
-      ...filter,
-      column,
-      columnName,
-      condition,
-    });
+    if (parentIdx) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        column,
+        columnName,
+        condition,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        column,
+        columnName,
+        condition,
+      });
+    }
   };
 
   const changeFilterCondition = (condition: FilterConditions) => {
-    updateFilter(idx, {
-      ...filter,
-      condition,
-    });
+    if (parentIdx) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        condition,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        condition,
+      });
+    }
   };
 
   const changeFilterValue = (value: string) => {
-    updateFilter(idx, {
-      ...filter,
-      value,
-    });
+    if (parentIdx) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        value,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        value,
+      });
+    }
   };
 
   const changeFilterVerb = (verb: FilterVerb) => {
-    updateFilter(idx, {
-      ...filter,
-      verb,
-    });
+    if (parentIdx) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters.forEach(
+        (filter, i) =>
+          (newFilters[i] = {
+            ...groupFilter.filters[i],
+            verb,
+          })
+      );
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        verb,
+      });
+    }
+  };
+
+  const removeFilterMethod = () => {
+    if (parentIdx) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      if (newFilters.length > 1) {
+        newFilters.splice(idx, 1);
+
+        updateFilter(parentIdx, {
+          ...groupFilter,
+          filters: newFilters,
+        });
+      } else {
+        removeFilter(parentIdx);
+      }
+    } else {
+      removeFilter(idx);
+    }
   };
 
   return (
     <>
       <div className="flex w-full items-center space-x-1">
         <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilter(idx)}>
+          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
             <XIcon className="h-5 text-gray-700" />
           </Button>
         </Tooltip>
         <FormControl id="verb" className="max-w-[75px]">
-          {idx === 0 && <div className="text-gray-800 text-right text-sm font-mono">where</div>}
+          {idx === 0 && (
+            <div className="text-gray-800 text-right text-sm font-mono">
+              where
+            </div>
+          )}
           {idx > 1 && (
-            <div className="text-gray-800 text-right text-sm font-mono">{filter.verb}</div>
+            <div className="text-gray-800 text-right text-sm font-mono">
+              {filter.verb}
+            </div>
           )}
 
           {idx === 1 && (
