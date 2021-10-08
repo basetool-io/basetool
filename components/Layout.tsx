@@ -5,14 +5,12 @@ import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
-import Favicons from "./Favicons";
-import Head from "next/head";
+import HeadSection from "./HeadSection";
 import PageWrapper from "./PageWrapper";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
 import classNames from "classnames";
-import meta from "@/lib/siteMeta";
 
 function Layout({
   hideSidebar = false,
@@ -68,23 +66,7 @@ function Layout({
   return (
     <Authenticated>
       <>
-        <Head>
-          <title>{meta.title} 👋</title>
-          <meta name="description" content={meta.description} />
-          <meta name="twitter:title" content={meta.title} />
-          <meta name="twitter:description" content={meta.description} />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:site" content={meta.twitter.handle} />
-          <meta name="twitter:image" content={meta.imagePath} />
-          <meta property="og:title" content={meta.title} />
-          <meta property="og:description" content={meta.description} />
-          <meta property="og:type" content="website" />
-          <meta property="og:url" content={meta.url} />
-          <meta property="og:image" content={meta.imagePath} />
-          <meta property="og:image:width" content="1376" />
-          <meta property="og:image:height" content="604" />
-          <Favicons />
-        </Head>
+        <HeadSection />
         <div className="antialiased flex w-screen h-screen">
           <DataSourcesSidebar />
           <div
