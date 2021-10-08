@@ -53,7 +53,7 @@ const GroupFiltersPanel = (
 
   return (
     <div className="flex">
-      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[60px] max-w-[60px] pt-2 mr-1" : "min-w-[65px] max-w-[65px] pt-3 mr-1"}>
+      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[65px] max-w-[65px] pt-2 mr-1" : "min-w-[65px] max-w-[65px] pt-3 mr-1"}>
         {parentIdx === 0 && (
           <div className="text-gray-800 text-right text-sm font-mono">
             where
