@@ -46,7 +46,7 @@ export const getDefaultFilterCondition = (fieldType: FieldType) => {
     case "Text":
       return StringFilterConditions.is;
   }
-}
+};
 
 const CONDITIONS_WITHOUT_VALUE = [
   IntFilterConditions.is_null,
@@ -238,7 +238,14 @@ const Filter = ({
           filter={filter}
           onChange={(value: FilterConditions) => changeFilterCondition(value)}
         />
-        <div className={!isUndefined(parentIdx) ? "min-w-[100px] max-w-[100px]" : "min-w-[210px]"}>
+        <div
+          className={
+            !isUndefined(parentIdx) ||
+            !filters.find((filter) => "isGroup" in filter)
+              ? "min-w-[100px] max-w-[100px]"
+              : "min-w-[210px]"
+          }
+        >
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
               <Input
