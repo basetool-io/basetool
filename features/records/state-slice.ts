@@ -51,9 +51,7 @@ const recordsStateSlice = createSlice({
       const { idx, filter } = action.payload;
       //change all filters to the value set by idx 1
       if(idx === 1) {
-        state.filters.forEach((f) => {
-          f.verb = filter.verb;
-        })
+        state.filters.forEach(({verb}) => verb = filter.verb)
       }
       state.filters[idx] = filter;
     },
