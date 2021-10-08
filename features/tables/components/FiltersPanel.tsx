@@ -5,12 +5,12 @@ import {
   PlusIcon,
   ReceiptRefundIcon,
 } from "@heroicons/react/outline";
-import { IntFilterConditions } from "./IntConditionComponent";
 import { useFilters } from "@/hooks";
 import Filter, {
   FilterVerbs,
   IFilter,
   IFilterGroup,
+  getDefaultFilterCondition,
 } from "@/features/tables/components/Filter";
 import GroupFiltersPanel from "./GroupFiltersPanel";
 import React, { forwardRef } from "react";
@@ -23,7 +23,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
     const filter: IFilter = {
       columnName: columns[0].name,
       column: columns[0],
-      condition: IntFilterConditions.is,
+      condition: getDefaultFilterCondition(columns[0].fieldType),
       value: "",
       verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
     };
@@ -39,7 +39,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
         {
           columnName: columns[0].name,
           column: columns[0],
-          condition: IntFilterConditions.is,
+          condition: getDefaultFilterCondition(columns[0].fieldType),
           value: "",
           verb: FilterVerbs.and,
         },

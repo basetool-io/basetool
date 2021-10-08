@@ -5,7 +5,6 @@ import {
   IconButton,
   Tooltip,
 } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
 import {
   FilterIcon,
   PencilAltIcon,

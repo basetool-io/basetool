@@ -1,6 +1,6 @@
 import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
+import { Column, FieldType } from "@/features/fields/types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
@@ -34,6 +34,20 @@ export type IFilterGroup = {
   filters: IFilter[];
 };
 
+export const getDefaultFilterCondition = (fieldType: FieldType) => {
+  switch (fieldType) {
+    case "Id":
+    case "Number":
+    case "Association":
+      return IntFilterConditions.is;
+    case "Boolean":
+      return BooleanFilterConditions.is_true;
+    default:
+    case "Text":
+      return StringFilterConditions.is;
+  }
+}
+
 const CONDITIONS_WITHOUT_VALUE = [
   IntFilterConditions.is_null,
   IntFilterConditions.is_not_null,
@@ -62,21 +76,7 @@ const Filter = ({
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
-    let condition;
-    switch (column.fieldType) {
-      case "Id":
-      case "Number":
-      case "Association":
-        condition = IntFilterConditions.is;
-        break;
-      case "Boolean":
-        condition = BooleanFilterConditions.is_true;
-        break;
-      default:
-      case "Text":
-        condition = StringFilterConditions.is;
-        break;
-    }
+    const condition = getDefaultFilterCondition(column.fieldType);
 
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
