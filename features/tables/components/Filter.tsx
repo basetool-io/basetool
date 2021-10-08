@@ -190,7 +190,7 @@ const Filter = ({
   return (
     <>
       <div className="flex w-full items-center space-x-1">
-        <FormControl id="verb" className="max-w-[75px]">
+        <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
           {idx === 0 && (
             <div className="text-gray-800 text-right text-sm font-mono">
               where
@@ -219,7 +219,7 @@ const Filter = ({
             </Select>
           )}
         </FormControl>
-        <FormControl id="columns">
+        <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
           <Select
             size="xs"
             className="font-mono"
@@ -238,7 +238,7 @@ const Filter = ({
           filter={filter}
           onChange={(value: FilterConditions) => changeFilterCondition(value)}
         />
-        <div className="min-w-[150px] max-w-[150px]">
+        <div className={!isUndefined(parentIdx) ? "min-w-[100px] max-w-[100px]" : "min-w-[210px]"}>
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
               <Input

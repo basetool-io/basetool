@@ -53,7 +53,7 @@ const GroupFiltersPanel = (
 
   return (
     <div className="flex">
-      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[75px] max-w-[75px] pt-2 mr-1" : "min-w-[75px] max-w-[75px] pt-3 mr-1"}>
+      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[60px] max-w-[60px] pt-2 mr-1" : "min-w-[65px] max-w-[65px] pt-3 mr-1"}>
         {parentIdx === 0 && (
           <div className="text-gray-800 text-right text-sm font-mono">
             where
@@ -84,7 +84,7 @@ const GroupFiltersPanel = (
       </FormControl>
       <div
         ref={ref}
-        className="border flex flex-1 rounded-md bg-white z-20 min-w-[40rem] min-h-[6rem] p-2"
+        className="border flex flex-1 rounded-md bg-white z-20 min-w-[20rem] min-h-[6rem] p-2"
       >
         <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-4">
           <div className="space-y-4">
