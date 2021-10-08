@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Checkbox, Tooltip } from "@chakra-ui/react";
+import { Button, ButtonGroup, Checkbox, IconButton, Tooltip } from "@chakra-ui/react";
 import {
   FilterIcon,
   PencilAltIcon,
@@ -238,23 +238,36 @@ function TablesShow() {
               <FiltersPanel ref={filtersPanel} columns={columns} />
             )}
             <div className="flex flex-shrink-0">
-              <Button
-                onClick={() => toggleFiltersPanelVisible()}
-                variant="link"
-                ref={filtersButton}
+              <ButtonGroup
+                size="xs"
+                variant="outline"
+                isAttached
               >
-                <FilterIcon className="h-4 inline mr-1" /> Filters{" "}
-              </Button>
-              <div className="text-sm text-gray-600">
+                <Button
+                  onClick={() => toggleFiltersPanelVisible()}
+                  ref={filtersButton}
+                  leftIcon={<FilterIcon className="h-4 text-gray-600" />}
+                >
+                  <div className="text-gray-800">Filters</div>
+                  {!isEmpty(appliedFilters) && (
+                    <>
+                      <div className="text-gray-600 font-thin mr-1 ml-1">|</div>
+                      <div className="text-blue-600 font-thin">
+                        {appliedFilters.length}
+                      </div>
+                    </>
+                  )}
+                </Button>
                 {!isEmpty(appliedFilters) && (
-                  <div>
-                    ({appliedFilters.length} applied){" "}
-                    <Button size="xs" onClick={resetFilters}>
-                      <XIcon className="h-4" />
-                    </Button>
-                  </div>
+                  <Tooltip label="Reset filters">
+                    <IconButton
+                      aria-label="Remove filters"
+                      icon={<XIcon className="h-5" />}
+                      onClick={resetFilters}
+                    />
+                  </Tooltip>
                 )}
-              </div>
+              </ButtonGroup>
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">

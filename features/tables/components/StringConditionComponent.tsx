@@ -6,11 +6,13 @@ export enum StringFilterConditions {
   is = "is",
   is_not = "is_not",
   contains = "contains",
-  not_contains = "does_not_contain",
+  not_contains = "not_contains",
   starts_with = "starts_with",
   ends_with = "ends_with",
   is_empty = "is_empty",
   is_not_empty = "is_not_empty",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
 }
 
 function StringConditionComponent({

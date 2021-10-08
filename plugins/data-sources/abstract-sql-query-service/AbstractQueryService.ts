@@ -1,3 +1,4 @@
+import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Column, FieldType } from "@/features/fields/types";
 import {
   ColumnWithBaseOptions,
@@ -11,8 +12,9 @@ import {
   SqlColumnOptions,
 } from "./types";
 import { DataSource } from "@prisma/client";
-import { IFilter } from "@/features/tables/components/Filter";
+import { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
+import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
@@ -25,57 +27,92 @@ import type { Knex } from "knex";
 
 const getCondition = (filter: IFilter) => {
   switch (filter.condition) {
-    case "is":
-      return "=";
-    case StringFilterConditions.is_not:
-      return "!=";
-    case "contains":
-      return "LIKE";
-    case StringFilterConditions.not_contains:
-      return "NOT LIKE";
+    case StringFilterConditions.contains:
     case StringFilterConditions.starts_with:
-      return "LIKE";
     case StringFilterConditions.ends_with:
-      return "LIKE";
     case StringFilterConditions.is_empty:
       return "LIKE";
+    case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
-      return "LIKE";
-    case ">":
+      return "NOT LIKE";
+    case IntFilterConditions.gt:
       return ">";
-    case ">=":
+    case IntFilterConditions.gte:
       return ">=";
-    case "<":
+    case IntFilterConditions.lt:
       return "<";
-    case "<=":
+    case IntFilterConditions.lte:
       return "<=";
+    case StringFilterConditions.is_not:
+    case IntFilterConditions.is_not:
+      return "!=";
+    case StringFilterConditions.is:
+    case IntFilterConditions.is:
+    default:
+      return "=";
   }
-
-  return "=";
 };
 
 const getValue = (filter: IFilter) => {
   switch (filter.condition) {
-    case "is":
-    case StringFilterConditions.is_not:
-    default:
-      return filter.value;
-    case "contains":
+    case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
-      return `%${filter.value}`;
-    case StringFilterConditions.ends_with:
       return `${filter.value}%`;
+    case StringFilterConditions.ends_with:
+      return `%${filter.value}`;
     case StringFilterConditions.is_not_empty:
     case StringFilterConditions.is_empty:
-      return ``;
+      return "";
+    case BooleanFilterConditions.is_true:
+      return "true";
+    case BooleanFilterConditions.is_false:
+      return "false";
+    case StringFilterConditions.is:
+    case StringFilterConditions.is_not:
+    case IntFilterConditions.is:
+    case IntFilterConditions.is_not:
+    case IntFilterConditions.gt:
+    case IntFilterConditions.gte:
+    case IntFilterConditions.lt:
+    case IntFilterConditions.lte:
+    default:
+      return filter.value;
   }
-
-  return "=";
 };
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
-  query.where(filter.columnName, getCondition(filter), getValue(filter));
+  const NULL_FILTERS = [
+    StringFilterConditions.is_null,
+    IntFilterConditions.is_null,
+    BooleanFilterConditions.is_null,
+  ];
+
+  const NOT_NULL_FILTERS = [
+    StringFilterConditions.is_not_null,
+    IntFilterConditions.is_not_null,
+    BooleanFilterConditions.is_not_null,
+  ];
+
+  if (NULL_FILTERS.includes(filter.condition)) {
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhereNull(filter.columnName);
+    } else {
+      query.whereNull(filter.columnName);
+    }
+  } else if (NOT_NULL_FILTERS.includes(filter.condition)) {
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhereNotNull(filter.columnName);
+    } else {
+      query.whereNotNull(filter.columnName);
+    }
+  } else {
+    if(filter.verb === FilterVerbs.or) {
+      query.orWhere(filter.columnName, getCondition(filter), getValue(filter));
+    } else {
+      query.where(filter.columnName, getCondition(filter), getValue(filter));
+    }
+  }
 };
 
 abstract class AbstractQueryService implements IQueryService {
@@ -161,6 +198,8 @@ abstract class AbstractQueryService implements IQueryService {
     if (orderBy) {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
+
+    console.log("query->", query);
 
     return query as unknown as [];
   }

@@ -11,7 +11,7 @@ function ConditionSelect({
   onChange: (value: unknown) => void;
 }) {
   return (
-    <FormControl id="condition">
+    <FormControl id="condition" className="">
       <Select
         size="sm"
         className="font-mono"
