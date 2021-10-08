@@ -127,7 +127,8 @@ function Edit() {
 
   return (
     <DataSourcesEditLayout
-      backLink={`/data-sources/${router.query.dataSourceId}`}
+      backLink={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
+      backLabel="Back to table"
       crumbs={[dataSourceResponse?.data.name, "Edit", table?.name]}
       isLoading={dataSourceIsLoading}
       footerElements={{
@@ -143,44 +144,44 @@ function Edit() {
             Save
           </Button>
         ),
-        right: (
-          <Link
-            href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
-            passHref
-          >
-            <Button
-              as="a"
-              colorScheme="purple"
-              size="xs"
-              variant="outline"
-              onMouseEnter={() =>
-                prefetchColumns({
-                  dataSourceId,
-                  tableName,
-                })
-              }
-            >
-              Edit columns
-            </Button>
-          </Link>
-        ),
       }}
     >
       <div className="flex-1 p-4">
         {table && (
           <div className="w-full h-full flex flex-col justify-between">
             <div>
-              <div>
+              <div className="flex justify-between">
                 <h3 className="uppercase text-md font-semibold">
                   {getLabel(table)}
                 </h3>
+                <div>
+                  <Link
+                    href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
+                    passHref
+                  >
+                    <Button
+                      as="a"
+                      colorScheme="purple"
+                      size="xs"
+                      variant="outline"
+                      onMouseEnter={() =>
+                        prefetchColumns({
+                          dataSourceId,
+                          tableName,
+                        })
+                      }
+                    >
+                      Edit columns
+                    </Button>
+                  </Link>
+                </div>
               </div>
               <div className="divide-y">
                 {localTable && (
                   <form onSubmit={handleSubmit}>
                     <OptionWrapper
                       helpText={
-                        "You might want to call this table something different"
+                        "You might want to call this table something different. This label will only be visible in basetool. It will not change the table name."
                       }
                     >
                       <FormControl id="name">

@@ -5,7 +5,6 @@ import {
   useGetDataSourceQuery,
   useRemoveDataSourceMutation,
 } from "@/features/data-sources/api-slice";
-import { useGetRolesQuery } from "@/features/roles/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import DataSourceEditSidebar from "@/features/data-sources/components/DataSourceEditSidebar";
@@ -16,6 +15,7 @@ import React, { ReactElement } from "react";
 const DataSourcesEditLayout = ({
   dataSourceId,
   backLink,
+  backLabel = "Back",
   crumbs,
   isLoading = false,
   footerElements,
@@ -23,6 +23,7 @@ const DataSourcesEditLayout = ({
 }: {
   dataSourceId?: string;
   backLink?: string;
+  backLabel?: string;
   crumbs?: string[];
   isLoading?: boolean;
   footerElements?: {
@@ -87,7 +88,7 @@ const DataSourcesEditLayout = ({
           },
           footerElements
         )}
-        buttons={<BackButton href={backLink} />}
+        buttons={<BackButton href={backLink}>{backLabel}</BackButton>}
         flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
