@@ -77,7 +77,7 @@ const Filter = ({
         condition = StringFilterConditions.is;
         break;
     }
-    
+
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -185,13 +185,6 @@ const Filter = ({
     } else {
       removeFilter(idx);
     }
-  };
-
-  const changeFilterVerb = (verb: FilterVerb) => {
-    updateFilter(idx, {
-      ...filter,
-      verb,
-    });
   };
 
   return (
