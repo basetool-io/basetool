@@ -48,10 +48,8 @@ const TableColumnsEditLayout = ({
 
   return (
     <DataSourcesEditLayout
-      backLink={
-        backLink ||
-        `/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}`
-      }
+      backLink={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
+      backLabel="Back to table"
       crumbs={
         crumbs || [dataSourceResponse?.data.name, "Edit", tableName, "Columns"]
       }

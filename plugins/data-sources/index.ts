@@ -17,11 +17,6 @@ const availableDataSources = [
     enabled: true,
   },
   {
-    id: "mssql",
-    label: "MSSQL",
-    enabled: true,
-  },
-  {
     id: "maria_db",
     label: "MariaDB",
     enabled: true,
@@ -39,6 +34,12 @@ const availableDataSources = [
     comingSoon: true,
   },
   {
+    id: "mssql",
+    label: "MSSQL",
+    comingSoon: true,
+    enabled: false,
+  },
+  {
     id: "amazon_redshift",
     label: "Amazon Redshift",
     enabled: false,
@@ -51,11 +52,17 @@ const availableDataSources = [
     comingSoon: true,
   },
   {
-    id: "github",
-    label: "GitHub",
+    id: "swagger",
+    label: "Swagger",
     enabled: false,
     comingSoon: true,
   },
+  // {
+  //   id: "github",
+  //   label: "GitHub",
+  //   enabled: false,
+  //   comingSoon: true,
+  // },
 ];
 
 export {availableDataSources}

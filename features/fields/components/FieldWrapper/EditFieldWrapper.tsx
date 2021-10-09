@@ -3,7 +3,7 @@ import { Field } from "../../types";
 import { fieldId, getColumnNameLabel, iconForField } from "../..";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import { useResponsive } from "@/hooks";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, memo, useMemo } from "react";
 
 const EditFieldWrapper = ({
   field,
@@ -59,4 +59,4 @@ const EditFieldWrapper = ({
   );
 };
 
-export default EditFieldWrapper;
+export default memo(EditFieldWrapper);
