@@ -33,24 +33,26 @@ import numeral from "numeral";
 
 const DEFAULT_PER_PAGE = 24;
 
-const Cell = ({
-  row,
-  column,
-  tableName,
-}: {
-  row: Row;
-  column: { meta: BaseToolColumn };
-  tableName: string;
-}) => {
-  const field = makeField({
-    record: row.original,
-    column: column?.meta,
+const Cell = memo(
+  ({
+    row,
+    column,
     tableName,
-  });
-  const Element = getField(column.meta, Views.index);
+  }: {
+    row: Row;
+    column: { meta: BaseToolColumn };
+    tableName: string;
+  }) => {
+    const field = makeField({
+      record: row.original,
+      column: column?.meta,
+      tableName,
+    });
+    const Element = getField(column.meta, Views.index);
 
-  return <Element field={field} />;
-};
+    return <Element field={field} />;
+  }
+);
 
 const usePagination = ({ perPage }: { perPage: number }) => {
   const router = useRouter();
@@ -93,7 +95,7 @@ const usePagination = ({ perPage }: { perPage: number }) => {
     setPage(nextPageNumber);
   };
 
-  return { page, limit, offset, nextPage, previousPage };
+  return { page, limit, offset, nextPage, previousPage, setPage };
 };
 
 const RecordsTable = ({
@@ -118,7 +120,7 @@ const RecordsTable = ({
   const { encodedFilters } = useFilters();
   // @todo: per page selector
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
-  const { page, limit, offset, nextPage, previousPage } = usePagination({
+  const { page, limit, offset, nextPage, previousPage, setPage } = usePagination({
     perPage,
   });
 
@@ -265,6 +267,11 @@ const RecordsTable = ({
     resetRecordsSelection();
   }, [data]);
 
+  // Reset page to 1 when modifying filters.
+  useEffect(() => {
+    setPage(1);
+  }, [encodedFilters])
+
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
       {isFetching && (
@@ -283,150 +290,154 @@ const RecordsTable = ({
         </div>
       )}
       {tableIsVisible && (
-        <div className="flex-1 flex max-h-full w-full">
-          <div
-            className={
-              "table-widget relative divide-y divide-gray-200 overflow-auto w-full md:w-auto"
-            }
-            {...getTableProps()}
-          >
-            {isMd && (
-              <div className="bg-gray-50 rounded-t">
-                {headerGroups.map((headerGroup) => (
-                  <div {...headerGroup.getHeaderGroupProps()} className="tr">
-                    {headerGroup.headers.map((column: any) => {
-                      const isRecordSelector =
-                        column.Header === "record_selector";
+        <div
+          className={
+            "table-widget relative divide-y bg-blue-gray-100 divide-blue-gray-100 overflow-auto w-full md:w-auto"
+          }
+          {...getTableProps()}
+        >
+          {isMd && (
+            <div className="bg-blue-gray-100 rounded-t">
+              {headerGroups.map((headerGroup) => (
+                <div
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr flex group"
+                >
+                  {headerGroup.headers.map((column: any) => {
+                    const isRecordSelectorColumn =
+                      column.Header === "selector_column";
+                    const isControlsColumn =
+                      column.Header === "controls_column";
 
-                      const IconElement = column?.meta
-                        ? iconForField(column.meta)
-                        : () => "" as any;
+                    const IconElement = column?.meta
+                      ? iconForField(column.meta)
+                      : () => "" as any;
 
-                      return (
-                        <div
-                          {...column.getHeaderProps()}
-                          className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          {isRecordSelector && (
-                            <div className="flex items-center justify-center h-4">
-                              <Checkbox
-                                colorScheme="gray"
-                                isChecked={allChecked}
-                                isIndeterminate={isIndeterminate}
-                                onChange={(e: any) =>
-                                  setCheckedItems(e.target.checked)
-                                }
-                              />
-                            </div>
-                          )}
-                          {isRecordSelector || (
-                            <div
-                              className="header-content overflow-hidden whitespace-nowrap cursor-pointer"
-                              onClick={() =>
-                                !isRecordSelector &&
-                                handleOrder(column.meta.name)
+                    return (
+                      <div
+                        {...column.getHeaderProps()}
+                        className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
+                      >
+                        {isRecordSelectorColumn && (
+                          <div className="flex items-center justify-center h-4 py-4">
+                            <Checkbox
+                              colorScheme="gray"
+                              isChecked={allChecked}
+                              isIndeterminate={isIndeterminate}
+                              onChange={(e: any) =>
+                                setCheckedItems(e.target.checked)
                               }
-                            >
-                              <IconElement className="h-3 inline-block mr-2" />
-                              <span className="h-4 inline-block">
-                                <>
-                                  {column.render("Header")}
-                                  {column?.meta &&
-                                    column.meta.name === orderBy && (
-                                      <>
-                                        {orderDirection === "desc" && (
-                                          <SortDescendingIcon className="h-4 inline" />
-                                        )}
-                                        {orderDirection === "asc" && (
-                                          <SortAscendingIcon className="h-4 inline" />
-                                        )}
-                                      </>
-                                    )}
-                                </>
-                              </span>
-                            </div>
-                          )}
-                          <div
-                            {...column.getResizerProps()}
-                            className={classNames("resizer", {
-                              isResizing: column.isResizing,
-                            })}
-                          >
-                            <div className="resizer-bar" />
+                            />
                           </div>
+                        )}
+                        {isControlsColumn || isRecordSelectorColumn || (
+                          <div
+                            className="flex items-center header-content overflow-hidden whitespace-nowrap cursor-pointer py-4 h-4"
+                            onClick={() =>
+                              !isRecordSelectorColumn &&
+                              handleOrder(column.meta.name)
+                            }
+                          >
+                            <IconElement className="h-3 inline-block mr-2" />
+                            <span className="inline-block leading-none">
+                              <>
+                                {column.render("Header")}
+                                {column?.meta && column.meta.name === orderBy && (
+                                  <>
+                                    {orderDirection === "desc" && (
+                                      <SortDescendingIcon className="h-4 inline" />
+                                    )}
+                                    {orderDirection === "asc" && (
+                                      <SortAscendingIcon className="h-4 inline" />
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            </span>
+                          </div>
+                        )}
+                        <div
+                          {...column.getResizerProps()}
+                          className={classNames(
+                            "resizer group-hover:block hidden",
+                            {
+                              isResizing: column.isResizing,
+                            }
+                          )}
+                        >
+                          <div className="resizer-bar" />
                         </div>
-                      );
-                    })}
-                    <div className="relative th px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[84px]">
-                      &nbsp;
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {isMd ||
-              rows.map((row: Row<any>, index) => (
-                <RowComponent
-                  key={index}
-                  index={index}
-                  row={row}
-                  dataSourceId={dataSourceId}
-                  tableName={tableName}
-                  prepareRow={prepareRow}
-                />
+                      </div>
+                    );
+                  })}
+                </div>
               ))}
-            {isMd && (
-              <div {...getTableBodyProps()}>
-                {rows.map((row: Row<any>, index) => (
-                  <RowComponent
-                    key={index}
-                    index={index}
-                    row={row}
-                    dataSourceId={dataSourceId}
-                    tableName={tableName}
-                    prepareRow={prepareRow}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {rows.map((row: Row<any>, index) => {
+            const component = (
+              <RowComponent
+                key={index}
+                row={row}
+                dataSourceId={dataSourceId}
+                tableName={tableName}
+                prepareRow={prepareRow}
+              />
+            );
+
+            return (
+              <>
+                {isMd || component}
+                {isMd && <div {...getTableBodyProps()}>{component}</div>}
+              </>
+            );
+          })}
         </div>
       )}
       <nav
-        className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b"
+        className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
         aria-label="Pagination"
       >
-        <div className="inline-block text-gray-500 text-sm">
-          {/* @todo: show a pretty numebr (2.7K in total) */}
-          Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
-          {meta?.count
-            ? `${
-                meta.count < 1000
-                  ? meta.count
-                  : numeral(meta.count).format("0.0a")
-              } in total`
-            : ""}
-        </div>
-        <div className="flex justify-between sm:justify-end">
-          <Button
-            size="sm"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-          >
-            <ChevronLeftIcon className="h-4 text-gray-600" />
-          </Button>
-          <div className="flex items-center px-2 space-x-1">
-            <span className="text-gray-500 mr-1">page</span> {page}{" "}
-            <span className="pl-1">
-              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
-            </span>
+        <div className="flex-1 flex justify-start">
+          <div className="inline-block text-gray-500 text-sm">
+            {/* @todo: show a pretty numebr (2.7K in total) */}
+            Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
+            {meta?.count
+              ? `${
+                  meta.count < 1000
+                    ? meta.count
+                    : numeral(meta.count).format("0.0a")
+                } in total`
+              : ""}
           </div>
-          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
-            <ChevronRightIcon className="h-4 text-gray-600" />
-          </Button>
         </div>
-        <div></div>
+        <div>
+          <div className="flex justify-between sm:justify-end">
+            <Button
+              size="sm"
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+            >
+              <ChevronLeftIcon className="h-4 text-gray-600" />
+            </Button>
+            <div className="flex items-center px-2 space-x-1">
+              <span className="text-gray-500 mr-1">page</span> {page}{" "}
+              <span className="pl-1">
+                of{" "}
+                {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+            >
+              <ChevronRightIcon className="h-4 text-gray-600" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 flex justify-end"></div>
       </nav>
     </div>
   );

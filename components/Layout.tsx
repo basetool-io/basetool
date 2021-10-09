@@ -1,11 +1,12 @@
 import { inProduction } from "@/lib/environment";
+import { segment } from "@/lib/track";
 import { useIntercom } from "react-use-intercom";
+import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/client";
-import { useSidebarsVisible } from "@/hooks";
 import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
-import Head from "next/head";
+import HeadSection from "./HeadSection";
+import PageWrapper from "./PageWrapper";
 import React, { ReactNode, useEffect, useMemo } from "react";
 import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
@@ -21,19 +22,14 @@ function Layout({
   sidebar?: ReactNode;
 }) {
   const router = useRouter();
-  const [session, sessionIsLoading] = useSession();
+  const { session, isLoading: profileIsLoading } = useProfile();
   const tablesSidebarVisible = useMemo(() => {
     if (sidebar) return false;
     if (hideSidebar) return false;
 
-    if (router.pathname.includes("/profile")) return false;
-    if (router.pathname === "/data-sources") return false;
-    if (router.pathname === "/data-sources/google-sheets/new") return false;
-    if (router.pathname === "/data-sources/postgresql/new") return false;
-    if (router.pathname === "/data-sources/new") return false;
-
     return true;
   }, [router.pathname]);
+
   // temporarily returning false until we figure out a better way of injecting the sidebar with dynamic values 👇
   const settingsSidebarVisible = useMemo(
     () => false && router.pathname.includes("/settings"),
@@ -48,27 +44,30 @@ function Layout({
 
   useEffect(() => {
     // Update Intercom with the user's info
-    if (inProduction && !sessionIsLoading && session) {
+    if (inProduction && !profileIsLoading && session) {
+      // Update Intercom identification
       update({
         name: session?.user?.name,
         email: session?.user?.email,
         createdAt: session?.user?.createdAt?.toString(),
         userHash: session?.user?.intercomUserHash,
       });
+
+      // Update Segment identification
+      segment().identify(undefined, {
+        name: session?.user?.name,
+        email: session?.user?.email,
+      });
     }
-  }, [sessionIsLoading, session]);
+  }, [profileIsLoading, session]);
 
   const [sidebarsVisible] = useSidebarsVisible();
 
   return (
     <Authenticated>
       <>
-        <Head>
-          <title>👋 Basetool!</title>
-          <meta name="description" content="The Airtable to your database" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <div className="flex w-screen h-screen">
+        <HeadSection />
+        <div className="antialiased flex w-screen h-screen">
           <DataSourcesSidebar />
           <div
             className={classNames(
@@ -94,7 +93,8 @@ function Layout({
             )}
             <div className="flex-1 flex flex-col w-full h-full overflow-auto">
               <div className="relative flex flex-1 w-full max-h-full">
-                {children}
+                {profileIsLoading && <PageWrapper isLoading={true} />}
+                {profileIsLoading || children}
               </div>
             </div>
           </div>

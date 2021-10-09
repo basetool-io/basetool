@@ -1,15 +1,11 @@
 import { inProduction } from "@/lib/environment";
 import { useIntercom } from "react-use-intercom";
 import { useSession } from "next-auth/client";
-import Head from "next/head";
+import HeadSection from "./HeadSection";
 import React, { ReactNode, useEffect } from "react";
 import classNames from "classnames";
 
-function Layout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+function Layout({ children }: { children: ReactNode }) {
   const [session, sessionIsLoading] = useSession();
   const { boot, update } = useIntercom();
 
@@ -32,11 +28,7 @@ function Layout({
 
   return (
     <>
-      <Head>
-        <title>👋 Basetool!</title>
-        <meta name="description" content="The Airtable to your database" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <HeadSection />
       <div className="flex w-screen h-screen">
         <div
           className={classNames(

@@ -1,6 +1,7 @@
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { merge } from "lodash";
-import { withMiddlewares } from "@/features/api/middleware"
+import { serverSegment } from "@/lib/track";
+import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "../../../features/api/middlewares/OwnsDataSource";
@@ -31,6 +32,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       name: true,
       type: true,
       options: true,
+      organizationId: true,
     },
   });
 
@@ -49,30 +51,55 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     }
   }
 
-  const previousData = await prisma.dataSource.findUnique({
-    where: {
-      id: parseInt(req.query.dataSourceId as string, 10),
-    },
+  const dataSource = await getDataSourceFromRequest(req);
+
+  if (!dataSource) return res.status(404).send("");
+
+  const user = await getUserFromRequest(req);
+
+  const options = merge(dataSource.options, {
+    tables: req.body.tables,
   });
 
-  const result = await prisma.dataSource.update({
+  await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: {
-        tables: merge((previousData?.options as any).tables, data),
-      },
+      options,
     },
   });
 
-  return res.json(ApiResponse.withData(result, { message: "Updated" }));
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated data source",
+    properties: {
+      id: dataSource.type,
+    },
+  });
+
+  return res.json(ApiResponse.withMessage("Updated"));
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req);
+  const dataSource = await prisma.dataSource.findFirst({
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+  });
+
   await prisma.dataSource.delete({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
+    },
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Deleted data source",
+    properties: {
+      id: dataSource?.type,
     },
   });
 

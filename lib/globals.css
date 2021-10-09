@@ -244,13 +244,13 @@ svg.tea #steamR {
 }
 
 .shimmer-bg {
-  animation-duration: 2.2s;
+  animation-duration: 3.3s;
   animation-fill-mode: forwards;
   animation-iteration-count: infinite;
   animation-name: shimmer;
   animation-timing-function: linear;
   background: #ddd;
-  background: linear-gradient(to right, #ecebeb 8%, #e8e8e8 18%, #f6f6f6 33%);
+  background: linear-gradient(to right, var(--chakra-colors-gray-200) 8%, var(--chakra-colors-gray-300) 18%, var(--chakra-colors-gray-200) 33%);
   background-size: 1200px 100%;
 }
 

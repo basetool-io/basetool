@@ -1,4 +1,6 @@
 import { OWNER_ROLE } from "@/features/roles";
+import { getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import BelongsToOrganization from "@/features/api/middlewares/BelongsToOrganization";
@@ -25,11 +27,21 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     roleId: parseInt(req.body.roleId as string),
   };
 
+  const user = await getUserFromRequest(req);
+
   const result = await prisma.organizationUser.update({
     where: {
       id: parseInt(req.query.organizationUserId as string, 10),
     },
     data,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated organization user",
+    properties: {
+      organizationUserId: req.query.organizationUserId,
+    },
   });
 
   return res.json(ApiResponse.withData(result, { message: "Updated" }));
@@ -68,6 +80,16 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
           id: ownerRoleId,
         },
       },
+    },
+  });
+
+  const user = await getUserFromRequest(req);
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated organization user",
+    properties: {
+      organizationUserId: req.query.organizationUserId,
     },
   });
 

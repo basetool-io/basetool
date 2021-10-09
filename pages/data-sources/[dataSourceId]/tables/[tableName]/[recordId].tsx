@@ -1,11 +1,14 @@
-import { Button, ButtonGroup } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
-import { makeField } from "@/features/fields";
+import { getFilteredColumns, makeField } from "@/features/fields";
 import { useAccessControl } from "@/hooks";
-import { useDeleteRecordMutation, useGetRecordQuery } from "@/features/records/api-slice";
+import {
+  useDeleteRecordMutation,
+  useGetRecordQuery,
+} from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
@@ -14,8 +17,7 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo } from "react";
-import isArray from "lodash/isArray";
+import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function RecordsShow() {
@@ -41,14 +43,9 @@ function RecordsShow() {
   );
 
   const columns = useMemo(
-    () =>
-      isArray(columnsResponse?.data)
-        ? columnsResponse?.data.filter((column: Column) =>
-            column.baseOptions.visibility?.includes(Views.show)
-          )
-        : [],
+    () => getFilteredColumns(columnsResponse?.data, Views.show),
     [columnsResponse?.data]
-  ) as Column[];
+  );
 
   const record = useMemo(() => data?.data, [data?.data]);
 
@@ -69,9 +66,7 @@ function RecordsShow() {
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
   const handleDelete = async () => {
-    const confirmed = confirm(
-      "Are you sure you want to remove this record?"
-    );
+    const confirmed = confirm("Are you sure you want to remove this record?");
     if (confirmed) {
       const response = await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
@@ -81,7 +76,19 @@ function RecordsShow() {
 
       if (response?.ok) router.push(backLink);
     }
-  }
+  };
+
+  const canRead = useMemo(() => ac.readAny("record").granted, [ac]);
+
+  // Redirect to record page if the user can't read
+  useEffect(() => {
+    if (!canRead && router) {
+      router.push(`/data-sources/${dataSourceId}/tables/${tableName}`);
+    }
+  }, [canRead, router]);
+
+  // Don't show them the show page if the user can't read
+  if (!canRead) return "";
 
   return (
     <>
@@ -95,31 +102,43 @@ function RecordsShow() {
           <>
             <PageWrapper
               icon={<EyeIcon className="inline h-5 text-gray-500" />}
-              heading="View record"
+              crumbs={[router.query.tableName as string, "View record"]}
               flush={true}
-              buttons={
-                <>
-                  <ButtonGroup size="sm">
-                    <BackButton href={backLink} />
-                    { ac.deleteAny("record").granted && <>
-                    <Button isLoading={isDeleting} colorScheme="red" leftIcon={<TrashIcon className="h-4" />} onClick={handleDelete}>Delete</Button>
-                    </>}
-                    { ac.updateAny("record").granted && <>
-                    <Link
-                      href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
-                      passHref
-                    >
+              buttons={<BackButton href={backLink} />}
+              footer={
+                <PageWrapper.Footer
+                  left={
+                    ac.deleteAny("record").granted && (
                       <Button
-                        as="a"
-                        colorScheme="blue"
-                        leftIcon={<PencilAltIcon className="h-4" />}
+                        className="text-red-600 text-sm cursor-pointer"
+                        onClick={() => !isDeleting && handleDelete()}
+                        variant="link"
+                        colorScheme="red"
+                        leftIcon={<TrashIcon className="h-4" />}
                       >
-                        Edit
+                        Delete
                       </Button>
-                    </Link>
-                    </>}
-                  </ButtonGroup>
-                </>
+                    )
+                  }
+                  right={
+                    ac.updateAny("record").granted && (
+                      <Link
+                        href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                        passHref
+                      >
+                        <Button
+                          as="a"
+                          colorScheme="blue"
+                          size="sm"
+                          variant="link"
+                          leftIcon={<PencilAltIcon className="h-4" />}
+                        >
+                          Edit
+                        </Button>
+                      </Link>
+                    )
+                  }
+                />
               }
             >
               <>

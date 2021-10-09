@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, ReceiptRefundIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
-import Filter, { IFilter } from "@/features/tables/components/Filter";
+import Filter, { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty"
 
@@ -17,13 +17,14 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
       column: columns[0],
       condition: IntFilterConditions.is,
       value: "",
+      verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
     };
 
     setFilters([...filters, filter]);
   };
 
   return (
-    <div ref={ref} className="absolute border shadow-lg bg-white z-20 min-w-[40rem] min-h-[6rem] mt-8 p-4">
+    <div ref={ref} className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[40rem] min-h-[6rem] mt-8 p-4">
       <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-4">
         <div className="space-y-4">
           {/* <pre>{JSON.stringify(filters, null, 2)}</pre> */}
@@ -46,8 +47,9 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
         <div className="flex justify-between">
           <Button
             size="sm"
+            colorScheme="gray"
             onClick={addFilter}
-            leftIcon={<PlusIcon className="h-4" />}
+            leftIcon={<PlusIcon className="h-4 text-gray-600" />}
           >
             Add a filter
           </Button>

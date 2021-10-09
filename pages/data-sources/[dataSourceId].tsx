@@ -1,5 +1,6 @@
 import { isNull } from "lodash";
-import { useGetDataSourceQuery, useGetTablesQuery } from "@/features/data-sources/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice"
 import { useRouter } from "next/router";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
 import Layout from "@/components/Layout";
@@ -27,7 +28,7 @@ function DataSourcesShow() {
   return (
     <Layout>
       {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
+      {error && <div>Error: {'data' in error && (error?.data as any)?.messages[0]}</div>}
       {!isLoading && data?.ok && (
         <>
           {showSetup && <GoogleSheetsSetup />}

@@ -5,16 +5,16 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper"
+import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect } from "react";
 import fieldOptions from "./fieldOptions";
 
 function Inspector({
   column,
-  setColumnOption,
+  setColumnOptions,
 }: {
   column: Column;
-  setColumnOption: (c: Column, name: string, value: any) => void;
+  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
   const defaultOptions = fieldOptions.options ? fieldOptions.options : "";
   const initialOptions = column.fieldOptions.options
@@ -23,7 +23,7 @@ function Inspector({
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
-    setColumnOption(column, "fieldOptions.options", initialOptions);
+    setColumnOptions(column, { "fieldOptions.options": initialOptions });
   }, []);
 
   return (
@@ -37,11 +37,9 @@ function Inspector({
           required={false}
           defaultValue={initialOptions as string}
           onChange={(e) => {
-            setColumnOption(
-              column,
-              "fieldOptions.options",
-              e.currentTarget.value
-            );
+            setColumnOptions(column, {
+              "fieldOptions.options": e.currentTarget.value,
+            });
           }}
         />
         <FormHelperText>Add the values comma separated.</FormHelperText>

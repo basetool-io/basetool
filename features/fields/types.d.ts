@@ -28,11 +28,14 @@ export type ForeignKey = {
 export type BaseOptions = {
   visibility: Views[];
   nullable: boolean;
+  nullValues: any[];
   required: boolean;
   readonly: boolean;
   placeholder: string;
   help: string;
   label: string;
+  disconnected: boolean;
+  defaultValue: string;
 };
 
 export type Column<
@@ -65,4 +68,5 @@ export type EditFieldProps = {
   register: any;
   schema?: AnySchema;
   setValue?: (name: string, value: unknown, config?: unknown) => void;
+  view?: Views;
 };

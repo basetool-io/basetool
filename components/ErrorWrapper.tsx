@@ -1,7 +1,7 @@
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { IApiResponse } from "@/features/api/ApiResponse";
 import { SerializedError } from "@reduxjs/toolkit";
-import { useIntercom } from "react-use-intercom"
+import { useIntercom } from "react-use-intercom";
 import PageWrapper from "./PageWrapper";
 import React, { memo, useEffect, useMemo } from "react";
 
@@ -10,13 +10,18 @@ function ErrorWrapper({
 }: {
   error: FetchBaseQueryError | SerializedError;
 }) {
-  const { show } = useIntercom();
+  const { boot, show } = useIntercom();
   const errorData = useMemo(
     () => ("data" in error ? (error?.data as IApiResponse) : undefined),
     [error]
   );
 
-  useEffect(() => show(), [])
+  useEffect(() => {
+    try {
+      boot();
+    } catch (error) {}
+    show();
+  }, []);
 
   return (
     <PageWrapper heading="An error has occured.">
