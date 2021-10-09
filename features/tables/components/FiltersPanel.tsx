@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import { FilterVerbs } from "./VerbComponent";
 import {
   FolderAddIcon,
   PlusIcon,
@@ -7,7 +8,6 @@ import {
 } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
 import Filter, {
-  FilterVerbs,
   IFilter,
   IFilterGroup,
   getDefaultFilterCondition,

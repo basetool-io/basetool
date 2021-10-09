@@ -13,8 +13,8 @@ import {
 } from "./types";
 import { DataSource } from "@prisma/client";
 import { DateFilterConditions } from "./../../../features/tables/components/DateConditionComponent";
+import { FilterVerbs } from "@/features/tables/components/VerbComponent";
 import {
-  FilterVerbs,
   IFilter,
   IFilterGroup,
 } from "@/features/tables/components/Filter";
