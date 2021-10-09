@@ -2,9 +2,6 @@
   "name": "basetool",
   "version": "0.1.0",
   "private": true,
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -117,8 +114,8 @@
     "eslint-plugin-unused-imports": "^1.1.4",
     "ts-node": "^10.2.0",
     "typescript": "4.3.5"
-  }
- "prisma": {
+  },
+   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

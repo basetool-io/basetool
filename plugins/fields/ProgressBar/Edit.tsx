@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Input,
 } from "@chakra-ui/react";
+import { ProgressBarFieldOptions } from "./types";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -44,21 +45,26 @@ const Edit = ({
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
+      <div className="text-center text-sm font-semibold w-full leading-none mb-1">
+        <span className="js-progress-bar-value-<%= @field.id %>">
+          {field.value}
+          {(field.column.fieldOptions as ProgressBarFieldOptions).value_suffix}
+        </span>
+      </div>
       <FormControl
         isInvalid={hasError && formState.isDirty}
         isDisabled={readonly}
       >
         <Input
-          type="number"
+          type="range"
           id={fieldId(field)}
-          value={field.value}
-          min={field.column.fieldOptions.min}
-          max={field.column.fieldOptions.max}
+          min="0"
+          max={(field.column.fieldOptions as ProgressBarFieldOptions).max}
+          step={(field.column.fieldOptions as ProgressBarFieldOptions).step}
+          class="w-full"
           {...register}
           placeholder={placeholder}
-          className="text-center text-sm font-semibold w-full leading-none mb-1"
         />
-        <output>{field.value}</output>
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
           <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
