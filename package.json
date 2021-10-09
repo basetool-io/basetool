@@ -90,6 +90,7 @@
     "@types/ioredis": "^4.27.2",
     "@types/lodash": "^4.14.172",
     "@types/luxon": "^2.0.4",
+    "@types/md5": "^2.3.1",
     "@types/numeral": "^2.0.1",
     "@types/pg": "^8.6.1",
     "@types/pluralize": "^0.0.29",

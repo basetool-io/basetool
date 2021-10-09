@@ -1,6 +1,4 @@
 export type SelectFieldOptions = {
-  indexWidth: number;
-  indexHeight: number;
-  showWidth: number;
-  showHeight: number;
+  showDimensions: number;
+  indexDimensions: number;
 };
