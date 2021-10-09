@@ -18,7 +18,7 @@ import { IntFilterConditions } from "@/features/tables/components/IntConditionCo
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions, idColumns } from "@/features/fields";
+import { getBaseOptions } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
 import logger from "@/lib/logger";
@@ -95,19 +95,19 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   ];
 
   if (NULL_FILTERS.includes(filter.condition)) {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhereNull(filter.columnName);
     } else {
       query.whereNull(filter.columnName);
     }
   } else if (NOT_NULL_FILTERS.includes(filter.condition)) {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhereNotNull(filter.columnName);
     } else {
       query.whereNotNull(filter.columnName);
     }
   } else {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhere(filter.columnName, getCondition(filter), getValue(filter));
     } else {
       query.where(filter.columnName, getCondition(filter), getValue(filter));
@@ -372,10 +372,15 @@ abstract class AbstractQueryService implements IQueryService {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
+        console.log(
+          "1->",
+          storedColumn,
+          typeof this.getFieldTypeFromColumnInfo
+        );
 
         // Try and find if the user defined this type in the DB
         const fieldType =
-          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
+          storedColumn?.fieldType || this.getFieldTypeFromColumnInfo(column);
 
         return {
           ...column,
@@ -469,57 +474,13 @@ abstract class AbstractQueryService implements IQueryService {
   }
 
   abstract getClient(): Knex;
+  abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
 }
 
 const getColumnLabel = (column: { name: string }) => {
   if (column.name === "id") return "ID";
 
   return humanize(column.name);
-};
-
-const getFieldTypeFromColumnInfo = (
-  column: ColumnWithBaseOptions
-): FieldType => {
-  if (column.foreignKeyInfo) {
-    return "Association";
-  }
-
-  const { name } = column;
-  switch (column.dataSourceInfo.type) {
-    default:
-    case "character":
-    case "character varying":
-    case "interval":
-    case "name":
-      return "Text";
-    case "boolean":
-    case "bit":
-      return "Boolean";
-    case "timestamp without time zone":
-    case "timestamp with time zone":
-    case "time without time zone":
-    case "time with time zone":
-    case "date":
-      return "DateTime";
-    case "json":
-    case "jsonb":
-      return "Json";
-    case "text":
-    case "xml":
-    case "bytea":
-      return "Textarea";
-    case "integer":
-    case "bigint":
-    case "numeric":
-    case "smallint":
-    case "oid":
-    case "uuid":
-    case "real":
-    case "double precision":
-    case "money":
-      if (idColumns.includes(name)) return "Id";
-      else return "Number";
-  }
 };
 
 // @todo: optimize this to not query for the same field type twice (if you have two Text fields it will do that)
