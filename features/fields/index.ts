@@ -18,7 +18,7 @@ import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
 
-export const idColumns = ["id", "_id"];
+export const idColumns = ["id", "_id", "ID", "Id"];
 
 export const getColumnOptions = (
   column: Column

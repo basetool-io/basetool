@@ -84,15 +84,6 @@ export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
 export type SqlColumnOptions = Knex.ColumnInfo;
 
-export type MysqlCredentials = {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password?: string;
-  useSsl: boolean;
-};
-
 export type DataSourceCredentials =
   | PostgresCredentials
   | MysqlCredentials
