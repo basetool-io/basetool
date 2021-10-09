@@ -7,7 +7,7 @@ function BooleanCheck({ checked } : {checked: boolean}) {
   return (
     <>
       {checked && <CheckCircleIcon className={classes} />}
-      {checked || <XCircleIcon className={classes} />}
+      {!checked && <XCircleIcon className={classes} />}
     </>
   )
 }

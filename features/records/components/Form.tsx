@@ -15,7 +15,6 @@ import {
 } from "@/features/records/api-slice";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import ApiResponse from "@/features/api/ApiResponse";
 import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -174,7 +173,11 @@ const Form = ({
         toast.error("Not enough data.");
       }
     } catch (error: any) {
-      toast.error(error?.data?.meta?.errorMessage);
+      toast.error(error?.data?.meta?.errorMessage, {
+        // These error messages tend to be quite verbose
+        // Add and offset to the left 320 pixels
+        className: "!w-[640px] left-[-320px]",
+      });
     }
   };
 
