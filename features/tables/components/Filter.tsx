@@ -7,6 +7,7 @@ import {
   WITHIN_VALUES,
 } from "./DateConditionComponent";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { SelectFilterConditions } from "./SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
@@ -18,7 +19,8 @@ export type FilterConditions =
   | IntFilterConditions
   | StringFilterConditions
   | BooleanFilterConditions
-  | DateFilterConditions;
+  | DateFilterConditions
+  | SelectFilterConditions;
 export type FilterVerb = FilterVerbs;
 
 export enum FilterVerbs {
@@ -51,6 +53,8 @@ export const getDefaultFilterCondition = (fieldType: FieldType) => {
       return BooleanFilterConditions.is_true;
     case "DateTime":
       return DateFilterConditions.is;
+    case "Select":
+      return SelectFilterConditions.is;
     default:
     case "Text":
       return StringFilterConditions.is;
@@ -72,6 +76,10 @@ const CONDITIONS_WITHOUT_VALUE = [
   DateFilterConditions.is_not_empty,
   DateFilterConditions.is_null,
   DateFilterConditions.is_not_null,
+  SelectFilterConditions.is_empty,
+  SelectFilterConditions.is_not_empty,
+  SelectFilterConditions.is_null,
+  SelectFilterConditions.is_not_null,
 ];
 
 const Filter = ({
@@ -95,6 +103,11 @@ const Filter = ({
     if (filter.column.fieldType === "DateTime") {
         option = "today";
     }
+    
+    let value = "";
+    if (column.fieldType === "Select") {
+      value = (column?.fieldOptions?.options as string).split(",")[0].trim();
+    }
 
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
@@ -105,6 +118,7 @@ const Filter = ({
         columnName,
         condition,
         option,
+        value,
       };
 
       updateFilter(parentIdx, {
@@ -118,6 +132,7 @@ const Filter = ({
         columnName,
         condition,
         option,
+        value,
       });
     }
   };
@@ -131,6 +146,7 @@ const Filter = ({
         option = "today";
       }
     }
+
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -239,20 +255,38 @@ const Filter = ({
   };
 
   return (
-    <div className="flex w-full items-center space-x-1">
-      <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
-        {idx === 0 && (
-          <div className="text-gray-800 text-right text-sm font-mono">
-            where
-          </div>
-        )}
-        {idx > 1 && (
-          <div className="text-gray-800 text-right text-sm font-mono">
-            {filter.verb}
-          </div>
-        )}
+    <>
+      <div className="flex w-full items-center space-x-1">
+        <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
+          {idx === 0 && (
+            <div className="text-gray-800 text-right text-sm font-mono">
+              where
+            </div>
+          )}
+          {idx > 1 && (
+            <div className="text-gray-800 text-right text-sm font-mono">
+              {filter.verb}
+            </div>
+          )}
 
-        {idx === 1 && (
+          {idx === 1 && (
+            <Select
+              size="xs"
+              className="font-mono"
+              value={filter.verb}
+              onChange={(e) =>
+                changeFilterVerb(e.currentTarget.value as FilterVerb)
+              }
+            >
+              {Object.entries(FilterVerbs).map(([id, label]) => (
+                <option key={id} value={id}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          )}
+        </FormControl>
+        <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
           <Select
             size="xs"
             className="font-mono"
@@ -378,6 +412,64 @@ const Filter = ({
         </Button>
       </Tooltip>
     </div>
+      // start Main
+      /*
+        </FormControl>
+        <ConditionComponent
+          filter={filter}
+          onChange={(value: FilterConditions) => changeFilterCondition(value)}
+        />
+        <div
+          className={
+            !isUndefined(parentIdx) ||
+            !filters.find((filter) => "isGroup" in filter)
+              ? "min-w-[100px] max-w-[100px]"
+              : "min-w-[210px]"
+          }
+        >
+          {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
+            <FormControl id="value">
+              {filter.column.fieldType === "Select" &&
+                (filter.condition === SelectFilterConditions.is ||
+                  filter.condition === SelectFilterConditions.is_not) && (
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.value}
+                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                  >
+                    {filter.column?.fieldOptions?.options &&
+                      (filter.column.fieldOptions.options as any)
+                        .split(",")
+                        .map((option: string, index: number) => (
+                          <option key={index} value={option.trim()}>
+                            {option.trim()}
+                          </option>
+                        ))}
+                  </Select>
+                )}
+              {(filter.column.fieldType !== "Select" ||
+                (filter.column.fieldType === "Select" &&
+                  (filter.condition === SelectFilterConditions.contains ||
+                    filter.condition === SelectFilterConditions.not_contains))) && (
+                <Input
+                  size="xs"
+                  value={filter.value}
+                  className="font-mono"
+                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                />
+              )}
+            </FormControl>
+          )}
+        </div>
+        <Tooltip label="Remove filter">
+          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
+            <XIcon className="h-3 text-gray-700" />
+          </Button>
+        </Tooltip>
+      </div> */
+      // end Main
+    </>
   );
 };
 

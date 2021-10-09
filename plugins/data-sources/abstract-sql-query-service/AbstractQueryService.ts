@@ -21,9 +21,10 @@ import {
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
+import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions, idColumns } from "@/features/fields";
+import { getBaseOptions } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
 import logger from "@/lib/logger";
@@ -37,10 +38,12 @@ const getCondition = (filter: IFilter) => {
     case StringFilterConditions.ends_with:
     case StringFilterConditions.is_empty:
     case DateFilterConditions.is_empty:
+    case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
     case DateFilterConditions.is_not_empty:
+    case SelectFilterConditions.not_contains:
       return "NOT LIKE";
     case IntFilterConditions.gt:
       return ">";
@@ -52,9 +55,11 @@ const getCondition = (filter: IFilter) => {
       return "<=";
     case StringFilterConditions.is_not:
     case IntFilterConditions.is_not:
+    case SelectFilterConditions.is_not:
       return "!=";
     case StringFilterConditions.is:
     case IntFilterConditions.is:
+    case SelectFilterConditions.is:
     default:
       return "=";
   }
@@ -64,6 +69,8 @@ const getValue = (filter: IFilter) => {
   switch (filter.condition) {
     case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
+    case SelectFilterConditions.contains:
+    case SelectFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
       return `${filter.value}%`;
@@ -73,6 +80,8 @@ const getValue = (filter: IFilter) => {
     case StringFilterConditions.is_empty:
     case DateFilterConditions.is_not_empty:
     case DateFilterConditions.is_empty:
+    case SelectFilterConditions.is_not_empty:
+    case SelectFilterConditions.is_empty:
       return "";
     case BooleanFilterConditions.is_true:
       return "true";
@@ -86,15 +95,14 @@ const getValue = (filter: IFilter) => {
     case IntFilterConditions.gte:
     case IntFilterConditions.lt:
     case IntFilterConditions.lte:
+    case SelectFilterConditions.is:
+    case SelectFilterConditions.is_not:
     default:
       return filter.value;
   }
 };
 
-const addFiltersToQuery = (
-  query: Knex.QueryBuilder,
-  filters: Array<IFilter | IFilterGroup>
-) => {
+const addFiltersToQuery = (query: Knex.QueryBuilder, filters: Array<IFilter | IFilterGroup>) => {
   filters.forEach((filter) => {
     if ("isGroup" in filter && filter.isGroup) {
       addFilterGroupToQuery(query, filter as IFilterGroup);
@@ -109,6 +117,7 @@ const addFilterGroupToQuery = (
   filter: IFilterGroup
 ) => {
   if (filter.verb === FilterVerbs.or) {
+
     query.orWhere(function () {
       addFiltersToQuery(this, filter.filters);
     });
@@ -237,6 +246,7 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     IntFilterConditions.is_null,
     BooleanFilterConditions.is_null,
     DateFilterConditions.is_null,
+    SelectFilterConditions.is_null,
   ];
 
   const NOT_NULL_FILTERS = [
@@ -244,6 +254,7 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     IntFilterConditions.is_not_null,
     BooleanFilterConditions.is_not_null,
     DateFilterConditions.is_not_null,
+    SelectFilterConditions.is_not_null,
   ];
 
   if (NULL_FILTERS.includes(filter.condition)) {
@@ -594,10 +605,15 @@ abstract class AbstractQueryService implements IQueryService {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
+        console.log(
+          "1->",
+          storedColumn,
+          typeof this.getFieldTypeFromColumnInfo
+        );
 
         // Try and find if the user defined this type in the DB
         const fieldType =
-          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
+          storedColumn?.fieldType || this.getFieldTypeFromColumnInfo(column);
 
         return {
           ...column,
@@ -691,57 +707,13 @@ abstract class AbstractQueryService implements IQueryService {
   }
 
   abstract getClient(): Knex;
+  abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
 }
 
 const getColumnLabel = (column: { name: string }) => {
   if (column.name === "id") return "ID";
 
   return humanize(column.name);
-};
-
-const getFieldTypeFromColumnInfo = (
-  column: ColumnWithBaseOptions
-): FieldType => {
-  if (column.foreignKeyInfo) {
-    return "Association";
-  }
-
-  const { name } = column;
-  switch (column.dataSourceInfo.type) {
-    default:
-    case "character":
-    case "character varying":
-    case "interval":
-    case "name":
-      return "Text";
-    case "boolean":
-    case "bit":
-      return "Boolean";
-    case "timestamp without time zone":
-    case "timestamp with time zone":
-    case "time without time zone":
-    case "time with time zone":
-    case "date":
-      return "DateTime";
-    case "json":
-    case "jsonb":
-      return "Json";
-    case "text":
-    case "xml":
-    case "bytea":
-      return "Textarea";
-    case "integer":
-    case "bigint":
-    case "numeric":
-    case "smallint":
-    case "oid":
-    case "uuid":
-    case "real":
-    case "double precision":
-    case "money":
-      if (idColumns.includes(name)) return "Id";
-      else return "Number";
-  }
 };
 
 // @todo: optimize this to not query for the same field type twice (if you have two Text fields it will do that)
