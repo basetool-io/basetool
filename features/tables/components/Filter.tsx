@@ -1,6 +1,11 @@
 import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
+import {
+  DateFilterConditions,
+  IS_VALUES,
+  WITHIN_VALUES,
+} from "./DateConditionComponent";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
@@ -12,7 +17,8 @@ import React, { memo } from "react";
 export type FilterConditions =
   | IntFilterConditions
   | StringFilterConditions
-  | BooleanFilterConditions;
+  | BooleanFilterConditions
+  | DateFilterConditions;
 export type FilterVerb = FilterVerbs;
 
 export enum FilterVerbs {
@@ -24,6 +30,7 @@ export type IFilter = {
   column: Column;
   columnName: string;
   condition: FilterConditions;
+  option?: string;
   value: string;
   verb: FilterVerb;
 };
@@ -42,6 +49,8 @@ export const getDefaultFilterCondition = (fieldType: FieldType) => {
       return IntFilterConditions.is;
     case "Boolean":
       return BooleanFilterConditions.is_true;
+    case "DateTime":
+      return DateFilterConditions.is;
     default:
     case "Text":
       return StringFilterConditions.is;
@@ -59,6 +68,10 @@ const CONDITIONS_WITHOUT_VALUE = [
   BooleanFilterConditions.is_false,
   BooleanFilterConditions.is_null,
   BooleanFilterConditions.is_not_null,
+  DateFilterConditions.is_empty,
+  DateFilterConditions.is_not_empty,
+  DateFilterConditions.is_null,
+  DateFilterConditions.is_not_null,
 ];
 
 const Filter = ({
@@ -78,6 +91,11 @@ const Filter = ({
     const column = columns.find((c) => c.name === columnName) as Column;
     const condition = getDefaultFilterCondition(column.fieldType);
 
+    let option;
+    if (filter.column.fieldType === "DateTime") {
+        option = "today";
+    }
+
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -86,6 +104,7 @@ const Filter = ({
         column,
         columnName,
         condition,
+        option,
       };
 
       updateFilter(parentIdx, {
@@ -98,17 +117,27 @@ const Filter = ({
         column,
         columnName,
         condition,
+        option,
       });
     }
   };
 
   const changeFilterCondition = (condition: FilterConditions) => {
+    let option;
+    if (filter.column.fieldType === "DateTime") {
+      if (condition === DateFilterConditions.is_within) {
+        option = "past_week";
+      } else {
+        option = "today";
+      }
+    }
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
       newFilters[idx] = {
         ...groupFilter.filters[idx],
         condition,
+        option,
       };
 
       updateFilter(parentIdx, {
@@ -119,6 +148,28 @@ const Filter = ({
       updateFilter(idx, {
         ...filter,
         condition,
+        option,
+      });
+    }
+  };
+
+  const changeFilterOption = (option: string) => {
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        option,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        option,
       });
     }
   };
@@ -188,65 +239,116 @@ const Filter = ({
   };
 
   return (
-    <>
-      <div className="flex w-full items-center space-x-1">
-        <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
-          {idx === 0 && (
-            <div className="text-gray-800 text-right text-sm font-mono">
-              where
-            </div>
-          )}
-          {idx > 1 && (
-            <div className="text-gray-800 text-right text-sm font-mono">
-              {filter.verb}
-            </div>
-          )}
+    <div className="flex w-full items-center space-x-1">
+      <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
+        {idx === 0 && (
+          <div className="text-gray-800 text-right text-sm font-mono">
+            where
+          </div>
+        )}
+        {idx > 1 && (
+          <div className="text-gray-800 text-right text-sm font-mono">
+            {filter.verb}
+          </div>
+        )}
 
-          {idx === 1 && (
-            <Select
-              size="xs"
-              className="font-mono"
-              value={filter.verb}
-              onChange={(e) =>
-                changeFilterVerb(e.currentTarget.value as FilterVerb)
-              }
-            >
-              {Object.entries(FilterVerbs).map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          )}
-        </FormControl>
-        <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
+        {idx === 1 && (
           <Select
             size="xs"
             className="font-mono"
-            value={filter.columnName}
-            onChange={(e) => changeFilterColumn(e.currentTarget.value)}
+            value={filter.verb}
+            onChange={(e) =>
+              changeFilterVerb(e.currentTarget.value as FilterVerb)
+            }
           >
-            {columns &&
-              columns.map((column, idx) => (
-                <option key={idx} value={column.name}>
-                  {column.label}
-                </option>
-              ))}
+            {Object.entries(FilterVerbs).map(([id, label]) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
           </Select>
-        </FormControl>
-        <ConditionComponent
-          filter={filter}
-          onChange={(value: FilterConditions) => changeFilterCondition(value)}
-        />
-        <div
-          className={
-            !isUndefined(parentIdx) ||
-            !filters.find((filter) => "isGroup" in filter)
-              ? "min-w-[100px] max-w-[100px]"
-              : "min-w-[210px]"
-          }
+        )}
+      </FormControl>
+      <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
+        <Select
+          size="xs"
+          className="font-mono"
+          value={filter.columnName}
+          onChange={(e) => changeFilterColumn(e.currentTarget.value)}
         >
-          {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
+          {columns &&
+            columns.map((column, idx) => (
+              <option key={idx} value={column.name}>
+                {column.label}
+              </option>
+            ))}
+        </Select>
+      </FormControl>
+      <ConditionComponent
+        filter={filter}
+        onChange={(value: FilterConditions) => changeFilterCondition(value)}
+      />
+      <div
+        className={
+          !isUndefined(parentIdx) ||
+          !filters.find((filter) => "isGroup" in filter)
+            ? "min-w-[100px] max-w-[100px]"
+            : "min-w-[210px]"
+        }
+      >
+        {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
+          <>
+            {filter.column.fieldType === "DateTime" && (
+              <Tooltip
+                label="Dates are in server timezone (UTC)."
+                fontSize="xs"
+              >
+                <FormControl id="option">
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.option}
+                    onChange={(e) => changeFilterOption(e.currentTarget.value)}
+                  >
+                    {filter.condition !== DateFilterConditions.is_within &&
+                      Object.entries(IS_VALUES).map(([id, label]) => (
+                        <option key={id} value={id}>
+                          {label.replaceAll("_", " ")}
+                        </option>
+                      ))}
+                    {filter.condition === DateFilterConditions.is_within &&
+                      Object.entries(WITHIN_VALUES).map(([id, label]) => (
+                        <option key={id} value={id}>
+                          {label.replaceAll("_", " ")}
+                        </option>
+                      ))}
+                  </Select>
+                </FormControl>
+              </Tooltip>
+            )}
+            {filter.column.fieldType !== "DateTime" && (
+              <FormControl id="value">
+                <Input
+                  size="xs"
+                  value={filter.value}
+                  className="font-mono"
+                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                />
+              </FormControl>
+            )}
+          </>
+        )}
+      </div>
+      {filter.column.fieldType === "DateTime" &&
+        filter.option === "exact_date" && (
+          <div
+            className={
+              !isUndefined(parentIdx) ||
+              !filters.find((filter) => "isGroup" in filter)
+                ? "min-w-[100px] max-w-[100px]"
+                : "min-w-[210px]"
+            }
+          >
             <FormControl id="value">
               <Input
                 size="xs"
@@ -254,16 +356,28 @@ const Filter = ({
                 className="font-mono"
                 onChange={(e) => changeFilterValue(e.currentTarget.value)}
               />
+              {/* <DatePicker
+                // selected={placeholderValue}
+                onChange={(e) => {
+                  console.log('e->', e)
+                  const date = DateTime.fromISO(new Date(e).toISOString());
+                  console.log('date->', date.toUTC().toString())
+                }}
+                // showTimeSelect={false}
+                // locale="en-GB"
+                // timeIntervals={15}
+                // timeCaption="Time"
+                // customInput={<CustomInput />}
+              /> */}
             </FormControl>
-          )}
-        </div>
-        <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
-            <XIcon className="h-3 text-gray-700" />
-          </Button>
-        </Tooltip>
-      </div>
-    </>
+          </div>
+        )}
+      <Tooltip label="Remove filter">
+        <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
+          <XIcon className="h-3 text-gray-700" />
+        </Button>
+      </Tooltip>
+    </div>
   );
 };
 

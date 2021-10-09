@@ -328,8 +328,6 @@ You can control where the field is visible here.`}
                 <CheckboxGroup
                   value={localColumn.baseOptions.visibility}
                   onChange={(value) => {
-                    console.log("value->", value);
-
                     return setColumnOptions(localColumn, {
                       "baseOptions.visibility": value,
                     });
