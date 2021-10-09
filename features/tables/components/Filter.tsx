@@ -86,6 +86,10 @@ const Filter = ({
     const column = columns.find((c) => c.name === columnName) as Column;
     const condition = getDefaultFilterCondition(column.fieldType);
 
+    let value = "";
+    if (column.fieldType === "Select" && condition === SelectFilterConditions.is) {
+      value = (column?.fieldOptions?.options as string).split(",")[0].trim();
+    }
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -94,6 +98,7 @@ const Filter = ({
         column,
         columnName,
         condition,
+        value,
       };
 
       updateFilter(parentIdx, {
@@ -106,6 +111,7 @@ const Filter = ({
         column,
         columnName,
         condition,
+        value,
       });
     }
   };
@@ -256,24 +262,29 @@ const Filter = ({
         >
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
-              {filter.column.fieldType === "Select" && (
-                <Select
-                  size="xs"
-                  className="font-mono"
-                  defaultValue={filter.value}
-                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
-                >
-                  {filter.column?.fieldOptions?.options &&
-                    (filter.column.fieldOptions.options as any)
-                      .split(",")
-                      .map((option: string, index: number) => (
-                        <option key={index} value={option.trim()}>
-                          {option.trim()}
-                        </option>
-                      ))}
-                </Select>
-              )}
-              {filter.column.fieldType === "Select" || (
+              {filter.column.fieldType === "Select" &&
+                (filter.condition === SelectFilterConditions.is ||
+                  filter.condition === SelectFilterConditions.is_not) && (
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.value}
+                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                  >
+                    {filter.column?.fieldOptions?.options &&
+                      (filter.column.fieldOptions.options as any)
+                        .split(",")
+                        .map((option: string, index: number) => (
+                          <option key={index} value={option.trim()}>
+                            {option.trim()}
+                          </option>
+                        ))}
+                  </Select>
+                )}
+              {(filter.column.fieldType !== "Select" ||
+                (filter.column.fieldType === "Select" &&
+                  (filter.condition === SelectFilterConditions.contains ||
+                    filter.condition === SelectFilterConditions.not_contains))) && (
                 <Input
                   size="xs"
                   value={filter.value}

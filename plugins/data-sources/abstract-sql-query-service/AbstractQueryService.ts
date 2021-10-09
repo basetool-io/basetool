@@ -32,9 +32,11 @@ const getCondition = (filter: IFilter) => {
     case StringFilterConditions.starts_with:
     case StringFilterConditions.ends_with:
     case StringFilterConditions.is_empty:
+    case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
+    case SelectFilterConditions.not_contains:
       return "NOT LIKE";
     case IntFilterConditions.gt:
       return ">";
@@ -60,6 +62,8 @@ const getValue = (filter: IFilter) => {
   switch (filter.condition) {
     case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
+    case SelectFilterConditions.contains:
+    case SelectFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
       return `${filter.value}%`;
