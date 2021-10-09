@@ -16,6 +16,7 @@ import { FilterVerbs, IFilter, IFilterGroup } from "@/features/tables/components
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
+import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions } from "@/features/fields";
@@ -31,9 +32,11 @@ const getCondition = (filter: IFilter) => {
     case StringFilterConditions.starts_with:
     case StringFilterConditions.ends_with:
     case StringFilterConditions.is_empty:
+    case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
+    case SelectFilterConditions.not_contains:
       return "NOT LIKE";
     case IntFilterConditions.gt:
       return ">";
@@ -45,9 +48,11 @@ const getCondition = (filter: IFilter) => {
       return "<=";
     case StringFilterConditions.is_not:
     case IntFilterConditions.is_not:
+    case SelectFilterConditions.is_not:
       return "!=";
     case StringFilterConditions.is:
     case IntFilterConditions.is:
+    case SelectFilterConditions.is:
     default:
       return "=";
   }
@@ -57,6 +62,8 @@ const getValue = (filter: IFilter) => {
   switch (filter.condition) {
     case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
+    case SelectFilterConditions.contains:
+    case SelectFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
       return `${filter.value}%`;
@@ -64,6 +71,8 @@ const getValue = (filter: IFilter) => {
       return `%${filter.value}`;
     case StringFilterConditions.is_not_empty:
     case StringFilterConditions.is_empty:
+    case SelectFilterConditions.is_not_empty:
+    case SelectFilterConditions.is_empty:
       return "";
     case BooleanFilterConditions.is_true:
       return "true";
@@ -77,6 +86,8 @@ const getValue = (filter: IFilter) => {
     case IntFilterConditions.gte:
     case IntFilterConditions.lt:
     case IntFilterConditions.lte:
+    case SelectFilterConditions.is:
+    case SelectFilterConditions.is_not:
     default:
       return filter.value;
   }
@@ -109,12 +120,14 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     StringFilterConditions.is_null,
     IntFilterConditions.is_null,
     BooleanFilterConditions.is_null,
+    SelectFilterConditions.is_null,
   ];
 
   const NOT_NULL_FILTERS = [
     StringFilterConditions.is_not_null,
     IntFilterConditions.is_not_null,
     BooleanFilterConditions.is_not_null,
+    SelectFilterConditions.is_not_null,
   ];
 
   if (NULL_FILTERS.includes(filter.condition)) {

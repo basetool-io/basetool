@@ -2,6 +2,7 @@ import { BooleanFilterConditions } from "@/features/tables/components/BooleanCon
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
 import { Column, FieldType } from "@/features/fields/types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { SelectFilterConditions } from "./SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
@@ -12,7 +13,8 @@ import React, { memo } from "react";
 export type FilterConditions =
   | IntFilterConditions
   | StringFilterConditions
-  | BooleanFilterConditions;
+  | BooleanFilterConditions
+  | SelectFilterConditions;
 export type FilterVerb = FilterVerbs;
 
 export enum FilterVerbs {
@@ -42,6 +44,8 @@ export const getDefaultFilterCondition = (fieldType: FieldType) => {
       return IntFilterConditions.is;
     case "Boolean":
       return BooleanFilterConditions.is_true;
+    case "Select":
+      return SelectFilterConditions.is;
     default:
     case "Text":
       return StringFilterConditions.is;
@@ -59,6 +63,10 @@ const CONDITIONS_WITHOUT_VALUE = [
   BooleanFilterConditions.is_false,
   BooleanFilterConditions.is_null,
   BooleanFilterConditions.is_not_null,
+  SelectFilterConditions.is_empty,
+  SelectFilterConditions.is_not_empty,
+  SelectFilterConditions.is_null,
+  SelectFilterConditions.is_not_null,
 ];
 
 const Filter = ({
@@ -78,6 +86,10 @@ const Filter = ({
     const column = columns.find((c) => c.name === columnName) as Column;
     const condition = getDefaultFilterCondition(column.fieldType);
 
+    let value = "";
+    if (column.fieldType === "Select" && condition === SelectFilterConditions.is) {
+      value = (column?.fieldOptions?.options as string).split(",")[0].trim();
+    }
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -86,6 +98,7 @@ const Filter = ({
         column,
         columnName,
         condition,
+        value,
       };
 
       updateFilter(parentIdx, {
@@ -98,6 +111,7 @@ const Filter = ({
         column,
         columnName,
         condition,
+        value,
       });
     }
   };
@@ -248,12 +262,36 @@ const Filter = ({
         >
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
-              <Input
-                size="xs"
-                value={filter.value}
-                className="font-mono"
-                onChange={(e) => changeFilterValue(e.currentTarget.value)}
-              />
+              {filter.column.fieldType === "Select" &&
+                (filter.condition === SelectFilterConditions.is ||
+                  filter.condition === SelectFilterConditions.is_not) && (
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.value}
+                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                  >
+                    {filter.column?.fieldOptions?.options &&
+                      (filter.column.fieldOptions.options as any)
+                        .split(",")
+                        .map((option: string, index: number) => (
+                          <option key={index} value={option.trim()}>
+                            {option.trim()}
+                          </option>
+                        ))}
+                  </Select>
+                )}
+              {(filter.column.fieldType !== "Select" ||
+                (filter.column.fieldType === "Select" &&
+                  (filter.condition === SelectFilterConditions.contains ||
+                    filter.condition === SelectFilterConditions.not_contains))) && (
+                <Input
+                  size="xs"
+                  value={filter.value}
+                  className="font-mono"
+                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                />
+              )}
             </FormControl>
           )}
         </div>
