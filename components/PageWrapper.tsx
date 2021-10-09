@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { FooterElements } from "@/types"
 import { SerializedError } from "@reduxjs/toolkit";
 import { Sidebar } from "react-feather";
 import { useSidebarsVisible } from "@/hooks";
@@ -61,9 +62,9 @@ const TitleCrumbs = ({ crumbs }: { crumbs: Array<string | undefined> }) => {
           }
 
           return (
-            <span key={idx}>
+            <span key={idx} className="tracking-tight">
               {crumb}{" "}
-              <ChevronRightIcon className="h-4 text-gray-400 inline -mt-1" />{" "}
+              <ChevronRightIcon className="h-4 text-gray-400 inline -mt-0" />{" "}
             </span>
           );
         })}
@@ -75,15 +76,11 @@ const Footer = ({
   left,
   center,
   right,
-}: {
-  left?: ReactNode;
-  center?: ReactNode;
-  right?: ReactNode;
-}) => (
+}: FooterElements) => (
   <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
     <div className="flex justify-evenly items-center px-4">
       <div className="flex-1 flex justify-start">{left}</div>
-      <div>{center}</div>
+      <div className="min-h-[2rem]">{center}</div>
       <div className="flex-1 flex justify-end">{right}</div>
     </div>
   </div>
@@ -99,6 +96,7 @@ function PageWrapper({
   isLoading = false,
   className,
   footer,
+  footerElements,
   error,
 }: {
   heading?: string | ReactElement;
@@ -110,6 +108,7 @@ function PageWrapper({
   isLoading?: boolean;
   className?: string;
   footer?: ReactElement;
+  footerElements?: FooterElements;
   error?: FetchBaseQueryError | SerializedError | undefined;
 }) {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
@@ -120,7 +119,7 @@ function PageWrapper({
         className={classNames(
           "flex flex-col flex-1 px-2 pt-2 min-w-64 w-full",
           className,
-          { "pb-2": !footer }
+          { "pb-2": !footer && !footerElements }
         )}
       >
         <div
@@ -188,6 +187,13 @@ function PageWrapper({
             )}
           </div>
           {footer && footer}
+          {footerElements && (
+            <Footer
+              left={footerElements.left}
+              center={footerElements.center}
+              right={footerElements.right}
+            />
+          )}
         </div>
       </div>
     </>

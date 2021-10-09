@@ -49,6 +49,10 @@ const recordsStateSlice = createSlice({
       action: PayloadAction<{ idx: number; filter: IFilter }>
     ) {
       const { idx, filter } = action.payload;
+      //change all filters to the value set by idx 1
+      if(idx === 1) {
+        state.filters.forEach(({verb}) => verb = filter.verb)
+      }
       state.filters[idx] = filter;
     },
     toggleRecordSelection(state, action: PayloadAction<number>) {
