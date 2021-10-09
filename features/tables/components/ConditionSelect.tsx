@@ -11,9 +11,9 @@ function ConditionSelect({
   onChange: (value: unknown) => void;
 }) {
   return (
-    <FormControl id="condition" className="">
+    <FormControl id="condition" className="min-w-[120px] max-w-[120px]">
       <Select
-        size="sm"
+        size="xs"
         className="font-mono"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}

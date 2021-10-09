@@ -1,11 +1,11 @@
-import { IFilter } from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 
 interface AppState {
   records: [];
-  filters: IFilter[];
-  appliedFilters: IFilter[];
+  filters: Array<IFilter | IFilterGroup>;
+  appliedFilters: Array<IFilter | IFilterGroup>;
   orderBy: string;
   orderDirection: OrderDirection;
   filtersPanelVisible: boolean;
@@ -31,13 +31,13 @@ const recordsStateSlice = createSlice({
     },
 
     /* Filters */
-    addFilter(state, action: PayloadAction<IFilter>) {
+    addFilter(state, action: PayloadAction<IFilter | IFilterGroup>) {
       state.filters.push(action.payload);
     },
-    setFilters(state, action: PayloadAction<IFilter[]>) {
+    setFilters(state, action: PayloadAction<Array<IFilter | IFilterGroup>>) {
       state.filters = [...action.payload];
     },
-    setAppliedFilters(state, action: PayloadAction<IFilter[]>) {
+    setAppliedFilters(state, action: PayloadAction<Array<IFilter | IFilterGroup>>) {
       state.appliedFilters = [...action.payload];
     },
     removeFilter(state, action: PayloadAction<number>) {
@@ -46,7 +46,7 @@ const recordsStateSlice = createSlice({
     },
     updateFilter(
       state,
-      action: PayloadAction<{ idx: number; filter: IFilter }>
+      action: PayloadAction<{ idx: number; filter: IFilter | IFilterGroup }>
     ) {
       const { idx, filter } = action.payload;
       //change all filters to the value set by idx 1

@@ -1,4 +1,10 @@
-import { Button, ButtonGroup, Checkbox, IconButton, Tooltip } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Checkbox,
+  IconButton,
+  Tooltip,
+} from "@chakra-ui/react";
 import {
   FilterIcon,
   PencilAltIcon,
@@ -246,7 +252,7 @@ function TablesShow() {
                 <Button
                   onClick={() => toggleFiltersPanelVisible()}
                   ref={filtersButton}
-                  leftIcon={<FilterIcon className="h-4 text-gray-600" />}
+                  leftIcon={<FilterIcon className="h-3 text-gray-600" />}
                 >
                   <div className="text-gray-800">Filters</div>
                   {!isEmpty(appliedFilters) && (
@@ -262,7 +268,7 @@ function TablesShow() {
                   <Tooltip label="Reset filters">
                     <IconButton
                       aria-label="Remove filters"
-                      icon={<XIcon className="h-5" />}
+                      icon={<XIcon className="h-3" />}
                       onClick={resetFilters}
                     />
                   </Tooltip>

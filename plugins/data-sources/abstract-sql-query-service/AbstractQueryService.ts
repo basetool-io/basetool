@@ -12,7 +12,7 @@ import {
   SqlColumnOptions,
 } from "./types";
 import { DataSource } from "@prisma/client";
-import { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
+import { FilterVerbs, IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
@@ -81,6 +81,29 @@ const getValue = (filter: IFilter) => {
       return filter.value;
   }
 };
+
+const addFiltersToQuery = (query: Knex.QueryBuilder, filters: Array<IFilter | IFilterGroup>) => {
+  filters.forEach((filter) => {
+    if ("isGroup" in filter && filter.isGroup) {
+      addFilterGroupToQuery(query, filter as IFilterGroup);
+    } else {
+      addFilterToQuery(query, filter as IFilter);
+    }
+  });
+}
+
+const addFilterGroupToQuery = (query: Knex.QueryBuilder, filter: IFilterGroup) => {
+  if(filter.verb === FilterVerbs.or) {
+    query.orWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  } else {
+    query.andWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  }
+};
+
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   const NULL_FILTERS = [
     StringFilterConditions.is_null,
@@ -179,7 +202,7 @@ abstract class AbstractQueryService implements IQueryService {
     select,
   }: {
     tableName: string;
-    filters: IFilter[];
+    filters: Array<IFilter | IFilterGroup>;
     limit?: number;
     offset?: number;
     orderBy: string;
@@ -192,7 +215,7 @@ abstract class AbstractQueryService implements IQueryService {
     }
 
     if (filters) {
-      filters.forEach((filter) => addFilterToQuery(query, filter));
+      addFiltersToQuery(query, filters);
     }
 
     if (orderBy) {
@@ -209,11 +232,11 @@ abstract class AbstractQueryService implements IQueryService {
     filters,
   }: {
     tableName: string;
-    filters: IFilter[];
+    filters: Array<IFilter | IFilterGroup>;
   }): Promise<number> {
     const query = this.client.table(tableName);
     if (filters) {
-      filters.forEach((filter) => addFilterToQuery(query, filter));
+      addFiltersToQuery(query, filters);
     }
     const [{ count }] = await query.count("id", { as: "count" });
 
