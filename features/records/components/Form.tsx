@@ -4,7 +4,6 @@ import { PencilAltIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
-import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
@@ -13,13 +12,14 @@ import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
 } from "@/features/records/api-slice";
+import { useFieldComponent } from "@/hooks"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
 import type { Record } from "@/features/records/types";
@@ -212,33 +212,17 @@ const Form = ({
           <div className="w-full h-full flex-1 flex flex-col justify-between">
             <div>
               {columns &&
-                columns.map((column: Column) => {
-                  if (!formData) return null;
-
-                  const field = makeField({
-                    record: formData as Record,
-                    column,
-                    tableName: router.query.tableName as string,
-                  });
-                  let schemaForColumn;
-                  try {
-                    schemaForColumn = schema.extract(column.name);
-                  } catch (error) {}
-
-                  const Element = getField(column, Views.edit);
-
-                  return (
-                    <Element
-                      key={column.name}
-                      field={field}
-                      formState={formState}
-                      register={register}
-                      setValue={setValue}
-                      schema={schemaForColumn}
-                      view={formForCreate ? Views.new : Views.edit}
-                    />
-                  );
-                })}
+                columns.map((column: Column) => (
+                  <ColumnWrapper
+                    column={column}
+                    formData={formData}
+                    formState={formState}
+                    register={register}
+                    setValue={setValue}
+                    formForCreate={formForCreate}
+                    schema={schema}
+                  />
+                ))}
               {isCreating && <LoadingOverlay label="Creating..." />}
               {isUpdating && <LoadingOverlay label="Updating..." />}
               <input type="submit" value="Submit" className="hidden" />
@@ -250,4 +234,42 @@ const Form = ({
   );
 };
 
-export default Form;
+const ColumnWrapper = memo(({
+  column,
+  formData,
+  formState,
+  register,
+  setValue,
+  formForCreate,
+  schema,
+}: any) => {
+  const router = useRouter();
+  const getField = useFieldComponent();
+  const Element: any = useMemo(() => getField(column.fieldType, Views.edit), [column.fieldType, Views.edit]);
+
+  if (!formData) return null;
+
+  const field = makeField({
+    record: formData as Record,
+    column,
+    tableName: router.query.tableName as string,
+  });
+  let schemaForColumn;
+  try {
+    schemaForColumn = schema.extract(column.name);
+  } catch (error) {}
+
+  return (
+    <Element
+      key={column.name}
+      field={field}
+      formState={formState}
+      register={register}
+      setValue={setValue}
+      schema={schemaForColumn}
+      view={formForCreate ? Views.new : Views.edit}
+    />
+  );
+});
+
+export default memo(Form);

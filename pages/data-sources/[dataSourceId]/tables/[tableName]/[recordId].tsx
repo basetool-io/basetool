@@ -2,9 +2,8 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
-import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl } from "@/hooks";
+import { useAccessControl, useFieldComponent } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -144,16 +143,9 @@ function RecordsShow() {
               <>
                 {columns &&
                   record &&
-                  columns.map((column: Column) => {
-                    const field = makeField({
-                      record,
-                      column,
-                      tableName: router.query.tableName as string,
-                    });
-                    const Element = getField(column, Views.show);
-
-                    return <Element key={column.name} field={field} />;
-                  })}
+                  columns.map((column: Column) => (
+                    <FieldWrapper record={record} column={column} />
+                  ))}
               </>
             </PageWrapper>
           </>
@@ -162,5 +154,23 @@ function RecordsShow() {
     </>
   );
 }
+
+const FieldWrapper = ({ record, column }: any) => {
+  const router = useRouter();
+  const getField = useFieldComponent();
+
+  const field = makeField({
+    record,
+    column,
+    tableName: router.query.tableName as string,
+  });
+
+  const Element: any = useMemo(
+    () => getField(column.fieldType, Views.show),
+    [column.fieldType, Views.show]
+  );
+
+  return <Element key={column.name} field={field} />;
+};
 
 export default RecordsShow;

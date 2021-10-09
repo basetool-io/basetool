@@ -7,6 +7,7 @@ import {
 } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { Views } from "@/features/fields/enums";
 import {
   allFiltersAppliedSelector,
   appliedFiltersSelector,
@@ -21,7 +22,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
-import { segment } from "@/lib/track"
+import { segment } from "@/lib/track";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
@@ -35,6 +36,8 @@ import AccessControlService, {
   Role,
 } from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
+import EmptyComponent from "@/features/fields/components/EmptyComponent";
+import dynamic from "next/dynamic";
 import store from "@/lib/store";
 
 export const useApi = () => new ApiService();
@@ -250,7 +253,10 @@ export const useProfile = () => {
   2. At a later date; It returns the `track` method that you can use at a later date to track something.
     -> const track = useSegment()
 */
-export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
+export const useSegment = (
+  event?: string,
+  properties?: Record<string, unknown>
+) => {
   const { session, isLoading } = useProfile();
   const track = (event: string, properties?: Record<string, unknown>) =>
     segment().track(event, properties);
@@ -264,4 +270,38 @@ export const useSegment = (event?: string, properties?: Record<string, unknown>)
 
   // return the track method to be used at a later time
   return track;
+};
+
+export const useFieldComponent = () => {
+  const getField = (fieldType: string, view: Views) => {
+    const viewName = {
+      [Views.edit]: "Edit",
+      [Views.new]: "Edit",
+      [Views.show]: "Show",
+      [Views.index]: "Index",
+    };
+
+    try {
+      return dynamic(
+        () => {
+          try {
+            return import(
+              `@/plugins/fields/${fieldType}/${viewName[view]}.tsx`
+            );
+          } catch (error) {
+            // return empty component
+            return Promise.resolve(() => "");
+          }
+        },
+        {
+          loading: EmptyComponent,
+        }
+      );
+    } catch (error) {
+      // return empty component
+      return () => "";
+    }
+  };
+
+  return getField;
 };

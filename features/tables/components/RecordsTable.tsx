@@ -16,12 +16,16 @@ import {
 } from "react-table";
 import { OrderDirection } from "../types";
 import { Views } from "@/features/fields/enums";
-import { getField } from "@/features/fields/factory";
 import { iconForField, prettifyData } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { localStorageColumnWidthKey } from "..";
 import { makeField } from "@/features/fields";
-import { useFilters, useResponsive, useSelectRecords } from "@/hooks";
+import {
+  useFieldComponent,
+  useFilters,
+  useResponsive,
+  useSelectRecords,
+} from "@/hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -48,7 +52,11 @@ const Cell = memo(
       column: column?.meta,
       tableName,
     });
-    const Element = getField(column.meta, Views.index);
+    const getField = useFieldComponent();
+    const Element: any = useMemo(
+      () => getField(column.meta.fieldType, Views.index),
+      [column.meta.fieldType, Views.index]
+    );
 
     return <Element field={field} />;
   }
@@ -120,9 +128,10 @@ const RecordsTable = ({
   const { encodedFilters } = useFilters();
   // @todo: per page selector
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
-  const { page, limit, offset, nextPage, previousPage, setPage } = usePagination({
-    perPage,
-  });
+  const { page, limit, offset, nextPage, previousPage, setPage } =
+    usePagination({
+      perPage,
+    });
 
   const {
     data: recordsResponse,
@@ -270,7 +279,7 @@ const RecordsTable = ({
   // Reset page to 1 when modifying filters.
   useEffect(() => {
     setPage(1);
-  }, [encodedFilters])
+  }, [encodedFilters]);
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
@@ -317,6 +326,7 @@ const RecordsTable = ({
                       <div
                         {...column.getHeaderProps()}
                         className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
+                        key={column.id}
                       >
                         {isRecordSelectorColumn && (
                           <div className="flex items-center justify-center h-4 py-4">
