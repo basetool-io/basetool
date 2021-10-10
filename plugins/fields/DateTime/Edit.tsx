@@ -144,6 +144,12 @@ const Edit = ({
     return [localValue, false, parsed.invalidReason];
   }, [localValue, field.value]);
 
+  // classNames(
+  //   "min-w-[210px]",
+  //   { "min-w-[100px] max-w-[100px]": !isUndefined(parentIdx) || !filters.find((filter) => "isGroup" in filter) },
+  //   { "min-w-[177px]": filter?.option === "exact_date" },
+  // )
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <FormControl isInvalid={hasError || !isValid} isDisabled={readonly}>

@@ -1,5 +1,6 @@
 import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
+import { CalendarIcon, XIcon } from "@heroicons/react/outline";
 import { Column, FieldType } from "@/features/fields/types";
 import {
   DateFilterConditions,
@@ -9,11 +10,11 @@ import {
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SelectFilterConditions } from "./SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
-import { XIcon } from "@heroicons/react/outline";
-import { isUndefined } from "lodash";
+import { isArray, isDate, isUndefined } from "lodash";
 import { useFilters } from "@/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
-import React, { memo } from "react";
+import DatePicker from "react-datepicker";
+import React, { forwardRef, memo } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 export type FilterConditions =
@@ -76,6 +77,30 @@ const CONDITIONS_WITHOUT_VALUE = [
   SelectFilterConditions.is_null,
   SelectFilterConditions.is_not_null,
 ];
+
+const CustomInput = forwardRef(
+  (
+    {
+      onClick,
+    }: {
+      onClick?: (e: any) => void;
+    },
+    ref: any
+  ) => {
+    return (
+      <Button
+        size="xs"
+        borderRadius="2px"
+        onClick={onClick}
+        ref={ref}
+        className="p-0 flex h-full w-full justify-center items-center"
+      >
+        <CalendarIcon className="h-3" />
+      </Button>
+    );
+  }
+);
+CustomInput.displayName = "CustomInput";
 
 const Filter = ({
   columns,
@@ -171,6 +196,7 @@ const Filter = ({
       newFilters[idx] = {
         ...groupFilter.filters[idx],
         option,
+        value: "",
       };
 
       updateFilter(parentIdx, {
@@ -181,6 +207,7 @@ const Filter = ({
       updateFilter(idx, {
         ...filter,
         option,
+        value: "",
       });
     }
   };
@@ -249,6 +276,15 @@ const Filter = ({
     }
   };
 
+  const handleChangeDate = (date: Date | [Date | null, Date | null] | null) => {
+    const value = isArray(date) ? [date[0], date[1]] : date;
+
+    if (isDate(value)) {
+      value.setUTCHours(0, 0, 0, 0);
+      changeFilterValue(value.toUTCString());
+    }
+  };
+
   return (
     <>
       <div className="flex w-full items-center space-x-1">
@@ -308,34 +344,49 @@ const Filter = ({
                   </FormControl>
                 )}
               {filter.column.fieldType === "DateTime" && (
-                <Tooltip
-                  label="Dates are in server timezone (UTC)."
-                  fontSize="xs"
-                >
-                  <FormControl id="option">
-                    <Select
-                      size="xs"
-                      className="font-mono"
-                      defaultValue={filter.option}
-                      onChange={(e) =>
-                        changeFilterOption(e.currentTarget.value)
-                      }
+                <FormControl id="option">
+                  <div className="flex space-x-1">
+                    <Tooltip
+                      label="Dates are in server timezone (UTC)."
+                      fontSize="xs"
                     >
-                      {filter.condition !== DateFilterConditions.is_within &&
-                        Object.entries(IS_VALUES).map(([id, label]) => (
-                          <option key={id} value={id}>
-                            {label.replaceAll("_", " ")}
-                          </option>
-                        ))}
-                      {filter.condition === DateFilterConditions.is_within &&
-                        Object.entries(WITHIN_VALUES).map(([id, label]) => (
-                          <option key={id} value={id}>
-                            {label.replaceAll("_", " ")}
-                          </option>
-                        ))}
-                    </Select>
-                  </FormControl>
-                </Tooltip>
+                      <Select
+                        size="xs"
+                        className="font-mono"
+                        value={filter.option}
+                        onChange={(e) =>
+                          changeFilterOption(e.currentTarget.value)
+                        }
+                      >
+                        {filter.condition !== DateFilterConditions.is_within &&
+                          Object.entries(IS_VALUES).map(([id, label]) => (
+                            <option key={id} value={id}>
+                              {label.replaceAll("_", " ")}
+                            </option>
+                          ))}
+                        {filter.condition === DateFilterConditions.is_within &&
+                          Object.entries(WITHIN_VALUES).map(([id, label]) => (
+                            <option key={id} value={id}>
+                              {label.replaceAll("_", " ")}
+                            </option>
+                          ))}
+                      </Select>
+                    </Tooltip>
+                    {filter.option === "exact_date" && (
+                      <div className="flex-1">
+                        <DatePicker
+                          selected={
+                            filter.value !== ""
+                              ? new Date(filter.value as string)
+                              : new Date()
+                          }
+                          onChange={handleChangeDate}
+                          customInput={<CustomInput />}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </FormControl>
               )}
               {((filter.column.fieldType !== "Select" &&
                 filter.column.fieldType !== "DateTime") ||
@@ -355,26 +406,6 @@ const Filter = ({
             </>
           )}
         </div>
-        {filter.column.fieldType === "DateTime" &&
-          filter.option === "exact_date" && (
-            <div
-              className={
-                !isUndefined(parentIdx) ||
-                !filters.find((filter) => "isGroup" in filter)
-                  ? "min-w-[100px] max-w-[100px]"
-                  : "min-w-[210px]"
-              }
-            >
-              <FormControl id="value">
-                <Input
-                  size="xs"
-                  value={filter.value}
-                  className="font-mono"
-                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
-                />
-              </FormControl>
-            </div>
-          )}
         <Tooltip label="Remove filter">
           <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
             <XIcon className="h-3 text-gray-700" />

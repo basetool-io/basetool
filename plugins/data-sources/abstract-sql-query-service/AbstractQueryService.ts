@@ -129,7 +129,7 @@ const addFilterGroupToQuery = (
 };
 
 const getDateRange = (filterOption: string, filterValue: string) => {
-  const today = new Date();
+  let today = new Date();
   let from, to;
   switch (filterOption) {
     case "today":
@@ -232,6 +232,16 @@ const getDateRange = (filterOption: string, filterValue: string) => {
       from = today.toUTCString();
       today.setFullYear(today.getFullYear() + 1);
       today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "exact_date":
+      if(filterValue != "") {
+        today = new Date(filterValue);
+      }
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
       to = today.toUTCString();
 
       return [from, to];
@@ -605,11 +615,6 @@ abstract class AbstractQueryService implements IQueryService {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
-        console.log(
-          "1->",
-          storedColumn,
-          typeof this.getFieldTypeFromColumnInfo
-        );
 
         // Try and find if the user defined this type in the DB
         const fieldType =
