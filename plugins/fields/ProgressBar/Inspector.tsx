@@ -115,6 +115,4 @@ function Inspector({
     </OptionWrapper>
   );
 }
-//TODO can not save changes when display value is unchecked
-//TODO do not display value and suffix in index and show if display_value === false
 export default Inspector;
