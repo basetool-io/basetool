@@ -1,6 +1,6 @@
 import { Code } from "@chakra-ui/layout";
 import { Field } from "@/features/fields/types";
-import { SelectFieldOptions } from "./types";
+import { GravatarFieldOptions } from "./types";
 import { isNull } from "lodash";
 import Image from "next/image";
 import React, { memo } from "react";
@@ -9,9 +9,12 @@ import md5 from "md5";
 
 const Show = ({ field }: { field: Field }) => {
   const value = isNull(field.value) ? <Code>null</Code> : field.value;
-  const dimensions = (field.column.fieldOptions as SelectFieldOptions)?.showDimensions || 340;
+  const dimensions =
+    (field.column.fieldOptions as GravatarFieldOptions)?.showDimensions || 340;
 
-  const src = `https://www.gravatar.com/avatar/${md5(value as string)}?s=${dimensions}`;
+  const src = `https://www.gravatar.com/avatar/${md5(
+    value as string
+  )}?s=${dimensions}`;
 
   return (
     <ShowFieldWrapper field={field}>

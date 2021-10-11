@@ -11,10 +11,9 @@ function Inspector({
   column: Column;
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
-  const defaultDimensions = fieldOptions.showDimensions;
   const initialDimensions = column.fieldOptions.showDimensions
     ? column.fieldOptions.showDimensions
-    : defaultDimensions;
+    : fieldOptions.showDimensions;
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
@@ -24,26 +23,46 @@ function Inspector({
   }, []);
 
   return (
-    <OptionWrapper helpText="Choose how big should the gravatar be.">
-      <FormControl id="dimensions">
-        <FormLabel>Show Dimensions</FormLabel>
-        <Input
-          type="number"
-          name="dimensions"
-          placeholder="dimensions"
-          required={false}
-          defaultWidthValue={initialDimensions as number}
-          onChange={(e) => {
-            setColumnOptions(column, {
-              "fieldOptions.showDimensions":
-                parseInt(e.currentTarget.value) > 0
-                  ? parseInt(e.currentTarget.value)
-                  : initialDimensions,
-            });
-          }}
-        />
-      </FormControl>
-    </OptionWrapper>
+    <>
+      <OptionWrapper helpText="Choose how big should the gravatar be on show view.">
+        <FormControl id="dimensions">
+          <FormLabel>Show Dimensions</FormLabel>
+          <Input
+            type="number"
+            name="dimensions"
+            placeholder={`current value: ${column.fieldOptions.showDimensions}`}
+            required={false}
+            onChange={(e) => {
+              setColumnOptions(column, {
+                "fieldOptions.showDimensions":
+                  parseInt(e.currentTarget.value) > 0
+                    ? parseInt(e.currentTarget.value)
+                    : initialDimensions,
+              });
+            }}
+          />
+        </FormControl>
+      </OptionWrapper>
+      <OptionWrapper helpText="Choose how big should the gravatar be on index view.">
+        <FormControl id="dimensions">
+          <FormLabel>Index Dimensions</FormLabel>
+          <Input
+            type="number"
+            name="dimensions"
+            placeholder={`current value: ${column.fieldOptions.indexDimensions}`}
+            required={false}
+            onChange={(e) => {
+              setColumnOptions(column, {
+                "fieldOptions.indexDimensions":
+                  parseInt(e.currentTarget.value) > 0
+                    ? parseInt(e.currentTarget.value)
+                    : initialDimensions,
+              });
+            }}
+          />
+        </FormControl>
+      </OptionWrapper>
+    </>
   );
 }
 
