@@ -57,6 +57,9 @@ export const getColumns = async ({
     storedColumns,
   });
 
+  // Sort the columns by their orderIndex.
+  columns.sort((a: Column, b: Column) => (a.baseOptions.orderIndex > b.baseOptions.orderIndex) ? 1 : ((b.baseOptions.orderIndex > a.baseOptions.orderIndex) ? -1 : 0));
+
   return columns;
 };
 

@@ -150,6 +150,7 @@ export const getBaseOptions = () => ({
   label: "",
   disconnected: false,
   defaultValue: "",
+  orderIndex: 9999,
 });
 
 export const getColumnNameLabel = (...args: any[]) => {
