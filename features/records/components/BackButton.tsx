@@ -1,9 +1,9 @@
 import { BackspaceIcon } from "@heroicons/react/outline";
 import { Button } from "@chakra-ui/react";
 import Link from "next/link";
-import React, { memo } from "react";
+import React, { ReactElement, memo } from "react";
 
-function BackButton({ href }: { href: string }) {
+function BackButton({ href, children = 'Back' }: { href: string, children?: ReactElement | string }) {
   return (
     <Link href={href} passHref>
       <Button
@@ -13,7 +13,7 @@ function BackButton({ href }: { href: string }) {
         variant="ghost"
         leftIcon={<BackspaceIcon className="h-4" />}
       >
-        Back
+        {children}
       </Button>
     </Link>
   );

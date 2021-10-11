@@ -20,6 +20,7 @@ const OwnsDataSource =
 
     if (
       dataSource?.organizationId &&
+      user &&
       user.organizations &&
       // if data source organization is in one of the user's organization
       user.organizations.map(({ organizationId }) => organizationId).includes(dataSource.organizationId)

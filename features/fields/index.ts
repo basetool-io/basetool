@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums";
-import { compact, first } from "lodash"
+import { compact, first } from "lodash";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
@@ -18,7 +18,7 @@ import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
 
-export const idColumns = ["id", "_id"];
+export const idColumns = ["id", "_id", "ID", "Id"];
 
 export const getColumnOptions = (
   column: Column
@@ -153,7 +153,7 @@ export const getBaseOptions = () => ({
 });
 
 export const getColumnNameLabel = (...args: any[]) => {
-  return first(compact(args))
+  return first(compact(args));
 };
 
 /* Returns the filtered column based on their visibility settings. */

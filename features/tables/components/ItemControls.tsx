@@ -17,7 +17,7 @@ function ItemControls({
   const router = useRouter();
   const { isMd } = useResponsive();
 
-  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+  const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
@@ -34,7 +34,7 @@ function ItemControls({
         dataSourceId: router.query.dataSourceId as string,
         tableName: router.query.tableName as string,
         recordId: recordId,
-      });
+      }).unwrap();
     }
   };
 

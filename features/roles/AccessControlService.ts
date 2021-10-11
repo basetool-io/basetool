@@ -1,6 +1,6 @@
 import { AccessControl, Permission } from 'accesscontrol';
-import { Table } from '@/plugins/data-sources/abstract-sql-query-service/types';
-import { isEmpty, isUndefined } from 'lodash';
+import { ListTable } from '@/plugins/data-sources/abstract-sql-query-service/types';
+import { isEmpty, isNull, isUndefined } from 'lodash';
 
 export type Role = {
   name: string;
@@ -61,13 +61,15 @@ export default class AccessControlService {
     return this.ac.can(this.roleName).deleteAny(record);
   }
 
-  public canViewTable(table: Table) {
+  public canViewTable(table: ListTable) {
     if(isUndefined(table.authorizedRoles)) {
+      return true;
+    } else if(isNull(table.authorizedRoles)) {
       return true;
     } else if(isEmpty(table.authorizedRoles)){
       return false;
     } else {
-      return table.authorizedRoles.includes(this.roleName);
+      return table?.authorizedRoles?.includes(this.roleName);
     }
   }
 

@@ -32,9 +32,7 @@ const RecordRow = ({
           });
         }
       }}
-      className={classNames(
-        "tr relative hover:bg-sky-50 border-b last:border-b-0 bg-white"
-      )}
+      className={classNames("tr relative hover:bg-sky-50 bg-white")}
       ref={rowRef}
     >
       {row.cells.map((cell) => (

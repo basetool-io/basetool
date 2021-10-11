@@ -9,7 +9,8 @@ export type ListTable = {
   name: string;
   schema: string;
   label?: string;
-  authorizedRoles?: string[];
+  authorizedRoles?: string[] | null;
+  hidden?: boolean;
 };
 
 export type Table = {
@@ -81,16 +82,7 @@ export interface ColumnWithFieldOptions extends ColumnWithFieldType {
 
 export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
-export type SqlColumnOptions = Knex.ColumnInfo
-
-export type MysqlCredentials = {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password?: string;
-  useSsl: boolean;
-};
+export type SqlColumnOptions = Knex.ColumnInfo;
 
 export type DataSourceCredentials =
   | PostgresCredentials

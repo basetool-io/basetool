@@ -59,7 +59,9 @@ function RecordsEdit() {
   // Redirect to record page if the user can't edit
   useEffect(() => {
     if (!canEdit && router) {
-      router.push(`/data-sources/${dataSourceId}/tables/${tableName}/${recordId}`);
+      router.push(
+        `/data-sources/${dataSourceId}/tables/${tableName}/${recordId}`
+      );
     }
   }, [canEdit, router]);
 

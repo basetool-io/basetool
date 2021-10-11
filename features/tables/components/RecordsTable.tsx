@@ -120,9 +120,10 @@ const RecordsTable = ({
   const { encodedFilters } = useFilters();
   // @todo: per page selector
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
-  const { page, limit, offset, nextPage, previousPage, setPage } = usePagination({
-    perPage,
-  });
+  const { page, limit, offset, nextPage, previousPage, setPage } =
+    usePagination({
+      perPage,
+    });
 
   const {
     data: recordsResponse,
@@ -270,7 +271,7 @@ const RecordsTable = ({
   // Reset page to 1 when modifying filters.
   useEffect(() => {
     setPage(1);
-  }, [encodedFilters])
+  }, [encodedFilters]);
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
@@ -292,7 +293,7 @@ const RecordsTable = ({
       {tableIsVisible && (
         <div
           className={
-            "table-widget relative divide-y bg-blue-gray-100 divide-gray-200 overflow-auto w-full md:w-auto"
+            "table-widget relative divide-y bg-blue-gray-100 divide-blue-gray-100 overflow-auto w-full md:w-auto"
           }
           {...getTableProps()}
         >
