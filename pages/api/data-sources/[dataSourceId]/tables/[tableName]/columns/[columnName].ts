@@ -1,6 +1,6 @@
-import { omit } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { merge } from "lodash";
+import { omit } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -35,19 +35,23 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).send("");
 
   const result = await prisma.dataSource.update({
-    options: omit(dataSource?.options as Record<string, unknown>, [
-      `tables.${req.query.tableName as string}.columns.${
-        req.query.columnName as string
-      }`,
-    ]) as any,
-  },
-});
+    where: {
+      id: parseInt(req.query.dataSourceId as string, 10),
+    },
+    data: {
+      options: omit(dataSource?.options as Record<string, unknown>, [
+        `tables.${req.query.tableName as string}.columns.${
+          req.query.columnName as string
+        }`,
+      ]) as any,
+    },
+  });
 
-return res.json(
-  ApiResponse.withData(result, {
-    message: `Removed field ${req.query.columnName}`,
-  })
-);
+  return res.json(
+    ApiResponse.withData(result, {
+      message: `Removed field ${req.query.columnName}`,
+    })
+  );
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
