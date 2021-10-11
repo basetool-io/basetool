@@ -1,6 +1,6 @@
-import { Field } from '../../types'
-import { ReactNode, memo } from 'react'
-import classNames from 'classnames'
+import { Field } from "../../types";
+import { ReactNode, memo } from "react";
+import classNames from "classnames";
 
 const IndexFieldWrapper = ({
   children,
@@ -10,14 +10,17 @@ const IndexFieldWrapper = ({
   children: ReactNode;
   flush?: boolean;
 }) => (
-  <div className={classNames(
-    "py-2 leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis",
-    {
-      "py-0": flush,
-    }
-  )}>
+  <div
+    className={classNames(
+      "leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis",
+      {
+        "py-0": flush,
+        "py-2": !flush,
+      }
+    )}
+  >
     {children}
   </div>
-)
+);
 
-export default memo(IndexFieldWrapper)
+export default memo(IndexFieldWrapper);
