@@ -14,7 +14,7 @@ import { isArray, isDate, isUndefined } from "lodash";
 import { useFilters } from "@/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
-import React, { forwardRef, memo } from "react";
+import React, { forwardRef, memo, useMemo } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 export type FilterConditions =
@@ -78,7 +78,8 @@ const CONDITIONS_WITHOUT_VALUE = [
   SelectFilterConditions.is_not_null,
 ];
 
-const CustomInput = forwardRef(
+// This input is used for selecting exact date for date filter.
+const CustomDateInput = forwardRef(
   (
     {
       onClick,
@@ -90,7 +91,6 @@ const CustomInput = forwardRef(
     return (
       <Button
         size="xs"
-        borderRadius="2px"
         onClick={onClick}
         ref={ref}
         className="p-0 flex h-full w-full justify-center items-center"
@@ -100,7 +100,7 @@ const CustomInput = forwardRef(
     );
   }
 );
-CustomInput.displayName = "CustomInput";
+CustomDateInput.displayName = "CustomDateInput";
 
 const Filter = ({
   columns,
@@ -114,6 +114,22 @@ const Filter = ({
   parentIdx?: number;
 }) => {
   const { filters, removeFilter, updateFilter } = useFilters();
+
+  const isDateFilter = useMemo(
+    () => filter.column.fieldType === "DateTime",
+    [filter.column.fieldType]
+  );
+  const isSelectFilter = useMemo(
+    () => filter.column.fieldType === "Select",
+    [filter.column.fieldType]
+  );
+
+  const isSelectWithValueInput = useMemo(
+    () =>
+      filter.condition === SelectFilterConditions.contains ||
+      filter.condition === SelectFilterConditions.not_contains,
+    [filter.condition]
+  );
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
@@ -129,6 +145,7 @@ const Filter = ({
       value = (column?.fieldOptions?.options as string).split(",")[0].trim();
     }
 
+    // If the filter is in a group (!isUndefined(parentIdx)), we need to update the filters array of that group.
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -322,28 +339,26 @@ const Filter = ({
         >
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <>
-              {filter.column.fieldType === "Select" &&
-                (filter.condition === SelectFilterConditions.is ||
-                  filter.condition === SelectFilterConditions.is_not) && (
-                  <FormControl id="value">
-                    <Select
-                      size="xs"
-                      className="font-mono"
-                      defaultValue={filter.value}
-                      onChange={(e) => changeFilterValue(e.currentTarget.value)}
-                    >
-                      {filter.column?.fieldOptions?.options &&
-                        (filter.column.fieldOptions.options as any)
-                          .split(",")
-                          .map((option: string, index: number) => (
-                            <option key={index} value={option.trim()}>
-                              {option.trim()}
-                            </option>
-                          ))}
-                    </Select>
-                  </FormControl>
-                )}
-              {filter.column.fieldType === "DateTime" && (
+              {isSelectFilter && !isSelectWithValueInput && (
+                <FormControl id="value">
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.value}
+                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                  >
+                    {filter.column?.fieldOptions?.options &&
+                      (filter.column.fieldOptions.options as any)
+                        .split(",")
+                        .map((option: string, index: number) => (
+                          <option key={index} value={option.trim()}>
+                            {option.trim()}
+                          </option>
+                        ))}
+                  </Select>
+                </FormControl>
+              )}
+              {isDateFilter && (
                 <FormControl id="option">
                   <div className="flex space-x-1">
                     <Tooltip
@@ -381,19 +396,15 @@ const Filter = ({
                               : new Date()
                           }
                           onChange={handleChangeDate}
-                          customInput={<CustomInput />}
+                          customInput={<CustomDateInput />}
                         />
                       </div>
                     )}
                   </div>
                 </FormControl>
               )}
-              {((filter.column.fieldType !== "Select" &&
-                filter.column.fieldType !== "DateTime") ||
-                (filter.column.fieldType === "Select" &&
-                  (filter.condition === SelectFilterConditions.contains ||
-                    filter.condition ===
-                      SelectFilterConditions.not_contains))) && (
+              {((!isSelectFilter && !isDateFilter) ||
+                (isSelectFilter && isSelectWithValueInput)) && (
                 <FormControl id="value">
                   <Input
                     size="xs"
