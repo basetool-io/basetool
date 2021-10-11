@@ -24,7 +24,7 @@ function Inspector({
   }, []);
 
   return (
-    <OptionWrapper helpText="Choose how big should the gravatar be.">
+    <OptionWrapper helpText="By default, we size the image to 340x340px on the Show page. If that's too big or too small you can change it using this field.">
       <FormControl id="dimensions">
         <FormLabel>Show page dimensions</FormLabel>
         <Input
