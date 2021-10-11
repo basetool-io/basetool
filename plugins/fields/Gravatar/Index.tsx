@@ -1,6 +1,6 @@
 import { Code } from "@chakra-ui/layout";
 import { Field } from "@/features/fields/types";
-import { SelectFieldOptions } from "./types";
+import { GravatarFieldOptions } from "./types";
 import { isNull } from "lodash";
 import Image from "next/image";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
@@ -11,11 +11,12 @@ const Index = ({ field }: { field: Field }) => {
   const value = isNull(field.value) ? <Code>null</Code> : field.value;
   const src = `https://www.gravatar.com/avatar/${md5(value as string)}`;
   const indexDimensions =
-    (field.column.fieldOptions as SelectFieldOptions)?.indexDimensions || 40;
+    (field.column.fieldOptions as GravatarFieldOptions)?.indexDimensions || 40;
 
   return (
     <IndexFieldWrapper field={field} flush={true}>
       <Image
+        className="min-w-10 rounded-full"
         src={src}
         width={indexDimensions}
         height={indexDimensions}

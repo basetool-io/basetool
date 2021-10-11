@@ -120,6 +120,9 @@ svg.tea #steamR {
   stroke-dashoffset: 9;
   animation: steamSmall 2s infinite;
 }
+.rounded-full {
+  border-radius: 9999px;
+}
 @-moz-keyframes swing {
   50% {
     transform: rotate(-3deg);
@@ -250,7 +253,12 @@ svg.tea #steamR {
   animation-name: shimmer;
   animation-timing-function: linear;
   background: #ddd;
-  background: linear-gradient(to right, var(--chakra-colors-gray-200) 8%, var(--chakra-colors-gray-300) 18%, var(--chakra-colors-gray-200) 33%);
+  background: linear-gradient(
+    to right,
+    var(--chakra-colors-gray-200) 8%,
+    var(--chakra-colors-gray-300) 18%,
+    var(--chakra-colors-gray-200) 33%
+  );
   background-size: 1200px 100%;
 }
 
