@@ -313,6 +313,7 @@ function ColumnEdit() {
     });
 
     if ((response as any)?.data?.ok) {
+      setCreateName(INITIAL_NEW_COLUMN.name);
       router.push(
         `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${createName}`
       );
