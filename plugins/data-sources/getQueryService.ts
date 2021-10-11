@@ -8,10 +8,12 @@ const getQueryService = async (payload: {
 }): Promise<IQueryServiceWrapper> => {
   let queryService;
   const { dataSource } = payload;
+  const dataSourceType =
+    dataSource.type === "maria_db" ? "mysql" : dataSource.type;
 
   try {
     queryService = (
-      await import(`@/plugins/data-sources/${dataSource.type}/QueryService.ts`)
+      await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
     ).default;
 
     return new QueryServiceWrapper(queryService, payload);

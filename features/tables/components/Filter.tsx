@@ -1,9 +1,11 @@
 import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
+import { Column, FieldType } from "@/features/fields/types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { SelectFilterConditions } from "./SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { XIcon } from "@heroicons/react/outline";
+import { isUndefined } from "lodash";
 import { useFilters } from "@/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import React, { memo } from "react";
@@ -11,11 +13,11 @@ import React, { memo } from "react";
 export type FilterConditions =
   | IntFilterConditions
   | StringFilterConditions
-  | BooleanFilterConditions;
+  | BooleanFilterConditions
+  | SelectFilterConditions;
 export type FilterVerb = FilterVerbs;
 
 export enum FilterVerbs {
-  // where = "where",
   and = "and",
   or = "or",
 }
@@ -23,10 +25,31 @@ export enum FilterVerbs {
 export type IFilter = {
   column: Column;
   columnName: string;
-  columnLabel: string;
   condition: FilterConditions;
   value: string;
   verb: FilterVerb;
+};
+
+export type IFilterGroup = {
+  isGroup: boolean;
+  verb: FilterVerb;
+  filters: IFilter[];
+};
+
+export const getDefaultFilterCondition = (fieldType: FieldType) => {
+  switch (fieldType) {
+    case "Id":
+    case "Number":
+    case "Association":
+      return IntFilterConditions.is;
+    case "Boolean":
+      return BooleanFilterConditions.is_true;
+    case "Select":
+      return SelectFilterConditions.is;
+    default:
+    case "Text":
+      return StringFilterConditions.is;
+  }
 };
 
 const CONDITIONS_WITHOUT_VALUE = [
@@ -40,83 +63,162 @@ const CONDITIONS_WITHOUT_VALUE = [
   BooleanFilterConditions.is_false,
   BooleanFilterConditions.is_null,
   BooleanFilterConditions.is_not_null,
+  SelectFilterConditions.is_empty,
+  SelectFilterConditions.is_not_empty,
+  SelectFilterConditions.is_null,
+  SelectFilterConditions.is_not_null,
 ];
 
 const Filter = ({
   columns,
   filter,
   idx,
+  parentIdx,
 }: {
   columns: Column[];
   filter: IFilter;
   idx: number;
+  parentIdx?: number;
 }) => {
-  const { removeFilter, updateFilter } = useFilters();
-  // const verb = useMemo(() => (idx === 0 ? "where" : "and"), [idx]);
+  const { filters, removeFilter, updateFilter } = useFilters();
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
-    let condition;
-    switch (column.fieldType) {
-      case "Id":
-      case "Number":
-      case "Association":
-        condition = IntFilterConditions.is;
-        break;
-      case "Boolean":
-        condition = BooleanFilterConditions.is_true;
-        break;
-      default:
-      case "Text":
-        condition = StringFilterConditions.is;
-        break;
+    const condition = getDefaultFilterCondition(column.fieldType);
+
+    let value = "";
+    if (column.fieldType === "Select" && condition === SelectFilterConditions.is) {
+      value = (column?.fieldOptions?.options as string).split(",")[0].trim();
     }
-    updateFilter(idx, {
-      ...filter,
-      column,
-      columnName,
-      condition,
-    });
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        column,
+        columnName,
+        condition,
+        value,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        column,
+        columnName,
+        condition,
+        value,
+      });
+    }
   };
 
   const changeFilterCondition = (condition: FilterConditions) => {
-    updateFilter(idx, {
-      ...filter,
-      condition,
-    });
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        condition,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        condition,
+      });
+    }
   };
 
   const changeFilterValue = (value: string) => {
-    updateFilter(idx, {
-      ...filter,
-      value,
-    });
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters[idx] = {
+        ...groupFilter.filters[idx],
+        value,
+      };
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        value,
+      });
+    }
   };
 
   const changeFilterVerb = (verb: FilterVerb) => {
-    updateFilter(idx, {
-      ...filter,
-      verb,
-    });
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      newFilters.forEach(
+        (filter, i) =>
+          (newFilters[i] = {
+            ...groupFilter.filters[i],
+            verb,
+          })
+      );
+
+      updateFilter(parentIdx, {
+        ...groupFilter,
+        filters: newFilters,
+      });
+    } else {
+      updateFilter(idx, {
+        ...filter,
+        verb,
+      });
+    }
+  };
+
+  const removeFilterMethod = () => {
+    if (!isUndefined(parentIdx)) {
+      const groupFilter = filters[parentIdx] as IFilterGroup;
+      const newFilters = [...groupFilter.filters];
+      if (newFilters.length > 1) {
+        newFilters.splice(idx, 1);
+
+        updateFilter(parentIdx, {
+          ...groupFilter,
+          filters: newFilters,
+        });
+      } else {
+        removeFilter(parentIdx);
+      }
+    } else {
+      removeFilter(idx);
+    }
   };
 
   return (
     <>
       <div className="flex w-full items-center space-x-1">
-        <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilter(idx)}>
-            <XIcon className="h-5 text-gray-700" />
-          </Button>
-        </Tooltip>
-        <FormControl id="verb" className="max-w-[75px]">
-          {idx === 0 && <div className="text-gray-800 text-right text-sm font-mono">where</div>}
+        <FormControl id="verb" className="min-w-[65px] max-w-[65px]">
+          {idx === 0 && (
+            <div className="text-gray-800 text-right text-sm font-mono">
+              where
+            </div>
+          )}
           {idx > 1 && (
-            <div className="text-gray-800 text-right text-sm font-mono">{filter.verb}</div>
+            <div className="text-gray-800 text-right text-sm font-mono">
+              {filter.verb}
+            </div>
           )}
 
           {idx === 1 && (
             <Select
-              size="sm"
+              size="xs"
               className="font-mono"
               value={filter.verb}
               onChange={(e) =>
@@ -131,9 +233,9 @@ const Filter = ({
             </Select>
           )}
         </FormControl>
-        <FormControl id="columns">
+        <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
           <Select
-            size="sm"
+            size="xs"
             className="font-mono"
             value={filter.columnName}
             onChange={(e) => changeFilterColumn(e.currentTarget.value)}
@@ -150,18 +252,54 @@ const Filter = ({
           filter={filter}
           onChange={(value: FilterConditions) => changeFilterCondition(value)}
         />
-        <div className="min-w-[150px] max-w-[150px]">
+        <div
+          className={
+            !isUndefined(parentIdx) ||
+            !filters.find((filter) => "isGroup" in filter)
+              ? "min-w-[100px] max-w-[100px]"
+              : "min-w-[210px]"
+          }
+        >
           {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
             <FormControl id="value">
-              <Input
-                size="sm"
-                value={filter.value}
-                className="font-mono"
-                onChange={(e) => changeFilterValue(e.currentTarget.value)}
-              />
+              {filter.column.fieldType === "Select" &&
+                (filter.condition === SelectFilterConditions.is ||
+                  filter.condition === SelectFilterConditions.is_not) && (
+                  <Select
+                    size="xs"
+                    className="font-mono"
+                    defaultValue={filter.value}
+                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                  >
+                    {filter.column?.fieldOptions?.options &&
+                      (filter.column.fieldOptions.options as any)
+                        .split(",")
+                        .map((option: string, index: number) => (
+                          <option key={index} value={option.trim()}>
+                            {option.trim()}
+                          </option>
+                        ))}
+                  </Select>
+                )}
+              {(filter.column.fieldType !== "Select" ||
+                (filter.column.fieldType === "Select" &&
+                  (filter.condition === SelectFilterConditions.contains ||
+                    filter.condition === SelectFilterConditions.not_contains))) && (
+                <Input
+                  size="xs"
+                  value={filter.value}
+                  className="font-mono"
+                  onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                />
+              )}
             </FormControl>
           )}
         </div>
+        <Tooltip label="Remove filter">
+          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
+            <XIcon className="h-3 text-gray-700" />
+          </Button>
+        </Tooltip>
       </div>
     </>
   );
