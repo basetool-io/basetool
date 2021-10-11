@@ -8,17 +8,17 @@ const Index = ({ field }: { field: Field }) => (
     <div
       className="text-center text-sm font-semibold w-full leading-none mb-1"
       hidden={
-        !(field.column.fieldOptions as ProgressBarFieldOptions).display_value
+        !(field.column.fieldOptions as ProgressBarFieldOptions).displayValue
       }
     >
       {field.value}
-      {(field.column.fieldOptions as ProgressBarFieldOptions).value_suffix}
+      {(field.column.fieldOptions as ProgressBarFieldOptions).valueSuffix}
     </div>
     <progress
       max={(field.column.fieldOptions as ProgressBarFieldOptions).max}
       value={field.value as number}
-      className="block w-24"
-    ></progress>
+      className="block w-full"
+    />
   </IndexFieldWrapper>
 );
 

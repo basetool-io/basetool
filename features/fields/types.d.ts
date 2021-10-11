@@ -11,7 +11,8 @@ export type FieldType =
   | "Textarea"
   | "Json"
   | "Association"
-  | "ProgressBar";
+  | "ProgressBar"
+  ;
 
 export type ForeignKey = {
   /* eslint-disable camelcase */

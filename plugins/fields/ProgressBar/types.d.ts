@@ -1,6 +1,6 @@
 export type ProgressBarFieldOptions = {
   max: number;
-  value_suffix: string;
+  valueSuffix: string;
   step: number;
-  display_value: boolean;
+  displayValue: boolean;
 };

@@ -1,7 +1,7 @@
 const fieldOptions = {
   max: 100,
-  value_suffix: "",
+  valueSuffix: "",
   step: 1,
-  display_value: false,
+  displayValue: false,
 };
 export default fieldOptions;

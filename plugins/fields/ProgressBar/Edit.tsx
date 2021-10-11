@@ -3,7 +3,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  Input,
 } from "@chakra-ui/react";
 import { ProgressBarFieldOptions } from "./types";
 import { fieldId } from "@/features/fields";
@@ -43,25 +42,27 @@ const Edit = ({
     ? field.column.baseOptions.readonly
     : false;
 
+  const fieldOptions = field.column.fieldOptions as ProgressBarFieldOptions;
+
   return (
     <EditFieldWrapper field={field} schema={schema}>
       <div className="text-center text-sm font-semibold w-full leading-none mb-1">
-        <span className="js-progress-bar-value-<%= @field.id %>">
+        <span className={`js-progress-bar-value-${fieldId(field)}`}>
           {field.value}
-          {(field.column.fieldOptions as ProgressBarFieldOptions).value_suffix}
+          {fieldOptions.valueSuffix}
         </span>
       </div>
       <FormControl
         isInvalid={hasError && formState.isDirty}
         isDisabled={readonly}
       >
-        <Input
+        <input
           type="range"
           id={fieldId(field)}
           min="0"
-          max={(field.column.fieldOptions as ProgressBarFieldOptions).max}
-          step={(field.column.fieldOptions as ProgressBarFieldOptions).step}
-          class="w-full"
+          max={fieldOptions.max}
+          step={fieldOptions.step}
+          className="w-full"
           {...register}
           placeholder={placeholder}
         />
