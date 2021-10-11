@@ -25,32 +25,32 @@ import { useSegment } from "@/hooks";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import TableColumnsEditLayout from "@/features/data-sources/components/TableColumnsEditLayout";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 type ChangesObject = Record<string, unknown>;
 
-const getDynamicInspector = (fieldType: string) => {
-  try {
-    return dynamic(
-      () => {
-        try {
-          // return the Inspector component if found
-          return import(`@/plugins/fields/${fieldType}/Inspector.tsx`);
-        } catch (error) {
-          // return empty component
-          return Promise.resolve(() => "");
-        }
-      },
-      {
-        // eslint-disable-next-line react/display-name
-        loading: ({ isLoading }: { isLoading?: boolean }) =>
-          isLoading ? <p>Loading...</p> : null,
-      }
-    );
-  } catch (error) {
-    return () => "";
-  }
-};
+// const getDynamicInspector = (fieldType: string) => {
+//   try {
+//     return dynamic(
+//       () => {
+//         try {
+//           // return the Inspector component if found
+//           return import(`@/plugins/fields/${fieldType}/Inspector.tsx`);
+//         } catch (error) {
+//           // return empty component
+//           return Promise.resolve(() => "");
+//         }
+//       },
+//       {
+//         // eslint-disable-next-line react/display-name
+//         loading: ({ isLoading }: { isLoading?: boolean }) =>
+//           isLoading ? <p>Loading...</p> : null,
+//       }
+//     );
+//   } catch (error) {
+//     return () => "";
+//   }
+// };
 
 const NULL_VALUES = [
   {
@@ -148,9 +148,10 @@ function ColumnEdit() {
   const track = useSegment();
 
   const InspectorComponent: any = useMemo(() => {
-    if (!localColumn) return (...rest: any) => "";
+    return (...rest: any) => "";
+    // if (!localColumn)
 
-    return getDynamicInspector(localColumn?.fieldType);
+    // return getDynamicInspector(localColumn?.fieldType);
   }, [localColumn?.fieldType]);
 
   // make nullable false when required is true (and vice versa) because they cannot be both true in the same time

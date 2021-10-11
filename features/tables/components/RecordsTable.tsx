@@ -20,8 +20,8 @@ import { iconForField, prettifyData } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { localStorageColumnWidthKey } from "..";
 import { makeField } from "@/features/fields";
+import { useFieldComponent } from "@/features/fields/hooks"
 import {
-  useFieldComponent,
   useFilters,
   useResponsive,
   useSelectRecords,
@@ -54,7 +54,12 @@ const Cell = memo(
     });
     const getField = useFieldComponent();
     const Element: any = useMemo(
-      () => getField(column.meta.fieldType, Views.index),
+      () => {
+        const t = getField(column.meta.fieldType, Views.index)
+        console.log('t->', t)
+
+        return t
+      },
       [column.meta.fieldType, Views.index]
     );
 

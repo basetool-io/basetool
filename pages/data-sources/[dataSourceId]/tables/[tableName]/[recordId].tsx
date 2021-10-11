@@ -3,11 +3,12 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl, useFieldComponent } from "@/hooks";
+import { useAccessControl } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
 } from "@/features/records/api-slice";
+import { useFieldComponent } from "@/features/fields/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
@@ -165,10 +166,11 @@ const FieldWrapper = ({ record, column }: any) => {
     tableName: router.query.tableName as string,
   });
 
-  const Element: any = useMemo(
-    () => getField(column.fieldType, Views.show),
-    [column.fieldType, Views.show]
-  );
+  const Element: any = useMemo(() => {
+    const t = getField(column.fieldType, Views.show);
+    console.log("t->", t);
+    return t;
+  }, [column.fieldType, Views.show]);
 
   return <Element key={column.name} field={field} />;
 };

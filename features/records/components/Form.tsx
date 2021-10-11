@@ -12,7 +12,7 @@ import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
 } from "@/features/records/api-slice";
-import { useFieldComponent } from "@/hooks"
+import { useFieldComponent } from "@/features/fields/hooks"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import BackButton from "./BackButton";
