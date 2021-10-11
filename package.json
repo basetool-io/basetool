@@ -82,6 +82,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.0",
+    "@next/bundle-analyzer": "^11.1.2",
     "@types/analytics-node": "^3.1.6",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie": "^0.4.1",

@@ -9,7 +9,7 @@ export enum BooleanFilterConditions {
   is_not_null = "is_not_null",
 }
 
-function IntConditionComponent({
+function BooleanConditionComponent({
   filter,
   onChange,
 }: {
@@ -25,4 +25,4 @@ function IntConditionComponent({
   );
 }
 
-export default IntConditionComponent;
+export default BooleanConditionComponent;

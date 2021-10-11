@@ -1,5 +1,5 @@
 import { Field } from "../../types";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, memo, useMemo } from "react";
 import { getColumnNameLabel, iconForField } from "../..";
 import { isEmpty, isNull, isUndefined } from "lodash";
 import { useResponsive } from "@/hooks";
@@ -45,4 +45,4 @@ const ShowFieldWrapper = ({
   );
 };
 
-export default ShowFieldWrapper;
+export default memo(ShowFieldWrapper);

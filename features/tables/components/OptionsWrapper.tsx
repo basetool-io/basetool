@@ -4,7 +4,7 @@ const OptionWrapper = ({
   helpText,
   children,
 }: {
-  helpText?: string;
+  helpText?: string | ReactNode;
   children: ReactNode;
 }) => {
   return (
