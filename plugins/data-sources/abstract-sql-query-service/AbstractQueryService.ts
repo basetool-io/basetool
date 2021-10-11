@@ -235,8 +235,6 @@ abstract class AbstractQueryService implements IQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    console.log("query->", query);
-
     return query as unknown as [];
   }
 
