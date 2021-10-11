@@ -1,15 +1,14 @@
-import { Button, FormControl, Select, Tooltip } from "@chakra-ui/react";
+import { Button, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { IntFilterConditions } from "./IntConditionComponent";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/hooks";
 import Filter, {
-  FilterVerb,
-  FilterVerbs,
   IFilter,
   IFilterGroup,
 } from "@/features/tables/components/Filter";
 import React, { forwardRef } from "react";
+import VerbComponent, { FilterVerb, FilterVerbs } from "./VerbComponent";
 
 const GroupFiltersPanel = (
   {
@@ -53,38 +52,15 @@ const GroupFiltersPanel = (
 
   return (
     <div className="flex">
-      <FormControl id="verb" className={parentIdx === 1 ? "min-w-[65px] max-w-[65px] pt-2 mr-1" : "min-w-[65px] max-w-[65px] pt-3 mr-1"}>
-        {parentIdx === 0 && (
-          <div className="text-gray-800 text-right text-sm font-mono">
-            where
-          </div>
-        )}
-        {parentIdx > 1 && (
-          <div className="text-gray-800 text-right text-sm font-mono">
-            {verb}
-          </div>
-        )}
-
-        {parentIdx === 1 && (
-          <Select
-            size="xs"
-            className="font-mono"
-            value={verb}
-            onChange={(e) =>
-              changeFilterGroupVerb(e.currentTarget.value as FilterVerb)
-            }
-          >
-            {Object.entries(FilterVerbs).map(([id, label]) => (
-              <option key={id} value={id}>
-                {label}
-              </option>
-            ))}
-          </Select>
-        )}
-      </FormControl>
+      <VerbComponent
+          idx={parentIdx}
+          verb={verb}
+          onChange={(value: FilterVerb) => changeFilterGroupVerb(value)}
+          isFilterGroup={true}
+        />
       <div
         ref={ref}
-        className="border flex flex-1 bg-white z-20 min-w-[20rem] min-h-[3rem] p-2"
+        className="border flex flex-1 bg-white min-w-[20rem] min-h-[3rem] p-2"
       >
         <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-2">
           <div className="space-y-4">

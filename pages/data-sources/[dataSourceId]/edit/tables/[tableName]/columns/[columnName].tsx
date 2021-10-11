@@ -456,7 +456,7 @@ You can control where the field is visible here.`}
                   >
                     Nullable
                   </Checkbox>
-                  {localColumn.dataSourceInfo.nullable === false && (
+                  {localColumn?.dataSourceInfo?.nullable === false && (
                     <FormHelperText>
                       Has to be nullable in the DB in order to use this option.
                     </FormHelperText>
