@@ -1,4 +1,5 @@
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -20,6 +21,7 @@ const handler = async (
 };
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req);
   const dataSource = await getDataSourceFromRequest(req);
 
   if (!dataSource) return res.status(404).send("");
@@ -29,6 +31,14 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const data = await service.runQuery("deleteRecords", {
     tableName: req.query.tableName as string,
     recordIds: req.body as number[],
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Bulk Delete",
+    properties: {
+      id: dataSource.type,
+    },
   });
 
   res.json(

@@ -5,7 +5,7 @@ import {
   OrganizationUser,
   User,
 } from "@prisma/client";
-import { IFilter } from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   allFiltersAppliedSelector,
@@ -21,6 +21,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
+import { segment } from "@/lib/track"
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
@@ -43,13 +44,13 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useFilters = (
   initialFilters?: string | undefined
 ): {
-  filters: IFilter[];
-  setFilters: (filters: IFilter[]) => void;
-  appliedFilters: IFilter[];
-  applyFilters: (filters: IFilter[]) => void;
+  filters: Array<IFilter | IFilterGroup>;
+  setFilters: (filters: Array<IFilter | IFilterGroup>) => void;
+  appliedFilters: Array<IFilter | IFilterGroup>;
+  applyFilters: (filters: Array<IFilter | IFilterGroup>) => void;
   allFiltersApplied: boolean;
   removeFilter: (idx: number) => void;
-  updateFilter: (idx: number, filter: IFilter) => void;
+  updateFilter: (idx: number, filter: IFilter | IFilterGroup) => void;
   resetFilters: () => void;
   encodedFilters: string;
 } => {
@@ -75,7 +76,7 @@ export const useFilters = (
 
   // }, [])
 
-  const setTheFilters = (filters: IFilter[]) => {
+  const setTheFilters = (filters: Array<IFilter | IFilterGroup>) => {
     store.dispatch(setFilters(filters));
   };
 
@@ -83,7 +84,7 @@ export const useFilters = (
     store.dispatch(removeFilter(idx));
   };
 
-  const updateTheFilter = (idx: number, filter: IFilter) => {
+  const updateTheFilter = (idx: number, filter: IFilter | IFilterGroup) => {
     store.dispatch(updateFilter({ idx, filter }));
   };
 
@@ -105,7 +106,7 @@ export const useFilters = (
   }, [appliedFilters]);
   // console.log('encodedFilters->', encodedFilters)
 
-  const applyFilters = (filters: IFilter[]) => {
+  const applyFilters = (filters: Array<IFilter | IFilterGroup>) => {
     // router.push({
     //   pathname: router.pathname,
     //   query: {
@@ -238,5 +239,29 @@ export const useProfile = () => {
     [sessionIsLoading, profileIsLoading]
   );
 
-  return { user, role, organizations, isLoading };
+  return { user, role, organizations, isLoading, session };
+};
+
+/*
+  This hook can be used in two ways.
+
+  1. On the spot and the event will be sent then and there
+    -> useSegment({event: 'Added data source', {id}})
+  2. At a later date; It returns the `track` method that you can use at a later date to track something.
+    -> const track = useSegment()
+*/
+export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
+  const { session, isLoading } = useProfile();
+  const track = (event: string, properties?: Record<string, unknown>) =>
+    segment().track(event, properties);
+
+  useEffect(() => {
+    // If event was passed trigger the tracking action right away
+    if (!isLoading && session && event) {
+      track(event, properties);
+    }
+  }, [isLoading, session]);
+
+  // return the track method to be used at a later time
+  return track;
 };

@@ -1,9 +1,9 @@
 import { AnySchema } from "joi";
 import { Field } from "../../types";
 import { fieldId, getColumnNameLabel, iconForField } from "../..";
-import { isEmpty, isNull, isUndefined } from "lodash"
-import { useResponsive } from "@/hooks"
-import React, { ReactNode, useMemo } from "react";
+import { isEmpty, isNull, isUndefined } from "lodash";
+import { useResponsive } from "@/hooks";
+import React, { ReactNode, memo, useMemo } from "react";
 
 const EditFieldWrapper = ({
   field,
@@ -16,7 +16,11 @@ const EditFieldWrapper = ({
   extra?: ReactNode;
   schema?: AnySchema;
 }) => {
-  const prettyColumnName = getColumnNameLabel(field?.column?.baseOptions?.label, field?.column?.label, field?.column?.name);
+  const prettyColumnName = getColumnNameLabel(
+    field?.column?.baseOptions?.label,
+    field?.column?.label,
+    field?.column?.name
+  );
   const IconElement = useMemo(
     () => iconForField(field.column),
     [field.column.fieldType]
@@ -55,4 +59,4 @@ const EditFieldWrapper = ({
   );
 };
 
-export default EditFieldWrapper;
+export default memo(EditFieldWrapper);

@@ -2,6 +2,7 @@ import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
+import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";
@@ -177,8 +178,10 @@ class QueryService implements IQueryService {
 
   public async getRecordsCount({
     tableName,
+    filters,
   }: {
     tableName: string;
+    filters: IFilter[];
   }): Promise<number> {
     await this.loadInfo();
 

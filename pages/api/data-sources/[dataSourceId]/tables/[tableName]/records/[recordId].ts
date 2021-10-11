@@ -2,6 +2,7 @@ import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import { getColumns } from "../columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -76,12 +77,22 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
+  const user = await getUserFromRequest(req);
+
   const service = await getQueryService({ dataSource });
 
   const data = await service.runQuery("updateRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
     data: req.body.changes,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated record",
+    properties: {
+      id: dataSource.type,
+    },
   });
 
   res.json(
@@ -92,6 +103,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getDataSourceFromRequest(req);
   const dataSource = await getDataSourceFromRequest(req);
 
   if (!dataSource) return res.status(404).send("");
@@ -101,6 +113,14 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const data = await service.runQuery("deleteRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Deleted record",
+    properties: {
+      id: dataSource.type,
+    },
   });
 
   res.json(

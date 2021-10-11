@@ -7,7 +7,6 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
-import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (

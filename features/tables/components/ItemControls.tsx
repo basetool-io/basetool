@@ -6,11 +6,11 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import React, { memo } from "react";
 
-function ItemControls({recordId}: {recordId: string}) {
+function ItemControls({ recordId }: { recordId: string }) {
   const router = useRouter();
   const { isMd } = useResponsive();
 
-  const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
+  const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
 
   const handleDelete = async () => {
@@ -20,7 +20,7 @@ function ItemControls({recordId}: {recordId: string}) {
         dataSourceId: router.query.dataSourceId as string,
         tableName: router.query.tableName as string,
         recordId: recordId,
-      });
+      }).unwrap();
     }
   };
 
@@ -62,9 +62,7 @@ function ItemControls({recordId}: {recordId: string}) {
         </a>
       )}
     </div>
-  )
+  );
 }
 
-export default memo(ItemControls)
-
-
+export default memo(ItemControls);

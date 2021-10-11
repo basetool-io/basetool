@@ -2,7 +2,6 @@ import { Column } from "../fields/types";
 import { LOCAL_STORAGE_PREFIX } from "@/lib/constants";
 import { Column as ReactTableColumn } from "react-table";
 import { getColumnNameLabel } from "../fields";
-import { useMemo } from "react";
 
 export const DEFAULT_COLUMN_WIDTH = 150;
 export const MIN_COLUMN_WIDTH = 30;

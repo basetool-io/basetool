@@ -8,7 +8,7 @@ const schema = (record: Record, column: Column) => {
   if (column.baseOptions.required) {
     rule = rule.required();
   } else {
-    rule = rule.allow({});
+    rule = rule.allow({}, null);
   }
 
   return rule;

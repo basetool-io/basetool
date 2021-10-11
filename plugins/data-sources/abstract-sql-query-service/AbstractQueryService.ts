@@ -1,3 +1,4 @@
+import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
 import { Column, FieldType } from "@/features/fields/types";
 import {
   ColumnWithBaseOptions,
@@ -11,16 +12,17 @@ import {
   SqlColumnOptions,
 } from "./types";
 import { DataSource } from "@prisma/client";
-import { IFilter } from "@/features/tables/components/Filter";
+import { FilterVerbs, IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
+import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
+import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
 import {
   getBaseOptions,
   getFilteredColumns,
-  idColumns,
 } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
@@ -31,57 +33,127 @@ import type { Knex } from "knex";
 
 const getCondition = (filter: IFilter) => {
   switch (filter.condition) {
-    case "is":
-      return "=";
-    case StringFilterConditions.is_not:
-      return "!=";
-    case "contains":
+    case StringFilterConditions.contains:
+    case StringFilterConditions.starts_with:
+    case StringFilterConditions.ends_with:
+    case StringFilterConditions.is_empty:
+    case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
-      return "NOT LIKE";
-    case StringFilterConditions.starts_with:
-      return "LIKE";
-    case StringFilterConditions.ends_with:
-      return "LIKE";
-    case StringFilterConditions.is_empty:
-      return "LIKE";
     case StringFilterConditions.is_not_empty:
-      return "LIKE";
-    case ">":
+    case SelectFilterConditions.not_contains:
+      return "NOT LIKE";
+    case IntFilterConditions.gt:
       return ">";
-    case ">=":
+    case IntFilterConditions.gte:
       return ">=";
-    case "<":
+    case IntFilterConditions.lt:
       return "<";
-    case "<=":
+    case IntFilterConditions.lte:
       return "<=";
+    case StringFilterConditions.is_not:
+    case IntFilterConditions.is_not:
+    case SelectFilterConditions.is_not:
+      return "!=";
+    case StringFilterConditions.is:
+    case IntFilterConditions.is:
+    case SelectFilterConditions.is:
+    default:
+      return "=";
   }
-
-  return "=";
 };
 
 const getValue = (filter: IFilter) => {
   switch (filter.condition) {
-    case "is":
-    case StringFilterConditions.is_not:
-    default:
-      return filter.value;
-    case "contains":
+    case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
+    case SelectFilterConditions.contains:
+    case SelectFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
-      return `%${filter.value}`;
-    case StringFilterConditions.ends_with:
       return `${filter.value}%`;
+    case StringFilterConditions.ends_with:
+      return `%${filter.value}`;
     case StringFilterConditions.is_not_empty:
     case StringFilterConditions.is_empty:
-      return ``;
+    case SelectFilterConditions.is_not_empty:
+    case SelectFilterConditions.is_empty:
+      return "";
+    case BooleanFilterConditions.is_true:
+      return "true";
+    case BooleanFilterConditions.is_false:
+      return "false";
+    case StringFilterConditions.is:
+    case StringFilterConditions.is_not:
+    case IntFilterConditions.is:
+    case IntFilterConditions.is_not:
+    case IntFilterConditions.gt:
+    case IntFilterConditions.gte:
+    case IntFilterConditions.lt:
+    case IntFilterConditions.lte:
+    case SelectFilterConditions.is:
+    case SelectFilterConditions.is_not:
+    default:
+      return filter.value;
   }
-
-  return "=";
 };
+
+const addFiltersToQuery = (query: Knex.QueryBuilder, filters: Array<IFilter | IFilterGroup>) => {
+  filters.forEach((filter) => {
+    if ("isGroup" in filter && filter.isGroup) {
+      addFilterGroupToQuery(query, filter as IFilterGroup);
+    } else {
+      addFilterToQuery(query, filter as IFilter);
+    }
+  });
+}
+
+const addFilterGroupToQuery = (query: Knex.QueryBuilder, filter: IFilterGroup) => {
+  if(filter.verb === FilterVerbs.or) {
+    query.orWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  } else {
+    query.andWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  }
+};
+
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
-  query.where(filter.columnName, getCondition(filter), getValue(filter));
+  const NULL_FILTERS = [
+    StringFilterConditions.is_null,
+    IntFilterConditions.is_null,
+    BooleanFilterConditions.is_null,
+    SelectFilterConditions.is_null,
+  ];
+
+  const NOT_NULL_FILTERS = [
+    StringFilterConditions.is_not_null,
+    IntFilterConditions.is_not_null,
+    BooleanFilterConditions.is_not_null,
+    SelectFilterConditions.is_not_null,
+  ];
+
+  if (NULL_FILTERS.includes(filter.condition)) {
+    if (filter.verb === FilterVerbs.or) {
+      query.orWhereNull(filter.columnName);
+    } else {
+      query.whereNull(filter.columnName);
+    }
+  } else if (NOT_NULL_FILTERS.includes(filter.condition)) {
+    if (filter.verb === FilterVerbs.or) {
+      query.orWhereNotNull(filter.columnName);
+    } else {
+      query.whereNotNull(filter.columnName);
+    }
+  } else {
+    if (filter.verb === FilterVerbs.or) {
+      query.orWhere(filter.columnName, getCondition(filter), getValue(filter));
+    } else {
+      query.where(filter.columnName, getCondition(filter), getValue(filter));
+    }
+  }
 };
 
 abstract class AbstractQueryService implements IQueryService {
@@ -148,7 +220,7 @@ abstract class AbstractQueryService implements IQueryService {
     columns,
   }: {
     tableName: string;
-    filters: IFilter[];
+    filters: Array<IFilter | IFilterGroup>;
     limit?: number;
     offset?: number;
     orderBy: string;
@@ -162,7 +234,7 @@ abstract class AbstractQueryService implements IQueryService {
     }
 
     if (filters) {
-      filters.forEach((filter) => addFilterToQuery(query, filter));
+      addFiltersToQuery(query, filters);
     }
 
     if (orderBy) {
@@ -208,10 +280,16 @@ abstract class AbstractQueryService implements IQueryService {
 
   public async getRecordsCount({
     tableName,
+    filters,
   }: {
     tableName: string;
+    filters: Array<IFilter | IFilterGroup>;
   }): Promise<number> {
-    const [{ count }] = await this.client.count().table(tableName);
+    const query = this.client.table(tableName);
+    if (filters) {
+      addFiltersToQuery(query, filters);
+    }
+    const [{ count }] = await query.count("id", { as: "count" });
 
     return parseInt(count as string, 10);
   }
@@ -394,10 +472,15 @@ abstract class AbstractQueryService implements IQueryService {
         const storedColumn = !isUndefined(storedColumns)
           ? storedColumns[column.name as any]
           : undefined;
+        console.log(
+          "1->",
+          storedColumn,
+          typeof this.getFieldTypeFromColumnInfo
+        );
 
         // Try and find if the user defined this type in the DB
         const fieldType =
-          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
+          storedColumn?.fieldType || this.getFieldTypeFromColumnInfo(column);
 
         return {
           ...column,
@@ -491,57 +574,13 @@ abstract class AbstractQueryService implements IQueryService {
   }
 
   abstract getClient(): Knex;
+  abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
 }
 
 const getColumnLabel = (column: { name: string }) => {
   if (column.name === "id") return "ID";
 
   return humanize(column.name);
-};
-
-const getFieldTypeFromColumnInfo = (
-  column: ColumnWithBaseOptions
-): FieldType => {
-  if (column.foreignKeyInfo) {
-    return "Association";
-  }
-
-  const { name } = column;
-  switch (column.dataSourceInfo.type) {
-    default:
-    case "character":
-    case "character varying":
-    case "interval":
-    case "name":
-      return "Text";
-    case "boolean":
-    case "bit":
-      return "Boolean";
-    case "timestamp without time zone":
-    case "timestamp with time zone":
-    case "time without time zone":
-    case "time with time zone":
-    case "date":
-      return "DateTime";
-    case "json":
-    case "jsonb":
-      return "Json";
-    case "text":
-    case "xml":
-    case "bytea":
-      return "Textarea";
-    case "integer":
-    case "bigint":
-    case "numeric":
-    case "smallint":
-    case "oid":
-    case "uuid":
-    case "real":
-    case "double precision":
-    case "money":
-      if (idColumns.includes(name)) return "Id";
-      else return "Number";
-  }
 };
 
 // @todo: optimize this to not query for the same field type twice (if you have two Text fields it will do that)
