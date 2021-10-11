@@ -4,7 +4,7 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl } from "@/hooks";
+import { useAccessControl, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -78,7 +78,12 @@ function RecordsShow() {
     }
   };
 
-  const canRead = useMemo(() => ac.readAny("record").granted, [ac]);
+  const { isLoading: profileIsLoading } = useProfile();
+  const canRead = useMemo(() => {
+    if (profileIsLoading) return true;
+
+    return ac.readAny("record").granted;
+  }, [ac, profileIsLoading]);
 
   // Redirect to record page if the user can't read
   useEffect(() => {

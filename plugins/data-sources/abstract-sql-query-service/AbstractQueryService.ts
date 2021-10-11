@@ -12,13 +12,19 @@ import {
   SqlColumnOptions,
 } from "./types";
 import { DataSource } from "@prisma/client";
-import { FilterVerbs, IFilter } from "@/features/tables/components/Filter";
+import { DateFilterConditions } from "./../../../features/tables/components/DateConditionComponent";
+import { FilterVerbs } from "@/features/tables/components/VerbComponent";
+import {
+  IFilter,
+  IFilterGroup,
+} from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
+import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions, idColumns } from "@/features/fields";
+import { getBaseOptions } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
 import logger from "@/lib/logger";
@@ -31,9 +37,13 @@ const getCondition = (filter: IFilter) => {
     case StringFilterConditions.starts_with:
     case StringFilterConditions.ends_with:
     case StringFilterConditions.is_empty:
+    case DateFilterConditions.is_empty:
+    case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
+    case DateFilterConditions.is_not_empty:
+    case SelectFilterConditions.not_contains:
       return "NOT LIKE";
     case IntFilterConditions.gt:
       return ">";
@@ -45,9 +55,11 @@ const getCondition = (filter: IFilter) => {
       return "<=";
     case StringFilterConditions.is_not:
     case IntFilterConditions.is_not:
+    case SelectFilterConditions.is_not:
       return "!=";
     case StringFilterConditions.is:
     case IntFilterConditions.is:
+    case SelectFilterConditions.is:
     default:
       return "=";
   }
@@ -57,6 +69,8 @@ const getValue = (filter: IFilter) => {
   switch (filter.condition) {
     case StringFilterConditions.contains:
     case StringFilterConditions.not_contains:
+    case SelectFilterConditions.contains:
+    case SelectFilterConditions.not_contains:
       return `%${filter.value}%`;
     case StringFilterConditions.starts_with:
       return `${filter.value}%`;
@@ -64,6 +78,10 @@ const getValue = (filter: IFilter) => {
       return `%${filter.value}`;
     case StringFilterConditions.is_not_empty:
     case StringFilterConditions.is_empty:
+    case DateFilterConditions.is_not_empty:
+    case DateFilterConditions.is_empty:
+    case SelectFilterConditions.is_not_empty:
+    case SelectFilterConditions.is_empty:
       return "";
     case BooleanFilterConditions.is_true:
       return "true";
@@ -77,37 +95,264 @@ const getValue = (filter: IFilter) => {
     case IntFilterConditions.gte:
     case IntFilterConditions.lt:
     case IntFilterConditions.lte:
+    case SelectFilterConditions.is:
+    case SelectFilterConditions.is_not:
     default:
       return filter.value;
   }
 };
+
+const addFiltersToQuery = (query: Knex.QueryBuilder, filters: Array<IFilter | IFilterGroup>) => {
+  filters.forEach((filter) => {
+    if ("isGroup" in filter && filter.isGroup) {
+      addFilterGroupToQuery(query, filter as IFilterGroup);
+    } else {
+      addFilterToQuery(query, filter as IFilter);
+    }
+  });
+};
+
+const addFilterGroupToQuery = (
+  query: Knex.QueryBuilder,
+  filter: IFilterGroup
+) => {
+  if (filter.verb === FilterVerbs.or) {
+
+    query.orWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  } else {
+    query.andWhere(function () {
+      addFiltersToQuery(this, filter.filters);
+    });
+  }
+};
+
+const getDateRange = (filterOption: string, filterValue: string) => {
+  let today = new Date();
+  let from, to;
+  switch (filterOption) {
+    case "today":
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "tomorrow":
+      today.setDate(today.getDate() + 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "yesterday":
+      today.setDate(today.getDate() - 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "one_week_ago":
+      today.setDate(today.getDate() - 7);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "one_week_from_now":
+      today.setDate(today.getDate() + 7);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "one_month_ago":
+      today.setMonth(today.getMonth() - 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "one_month_from_now":
+      today.setMonth(today.getMonth() + 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "past_week":
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+      today.setDate(today.getDate() - 7);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+
+      return [from, to];
+    case "next_week":
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setDate(today.getDate() + 7);
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "past_month":
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+      today.setMonth(today.getMonth() - 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+
+      return [from, to];
+    case "next_month":
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setMonth(today.getMonth() + 1);
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "past_year":
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+      today.setFullYear(today.getFullYear() - 1);
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+
+      return [from, to];
+    case "next_year":
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setFullYear(today.getFullYear() + 1);
+      today.setUTCHours(0, 0, 0, 0);
+      to = today.toUTCString();
+
+      return [from, to];
+    case "exact_date":
+      if(filterValue != "") {
+        today = new Date(filterValue);
+      }
+      today.setUTCHours(0, 0, 0, 0);
+      from = today.toUTCString();
+      today.setUTCHours(23, 59, 59, 999);
+      to = today.toUTCString();
+
+      return [from, to];
+    default:
+      return [null, null];
+  }
+};
+
 const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   const NULL_FILTERS = [
     StringFilterConditions.is_null,
     IntFilterConditions.is_null,
     BooleanFilterConditions.is_null,
+    DateFilterConditions.is_null,
+    SelectFilterConditions.is_null,
   ];
 
   const NOT_NULL_FILTERS = [
     StringFilterConditions.is_not_null,
     IntFilterConditions.is_not_null,
     BooleanFilterConditions.is_not_null,
+    DateFilterConditions.is_not_null,
+    SelectFilterConditions.is_not_null,
   ];
 
   if (NULL_FILTERS.includes(filter.condition)) {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhereNull(filter.columnName);
     } else {
       query.whereNull(filter.columnName);
     }
   } else if (NOT_NULL_FILTERS.includes(filter.condition)) {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhereNotNull(filter.columnName);
     } else {
       query.whereNotNull(filter.columnName);
     }
+  } else if (filter.column.fieldType === "DateTime") {
+    if ("option" in filter && filter.option) {
+      const dateRange = getDateRange(filter.option, filter.value);
+      if (filter.verb === FilterVerbs.or) {
+        switch (filter.condition) {
+          case DateFilterConditions.is:
+          case DateFilterConditions.is_within:
+            query.orWhereBetween(filter.columnName, [
+              dateRange[0],
+              dateRange[1],
+            ]);
+            break;
+          case DateFilterConditions.is_not:
+            query.orWhereNotBetween(filter.columnName, [
+              dateRange[0],
+              dateRange[1],
+            ]);
+            break;
+          case DateFilterConditions.is_before:
+            query.orWhere(filter.columnName, "<", dateRange[0]);
+            break;
+          case DateFilterConditions.is_after:
+            query.orWhere(filter.columnName, ">", dateRange[1]);
+            break;
+          case DateFilterConditions.is_on_or_before:
+            query.orWhere(filter.columnName, "<=", dateRange[1]);
+            break;
+          case DateFilterConditions.is_on_or_after:
+            query.orWhere(filter.columnName, ">=", dateRange[0]);
+            break;
+          default:
+            query.orWhere(
+              filter.columnName,
+              getCondition(filter),
+              getValue(filter)
+            );
+            break;
+        }
+      } else {
+        switch (filter.condition) {
+          case DateFilterConditions.is:
+          case DateFilterConditions.is_within:
+            query.whereBetween(filter.columnName, [dateRange[0], dateRange[1]]);
+            break;
+          case DateFilterConditions.is_not:
+            query.whereNotBetween(filter.columnName, [
+              dateRange[0],
+              dateRange[1],
+            ]);
+            break;
+          case DateFilterConditions.is_before:
+            query.where(filter.columnName, "<", dateRange[0]);
+            break;
+          case DateFilterConditions.is_after:
+            query.where(filter.columnName, ">", dateRange[1]);
+            break;
+          case DateFilterConditions.is_on_or_before:
+            query.where(filter.columnName, "<=", dateRange[1]);
+            break;
+          case DateFilterConditions.is_on_or_after:
+            query.where(filter.columnName, ">=", dateRange[0]);
+            break;
+          default:
+            query.where(
+              filter.columnName,
+              getCondition(filter),
+              getValue(filter)
+            );
+            break;
+        }
+      }
+    }
   } else {
-    if(filter.verb === FilterVerbs.or) {
+    if (filter.verb === FilterVerbs.or) {
       query.orWhere(filter.columnName, getCondition(filter), getValue(filter));
     } else {
       query.where(filter.columnName, getCondition(filter), getValue(filter));
@@ -179,7 +424,7 @@ abstract class AbstractQueryService implements IQueryService {
     select,
   }: {
     tableName: string;
-    filters: IFilter[];
+    filters: Array<IFilter | IFilterGroup>;
     limit?: number;
     offset?: number;
     orderBy: string;
@@ -192,14 +437,12 @@ abstract class AbstractQueryService implements IQueryService {
     }
 
     if (filters) {
-      filters.forEach((filter) => addFilterToQuery(query, filter));
+      addFiltersToQuery(query, filters);
     }
 
     if (orderBy) {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
-
-    console.log("query->", query);
 
     return query as unknown as [];
   }
@@ -209,11 +452,11 @@ abstract class AbstractQueryService implements IQueryService {
     filters,
   }: {
     tableName: string;
-    filters: IFilter[];
+    filters: Array<IFilter | IFilterGroup>;
   }): Promise<number> {
     const query = this.client.table(tableName);
     if (filters) {
-      filters.forEach((filter) => addFilterToQuery(query, filter));
+      addFiltersToQuery(query, filters);
     }
     const [{ count }] = await query.count("id", { as: "count" });
 
@@ -375,7 +618,7 @@ abstract class AbstractQueryService implements IQueryService {
 
         // Try and find if the user defined this type in the DB
         const fieldType =
-          storedColumn?.fieldType || getFieldTypeFromColumnInfo(column);
+          storedColumn?.fieldType || this.getFieldTypeFromColumnInfo(column);
 
         return {
           ...column,
@@ -469,57 +712,13 @@ abstract class AbstractQueryService implements IQueryService {
   }
 
   abstract getClient(): Knex;
+  abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
 }
 
 const getColumnLabel = (column: { name: string }) => {
   if (column.name === "id") return "ID";
 
   return humanize(column.name);
-};
-
-const getFieldTypeFromColumnInfo = (
-  column: ColumnWithBaseOptions
-): FieldType => {
-  if (column.foreignKeyInfo) {
-    return "Association";
-  }
-
-  const { name } = column;
-  switch (column.dataSourceInfo.type) {
-    default:
-    case "character":
-    case "character varying":
-    case "interval":
-    case "name":
-      return "Text";
-    case "boolean":
-    case "bit":
-      return "Boolean";
-    case "timestamp without time zone":
-    case "timestamp with time zone":
-    case "time without time zone":
-    case "time with time zone":
-    case "date":
-      return "DateTime";
-    case "json":
-    case "jsonb":
-      return "Json";
-    case "text":
-    case "xml":
-    case "bytea":
-      return "Textarea";
-    case "integer":
-    case "bigint":
-    case "numeric":
-    case "smallint":
-    case "oid":
-    case "uuid":
-    case "real":
-    case "double precision":
-    case "money":
-      if (idColumns.includes(name)) return "Id";
-      else return "Number";
-  }
 };
 
 // @todo: optimize this to not query for the same field type twice (if you have two Text fields it will do that)

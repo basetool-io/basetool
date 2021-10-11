@@ -1,3 +1,3 @@
-export type TextFieldOptions = {
+export type TextareaFieldOptions = {
   rows: number;
 };
