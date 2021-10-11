@@ -91,7 +91,7 @@
     "@types/ioredis": "^4.27.2",
     "@types/lodash": "^4.14.172",
     "@types/mailgun-js": "^0.22.12",
- "@types/luxon": "^2.0.4",
+    "@types/luxon": "^2.0.4",
     "@types/numeral": "^2.0.1",
     "@types/pg": "^8.6.1",
     "@types/pluralize": "^0.0.29",
