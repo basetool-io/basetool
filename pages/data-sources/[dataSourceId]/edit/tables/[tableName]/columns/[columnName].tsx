@@ -11,11 +11,16 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
+import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
+import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { first, isArray, isEmpty, isUndefined, without } from "lodash";
 import { getColumnNameLabel, getColumnOptions } from "@/features/fields";
+import { humanize } from "@/lib/humanize";
 import {
+  useCreateColumnMutation,
+  useDeleteColumnMutation,
   useGetColumnsQuery,
   useUpdateColumnMutation,
 } from "@/features/tables/api-slice";
@@ -67,11 +72,40 @@ const NULL_VALUES = [
   },
 ];
 
+export const INITIAL_NEW_COLUMN = {
+  name: "new_computed_field",
+  label: "",
+  primaryKey: false,
+  baseOptions: {
+    visibility: [Views.index, Views.show],
+    required: false,
+    nullable: false,
+    nullValues: [],
+    readonly: false,
+    placeholder: "",
+    help: "",
+    label: "",
+    disconnected: false,
+    defaultValue: "",
+    computed: true,
+  },
+  fieldType: "Computed" as FieldType,
+  fieldOptions: {
+    value: "",
+  },
+};
+
 function ColumnEdit() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
   const columnName = router.query.columnName as string;
+
+  const isCreateField = useMemo(
+    () => columnName === INITIAL_NEW_COLUMN.name,
+    [columnName]
+  );
+  const [createName, setCreateName] = useState<string>(INITIAL_NEW_COLUMN.name);
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -218,7 +252,24 @@ function ColumnEdit() {
     );
   }, [column, diff]);
 
-  const isDirty = useMemo(() => !isEmpty(changes), [changes]);
+  const isDirty = useMemo(() => {
+    let allColumnNames = [];
+    if (
+      isCreateField &&
+      columnsResponse?.ok &&
+      isArray(columnsResponse?.data)
+    ) {
+      allColumnNames = columnsResponse.data.map(({ name }: any) => name);
+    }
+
+    return isCreateField
+      ? !(
+          allColumnNames.includes(createName) ||
+          createName === INITIAL_NEW_COLUMN.name ||
+          createName === ""
+        )
+      : !isEmpty(changes);
+  }, [changes, createName]);
   const [
     updateTable, // This is the mutation trigger
     { isLoading: isUpdating }, // This is the destructured mutation result
@@ -231,6 +282,41 @@ function ColumnEdit() {
       columnName: router.query.columnName as string,
       body: { changes },
     }).unwrap();
+  };
+
+  const [deleteColumn, { isLoading: isDeleting }] = useDeleteColumnMutation();
+  const [createColumn, { isLoading: isCreating }] = useCreateColumnMutation();
+
+  const deleteField = async () => {
+    if (confirm("Are you sure you want to remove this field?")) {
+      await deleteColumn({
+        dataSourceId: router.query.dataSourceId as string,
+        tableName: router.query.tableName as string,
+        columnName: router.query.columnName as string,
+      });
+      router.push(
+        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/`
+      );
+    }
+  };
+
+  const createField = async () => {
+    const newColumn = {
+      ...INITIAL_NEW_COLUMN,
+      name: createName,
+      label: humanize(createName),
+    };
+    const response = await createColumn({
+      dataSourceId: router.query.dataSourceId as string,
+      tableName: router.query.tableName as string,
+      body: newColumn,
+    });
+
+    if ((response as any)?.data?.ok) {
+      router.push(
+        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${createName}`
+      );
+    }
   };
 
   return (
@@ -250,26 +336,46 @@ function ColumnEdit() {
             colorScheme="blue"
             size="sm"
             width="300px"
-            leftIcon={<Save className="h-4" />}
-            isLoading={isUpdating}
+            leftIcon={
+              isCreateField ? (
+                <PlusIcon className="h-4" />
+              ) : (
+                <Save className="h-4" />
+              )
+            }
+            isLoading={isCreating || isUpdating}
             disabled={!isDirty}
-            onClick={saveTableSettings}
+            onClick={isCreateField ? createField : saveTableSettings}
           >
-            Save column settings
+            {isCreateField ? "Create field" : "Save settings"}
           </Button>
         ),
       }}
     >
       <>
-        {localColumn && (
+        {!isCreateField && localColumn && (
           <div className="w-full">
-            <h3 className="uppercase text-md font-semibold">
-              {getColumnNameLabel(
-                column?.baseOptions?.label,
-                column?.label,
-                column?.name
+            <div className="flex justify-between">
+              <h3 className="uppercase text-md font-semibold">
+                {getColumnNameLabel(
+                  column?.baseOptions?.label,
+                  column?.label,
+                  column?.name
+                )}
+              </h3>
+              {column?.fieldType === "Computed" && (
+                <Button
+                  colorScheme="red"
+                  size="xs"
+                  variant="outline"
+                  onClick={() => !isDeleting && deleteField()}
+                  isLoading={isDeleting}
+                  leftIcon={<TrashIcon className="h-4" />}
+                >
+                  Remove field
+                </Button>
               )}
-            </h3>
+            </div>
             <div className="divide-y">
               <OptionWrapper
                 helpText="We try to infer the type of field from your data source.
@@ -301,24 +407,26 @@ function ColumnEdit() {
                 </FormControl>
               </OptionWrapper>
 
-              <OptionWrapper
-                helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
-              >
-                <FormLabel>Disconnect field</FormLabel>
-                <Checkbox
-                  isChecked={localColumn.baseOptions.disconnected}
-                  onChange={() => {
-                    track("Clicked the disconnect field option");
-
-                    return setColumnOptions(localColumn, {
-                      "baseOptions.disconnected":
-                        !localColumn.baseOptions.disconnected,
-                    });
-                  }}
+              {column.fieldType !== "Computed" && (
+                <OptionWrapper
+                  helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
                 >
-                  Disconnected
-                </Checkbox>
-              </OptionWrapper>
+                  <FormLabel>Disconnect field</FormLabel>
+                  <Checkbox
+                    isChecked={localColumn.baseOptions.disconnected}
+                    onChange={() => {
+                      track("Clicked the disconnect field option");
+
+                      return setColumnOptions(localColumn, {
+                        "baseOptions.disconnected":
+                          !localColumn.baseOptions.disconnected,
+                      });
+                    }}
+                  >
+                    Disconnected
+                  </Checkbox>
+                </OptionWrapper>
+              )}
 
               <OptionWrapper
                 helpText={`By default, all fields are visible in all views.
@@ -328,8 +436,6 @@ You can control where the field is visible here.`}
                 <CheckboxGroup
                   value={localColumn.baseOptions.visibility}
                   onChange={(value) => {
-                    console.log("value->", value);
-
                     return setColumnOptions(localColumn, {
                       "baseOptions.visibility": value,
                     });
@@ -348,18 +454,22 @@ You can control where the field is visible here.`}
                     >
                       Show
                     </Checkbox>
-                    <Checkbox
-                      value="edit"
-                      isDisabled={localColumn.baseOptions.disconnected}
-                    >
-                      Edit
-                    </Checkbox>
-                    <Checkbox
-                      value="new"
-                      isDisabled={localColumn.baseOptions.disconnected}
-                    >
-                      New
-                    </Checkbox>
+                    {column.fieldType !== "Computed" && (
+                      <>
+                        <Checkbox
+                          value="edit"
+                          isDisabled={localColumn.baseOptions.disconnected}
+                        >
+                          Edit
+                        </Checkbox>
+                        <Checkbox
+                          value="new"
+                          isDisabled={localColumn.baseOptions.disconnected}
+                        >
+                          New
+                        </Checkbox>
+                      </>
+                    )}
                   </Stack>
                 </CheckboxGroup>
               </OptionWrapper>
@@ -388,149 +498,180 @@ You can control where the field is visible here.`}
                 </FormControl>
               </OptionWrapper>
 
-              <OptionWrapper
-                helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
-              >
-                <FormControl id="placeholder">
-                  <FormLabel>Placeholder</FormLabel>
-                  <Input
-                    type="text"
-                    name="placeholder value"
-                    placeholder="Placeholder value"
-                    required={false}
-                    value={localColumn.baseOptions.placeholder}
-                    onChange={(e) =>
-                      setColumnOptions(localColumn, {
-                        "baseOptions.placeholder": e.currentTarget.value,
-                      })
-                    }
-                  />
-                </FormControl>
-              </OptionWrapper>
-
-              <OptionWrapper
-                helpText={`Should this field be required in forms?`}
-              >
-                <FormControl id="required">
-                  <FormLabel>Required</FormLabel>
-                  <Checkbox
-                    id="required"
-                    isChecked={localColumn.baseOptions.required === true}
-                    isDisabled={localColumn.baseOptions.nullable === true}
-                    onChange={() =>
-                      setColumnOptions(localColumn, {
-                        "baseOptions.required":
-                          !localColumn.baseOptions.required,
-                      })
-                    }
+              {column.fieldType !== "Computed" && (
+                <>
+                  <OptionWrapper
+                    helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
                   >
-                    Required
-                  </Checkbox>
-                </FormControl>
-              </OptionWrapper>
-
-              <OptionWrapper
-                helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
-              >
-                <FormControl id="nullable">
-                  <FormLabel>Nullable</FormLabel>
-                  <Checkbox
-                    id="nullable"
-                    isChecked={localColumn.baseOptions.nullable}
-                    isDisabled={localColumn.baseOptions.required === true}
-                    onChange={() =>
-                      setColumnOptions(localColumn, {
-                        "baseOptions.nullable":
-                          !localColumn.baseOptions.nullable,
-                      })
-                    }
-                  >
-                    Nullable
-                  </Checkbox>
-                  {localColumn.dataSourceInfo.nullable === false && (
-                    <FormHelperText>
-                      Has to be nullable in the DB in order to use this option.
-                    </FormHelperText>
-                  )}
-                </FormControl>
-                {localColumn.baseOptions.nullable === true && (
-                  <Stack pl={6} mt={1} spacing={1}>
-                    {NULL_VALUES &&
-                      NULL_VALUES.map(({ value, label }) => (
-                        <div key={label}>
-                          <Checkbox
-                            id={`null_value_${label}`}
-                            isChecked={Object.values(
-                              localColumn.baseOptions.nullValues
-                            ).includes(value)}
-                            onChange={(e) => {
-                              let newNullValues = Object.values({
-                                ...localColumn.baseOptions.nullValues,
-                              });
-
-                              if (e.currentTarget.checked)
-                                newNullValues.push(value);
-                              else
-                                newNullValues = without(newNullValues, value);
-
-                              setColumnOptions(localColumn, {
-                                "baseOptions.nullValues": newNullValues,
-                              });
-                            }}
-                          >
-                            {label}
-                          </Checkbox>
-                        </div>
-                      ))}
-                  </Stack>
-                )}
-              </OptionWrapper>
-
-              <OptionWrapper
-                helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
-              >
-                <FormControl id="help">
-                  <FormLabel>Help text</FormLabel>
-                  <Input
-                    type="text"
-                    name="help value"
-                    placeholder="Help text value"
-                    required={false}
-                    value={localColumn.baseOptions.help}
-                    onChange={(e) =>
-                      setColumnOptions(localColumn, {
-                        "baseOptions.help": e.currentTarget.value,
-                      })
-                    }
-                  />
-                </FormControl>
-              </OptionWrapper>
-
-              {localColumn.fieldType === "DateTime" ||
-                localColumn.fieldType === "Id" || (
-                  <OptionWrapper helpText={`Default value for create view.`}>
-                    <FormControl id="defaultValue">
-                      <FormLabel>Default value</FormLabel>
+                    <FormControl id="placeholder">
+                      <FormLabel>Placeholder</FormLabel>
                       <Input
                         type="text"
-                        name="default value"
-                        placeholder="Default value"
+                        name="placeholder value"
+                        placeholder="Placeholder value"
                         required={false}
-                        value={localColumn.baseOptions.defaultValue}
+                        value={localColumn.baseOptions.placeholder}
                         onChange={(e) =>
                           setColumnOptions(localColumn, {
-                            "baseOptions.defaultValue": e.currentTarget.value,
+                            "baseOptions.placeholder": e.currentTarget.value,
                           })
                         }
                       />
                     </FormControl>
                   </OptionWrapper>
-                )}
+
+                  <OptionWrapper
+                    helpText={`Should this field be required in forms?`}
+                  >
+                    <FormControl id="required">
+                      <FormLabel>Required</FormLabel>
+                      <Checkbox
+                        id="required"
+                        isChecked={localColumn.baseOptions.required === true}
+                        isDisabled={localColumn.baseOptions.nullable === true}
+                        onChange={() =>
+                          setColumnOptions(localColumn, {
+                            "baseOptions.required":
+                              !localColumn.baseOptions.required,
+                          })
+                        }
+                      >
+                        Required
+                      </Checkbox>
+                    </FormControl>
+                  </OptionWrapper>
+
+                  <OptionWrapper
+                    helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
+                  >
+                    <FormControl id="nullable">
+                      <FormLabel>Nullable</FormLabel>
+                      <Checkbox
+                        id="nullable"
+                        isChecked={localColumn.baseOptions.nullable}
+                        isDisabled={localColumn.baseOptions.required === true}
+                        onChange={() =>
+                          setColumnOptions(localColumn, {
+                            "baseOptions.nullable":
+                              !localColumn.baseOptions.nullable,
+                          })
+                        }
+                      >
+                        Nullable
+                      </Checkbox>
+                      {localColumn?.dataSourceInfo?.nullable === false && (
+                        <FormHelperText>
+                          Has to be nullable in the DB in order to use this
+                          option.
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                    {localColumn.baseOptions.nullable === true && (
+                      <Stack pl={6} mt={1} spacing={1}>
+                        {NULL_VALUES &&
+                          NULL_VALUES.map(({ value, label }) => (
+                            <div key={label}>
+                              <Checkbox
+                                id={`null_value_${label}`}
+                                isChecked={Object.values(
+                                  localColumn.baseOptions.nullValues
+                                ).includes(value)}
+                                onChange={(e) => {
+                                  let newNullValues = Object.values({
+                                    ...localColumn.baseOptions.nullValues,
+                                  });
+
+                                  if (e.currentTarget.checked)
+                                    newNullValues.push(value);
+                                  else
+                                    newNullValues = without(
+                                      newNullValues,
+                                      value
+                                    );
+
+                                  setColumnOptions(localColumn, {
+                                    "baseOptions.nullValues": newNullValues,
+                                  });
+                                }}
+                              >
+                                {label}
+                              </Checkbox>
+                            </div>
+                          ))}
+                      </Stack>
+                    )}
+                  </OptionWrapper>
+
+                  <OptionWrapper
+                    helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
+                  >
+                    <FormControl id="help">
+                      <FormLabel>Help text</FormLabel>
+                      <Input
+                        type="text"
+                        name="help value"
+                        placeholder="Help text value"
+                        required={false}
+                        value={localColumn.baseOptions.help}
+                        onChange={(e) =>
+                          setColumnOptions(localColumn, {
+                            "baseOptions.help": e.currentTarget.value,
+                          })
+                        }
+                      />
+                    </FormControl>
+                  </OptionWrapper>
+
+                  {localColumn.fieldType === "DateTime" ||
+                    localColumn.fieldType === "Id" || (
+                      <OptionWrapper
+                        helpText={`Default value for create view.`}
+                      >
+                        <FormControl id="defaultValue">
+                          <FormLabel>Default value</FormLabel>
+                          <Input
+                            type="text"
+                            name="default value"
+                            placeholder="Default value"
+                            required={false}
+                            value={localColumn.baseOptions.defaultValue}
+                            onChange={(e) =>
+                              setColumnOptions(localColumn, {
+                                "baseOptions.defaultValue":
+                                  e.currentTarget.value,
+                              })
+                            }
+                          />
+                        </FormControl>
+                      </OptionWrapper>
+                    )}
+                </>
+              )}
 
               <InspectorComponent
                 column={localColumn}
                 setColumnOptions={setColumnOptions}
               />
+            </div>
+          </div>
+        )}
+        {isCreateField && (
+          <div className="w-full">
+            <h3 className="uppercase text-md font-semibold">Add new field</h3>
+            <div className="divide-y">
+              <OptionWrapper helpText={"Give this column a name to remember"}>
+                <FormControl id="name">
+                  <FormLabel>Name</FormLabel>
+                  <Input
+                    type="text"
+                    name="name value"
+                    placeholder="Name value"
+                    required={false}
+                    value={createName}
+                    onChange={(e) => setCreateName(e.currentTarget.value)}
+                  />
+                </FormControl>
+              </OptionWrapper>
             </div>
           </div>
         )}
