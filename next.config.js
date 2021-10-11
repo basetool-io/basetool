@@ -25,7 +25,13 @@ const SentryWebpackPluginOptions = {
   // https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
-if (process.env.BASE_URL.includes('localhost')) {
+if (process.env.ANALYZE) {
+  const withBundleAnalyzer = require("@next/bundle-analyzer")({
+    enabled: process.env.ANALYZE === "true",
+  });
+
+  module.exports = withBundleAnalyzer(moduleExports);
+} else if (process.env.BASE_URL.includes('localhost')) {
   module.exports = moduleExports
 } else {
   // Make sure adding Sentry options is the last code to run before exporting, to
