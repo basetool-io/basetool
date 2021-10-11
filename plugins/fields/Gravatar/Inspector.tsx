@@ -26,7 +26,7 @@ function Inspector({
   return (
     <OptionWrapper helpText="Choose how big should the gravatar be.">
       <FormControl id="dimensions">
-        <FormLabel>Show Dimensions</FormLabel>
+        <FormLabel>Show page dimensions</FormLabel>
         <Input
           type="number"
           name="dimensions"
