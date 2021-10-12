@@ -40,7 +40,6 @@ export const tablesApiSlice = createApi({
           { type: "TableColumns", id: tableName },
         ],
       }),
-
       getTables: builder.query<ApiResponse, { dataSourceId: string }>({
         query({ dataSourceId }) {
           return `/data-sources/${dataSourceId}/tables`;
@@ -67,6 +66,37 @@ export const tablesApiSlice = createApi({
           { type: "Table", id: dataSourceId },
         ],
       }),
+      deleteColumn: builder.mutation<
+        ApiResponse,
+        Partial<{ dataSourceId: string; tableName: string; columnName: string }>
+      >({
+        query: ({ dataSourceId, tableName, columnName }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns/${columnName}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { tableName }) => [
+          { type: "TableColumns", id: tableName },
+          { type: "TableColumns", id: "LIST" },
+        ],
+      }),
+      createColumn: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, body }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns`,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: (result, error, { tableName }) => [
+          { type: "TableColumns", id: tableName },
+          { type: "TableColumns", id: "LIST" },
+        ],
+      }),
     };
   },
 });
@@ -75,6 +105,8 @@ export const {
   useGetColumnsQuery,
   useUpdateColumnMutation,
   useGetTablesQuery,
+  useDeleteColumnMutation,
+  useCreateColumnMutation,
   useUpdateTableMutation,
   usePrefetch,
 } = tablesApiSlice;

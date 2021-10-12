@@ -35,6 +35,8 @@ export type BaseOptions = {
   label: string;
   disconnected: boolean;
   defaultValue: string;
+  computed: boolean;
+  computedSource: string;
 };
 
 export type Column<
@@ -47,7 +49,7 @@ export type Column<
   primaryKey?: boolean;
 
   baseOptions: BaseOptions;
-  dataSourceInfo: DataSourceColumnInfo;
+  dataSourceInfo?: DataSourceColumnInfo;
   fieldOptions: FieldColumnOptions;
   foreignKeyInfo?: ForeignKeyInfo;
 };

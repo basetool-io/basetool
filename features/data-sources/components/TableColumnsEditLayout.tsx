@@ -1,4 +1,6 @@
 import { FooterElements } from "@/types";
+import { INITIAL_NEW_COLUMN } from "@/pages/data-sources/[dataSourceId]/edit/tables/[tableName]/columns/[columnName]";
+import { PlusIcon } from "@heroicons/react/outline";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
@@ -7,6 +9,7 @@ import { useSegment } from "@/hooks";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import React, { ReactElement } from "react";
+import classNames from "classnames";
 
 const TableColumnsEditLayout = ({
   dataSourceId,
@@ -75,17 +78,33 @@ const TableColumnsEditLayout = ({
                       active={col.name === router.query.columnName}
                       onClick={() => track("Selected column in edit columns")}
                     >
-                      {getColumnNameLabel(
-                        col.baseOptions.label,
-                        col.label,
-                        col.name
-                      )}{" "}
-                      {col.baseOptions.required && (
-                        <sup className="text-red-600">*</sup>
-                      )}
+                      <div
+                        className={classNames({
+                          "font-mono": col?.baseOptions?.computed === true,
+                        })}
+                      >
+                        {getColumnNameLabel(
+                          col.baseOptions.label,
+                          col.label,
+                          col.name
+                        )}{" "}
+                        {col.baseOptions.required && (
+                          <sup className="text-red-600">*</sup>
+                        )}
+                      </div>
                     </ColumnListItem>
                   );
                 })}
+              <div className="mt-2">
+                <ColumnListItem
+                  icon={<PlusIcon className="h-4 mr-2 flex flex-shrink-0" />}
+                  href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${INITIAL_NEW_COLUMN.name}`}
+                  active={INITIAL_NEW_COLUMN.name === router.query.columnName}
+                  onClick={() => track("Add column in edit columns")}
+                >
+                  Add new field
+                </ColumnListItem>
+              </div>
             </div>
           </div>
           <div className="flex-1 p-4">

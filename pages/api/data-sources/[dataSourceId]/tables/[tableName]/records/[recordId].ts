@@ -1,9 +1,7 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
-import { Views } from "@/features/fields/enums";
 import { getColumns } from "../columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { getFilteredColumns } from "@/features/fields";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -63,14 +61,10 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   // Get columns and filter them based on visibility
   const columns = await getColumns({ dataSource, tableName });
 
-  const filteredColumns = getFilteredColumns(columns, Views.show).map(
-    ({ name }) => name
-  );
-
   const record = await service.runQuery("getRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
-    select: filteredColumns,
+    columns: columns,
   });
 
   res.json(ApiResponse.withData(record));
