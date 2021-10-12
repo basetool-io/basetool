@@ -10,8 +10,7 @@ export type FieldType =
   | "Select"
   | "Textarea"
   | "Json"
-  | "Association"
-  | "Computed";
+  | "Association";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
@@ -37,6 +36,7 @@ export type BaseOptions = {
   disconnected: boolean;
   defaultValue: string;
   computed: boolean;
+  computedValue: string;
 };
 
 export type Column<

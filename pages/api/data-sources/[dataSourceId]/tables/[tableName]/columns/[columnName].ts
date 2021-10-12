@@ -34,16 +34,18 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   )
     return res.status(404).send("");
 
+  const options = omit(dataSource?.options as Record<string, unknown>, [
+    `tables.${req.query.tableName as string}.columns.${
+      req.query.columnName as string
+    }`,
+  ]) as any;
+
   const result = await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options: omit(dataSource?.options as Record<string, unknown>, [
-        `tables.${req.query.tableName as string}.columns.${
-          req.query.columnName as string
-        }`,
-      ]) as any,
+      options,
     },
   });
 

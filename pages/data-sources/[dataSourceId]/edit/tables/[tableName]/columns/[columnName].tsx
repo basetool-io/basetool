@@ -15,9 +15,15 @@ import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
-import { first, isArray, isEmpty, isUndefined, without } from "lodash";
+import {
+  first,
+  isArray,
+  isEmpty,
+  isUndefined,
+  snakeCase,
+  without,
+} from "lodash";
 import { getColumnNameLabel, getColumnOptions } from "@/features/fields";
-import { humanize } from "@/lib/humanize";
 import {
   useCreateColumnMutation,
   useDeleteColumnMutation,
@@ -73,8 +79,8 @@ const NULL_VALUES = [
 ];
 
 export const INITIAL_NEW_COLUMN = {
-  name: "new_computed_field",
-  label: "",
+  name: "computed_field",
+  label: "Computed field",
   primaryKey: false,
   baseOptions: {
     visibility: [Views.index, Views.show],
@@ -89,7 +95,7 @@ export const INITIAL_NEW_COLUMN = {
     defaultValue: "",
     computed: true,
   },
-  fieldType: "Computed" as FieldType,
+  fieldType: "Text" as FieldType,
   fieldOptions: {
     value: "",
   },
@@ -105,7 +111,10 @@ function ColumnEdit() {
     () => columnName === INITIAL_NEW_COLUMN.name,
     [columnName]
   );
-  const [createName, setCreateName] = useState<string>(INITIAL_NEW_COLUMN.name);
+
+  const [createName, setCreateName] = useState<string>(
+    INITIAL_NEW_COLUMN.label
+  );
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -167,6 +176,11 @@ function ColumnEdit() {
   }, [columnsResponse, columnName]);
 
   const [localColumn, setLocalColumn] = useState<Column>();
+
+  const isComputed = useMemo(
+    () => column?.baseOptions.computed === true,
+    [column]
+  );
 
   useEffect(() => {
     setLocalColumn(column);
@@ -253,6 +267,7 @@ function ColumnEdit() {
   }, [column, diff]);
 
   const isDirty = useMemo(() => {
+    // We have to make sure the new name is unique, so we have to check for this.
     let allColumnNames = [];
     if (
       isCreateField &&
@@ -264,9 +279,9 @@ function ColumnEdit() {
 
     return isCreateField
       ? !(
-          allColumnNames.includes(createName) ||
-          createName === INITIAL_NEW_COLUMN.name ||
-          createName === ""
+          allColumnNames.includes(snakeCase(createName)) ||
+          snakeCase(createName) === INITIAL_NEW_COLUMN.name ||
+          snakeCase(createName) === ""
         )
       : !isEmpty(changes);
   }, [changes, createName]);
@@ -303,8 +318,8 @@ function ColumnEdit() {
   const createField = async () => {
     const newColumn = {
       ...INITIAL_NEW_COLUMN,
-      name: createName,
-      label: humanize(createName),
+      name: snakeCase(createName),
+      label: createName,
     };
     const response = await createColumn({
       dataSourceId: router.query.dataSourceId as string,
@@ -313,9 +328,11 @@ function ColumnEdit() {
     });
 
     if ((response as any)?.data?.ok) {
-      setCreateName(INITIAL_NEW_COLUMN.name);
+      setCreateName(INITIAL_NEW_COLUMN.label);
       router.push(
-        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${createName}`
+        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${snakeCase(
+          createName
+        )}`
       );
     }
   };
@@ -364,7 +381,7 @@ function ColumnEdit() {
                   column?.name
                 )}
               </h3>
-              {column?.fieldType === "Computed" && (
+              {isComputed && (
                 <Button
                   colorScheme="red"
                   size="xs"
@@ -413,13 +430,13 @@ function ColumnEdit() {
                 setColumnOptions={setColumnOptions}
               />
 
-              {column.fieldType !== "Computed" && (
+              {!isComputed && (
                 <OptionWrapper
                   helpText={
                     <>
-                      Some fields you don't want to show at all. By disconnecting
-                      the field it will be hidden from all views and{" "}
-                      <strong>all responses</strong>.
+                      Some fields you don't want to show at all. By
+                      disconnecting the field it will be hidden from all views
+                      and <strong>all responses</strong>.
                     </>
                   }
                 >
@@ -466,7 +483,7 @@ You can control where the field is visible here.`}
                     >
                       Show
                     </Checkbox>
-                    {column.fieldType !== "Computed" && (
+                    {!isComputed && (
                       <>
                         <Checkbox
                           value="edit"
@@ -510,7 +527,39 @@ You can control where the field is visible here.`}
                 </FormControl>
               </OptionWrapper>
 
-              {column.fieldType !== "Computed" && (
+              {isComputed && (
+                <OptionWrapper helpText="Value that has to be computed.">
+                  <FormControl id="computedValue">
+                    <FormLabel>Computed Value</FormLabel>
+                    <Input
+                      type="text"
+                      name="value"
+                      placeholder="{{record.first_name}} {{record.last_name}}"
+                      required={true}
+                      value={localColumn.baseOptions.computedValue}
+                      onChange={(e) => {
+                        setColumnOptions(localColumn, {
+                          "baseOptions.computedValue": e.currentTarget.value,
+                        });
+                      }}
+                    />
+                    <FormHelperText>
+                      We are using{" "}
+                      <a
+                        className="text-blue-600"
+                        href="https://handlebarsjs.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        handlebars
+                      </a>{" "}
+                      syntax for this.
+                    </FormHelperText>
+                  </FormControl>
+                </OptionWrapper>
+              )}
+
+              {!isComputed && (
                 <>
                   <OptionWrapper
                     helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
@@ -666,9 +715,9 @@ You can control where the field is visible here.`}
           <div className="w-full">
             <h3 className="uppercase text-md font-semibold">Add new field</h3>
             <div className="divide-y">
-              <OptionWrapper helpText={"Give this column a name to remember"}>
-                <FormControl id="name">
-                  <FormLabel>Name</FormLabel>
+              <OptionWrapper helpText={"Give this column a initial name."}>
+                <FormControl id="initialName">
+                  <FormLabel>Initial name</FormLabel>
                   <Input
                     type="text"
                     name="name value"

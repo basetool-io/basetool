@@ -76,6 +76,7 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
+          { type: "TableColumns", id: "LIST" },
         ],
       }),
       createColumn: builder.mutation<
@@ -93,6 +94,7 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
+          { type: "TableColumns", id: "LIST" },
         ],
       }),
     };

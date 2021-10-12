@@ -6,9 +6,6 @@ import AssociationShowField from "@/plugins/fields/Association/Show";
 import BooleanEditField from "@/plugins/fields/Boolean/Edit";
 import BooleanIndexField from "@/plugins/fields/Boolean/Index";
 import BooleanShowField from "@/plugins/fields/Boolean/Show";
-import ComputedEditField from "@/plugins/fields/Textarea/Edit";
-import ComputedIndexField from "@/plugins/fields/Textarea/Index";
-import ComputedShowField from "@/plugins/fields/Textarea/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
@@ -54,8 +51,8 @@ export const getFieldForEdit = (column: Column) => {
       return JsonEditField;
     case "Association":
       return AssociationEditField;
-    case "Computed":
-      return ComputedEditField;
+    // case "Computed":
+    //   return ComputedEditField;
   }
 };
 
@@ -80,8 +77,8 @@ export const getFieldForShow = (column: Column) => {
       return JsonShowField;
     case "Association":
       return AssociationShowField;
-    case "Computed":
-      return ComputedShowField;
+    // case "Computed":
+    //   return ComputedShowField;
   }
 };
 
@@ -106,8 +103,8 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
-    case "Computed":
-      return ComputedIndexField;
+    // case "Computed":
+    //   return ComputedIndexField;
   }
 };
 

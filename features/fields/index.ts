@@ -3,7 +3,6 @@ import {
   ArrowRightIcon,
   CalendarIcon,
   CheckCircleIcon,
-  ChipIcon,
   HashtagIcon,
   KeyIcon,
   SelectorIcon,
@@ -57,10 +56,10 @@ export const getColumnOptions = (
       id: "Json",
       label: "Json",
     },
-    {
-      id: "Computed",
-      label: "Computed",
-    },
+    // {
+    //   id: "Computed",
+    //   label: "Computed",
+    // },
   ];
 
   if (column.foreignKeyInfo) {
@@ -121,8 +120,8 @@ export const iconForField = (field: Column): ElementType => {
       return BracketsCurlyIcon;
     case "Association":
       return ArrowRightIcon;
-    case "Computed":
-      return ChipIcon;
+    // case "Computed":
+    //   return ChipIcon;
   }
 };
 
@@ -158,6 +157,7 @@ export const getBaseOptions = () => ({
   disconnected: false,
   defaultValue: "",
   computed: false,
+  computedValue: "",
 });
 
 export const getColumnNameLabel = (...args: any[]) => {
