@@ -151,7 +151,7 @@ export const getBaseOptions = () => ({
   disconnected: false,
   defaultValue: "",
   computed: false,
-  computedValue: "",
+  computedSource: "",
 });
 
 export const getColumnNameLabel = (...args: any[]) => {

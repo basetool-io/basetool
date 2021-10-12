@@ -36,7 +36,7 @@ export type BaseOptions = {
   disconnected: boolean;
   defaultValue: string;
   computed: boolean;
-  computedValue: string;
+  computedSource: string;
 };
 
 export type Column<

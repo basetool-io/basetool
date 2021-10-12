@@ -112,9 +112,7 @@ function ColumnEdit() {
     [columnName]
   );
 
-  const [createName, setCreateName] = useState<string>(
-    INITIAL_NEW_COLUMN.label
-  );
+  const [createName, setCreateName] = useState<string>();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -266,25 +264,25 @@ function ColumnEdit() {
     );
   }, [column, diff]);
 
-  const isDirty = useMemo(() => {
+  const isDirty = useMemo(() => !isEmpty(changes), [changes]);
+
+  const isValid = useMemo(() => {
     // We have to make sure the new name is unique, so we have to check for this.
     let allColumnNames = [];
     if (
-      isCreateField &&
       columnsResponse?.ok &&
       isArray(columnsResponse?.data)
     ) {
       allColumnNames = columnsResponse.data.map(({ name }: any) => name);
     }
 
-    return isCreateField
-      ? !(
-          allColumnNames.includes(snakeCase(createName)) ||
-          snakeCase(createName) === INITIAL_NEW_COLUMN.name ||
-          snakeCase(createName) === ""
-        )
-      : !isEmpty(changes);
-  }, [changes, createName]);
+    return !(
+      allColumnNames.includes(snakeCase(createName)) ||
+      snakeCase(createName) === INITIAL_NEW_COLUMN.name ||
+      snakeCase(createName) === ""
+    );
+  }, [createName]);
+
   const [
     updateTable, // This is the mutation trigger
     { isLoading: isUpdating }, // This is the destructured mutation result
@@ -309,8 +307,8 @@ function ColumnEdit() {
         tableName: router.query.tableName as string,
         columnName: router.query.columnName as string,
       });
-      router.push(
-        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/`
+      await router.push(
+        `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`
       );
     }
   };
@@ -320,6 +318,10 @@ function ColumnEdit() {
       ...INITIAL_NEW_COLUMN,
       name: snakeCase(createName),
       label: createName,
+      baseOptions: {
+        ...INITIAL_NEW_COLUMN.baseOptions,
+        label: createName,
+      },
     };
     const response = await createColumn({
       dataSourceId: router.query.dataSourceId as string,
@@ -329,7 +331,7 @@ function ColumnEdit() {
 
     if ((response as any)?.data?.ok) {
       setCreateName(INITIAL_NEW_COLUMN.label);
-      router.push(
+      await router.push(
         `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${snakeCase(
           createName
         )}`
@@ -362,7 +364,7 @@ function ColumnEdit() {
               )
             }
             isLoading={isCreating || isUpdating}
-            disabled={!isDirty}
+            disabled={isCreateField ? !isValid : !isDirty}
             onClick={isCreateField ? createField : saveTableSettings}
           >
             {isCreateField ? "Create field" : "Save settings"}
@@ -528,18 +530,19 @@ You can control where the field is visible here.`}
               </OptionWrapper>
 
               {isComputed && (
-                <OptionWrapper helpText="Value that has to be computed.">
-                  <FormControl id="computedValue">
-                    <FormLabel>Computed Value</FormLabel>
+                <OptionWrapper helpText="Value that has to be computed. You have to refresh the page after changing this value.">
+                  <FormControl id="computedSource">
+                    <FormLabel>Value</FormLabel>
                     <Input
                       type="text"
                       name="value"
                       placeholder="{{record.first_name}} {{record.last_name}}"
+                      className="font-mono"
                       required={true}
-                      value={localColumn?.baseOptions?.computedValue}
+                      value={localColumn?.baseOptions?.computedSource}
                       onChange={(e) => {
                         setColumnOptions(localColumn, {
-                          "baseOptions.computedValue": e.currentTarget.value,
+                          "baseOptions.computedSource": e.currentTarget.value,
                         });
                       }}
                     />
@@ -715,13 +718,13 @@ You can control where the field is visible here.`}
           <div className="w-full">
             <h3 className="uppercase text-md font-semibold">Add new field</h3>
             <div className="divide-y">
-              <OptionWrapper helpText={"Give this column a initial name."}>
-                <FormControl id="initialName">
-                  <FormLabel>Initial name</FormLabel>
+              <OptionWrapper helpText={"What should we call this field?"}>
+                <FormControl id="label">
+                  <FormLabel>Label</FormLabel>
                   <Input
                     type="text"
-                    name="name value"
-                    placeholder="Name value"
+                    name="label value"
+                    placeholder="Label value"
                     required={false}
                     value={createName}
                     onChange={(e) => setCreateName(e.currentTarget.value)}

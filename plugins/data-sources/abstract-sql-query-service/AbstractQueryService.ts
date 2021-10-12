@@ -14,10 +14,7 @@ import {
 import { DataSource } from "@prisma/client";
 import { DateFilterConditions } from "./../../../features/tables/components/DateConditionComponent";
 import { FilterVerbs } from "@/features/tables/components/VerbComponent";
-import {
-  IFilter,
-  IFilterGroup,
-} from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
@@ -25,10 +22,7 @@ import { SelectFilterConditions } from "@/features/tables/components/SelectCondi
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
-import {
-  getBaseOptions,
-  getFilteredColumns,
-} from "@/features/fields";
+import { getBaseOptions, getFilteredColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
 import Handlebars from "handlebars";
@@ -107,7 +101,10 @@ const getValue = (filter: IFilter) => {
   }
 };
 
-const addFiltersToQuery = (query: Knex.QueryBuilder, filters: Array<IFilter | IFilterGroup>) => {
+const addFiltersToQuery = (
+  query: Knex.QueryBuilder,
+  filters: Array<IFilter | IFilterGroup>
+) => {
   filters.forEach((filter) => {
     if ("isGroup" in filter && filter.isGroup) {
       addFilterGroupToQuery(query, filter as IFilterGroup);
@@ -122,7 +119,6 @@ const addFilterGroupToQuery = (
   filter: IFilterGroup
 ) => {
   if (filter.verb === FilterVerbs.or) {
-
     query.orWhere(function () {
       addFiltersToQuery(this, filter.filters);
     });
@@ -241,7 +237,7 @@ const getDateRange = (filterOption: string, filterValue: string) => {
 
       return [from, to];
     case "exact_date":
-      if(filterValue != "") {
+      if (filterValue != "") {
         today = new Date(filterValue);
       }
       today.setUTCHours(0, 0, 0, 0);
@@ -457,20 +453,9 @@ abstract class AbstractQueryService implements IQueryService {
     );
 
     computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn?.baseOptions?.computedValue;
-      const computedName = computedColumn.name;
+      const editorData = computedColumn?.baseOptions?.computedSource;
       records.forEach((record: any) => {
-        const queryableData = { record };
-        if (editorData) {
-          try {
-            const template = Handlebars.compile(editorData);
-            const value = template(queryableData);
-
-            record[computedName] = value;
-          } catch (error) {
-            console.error("Couldn't parse value.", error);
-          }
-        }
+        this.computeValue(record, editorData, computedColumn.name);
       });
     });
 
@@ -527,19 +512,8 @@ abstract class AbstractQueryService implements IQueryService {
     );
 
     computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn?.baseOptions?.computedValue;
-      const computedName = computedColumn.name;
-      const queryableData = { record: rows[0] };
-      if (editorData) {
-        try {
-          const template = Handlebars.compile(editorData);
-          const value = template(queryableData);
-
-          rows[0][computedName] = value;
-        } catch (error) {
-          console.error("Couldn't parse value.", error);
-        }
-      }
+      const editorData = computedColumn?.baseOptions?.computedSource;
+      this.computeValue(rows[0], editorData, computedColumn.name);
     });
 
     const filteredColumns = getFilteredColumns(columns, Views.show).map(
@@ -747,6 +721,20 @@ abstract class AbstractQueryService implements IQueryService {
 
     // @todo: fetch foreign keys before responding
     return columns as [];
+  }
+
+  private async computeValue(record: any, editorData: string, computedName: string) {
+    const queryableData = { record };
+    if (editorData) {
+      try {
+        const template = Handlebars.compile(editorData);
+        const value = template(queryableData);
+
+        record[computedName] = value;
+      } catch (error) {
+        console.error("Couldn't parse value.", error);
+      }
+    }
   }
 
   private async getPrimaryKeyColumn({
