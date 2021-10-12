@@ -9,6 +9,7 @@ import { useSegment } from "@/hooks";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import React, { ReactElement } from "react";
+import classNames from "classnames";
 
 const TableColumnsEditLayout = ({
   dataSourceId,
@@ -77,14 +78,20 @@ const TableColumnsEditLayout = ({
                       active={col.name === router.query.columnName}
                       onClick={() => track("Selected column in edit columns")}
                     >
-                      {getColumnNameLabel(
-                        col.baseOptions.label,
-                        col.label,
-                        col.name
-                      )}{" "}
-                      {col.baseOptions.required && (
-                        <sup className="text-red-600">*</sup>
-                      )}
+                      <div
+                        className={classNames({
+                          "font-mono": col.baseOptions.computed === true,
+                        })}
+                      >
+                        {getColumnNameLabel(
+                          col.baseOptions.label,
+                          col.label,
+                          col.name
+                        )}{" "}
+                        {col.baseOptions.required && (
+                          <sup className="text-red-600">*</sup>
+                        )}
+                      </div>
                     </ColumnListItem>
                   );
                 })}
