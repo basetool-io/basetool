@@ -1,5 +1,6 @@
 import { FilterConditions, IFilter } from "@/features/tables/components/Filter";
 import BooleanConditionComponent from "./BooleanConditionComponent";
+import DateConditionComponent from "./DateConditionComponent";
 import IntConditionComponent from "./IntConditionComponent";
 import SelectConditionComponent from "./SelectConditionComponent";
 import StringConditionComponent from "./StringConditionComponent";
@@ -23,6 +24,9 @@ function ConditionComponent({
       break;
     case "Boolean":
       Component = BooleanConditionComponent;
+      break;
+    case "DateTime":
+      Component = DateConditionComponent;
       break;
     case "Select":
       Component = SelectConditionComponent;

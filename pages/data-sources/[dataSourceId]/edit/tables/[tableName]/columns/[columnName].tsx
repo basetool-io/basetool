@@ -301,8 +301,19 @@ function ColumnEdit() {
                 </FormControl>
               </OptionWrapper>
 
+              <InspectorComponent
+                column={localColumn}
+                setColumnOptions={setColumnOptions}
+              />
+
               <OptionWrapper
-                helpText={`Some fields you don't want to show at all. By disconnecting the field it will be hidden from all views.`}
+                helpText={
+                  <>
+                    Some fields you don't want to show at all. By disconnecting
+                    the field it will be hidden from all views and{" "}
+                    <strong>all responses</strong>.
+                  </>
+                }
               >
                 <FormLabel>Disconnect field</FormLabel>
                 <Checkbox
@@ -327,13 +338,11 @@ You can control where the field is visible here.`}
               >
                 <CheckboxGroup
                   value={localColumn.baseOptions.visibility}
-                  onChange={(value) => {
-                    console.log("value->", value);
-
-                    return setColumnOptions(localColumn, {
+                  onChange={(value) =>
+                    setColumnOptions(localColumn, {
                       "baseOptions.visibility": value,
-                    });
-                  }}
+                    })
+                  }
                 >
                   <Stack direction="column">
                     <Checkbox
@@ -447,7 +456,7 @@ You can control where the field is visible here.`}
                   >
                     Nullable
                   </Checkbox>
-                  {localColumn.dataSourceInfo.nullable === false && (
+                  {localColumn?.dataSourceInfo?.nullable === false && (
                     <FormHelperText>
                       Has to be nullable in the DB in order to use this option.
                     </FormHelperText>
@@ -526,11 +535,6 @@ You can control where the field is visible here.`}
                     </FormControl>
                   </OptionWrapper>
                 )}
-
-              <InspectorComponent
-                column={localColumn}
-                setColumnOptions={setColumnOptions}
-              />
             </div>
           </div>
         )}

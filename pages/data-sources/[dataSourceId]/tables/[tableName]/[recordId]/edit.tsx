@@ -1,7 +1,7 @@
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { useAccessControl } from "@/hooks";
+import { useAccessControl, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
@@ -35,7 +35,6 @@ function RecordsEdit() {
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
-  const ac = useAccessControl();
   const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
@@ -49,12 +48,13 @@ function RecordsEdit() {
     [columnsResponse?.data]
   );
 
-  const canEdit = useMemo(
-    () =>
-      ac.updateAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
+  const { isLoading: profileIsLoading } = useProfile();
+  const ac = useAccessControl();
+  const canEdit = useMemo(() => {
+    if (profileIsLoading) return true;
+
+    return ac.updateAny("record").granted;
+  }, [ac, profileIsLoading]);
 
   // Redirect to record page if the user can't edit
   useEffect(() => {
