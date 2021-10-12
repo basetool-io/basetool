@@ -453,11 +453,11 @@ abstract class AbstractQueryService implements IQueryService {
     const records = await query;
 
     const computedColumns = columns.filter(
-      (column: Column) => column?.baseOptions.computed === true
+      (column: Column) => column?.baseOptions?.computed === true
     );
 
     computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn.baseOptions.computedValue;
+      const editorData = computedColumn?.baseOptions?.computedValue;
       const computedName = computedColumn.name;
       records.forEach((record: any) => {
         const queryableData = { record };
@@ -523,11 +523,11 @@ abstract class AbstractQueryService implements IQueryService {
       .table(tableName);
 
     const computedColumns = columns.filter(
-      (column: Column) => column?.baseOptions.computed === true
+      (column: Column) => column?.baseOptions?.computed === true
     );
 
     computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn.baseOptions.computedValue;
+      const editorData = computedColumn?.baseOptions?.computedValue;
       const computedName = computedColumn.name;
       const queryableData = { record: rows[0] };
       if (editorData) {

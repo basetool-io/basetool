@@ -178,7 +178,7 @@ function ColumnEdit() {
   const [localColumn, setLocalColumn] = useState<Column>();
 
   const isComputed = useMemo(
-    () => column?.baseOptions.computed === true,
+    () => column?.baseOptions?.computed === true,
     [column]
   );
 
@@ -536,7 +536,7 @@ You can control where the field is visible here.`}
                       name="value"
                       placeholder="{{record.first_name}} {{record.last_name}}"
                       required={true}
-                      value={localColumn.baseOptions.computedValue}
+                      value={localColumn?.baseOptions?.computedValue}
                       onChange={(e) => {
                         setColumnOptions(localColumn, {
                           "baseOptions.computedValue": e.currentTarget.value,

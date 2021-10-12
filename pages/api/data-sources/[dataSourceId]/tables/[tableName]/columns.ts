@@ -65,7 +65,7 @@ export const getColumns = async ({
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns)) {
     const computedColumns = Object.values(storedColumns).filter(
-      (column: any) => column?.baseOptions.computed === true
+      (column: any) => column?.baseOptions?.computed === true
     );
     if (!isEmpty(computedColumns)) {
       columns = columns.concat(computedColumns);

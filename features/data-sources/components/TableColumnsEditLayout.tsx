@@ -80,7 +80,7 @@ const TableColumnsEditLayout = ({
                     >
                       <div
                         className={classNames({
-                          "font-mono": col.baseOptions.computed === true,
+                          "font-mono": col?.baseOptions?.computed === true,
                         })}
                       >
                         {getColumnNameLabel(
