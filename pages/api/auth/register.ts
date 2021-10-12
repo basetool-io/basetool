@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+import { Client } from "intercom-client";
 import { createUser, hashPassword } from "@/features/auth";
 import { schema } from "@/features/auth/signupSchema";
 import { serverSegment } from "@/lib/track";
@@ -52,6 +53,19 @@ const handler = async (
       properties: {},
     });
 
+    const client = new Client({
+      token: process.env.INTERCOM_ACCESS_TOKEN as string,
+    });
+
+    await client.contacts.create({
+      email: payload.email,
+      user_id: user?.id?.toString(),
+      name: `${user?.firstName} ${user?.lastName}`,
+      custom_attributes: {
+        Organization: payload?.organization,
+      },
+    });
+
     await email.send({
       to: ["adrian@basetool.io", "david@basetool.io"],
       subject: "New user signup",
@@ -60,6 +74,7 @@ const handler = async (
   } catch (error: any) {
     logger.error({
       msg: `Failed to send registration email.`,
+      errorMessage: error.message,
       error,
     });
   }

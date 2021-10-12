@@ -1,8 +1,6 @@
-import { Views } from "@/features/fields/enums";
 import { decodeObject } from "@/lib/encoding";
 import { getColumns } from "./columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { getFilteredColumns } from "@/features/fields";
 import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -40,10 +38,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName: req.query.tableName as string,
   });
 
-  const filteredColumns = getFilteredColumns(columns, Views.index).map(
-    ({ name }) => name
-  );
-
   const [records, count] = await service.runQueries([
     {
       name: "getRecords",
@@ -56,7 +50,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           : null,
         orderBy: req.query.orderBy as string,
         orderDirection: req.query.orderDirection as string,
-        select: filteredColumns,
+        columns: columns,
       },
     },
     {

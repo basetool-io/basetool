@@ -30,44 +30,6 @@ import TextareaShowField from "@/plugins/fields/Textarea/Show";
 
 import type { Column } from "./types";
 
-// export const getFieldForEdit = (column: Column) => {
-//   // switch (column.fieldType) {
-//   //   default:
-//   //   case 'Text':
-//   //     return TextEditField
-//   //   case 'Number':
-//   //     return NumberEditField
-//   //   case 'Id':
-//   //     return IdEditField
-//   //   case 'Boolean':
-//   //     return BooleanEditField
-//   //   case 'DateTime':
-//   //     return DateTimeEditField
-//   // }
-// };
-
-// export const getFieldForShow = (column: Column) => {
-//   // switch (column.fieldType) {
-//   //   default:
-//   //   case 'Text':
-//   //     return TextShowField
-//   //   case 'Number':
-//   //     return NumberShowField
-//   //   case 'Id':
-//   //     return IdShowField
-//   //   case 'Boolean':
-//   //     return BooleanShowField
-//   //   case 'DateTime':
-//   //     return DateTimeShowField
-//   // }
-// };
-
-// export const getFieldForIndex = async (column: Column) => {
-//   try {
-//     return (await import(`@/plugins/fields/${column.fieldType}/Index`)).default;
-//   } catch (error) {}
-// };
-
 export const getFieldForEdit = (column: Column) => {
   switch (column.fieldType) {
     default:
