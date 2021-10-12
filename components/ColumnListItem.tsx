@@ -11,7 +11,7 @@ const ColumnListItem = ({
   onClick,
   children,
   href,
-  itemType,
+  itemType = "column",
   reordering = false,
   id,
   moveMethod,

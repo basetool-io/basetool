@@ -32,7 +32,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   const user = await getUserFromRequest(req);
   const dataSourceOptions = dataSource.options as Record<string, unknown>
 
-  const data = merge(dataSourceOptions, {
+  const options = merge(dataSourceOptions, {
     tables: {
       [req.query.tableName as string]: req.body
     }
@@ -44,7 +44,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
         id: parseInt(req.query.dataSourceId as string, 10),
       },
       data: {
-        options: data as any,
+        options: options as any,
       }
     });
 

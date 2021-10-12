@@ -71,7 +71,7 @@ const TableColumnsEditLayout = ({
   const [{ didDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.COLUMN,
     collect: (monitor) => ({
-      didDrop: monitor.didDrop(),
+      didDrop: monitor.getItemType() === ItemTypes.COLUMN ? monitor.didDrop() : false,
     }),
   }));
   const [updateTable, { isLoading: isUpdating }] = useUpdateTableMutation();
@@ -143,7 +143,7 @@ const TableColumnsEditLayout = ({
   }, [columnsResponse]);
 
   useEffect(() => {
-    if (didDrop) updateColumnsOrder();
+    if (didDrop === true) updateColumnsOrder();
   }, [didDrop]);
 
   return (

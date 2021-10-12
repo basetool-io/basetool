@@ -269,10 +269,7 @@ function ColumnEdit() {
   const isValid = useMemo(() => {
     // We have to make sure the new name is unique, so we have to check for this.
     let allColumnNames = [];
-    if (
-      columnsResponse?.ok &&
-      isArray(columnsResponse?.data)
-    ) {
+    if (columnsResponse?.ok && isArray(columnsResponse?.data)) {
       allColumnNames = columnsResponse.data.map(({ name }: any) => name);
     }
 
@@ -466,11 +463,11 @@ You can control where the field is visible here.`}
               >
                 <CheckboxGroup
                   value={localColumn.baseOptions.visibility}
-                  onChange={(value) =>
+                  onChange={(value) => {
                     setColumnOptions(localColumn, {
                       "baseOptions.visibility": value,
-                    })
-                  }
+                    });
+                  }}
                 >
                   <Stack direction="column">
                     <Checkbox

@@ -6,8 +6,8 @@ import { getLabel } from "@/features/data-sources";
 import { isEmpty } from "lodash";
 import { useBoolean } from "react-use";
 import { useDrop } from "react-dnd";
-import { useGetDataSourceQuery, useUpdateDataSourceMutation } from "../api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice";
+import { useGetDataSourceQuery } from "../api-slice";
+import { useGetTablesQuery, useUpdateTablesMutation } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -38,10 +38,10 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
   const [{ didDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.TABLE,
     collect: (monitor) => ({
-      didDrop: monitor.didDrop(),
+      didDrop: monitor.getItemType() === ItemTypes.TABLE ? monitor.didDrop() : false,
     }),
   }));
-  const [updateDataSource, { isLoading: isUpdating }] = useUpdateDataSourceMutation();
+  const [updateTables, { isLoading: isUpdating }] = useUpdateTablesMutation();
 
   const sortTables = (tables: ListTable[]) => {
     const newTables: ListTable[] = [];
@@ -89,7 +89,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
         };
       });
 
-      await updateDataSource({
+      await updateTables({
         dataSourceId: router.query.dataSourceId as string,
         body: { tables: dataSourceTables },
       }).unwrap();
@@ -101,7 +101,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
   }, [tablesResponse]);
 
   useEffect(() => {
-    if (didDrop) updateTablesOrder();
+    if (didDrop === true) updateTablesOrder();
   }, [didDrop]);
 
   return (
