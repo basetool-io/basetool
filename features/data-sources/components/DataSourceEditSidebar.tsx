@@ -79,11 +79,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
 
   const updateTablesOrder = async () => {
     if (dataSourceResponse?.ok) {
-      console.log('tables->', tables)
-      console.log('dataSourceResponse->', dataSourceResponse)
       const dataSourceTables = {...dataSourceResponse?.data?.options.tables};
-
-      console.log('dataSourceTables->', dataSourceTables)
 
       tables.forEach((table: ListTable, index: number) => {
         const dataSourceTable = dataSourceTables[table.name];
@@ -92,8 +88,6 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
             orderIndex: index,
         };
       });
-
-      console.log('dataSourceTables->', dataSourceTables)
 
       await updateDataSource({
         dataSourceId: router.query.dataSourceId as string,
