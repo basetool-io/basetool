@@ -56,10 +56,6 @@ export const getColumnOptions = (
       id: "Json",
       label: "Json",
     },
-    // {
-    //   id: "Computed",
-    //   label: "Computed",
-    // },
   ];
 
   if (column.foreignKeyInfo) {
@@ -120,8 +116,6 @@ export const iconForField = (field: Column): ElementType => {
       return BracketsCurlyIcon;
     case "Association":
       return ArrowRightIcon;
-    // case "Computed":
-    //   return ChipIcon;
   }
 };
 

@@ -51,8 +51,6 @@ export const getFieldForEdit = (column: Column) => {
       return JsonEditField;
     case "Association":
       return AssociationEditField;
-    // case "Computed":
-    //   return ComputedEditField;
   }
 };
 
@@ -77,8 +75,6 @@ export const getFieldForShow = (column: Column) => {
       return JsonShowField;
     case "Association":
       return AssociationShowField;
-    // case "Computed":
-    //   return ComputedShowField;
   }
 };
 
@@ -103,8 +99,6 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
-    // case "Computed":
-    //   return ComputedIndexField;
   }
 };
 
