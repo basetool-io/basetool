@@ -35,7 +35,7 @@ export type BaseOptions = {
   label: string;
   disconnected: boolean;
   defaultValue: string;
-  orderIndex: number;
+  orderIndex?: number;
 };
 
 export type Column<

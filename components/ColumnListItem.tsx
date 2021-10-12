@@ -1,4 +1,3 @@
-import { ItemTypes } from "@/lib/ItemTypes";
 import { MenuIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
 import { useDrag, useDrop } from "react-dnd";
@@ -12,26 +11,28 @@ const ColumnListItem = ({
   onClick,
   children,
   href,
+  itemType,
   reordering = false,
   id,
-  moveColumn,
-  findColumn,
+  moveMethod,
+  findMethod,
 }: {
   active: boolean;
   icon?: ReactNode;
   onClick?: () => void;
   children: ReactNode;
   href?: string;
+  itemType?: string;
   reordering?: boolean;
   id?: number;
-  moveColumn?: (id: number, to: number) => void;
-  findColumn?: (id: number) => { index: number };
+  moveMethod?: (id: number, to: number) => void;
+  findMethod?: (id: number) => { index: number };
 }) => {
   const originalIndex =
-    !isUndefined(findColumn) && !isUndefined(id) ? findColumn(id).index : 0;
+    !isUndefined(findMethod) && !isUndefined(id) ? findMethod(id).index : 0;
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
-      type: ItemTypes.COLUMN,
+      type: itemType as string,
       item: { id, originalIndex },
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
@@ -39,31 +40,31 @@ const ColumnListItem = ({
       end: (item, monitor) => {
         const { id: droppedId, originalIndex } = item;
         const didDrop = monitor.didDrop();
-        if (!didDrop && !isUndefined(moveColumn) && !isUndefined(droppedId)) {
-          moveColumn(droppedId, originalIndex);
+        if (!didDrop && !isUndefined(moveMethod) && !isUndefined(droppedId)) {
+          moveMethod(droppedId, originalIndex);
         }
       },
     }),
-    [id, originalIndex, moveColumn]
+    [id, originalIndex, moveMethod]
   );
 
   const [, drop] = useDrop(
     () => ({
-      accept: ItemTypes.COLUMN,
+      accept: itemType as string,
       canDrop: () => false,
       hover({ id: draggedId }: { id: number }) {
         if (
           draggedId !== id &&
-          !isUndefined(moveColumn) &&
-          !isUndefined(findColumn) &&
+          !isUndefined(moveMethod) &&
+          !isUndefined(findMethod) &&
           !isUndefined(id)
         ) {
-          const { index: overIndex } = findColumn(id);
-          moveColumn(draggedId, overIndex);
+          const { index: overIndex } = findMethod(id);
+          moveMethod(draggedId, overIndex);
         }
       },
     }),
-    [findColumn, moveColumn]
+    [findMethod, moveMethod]
   );
 
   const Component = (

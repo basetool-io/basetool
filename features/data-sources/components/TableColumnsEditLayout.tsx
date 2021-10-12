@@ -3,7 +3,6 @@ import { Column } from "@/features/fields/types";
 import { FooterElements } from "@/types";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { SelectorIcon } from "@heroicons/react/outline";
-import { diff as difference } from "deep-object-diff";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useBoolean } from "react-use";
@@ -18,7 +17,7 @@ import { useRouter } from "next/router";
 import { useSegment } from "@/hooks";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
-import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import update from "immutability-helper";
 
 const TableColumnsEditLayout = ({
@@ -67,12 +66,14 @@ const TableColumnsEditLayout = ({
   });
 
   const [reordering, setReordering] = useBoolean(false);
-
   const [columns, setColumns] = useState<Column[]>([]);
-
-  useEffect(() => {
-    if (columnsResponse?.ok) setColumns(sortColumns(columnsResponse.data));
-  }, [columnsResponse]);
+  const [{ didDrop }, drop] = useDrop(() => ({
+    accept: ItemTypes.COLUMN,
+    collect: (monitor) => ({
+      didDrop: monitor.didDrop(),
+    }),
+  }));
+  const [updateTable, { isLoading: isUpdating }] = useUpdateTableMutation();
 
   const sortColumns = (columns: Column[]) => {
     const newColumns: Column[] = [];
@@ -110,56 +111,39 @@ const TableColumnsEditLayout = ({
     );
   };
 
-  const [, drop] = useDrop(() => ({ accept: ItemTypes.COLUMN }));
-
-  const [updateTable, { isLoading: isUpdating }] = useUpdateTableMutation();
-
-  const setReorderingValues = async () => {
-    if (reordering) {
-      updateColumnOrder();
-      setReordering(false);
-    } else {
-      setReordering(true);
-    }
-  };
-
-  const updateColumnOrder = async () => {
-    if (tablesResponse?.ok && isDirty) {
+  const updateColumnsOrder = async () => {
+    if (tablesResponse?.ok) {
       const table = tablesResponse.data.filter(
         (table: any) => table.name === router.query.tableName
       )[0];
 
-      const newColumns = { ...table.columns };
-      Object.entries(newColumns).forEach(
-        ([columnName, column]: [string, any]) => {
-          const localColumn = columns.filter(
-            (c: Column) => c.name === columnName
-          )[0];
-          newColumns[columnName] = {
-            ...column,
-            baseOptions: {
-              ...column.baseOptions,
-              orderIndex: columns.indexOf(localColumn),
-            },
-          };
-        }
-      );
+      const tableColumns = { ...table.columns };
+      columns.forEach((column: Column, index: number) => {
+        const tableColumn = tableColumns[column.name];
+        tableColumns[column.name] = {
+          ...tableColumn,
+          baseOptions: {
+            ...tableColumn?.baseOptions,
+            orderIndex: index,
+          },
+        };
+      });
 
       await updateTable({
         dataSourceId: router.query.dataSourceId as string,
         tableName: router.query.tableName as string,
-        body: { columns: newColumns },
+        body: { columns: tableColumns },
       }).unwrap();
     }
   };
 
-  const diff = useMemo(() => {
-    const initialColumns = sortColumns(columnsResponse?.data);
+  useEffect(() => {
+    if (columnsResponse?.ok) setColumns(sortColumns(columnsResponse.data));
+  }, [columnsResponse]);
 
-    return difference(initialColumns, columns);
-  }, [columns, columnsResponse]);
-
-  const isDirty = useMemo(() => !isEmpty(diff), [diff]);
+  useEffect(() => {
+    if (didDrop) updateColumnsOrder();
+  }, [didDrop]);
 
   return (
     <DataSourcesEditLayout
@@ -181,11 +165,11 @@ const TableColumnsEditLayout = ({
                   colorScheme="blue"
                   size="xs"
                   variant="outline"
-                  onClick={setReorderingValues}
+                  onClick={() => setReordering(!reordering)}
                   isLoading={isUpdating}
                   leftIcon={<SelectorIcon className="h-4" />}
                 >
-                  {reordering && isDirty ? 'Save' : 'Re-order'}
+                  Re-order
                 </Button>
               </div>
               <div ref={drop}>
@@ -202,10 +186,11 @@ const TableColumnsEditLayout = ({
                         href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${col.name}`}
                         active={col.name === router.query.columnName}
                         onClick={() => track("Selected column in edit columns")}
+                        itemType={ItemTypes.COLUMN}
                         reordering={reordering}
                         id={col.baseOptions.orderIndex}
-                        moveColumn={moveColumn}
-                        findColumn={findColumn}
+                        moveMethod={moveColumn}
+                        findMethod={findColumn}
                       >
                         {getColumnNameLabel(
                           col.baseOptions.label,

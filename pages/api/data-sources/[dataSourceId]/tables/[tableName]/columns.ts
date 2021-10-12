@@ -1,6 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { get } from "lodash";
+import { get, isUndefined } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -57,8 +57,13 @@ export const getColumns = async ({
     storedColumns,
   });
 
-  // Sort the columns by their orderIndex.
-  columns.sort((a: Column, b: Column) => (a.baseOptions.orderIndex > b.baseOptions.orderIndex) ? 1 : ((b.baseOptions.orderIndex > a.baseOptions.orderIndex) ? -1 : 0));
+  // Sort the columns by their orderIndex if columns has more than 1 element. If orderIndex has not been set, set it to 9999.
+  if(columns.length > 1) columns.sort((a: Column, b: Column) => {
+    if (isUndefined(a.baseOptions.orderIndex)) a.baseOptions.orderIndex = 9999;
+    if (isUndefined(b.baseOptions.orderIndex)) b.baseOptions.orderIndex = 9999;
+
+    return a.baseOptions.orderIndex > b.baseOptions.orderIndex ? 1 : (b.baseOptions.orderIndex > a.baseOptions.orderIndex ? -1 : 0);
+  });
 
   return columns;
 };
