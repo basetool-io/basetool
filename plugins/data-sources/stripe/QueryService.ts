@@ -147,6 +147,8 @@ class QueryService implements IQueryService {
     tableName: string;
     storedColumns?: [];
   }): Promise<[]> {
+    return [];
+
     const resourceName = singular(tableName);
     const specColumns = (openApiSpec?.resources as any)[resourceName] as Record<
       string,
@@ -156,7 +158,6 @@ class QueryService implements IQueryService {
     if (!specColumns) return [];
 
     const columns = specToColumns(specColumns);
-    console.log("columns->", columns);
 
     return columns as [];
   }
@@ -182,9 +183,13 @@ class QueryService implements IQueryService {
       "list" in this.client[tableName as keyof Stripe] &&
       (Object.values(StripeEnabledApis) as string[]).includes(tableName)
     ) {
-      return await this.client[tableName as StripeEnabledApis]?.list({
-        limit,
-      })?.data || [];
+      return (
+        (
+          await this.client[tableName as StripeEnabledApis]?.list({
+            limit,
+          })
+        )?.data || []
+      );
     }
 
     return [];
