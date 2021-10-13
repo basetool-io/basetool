@@ -8,17 +8,17 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/maria_db/schema";
-import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
+import { useAddDataSourceMutation, useCheckConnectionMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
 export interface IFormFields {
@@ -59,7 +59,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit, formState, setValue } = useForm({
+  const { register, handleSubmit, formState, setValue, getValues, watch } = useForm({
     defaultValues: {
       name: router.query.name || "",
       type: "maria_db",
@@ -104,6 +104,52 @@ function New() {
     }
   }, [organizations]);
 
+  const [isValidConnection, setIsValidConnection] = useState<
+    boolean | undefined
+  >();
+  const [isTestDisabled, setIsTestDisabled] = useState(false);
+  const [checkConnection, { isLoading: isChecking }] =
+    useCheckConnectionMutation();
+
+  const watchCredentials = watch([
+    "credentials.host",
+    "credentials.database",
+    "credentials.user",
+  ]);
+
+  const checkConnectionMethod = async () => {
+    const type = getValues("type");
+    const credentials = getValues("credentials");
+    const response = await checkConnection({
+      body: { type, credentials },
+    }).unwrap();
+
+    if (response.ok) {
+      setIsValidConnection(true);
+    } else {
+      setIsValidConnection(false);
+    }
+  };
+
+  const testColor = useMemo(
+    () =>
+      isUndefined(isValidConnection)
+        ? "gray"
+        : isValidConnection
+        ? "green"
+        : "red",
+    [isValidConnection]
+  );
+
+  useEffect(() => {
+    setIsTestDisabled(
+      isEmpty(watchCredentials[0]) ||
+        isEmpty(watchCredentials[1]) ||
+        isEmpty(watchCredentials[2])
+    );
+    setIsValidConnection(undefined);
+  }, [watchCredentials[0], watchCredentials[1], watchCredentials[2]]);
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -111,6 +157,19 @@ function New() {
         buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
+            left={
+              <Button
+                colorScheme={testColor}
+                size="sm"
+                width="150px"
+                disabled={isTestDisabled}
+                onClick={checkConnectionMethod}
+                leftIcon={<TerminalIcon className="h-4" />}
+                isLoading={isChecking}
+              >
+                Test connection
+              </Button>
+            }
             center={
               <Button
                 colorScheme="blue"
