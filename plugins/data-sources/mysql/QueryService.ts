@@ -1,6 +1,7 @@
 import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { MysqlCredentials } from "./types";
+import { checkHeartbeat } from 'knex-utils';
 import { idColumns } from "@/features/fields";
 import { knex } from "knex";
 import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService";
@@ -19,6 +20,10 @@ class QueryService extends AbstractQueryService {
   getClient(): Knex {
     const credentials = this.getCredentials();
 
+    return QueryService.getClientMethod(credentials);
+  }
+
+  static getClientMethod(credentials: MysqlCredentials) {
     const connection: Knex.StaticConnectionConfig = {
       host: credentials.host,
       port: credentials.port,
@@ -38,6 +43,12 @@ class QueryService extends AbstractQueryService {
     });
 
     return client;
+  }
+
+  static async checkConnection(credentials: MysqlCredentials) {
+    const client = this.getClientMethod(credentials) as Knex;
+
+    return checkHeartbeat(client);
   }
 
   public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {

@@ -91,7 +91,7 @@ function New() {
   const [checkConnection, { isLoading: isChecking }] =
     useCheckConnectionMutation();
 
-  const watchCredentialsUrl = watch("credentials.url");
+  const watchCredentials = watch("credentials.url");
 
   const checkConnectionMethod = async () => {
     const type = getValues("type");
@@ -114,7 +114,7 @@ function New() {
 
   useEffect(() => {
     setIsValidConnection(undefined);
-  }, [watchCredentialsUrl]);
+  }, [watchCredentials]);
 
   return (
     <Layout hideSidebar={true}>
@@ -128,7 +128,7 @@ function New() {
                 colorScheme={testColor}
                 size="sm"
                 width="150px"
-                disabled={isEmpty(watchCredentialsUrl)}
+                disabled={isEmpty(watchCredentials)}
                 onClick={checkConnectionMethod}
                 leftIcon={<TerminalIcon className="h-4" />}
                 isLoading={isChecking}
