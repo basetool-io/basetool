@@ -7,17 +7,21 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import { isEmpty, isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
-import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
+import {
+  useAddDataSourceMutation,
+  useCheckConnectionMutation,
+} from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 export interface IFormFields {
   id?: number;
   name: string;
@@ -52,7 +56,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, getValues, watch } = useForm({
     defaultValues: {
       name: router.query.name || "",
       type: "postgresql",
@@ -81,6 +85,37 @@ function New() {
     }
   }, []);
 
+  const [isValidConnection, setIsValidConnection] = useState<
+    boolean | undefined
+  >();
+  const [checkConnection, { isLoading: isChecking }] =
+    useCheckConnectionMutation();
+
+  const watchCredentialsUrl = watch("credentials.url");
+
+  const checkConnectionMethod = async () => {
+    const type = getValues("type");
+    const credentials = getValues("credentials");
+    const response = await checkConnection({
+      body: { type, credentials },
+    }).unwrap();
+
+    if (response.ok) {
+      setIsValidConnection(true);
+    } else {
+      setIsValidConnection(false);
+    }
+  };
+
+  const testColor = useMemo(
+    () => isUndefined(isValidConnection) ? "gray" : (isValidConnection ? "green" : "red"),
+    [isValidConnection]
+  );
+
+  useEffect(() => {
+    setIsValidConnection(undefined);
+  }, [watchCredentialsUrl]);
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -88,6 +123,19 @@ function New() {
         buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
+            left={
+              <Button
+                colorScheme={testColor}
+                size="sm"
+                width="150px"
+                disabled={isEmpty(watchCredentialsUrl)}
+                onClick={checkConnectionMethod}
+                leftIcon={<TerminalIcon className="h-4" />}
+                isLoading={isChecking}
+              >
+                Test connection
+              </Button>
+            }
             center={
               <Button
                 colorScheme="blue"

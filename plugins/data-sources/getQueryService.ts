@@ -2,6 +2,12 @@ import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 
+export const getQueryServiceClass = async (type: string) => {
+  return (
+    await import(`@/plugins/data-sources/${type}/QueryService.ts`)
+  ).default;
+}
+
 const getQueryService = async (payload: {
   dataSource: DataSource;
   options?: Record<string, unknown>;
@@ -12,9 +18,7 @@ const getQueryService = async (payload: {
     dataSource.type === "maria_db" ? "mysql" : dataSource.type;
 
   try {
-    queryService = (
-      await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
-    ).default;
+    queryService = getQueryServiceClass(dataSourceType);
 
     return new QueryServiceWrapper(queryService, payload);
   } catch (error: any) {
