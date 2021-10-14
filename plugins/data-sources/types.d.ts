@@ -75,7 +75,7 @@ export interface DataSourcePlugin {
 }
 
 type RecordsResponse = {
-  records: [];
+  records: any[];
   columns?: Column[];
 };
 
