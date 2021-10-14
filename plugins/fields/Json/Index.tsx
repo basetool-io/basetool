@@ -12,7 +12,7 @@ const Index = ({ field }: { field: Field }) => {
         ? null
         : JSON.stringify(JSON.parse(field.value as string), null, 2);
   } catch (e) {
-    value = "{}";
+    value = field.value;
   }
 
   return <IndexFieldWrapper field={field}>{isNull(value) ? <Code>null</Code> : <span className="font-mono">{value}</span>}</IndexFieldWrapper>;

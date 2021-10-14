@@ -15,7 +15,7 @@ const Show = ({ field }: { field: Field }) => {
         ? null
         : JSON.parse(field.value as string);
   } catch (e) {
-    value = "{}";
+    value = field.value;
   }
 
   return (
