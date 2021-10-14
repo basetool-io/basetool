@@ -377,6 +377,7 @@ const RecordsTable = ({
   const {
     data: recordsResponse,
     error: recordsError,
+    isLoading,
     isFetching,
   } = useGetRecordsQuery({
     dataSourceId,
@@ -398,7 +399,7 @@ const RecordsTable = ({
     }
   );
 
-  useRecords(recordsResponse?.data);
+  const { records } = useRecords(recordsResponse?.data);
   useColumns({
     dataSourceResponse,
     dataResponse: recordsResponse,
@@ -423,10 +424,10 @@ const RecordsTable = ({
   const canPreviousPage = useMemo(() => page > 1, [page]);
   const canNextPage = useMemo(() => page < maxPages, [page, maxPages]);
 
-  // @todo: these states don't currently work  👇
-  const [isValid, setIsValid] = useState(true);
-  const [hasColumns, setHasColumns] = useState(true);
-  const [tableIsVisible, setTableIsVisible] = useState(true);
+  const hasRecords = useMemo(() => records.length > 0, [records]);
+  const tableIsVisible = useMemo(() => {
+    return !isLoading && hasRecords;
+  }, [isLoading, hasRecords]);
 
   // Reset page to 1 when modifying filters.
   useEffect(() => {
@@ -439,18 +440,16 @@ const RecordsTable = ({
         <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />
       )}
       {recordsError && <div>Error: {JSON.stringify(recordsError)}</div>}
-      {!isFetching && !isValid && (
-        <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
-          No rows found
-        </div>
-      )}
-
-      {!hasColumns && isValid && (
-        <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
-          All columns are hidden
-        </div>
-      )}
       {tableIsVisible && <TheTable />}
+      {tableIsVisible || (
+        <>
+          {!isFetching && !hasRecords && (
+            <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
+              No records found
+            </div>
+          )}
+        </>
+      )}
       <nav
         className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
         aria-label="Pagination"

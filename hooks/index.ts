@@ -322,7 +322,7 @@ export const useColumns = ({
   dataSourceResponse?: ApiResponse;
   dataResponse?: ApiResponse;
   columnsResponse?: ApiResponse;
-  tableName: string
+  tableName: string;
 }) => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
@@ -353,7 +353,7 @@ export const useColumns = ({
     if (isArray(columns)) {
       setColumns(columns as []);
     }
-  }, [dataResponse?.ok, dataSourceResponse?.ok, columnsResponse?.ok, tableName]);
+  }, [dataResponse, dataSourceResponse, columnsResponse, tableName]);
 
   return {
     columns,
