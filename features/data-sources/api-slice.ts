@@ -105,6 +105,7 @@ export const dataSourcesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
           { type: "DataSource", id: dataSourceId },
+          { type: "DataSource", id: "LIST" },
         ],
       }),
     };

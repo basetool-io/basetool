@@ -35,6 +35,7 @@ export type BaseOptions = {
   label: string;
   disconnected: boolean;
   defaultValue: string;
+  orderIndex?: number;
   computed: boolean;
   computedSource: string;
 };
