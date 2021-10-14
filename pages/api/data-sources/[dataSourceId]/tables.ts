@@ -46,7 +46,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  // Sort the tables by their orderIndex if tables has more than 1 element. If orderIndex has not been set, set it to 9999.
+  // Sort the tables by their orderIndex if tables has more than 1 element. If orderIndex has not been set, set it to 9999. We have to sort tables to have them in an order in the list.
   if(newTableData.length > 1) newTableData.sort((a: ListTable, b: ListTable) => {
     if (isUndefined(a.orderIndex)) a.orderIndex = 9999;
     if (isUndefined(b.orderIndex)) b.orderIndex = 9999;

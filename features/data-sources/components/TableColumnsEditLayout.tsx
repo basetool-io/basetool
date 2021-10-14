@@ -114,9 +114,9 @@ const TableColumnsEditLayout = ({
 
   const updateColumnsOrder = async () => {
     if (tablesResponse?.ok) {
-      const table = tablesResponse.data.filter(
+      const table = tablesResponse.data.find(
         (table: any) => table.name === router.query.tableName
-      )[0];
+      );
 
       const tableColumns = { ...table.columns };
       columns.forEach((column: Column, index: number) => {
@@ -138,10 +138,12 @@ const TableColumnsEditLayout = ({
     }
   };
 
+  // Everytime columns gets updated, we have to sort the indices retrieved from the server and set indices from 0 to length - 1 in order for dnd to work.
   useEffect(() => {
     if (columnsResponse?.ok) setColumns(sortColumns(columnsResponse.data));
   }, [columnsResponse]);
 
+  // We have to save the order of the columns when the order changes, and the order changes when an element is dropped.
   useEffect(() => {
     if (didDrop === true) updateColumnsOrder();
   }, [didDrop]);
