@@ -53,6 +53,7 @@ function RecordsShow() {
     dataSourceResponse,
     dataResponse: data,
     columnsResponse,
+    tableName,
   });
 
   const record = useMemo(() => data?.data, [data?.data]);
