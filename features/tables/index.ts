@@ -24,7 +24,12 @@ export const parseColumns = ({
   columnWidths: Record<Column["name"], number>;
 }): ReactTableColumn[] => {
   return columns.map((column) => {
-    const width = columnWidths[column.name] || DEFAULT_COLUMN_WIDTH;
+    let width = DEFAULT_COLUMN_WIDTH;
+
+    // Try to fetch the column width
+    try {
+      width = columnWidths[column.name] || DEFAULT_COLUMN_WIDTH;
+    } catch (error) {}
 
     return {
       Header: getColumnNameLabel(

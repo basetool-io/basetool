@@ -3,8 +3,8 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
-import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl, useProfile } from "@/hooks";
+import { makeField } from "@/features/fields";
+import { useAccessControl, useColumns, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -49,10 +49,11 @@ function RecordsShow() {
     { skip: !dataSourceId || !tableName }
   );
 
-  const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.show),
-    [columnsResponse?.data]
-  );
+  const { columns } = useColumns({
+    dataSourceResponse,
+    dataResponse: data,
+    columnsResponse,
+  });
 
   const record = useMemo(() => data?.data, [data?.data]);
 

@@ -1,16 +1,14 @@
 import { Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IFilter } from "@/features/tables/components/Filter";
-import { IQueryService } from "../types";
+import { IQueryService, RecordResponse, RecordsResponse } from "../types";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
 import { getColumnLabel } from "..";
 import { isBoolean, isNumber, isObjectLike } from "lodash";
-import { singular } from "pluralize";
 import Stripe from "stripe";
-import openApiSpec from "@/plugins/data-sources/stripe/openapi_fixtures3.json";
 
-type StripeSpecValues = string | number | boolean | null;
+type StripeValues = string | number | boolean | null;
 
 // queriableData = {
 //   datasourceId: '27',
@@ -82,6 +80,7 @@ type StripeSpecValues = string | number | boolean | null;
 
 enum StripeEnabledApis {
   customers = "customers",
+  charges = "charges",
   balance = "balance",
 }
 
@@ -140,26 +139,8 @@ class QueryService implements IQueryService {
     }));
   }
 
-  public async getColumns({
-    tableName,
-    storedColumns,
-  }: {
-    tableName: string;
-    storedColumns?: [];
-  }): Promise<[]> {
+  public async getColumns(): Promise<[]> {
     return [];
-
-    const resourceName = singular(tableName);
-    const specColumns = (openApiSpec?.resources as any)[resourceName] as Record<
-      string,
-      StripeSpecValues
-    >;
-
-    if (!specColumns) return [];
-
-    const columns = specToColumns(specColumns);
-
-    return columns as [];
   }
 
   public async getRecords({
@@ -178,24 +159,30 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
     select: string[];
-  }): Promise<[]> {
+  }): Promise<RecordsResponse> {
     if (
       "list" in this.client[tableName as keyof Stripe] &&
       (Object.values(StripeEnabledApis) as string[]).includes(tableName)
     ) {
-      return (
+      const records =
         (
           await this.client[tableName as StripeEnabledApis]?.list({
             limit,
           })
-        )?.data || []
-      );
+        )?.data || [];
+
+      let columns: Column[] = [];
+      if (records && records.length > 0) {
+        columns = recordToColumns(records[0]);
+      }
+
+      return { records, columns };
     }
 
-    return [];
+    return { records: [], columns: [] };
   }
 
-  public async getRecordsCount(payload: any): Promise<number | undefined> {
+  public async getRecordsCount(): Promise<number | undefined> {
     return undefined;
   }
 
@@ -207,14 +194,17 @@ class QueryService implements IQueryService {
     tableName: string;
     recordId: string;
     select: string[];
-  }): Promise<Record<string, unknown> | undefined> {
+  }): Promise<RecordResponse<StripeValues> | undefined> {
     if (
       "retrieve" in this.client[tableName as keyof Stripe] &&
       (Object.values(StripeEnabledApis) as string[]).includes(tableName)
     ) {
-      return (await this.client[tableName as StripeEnabledApis]?.retrieve(
-        recordId
-      )) as unknown as Record<string, unknown>;
+      const record = (await this.client[
+        tableName as StripeEnabledApis
+      ]?.retrieve(recordId)) as unknown as Record<string, StripeValues>;
+      const columns = recordToColumns(record);
+
+      return { record, columns };
     }
 
     return;
@@ -223,10 +213,8 @@ class QueryService implements IQueryService {
 
 export default QueryService;
 
-const specToColumns = (
-  specColumns: Record<string, StripeSpecValues>
-): Column[] => {
-  return Object.entries(specColumns).map(([key, value]) => {
+const recordToColumns = (record: Record<string, StripeValues>): Column[] =>
+  Object.entries(record).map(([key, value]) => {
     const column = {
       name: key,
       label: getColumnLabel({ name: key }),
@@ -255,11 +243,10 @@ const specToColumns = (
 
     return column;
   });
-};
 
 const getFieldTypeFromColumnInfo = (
   key: string,
-  value: StripeSpecValues
+  value: StripeValues
 ): FieldType => {
   if (key === "id") return "Id";
 

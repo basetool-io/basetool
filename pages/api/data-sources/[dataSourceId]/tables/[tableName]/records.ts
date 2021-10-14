@@ -1,6 +1,6 @@
 import { decodeObject } from "@/lib/encoding";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { serverSegment } from "@/lib/track"
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -31,7 +31,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const filters = decodeObject(req.query.filters as string);
 
-  const [records, count] = await service.runQueries([
+  const [{records, columns}, count] = await service.runQueries([
     {
       name: "getRecords",
       payload: {
@@ -54,7 +54,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   ]);
 
-  res.json(ApiResponse.withData(records, { meta: { count } }));
+  res.json(ApiResponse.withData(records, { meta: { count, columns } }));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
@@ -64,7 +64,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const user = await getUserFromRequest(req)
+  const user = await getUserFromRequest(req);
 
   const service = await getQueryService({ dataSource });
 

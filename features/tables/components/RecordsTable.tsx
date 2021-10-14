@@ -1,4 +1,4 @@
-import { Column as BaseToolColumn, Column } from "@/features/fields/types";
+import { Column as BaseToolColumn } from "@/features/fields/types";
 import { Button, Checkbox } from "@chakra-ui/react";
 import {
   ChevronLeftIcon,
@@ -18,16 +18,14 @@ import { Views } from "@/features/fields/enums";
 import {
   columnWidthsSelector,
   columnsSelector,
-  orderSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
 import { getField } from "@/features/fields/factory";
 import { iconForField, makeField } from "@/features/fields";
-import { isArray, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { parseColumns } from "..";
 import { prettifyData } from "@/features/fields";
 import {
-  useAppDispatch,
   useAppSelector,
   useColumns,
   useFilters,
@@ -76,9 +74,12 @@ const Cell = memo(
 const TheTable = memo(() => {
   const router = useRouter();
   const { isMd } = useResponsive();
-  const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
+  // Display desktop or mobile record row
+  const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
+
+  // Get raw records and columsn from the data store
   const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
@@ -104,6 +105,7 @@ const TheTable = memo(() => {
   };
 
   const columnWidths = useAppSelector(columnWidthsSelector);
+  // Process the records and columns to their final form.
   const records = useMemo(() => prettifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
   const columns = useMemo(
@@ -118,6 +120,7 @@ const TheTable = memo(() => {
     [rawColumns]
   );
 
+  // Init table
   const {
     getTableProps,
     getTableBodyProps,
@@ -138,18 +141,17 @@ const TheTable = memo(() => {
     useResizeColumns
   );
 
-  const updateState = useResizableColumns({ dataSourceId, tableName });
+  const updateColumnWidths = useResizableColumns({ dataSourceId, tableName });
   useEffect(() => {
-    updateState({ state, columnWidths });
+    updateColumnWidths({ state, columnWidths });
   }, [state?.columnResizing, columnWidths]);
 
   const {
-    selectedRecords,
     allColumnsChecked,
     setRecordsSelected,
     resetRecordsSelection,
+    selectAllIsIndeterminate,
   } = useSelectRecords();
-  const isIndeterminate = selectedRecords.length > 0 && !allColumnsChecked;
 
   const setCheckedItems = (checked: boolean) => {
     if (checked) {
@@ -199,7 +201,7 @@ const TheTable = memo(() => {
                         <Checkbox
                           colorScheme="gray"
                           isChecked={allColumnsChecked}
-                          isIndeterminate={isIndeterminate}
+                          isIndeterminate={selectAllIsIndeterminate}
                           onChange={(e: any) =>
                             setCheckedItems(e.target.checked)
                           }
@@ -350,10 +352,7 @@ const RecordsTable = ({
   dataSourceId?: string;
   tableName?: string;
 }) => {
-  console.log("RecordsTable->");
-
   const router = useRouter();
-  const dispatch = useAppDispatch();
   // @todo: Get filters from the URL param
   const { encodedFilters } = useFilters();
   dataSourceId ||= router.query.dataSourceId as string;
@@ -365,12 +364,11 @@ const RecordsTable = ({
     }
   );
 
-  const [orderBy, setOrderBy] = useAppSelector(orderSelector);
-  // router.query.orderBy as string
-  const [orderDirection, setOrderDirection] = useState<OrderDirection>(
+  const { orderBy, orderDirection } = useOrderRecords(
+    router.query.orderBy as string,
     router.query.orderDirection as OrderDirection
   );
-  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
+  const [perPage] = useState(DEFAULT_PER_PAGE);
   const { page, limit, offset, nextPage, previousPage, setPage } =
     usePagination({
       perPage,
@@ -390,11 +388,7 @@ const RecordsTable = ({
     orderDirection: orderDirection ? orderDirection : "",
   });
 
-  const {
-    data: columnsResponse,
-    error: columnsError,
-    isLoading,
-  } = useGetColumnsQuery(
+  const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
       tableName,
@@ -403,33 +397,15 @@ const RecordsTable = ({
       skip: !dataSourceId || !tableName,
     }
   );
-  // const columns = useAppSelector(columnsSelector);
-  const { columns, setColumns } = useColumns();
 
-  // const columns = useMemo(() => [], [])
+  useRecords(recordsResponse?.data);
+  useColumns({
+    dataSourceResponse,
+    dataResponse: recordsResponse,
+    columnsResponse,
+    tableName,
+  });
 
-  useEffect(() => {
-    let columns: Column[] = [];
-
-    if (
-      dataSourceResponse?.ok &&
-      dataSourceResponse?.meta?.dataSourceInfo?.requests?.columns === false
-    ) {
-      if (recordsResponse?.ok) {
-        columns = recordsResponse?.meta?.columns;
-      }
-    } else {
-      if (columnsResponse?.ok) {
-        columns = columnsResponse?.data;
-      }
-    }
-
-    if (isArray(columns)) {
-      setColumns(columns as []);
-    }
-  }, [recordsResponse?.ok, dataSourceResponse?.ok, columnsResponse?.ok]);
-
-  const { records, setRecords } = useRecords(recordsResponse?.data);
   const {
     meta,
   }: {
@@ -447,116 +423,10 @@ const RecordsTable = ({
   const canPreviousPage = useMemo(() => page > 1, [page]);
   const canNextPage = useMemo(() => page < maxPages, [page, maxPages]);
 
-  // const {
-  //   getTableProps,
-  //   getTableBodyProps,
-  //   headerGroups,
-  //   prepareRow,
-  //   rows,
-  //   state,
-  // } = useTable(
-  //   {
-  //     // columns: parsedColumns,
-  //     columns: [],
-  //     data,
-  //     defaultColumn: {
-  //       Cell,
-  //     },
-  //   },
-  //   useColumnOrder,
-  //   useBlockLayout,
-  //   useResizeColumns
-  // );
-
-  // useEffect(() => {
-  //   // Keep the column sizes in localStorage
-  //   Object.entries(state.columnResizing.columnWidths).forEach(
-  //     ([columnName, width]: [string, unknown]) => {
-  //       const localStorageKey = localStorageColumnWidthsKey({
-  //         dataSourceId: dataSourceId as string,
-  //         tableName: tableName as string,
-  //         columnName,
-  //       });
-  //       window.localStorage.setItem(
-  //         localStorageKey,
-  //         (width as number).toString()
-  //       );
-  //     }
-  //   );
-  // }, [state]);
-
+  // @todo: these states don't currently work  👇
   const [isValid, setIsValid] = useState(true);
   const [hasColumns, setHasColumns] = useState(true);
   const [tableIsVisible, setTableIsVisible] = useState(true);
-
-  // const handleOrder = (columnName: string) => {
-  //   let newOrderDirection: OrderDirection = "";
-  //   let newOrderBy = "";
-
-  //   if (orderBy !== columnName) {
-  //     newOrderDirection = "asc";
-  //     newOrderBy = columnName;
-  //   } else {
-  //     switch (orderDirection) {
-  //       default:
-  //       case "":
-  //         newOrderDirection = "asc";
-  //         newOrderBy = columnName;
-  //         break;
-  //       case "asc":
-  //         newOrderDirection = "desc";
-  //         newOrderBy = columnName;
-  //         break;
-  //       case "desc":
-  //         newOrderDirection = "";
-  //         newOrderBy = "";
-  //         break;
-  //     }
-  //   }
-
-  //   setOrderDirection(newOrderDirection);
-  //   setOrderBy(newOrderBy);
-
-  //   const query = { ...router.query };
-  //   if (newOrderBy) {
-  //     query.orderBy = newOrderBy;
-  //   } else {
-  //     delete query.orderBy;
-  //   }
-  //   if (newOrderDirection) {
-  //     query.orderDirection = newOrderDirection;
-  //   } else {
-  //     delete query.orderDirection;
-  //   }
-
-  //   router.push({
-  //     pathname: router.pathname,
-  //     query,
-  //   });
-  // };
-
-  const { isMd } = useResponsive();
-
-  // const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
-
-  // const { selectedRecords, setRecordsSelected, resetRecordsSelection } =
-  // useSelectRecords();
-
-  // const allColumnsChecked = useAppSelector(allColumnsCheckedSelector)
-  // const isIndeterminate = selectedRecords.length > 0 && !allColumnsChecked;
-
-  // const setCheckedItems = (checked: boolean) => {
-  //   if (checked) {
-  //     const ids = data.map((record) => record?.id);
-  //     setRecordsSelected(ids);
-  //   } else {
-  //     resetRecordsSelection();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   resetRecordsSelection();
-  // }, [data]);
 
   // Reset page to 1 when modifying filters.
   useEffect(() => {

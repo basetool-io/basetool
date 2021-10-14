@@ -55,12 +55,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  const record = await service.runQuery("getRecord", {
+  const { record, columns } = await service.runQuery("getRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
   });
 
-  res.json(ApiResponse.withData(record));
+  res.json(ApiResponse.withData(record, { meta: { columns } }));
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {

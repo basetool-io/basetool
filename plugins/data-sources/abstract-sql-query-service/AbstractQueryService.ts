@@ -14,11 +14,8 @@ import {
 import { DataSource } from "@prisma/client";
 import { DateFilterConditions } from "@/features/tables/components/DateConditionComponent";
 import { FilterVerbs } from "@/features/tables/components/VerbComponent";
-import {
-  IFilter,
-  IFilterGroup,
-} from "@/features/tables/components/Filter";
-import { IQueryService } from "../types";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
+import { IQueryService, RecordResponse, RecordsResponse } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
@@ -120,7 +117,6 @@ const addFilterGroupToQuery = (
   filter: IFilterGroup
 ) => {
   if (filter.verb === FilterVerbs.or) {
-
     query.orWhere(function () {
       addFiltersToQuery(this, filter.filters);
     });
@@ -239,7 +235,7 @@ const getDateRange = (filterOption: string, filterValue: string) => {
 
       return [from, to];
     case "exact_date":
-      if(filterValue != "") {
+      if (filterValue != "") {
         today = new Date(filterValue);
       }
       today.setUTCHours(0, 0, 0, 0);
@@ -431,7 +427,7 @@ abstract class AbstractQueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
     select: string[];
-  }): Promise<[]> {
+  }): Promise<RecordsResponse> {
     const query = this.client.table(tableName);
     if (isNumber(limit) && isNumber(offset)) {
       query.limit(limit).offset(offset).select(select);
@@ -445,7 +441,9 @@ abstract class AbstractQueryService implements IQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    return query as unknown as [];
+    const records = await query.select()
+
+    return { records: records as unknown as [] };
   }
 
   public async getRecordsCount({
@@ -472,7 +470,7 @@ abstract class AbstractQueryService implements IQueryService {
     tableName: string;
     recordId: string;
     select: string[];
-  }): Promise<Record<string, unknown> | undefined> {
+  }): Promise<RecordResponse | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
@@ -483,7 +481,7 @@ abstract class AbstractQueryService implements IQueryService {
       .where(pk, recordId)
       .table(tableName);
 
-    return rows[0];
+    return { record: rows[0] };
   }
 
   public async createRecord({

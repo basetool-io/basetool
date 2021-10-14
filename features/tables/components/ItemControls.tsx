@@ -53,9 +53,8 @@ function ItemControls({
           </a>
         </Link>
       )}
-      {(ac.updateAny("record").granted &&
-        !dataSourceResponse?.meta?.dataSourceInfo?.readOnly) ||
-        (true && (
+      {ac.updateAny("record").granted &&
+        !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
           <Link
             href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}/edit`}
           >
@@ -67,7 +66,7 @@ function ItemControls({
               </Tooltip>
             </a>
           </Link>
-        ))}
+        )}
       {ac.deleteAny("record").granted && (
         <a onClick={handleDelete} className="cursor-pointer">
           <Tooltip label="Delete record">

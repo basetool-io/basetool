@@ -121,7 +121,7 @@ function TablesShow() {
                         "record",
                         selectedRecords.length
                       )}`}
-                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" is displayed */}
+                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
                     {selectedRecords.length === 0 && (
                       <>&nbsp;&nbsp;&nbsp;&nbsp;</>
                     )}
@@ -130,7 +130,8 @@ function TablesShow() {
               )
             }
             center={
-              ac.createAny("record").granted && (
+              ac.createAny("record").granted &&
+              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                   passHref

@@ -42,16 +42,16 @@ export interface IQueryService {
     orderBy: string;
     orderDirection: string;
     select: string[];
-  }): Promise<[]>;
+  }): Promise<RecordsResponse>;
   getRecordsCount(payload: {
     tableName: string;
     filters: IFilter[];
-  }): Promise<number>;
+  }): Promise<number | undefined>;
   getRecord(payload: {
     tableName: string;
     recordId: string;
     select: string[];
-  }): Promise<Record<string, unknown> | undefined>;
+  }): Promise<RecordResponse | undefined>;
   updateRecord?({
     tableName: string,
     recordId: string,
@@ -73,3 +73,13 @@ export interface DataSourcePlugin {
   name: string;
   description: string;
 }
+
+type RecordsResponse = {
+  records: [];
+  columns?: Column[];
+};
+
+type RecordResponse<T = unknown> = {
+  record: Record<string, T>;
+  columns?: Column[];
+};

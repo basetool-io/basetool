@@ -1,4 +1,5 @@
 import { AppDispatch, RootState } from "@/lib/store";
+import { Column } from "@/features/fields/types";
 import {
   DataSource,
   Organization,
@@ -34,7 +35,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
-import { isEqual, isNull, merge } from "lodash";
+import { isArray, isEqual, isNull, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { segment } from "@/lib/track";
 import {
@@ -45,11 +46,12 @@ import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import AccessControlService, {
   Role,
 } from "@/features/roles/AccessControlService";
+import ApiResponse from "@/features/api/ApiResponse";
 import ApiService from "@/features/api/ApiService";
 import store from "@/lib/store";
 
@@ -206,6 +208,8 @@ export const useSelectRecords = () => {
   const dispatch = useAppDispatch();
   const selectedRecords = useAppSelector(selectedRecordsSelector);
   const allColumnsChecked = useAppSelector(allColumnsCheckedSelector);
+  const selectAllIsIndeterminate =
+    selectedRecords.length > 0 && !allColumnsChecked;
 
   const toggleRecordSelection = (value: number) => {
     dispatch(toggleRecordSelectionInState(value));
@@ -225,6 +229,7 @@ export const useSelectRecords = () => {
     toggleRecordSelection,
     setRecordsSelected,
     resetRecordsSelection,
+    selectAllIsIndeterminate,
   };
 };
 
@@ -304,17 +309,51 @@ export const useOrderRecords = (
     orderDirection,
     setOrderBy,
     setOrderDirection,
-    handleOrder
+    handleOrder,
   };
 };
 
-export const useColumns = () => {
+export const useColumns = ({
+  dataSourceResponse,
+  dataResponse,
+  columnsResponse,
+  tableName,
+}: {
+  dataSourceResponse?: ApiResponse;
+  dataResponse?: ApiResponse;
+  columnsResponse?: ApiResponse;
+  tableName: string
+}) => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
 
   const setColumns = (columns: []) => {
     dispatch(setColumnsInState(columns));
   };
+
+  // Figure out where we should fetch the columns from.
+  // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
+  // We should probably use just one source in the future.
+  useEffect(() => {
+    let columns: Column[] = [];
+
+    if (
+      dataSourceResponse?.ok &&
+      dataSourceResponse?.meta?.dataSourceInfo?.requests?.columns === false
+    ) {
+      if (dataResponse?.ok) {
+        columns = dataResponse?.meta?.columns;
+      }
+    } else {
+      if (columnsResponse?.ok) {
+        columns = columnsResponse?.data;
+      }
+    }
+
+    if (isArray(columns)) {
+      setColumns(columns as []);
+    }
+  }, [dataResponse?.ok, dataSourceResponse?.ok, columnsResponse?.ok, tableName]);
 
   return {
     columns,
@@ -379,7 +418,7 @@ export const useResizableColumns = ({
     tableName: tableName as string,
   });
 
-  const updateState = ({
+  const updateColumnWidths = ({
     state,
     columnWidths,
   }: {
@@ -420,7 +459,7 @@ export const useResizableColumns = ({
     dispatch(setColumnWidths(widths));
   }, []);
 
-  return updateState;
+  return updateColumnWidths;
 };
 
 export const useProfile = () => {
