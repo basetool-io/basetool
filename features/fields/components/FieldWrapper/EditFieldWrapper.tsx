@@ -42,7 +42,7 @@ const EditFieldWrapper = ({
   return (
     <div className="flex flex-col md:flex-row border-b md:min-h-16 py-2 md:py-0 space-y-3 md:space-y-0">
       <label
-        className="w-48 md:w-48 lg:w-64 px-4 md:px-6 flex items-start space-x-2"
+        className="w-full md:w-48 lg:w-64 px-4 md:px-6 flex items-start space-x-2"
         htmlFor={fieldId(field)}
       >
         <div className="flex items-center space-x-2 md:min-h-16 md:py-4">
