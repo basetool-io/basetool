@@ -1,12 +1,12 @@
 import { Button } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
 import { FilterVerbs } from "./VerbComponent";
 import {
   FolderAddIcon,
   PlusIcon,
   ReceiptRefundIcon,
 } from "@heroicons/react/outline";
-import { useFilters } from "@/hooks";
+import { columnsSelector } from "@/features/records/state-slice";
+import { useAppSelector, useFilters } from "@/hooks";
 import Filter, {
   IFilter,
   IFilterGroup,
@@ -16,7 +16,8 @@ import GroupFiltersPanel from "./GroupFiltersPanel";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty";
 
-const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
+const FiltersPanel = ({}, ref: any) => {
+  const columns = useAppSelector(columnsSelector);
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {

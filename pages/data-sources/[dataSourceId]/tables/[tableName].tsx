@@ -1,10 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  Checkbox,
-  IconButton,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
 import {
   FilterIcon,
   PencilAltIcon,
@@ -13,54 +7,19 @@ import {
   XIcon,
 } from "@heroicons/react/outline";
 import { OWNER_ROLE } from "@/features/roles";
-import { OrderDirection } from "@/features/tables/types";
-import { Row } from "react-table";
-import { Views } from "@/features/fields/enums";
-import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { parseColumns } from "@/features/tables";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
-import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
-import ItemControls from "@/features/tables/components/ItemControls";
 import Layout from "@/components/Layout";
 import Link from "next/link";
-import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import pluralize from "pluralize";
-
-const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
-  const { selectedRecords, toggleRecordSelection } = useSelectRecords();
-
-  return (
-    <div className="flex items-center justify-center h-full">
-      <Checkbox
-        colorScheme="gray"
-        isChecked={selectedRecords.includes(row?.original?.id)}
-        onChange={(e) => toggleRecordSelection(row?.original?.id)}
-      />
-    </div>
-  );
-};
-
-const SelectorColumnCell = ({
-  row,
-  dataSourceId,
-}: {
-  row: Row<any>;
-  dataSourceId: string;
-}) => (
-  <div className="flex items-center justify-center h-full">
-    <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
-  </div>
-);
 
 function TablesShow() {
   const router = useRouter();
@@ -72,58 +31,7 @@ function TablesShow() {
       skip: !dataSourceId,
     }
   );
-  const {
-    data: columnsResponse,
-    error,
-    isLoading,
-  } = useGetColumnsQuery(
-    {
-      dataSourceId,
-      tableName,
-    },
-    {
-      skip:
-        !dataSourceId ||
-        !tableName ||
-        !dataSourceResponse?.meta?.dataSourceInfo?.requests?.columns,
-    }
-  );
 
-  const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.index),
-    [columnsResponse?.data]
-  );
-
-  const checkboxColumn = {
-    Header: "selector_column",
-    accessor: (row: any, i: number) => `selector_column_${i}`,
-    Cell: CheckboxColumnCell,
-    width: 70,
-    minWidth: 70,
-    maxWidth: 70,
-  };
-
-  const controlsColumn = {
-    Header: "controls_column",
-    accessor: (row: any, i: number) => `controls_column_${i}`,
-    // eslint-disable-next-line react/display-name
-    Cell: (row: any) => (
-      <SelectorColumnCell row={row.row} dataSourceId={dataSourceId} />
-    ),
-    width: 104,
-    minWidth: 104,
-    maxWidth: 104,
-  };
-
-  const parsedColumns = [
-    checkboxColumn,
-    ...parseColumns({ dataSourceId, columns, tableName }),
-    controlsColumn,
-  ];
-  const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
-  const [orderDirection, setOrderDirection] = useState<OrderDirection>(
-    router.query.orderDirection as OrderDirection
-  );
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const { appliedFilters, resetFilters } = useFilters();
   const ac = useAccessControl();
@@ -172,13 +80,6 @@ function TablesShow() {
 
   return (
     <Layout>
-      {isLoading && (
-        <LoadingOverlay
-          inPageWrapper
-          transparent={isEmpty(columnsResponse?.data)}
-        />
-      )}
-      {error && <ErrorWrapper error={error} />}
       <PageWrapper
         heading="Browse records"
         flush={true}
@@ -251,9 +152,7 @@ function TablesShow() {
       >
         <div className="relative flex flex-col flex-1 w-full h-full">
           <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
-            {filtersPanelVisible && (
-              <FiltersPanel ref={filtersPanel} columns={columns} />
-            )}
+            {filtersPanelVisible && <FiltersPanel ref={filtersPanel} />}
             <div className="flex flex-shrink-0">
               <ButtonGroup size="xs" variant="outline" isAttached>
                 <Button
@@ -284,17 +183,7 @@ function TablesShow() {
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">
-            {dataSourceId && (
-              <RecordsTable
-                columns={parsedColumns}
-                orderBy={orderBy}
-                setOrderBy={setOrderBy}
-                orderDirection={orderDirection}
-                setOrderDirection={setOrderDirection}
-                tableName={tableName}
-                dataSourceId={dataSourceId}
-              />
-            )}
+            {dataSourceId && <RecordsTable />}
           </div>
         </div>
       </PageWrapper>

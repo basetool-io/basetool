@@ -27,15 +27,12 @@ const MobileRow = ({
   row,
   dataSourceId,
   tableName,
-  prepareRow,
 }: {
   row: Row<any>;
   dataSourceId: string;
   tableName: string;
-  prepareRow: (row: Row) => void;
 }) => {
   const prefetchRecord = usePrefetch("getRecord");
-  prepareRow(row);
 
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 

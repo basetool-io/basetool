@@ -11,10 +11,10 @@ const Index = ({ field }: { field: Field }) => {
   );
 
   return (
-    <>
+    <div className="flex items-center h-full">
       {isNull(field.value) && <Code>null</Code>}
       {!isNull(field.value) && <BooleanCheck checked={isTruthy} />}
-    </>
+    </div>
   );
 };
 

@@ -6,22 +6,37 @@ import {
   User,
 } from "@prisma/client";
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
+import { OrderDirection } from "@/features/tables/types";
+import { TableState } from "react-table";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
+  allColumnsCheckedSelector,
   allFiltersAppliedSelector,
   appliedFiltersSelector,
+  columnsSelector,
   filtersSelector,
+  metaSelector,
+  orderSelector,
+  recordsSelector,
   removeFilter,
   resetRecordsSelection as resetRecordsSelectionInState,
   selectedRecordsSelector,
   setAppliedFilters,
+  setColumnWidths,
+  setColumns as setColumnsInState,
   setFilters,
+  setMeta as setMetaInState,
+  setOrderBy as setOrderByInState,
+  setOrderDirection as setOrderDirectionInState,
+  setRecords as setRecordsInState,
   setRecordsSelected as setRecordsSelectedInState,
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
-import { segment } from "@/lib/track"
+import { isEqual, isNull, merge } from "lodash";
+import { localStorageColumnWidthsKey } from "@/features/tables";
+import { segment } from "@/lib/track";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
@@ -30,6 +45,7 @@ import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
+import { useRouter } from "next/router"
 import { useSession } from "next-auth/client";
 import AccessControlService, {
   Role,
@@ -189,6 +205,7 @@ export const useOrganizationFromContext = ({
 export const useSelectRecords = () => {
   const dispatch = useAppDispatch();
   const selectedRecords = useAppSelector(selectedRecordsSelector);
+  const allColumnsChecked = useAppSelector(allColumnsCheckedSelector);
 
   const toggleRecordSelection = (value: number) => {
     dispatch(toggleRecordSelectionInState(value));
@@ -204,10 +221,206 @@ export const useSelectRecords = () => {
 
   return {
     selectedRecords,
+    allColumnsChecked,
     toggleRecordSelection,
     setRecordsSelected,
     resetRecordsSelection,
   };
+};
+
+export const useOrderRecords = (
+  initialOrderBy?: string,
+  initialOrderDirection?: OrderDirection
+) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [orderBy, orderDirection] = useAppSelector(orderSelector);
+
+  const setOrderBy = (value: string) => {
+    dispatch(setOrderByInState(value));
+  };
+
+  const setOrderDirection = (values: OrderDirection) => {
+    dispatch(setOrderDirectionInState(values));
+  };
+
+  useEffect(() => {
+    if (initialOrderBy) {
+      setOrderBy(initialOrderBy);
+    }
+    if (initialOrderDirection) {
+      setOrderDirection(initialOrderDirection);
+    }
+  }, []);
+
+  const handleOrder = async (columnName: string) => {
+    let newOrderDirection: OrderDirection = "";
+    let newOrderBy = "";
+
+    if (orderBy !== columnName) {
+      newOrderDirection = "asc";
+      newOrderBy = columnName;
+    } else {
+      switch (orderDirection) {
+        default:
+        case "":
+          newOrderDirection = "asc";
+          newOrderBy = columnName;
+          break;
+        case "asc":
+          newOrderDirection = "desc";
+          newOrderBy = columnName;
+          break;
+        case "desc":
+          newOrderDirection = "";
+          newOrderBy = "";
+          break;
+      }
+    }
+
+    setOrderDirection(newOrderDirection);
+    setOrderBy(newOrderBy);
+
+    const query = { ...router.query };
+    if (newOrderBy) {
+      query.orderBy = newOrderBy;
+    } else {
+      delete query.orderBy;
+    }
+    if (newOrderDirection) {
+      query.orderDirection = newOrderDirection;
+    } else {
+      delete query.orderDirection;
+    }
+
+    await router.push({
+      pathname: router.pathname,
+      query,
+    });
+  };
+
+  return {
+    orderBy,
+    orderDirection,
+    setOrderBy,
+    setOrderDirection,
+    handleOrder
+  };
+};
+
+export const useColumns = () => {
+  const dispatch = useAppDispatch();
+  const columns = useAppSelector(columnsSelector);
+
+  const setColumns = (columns: []) => {
+    dispatch(setColumnsInState(columns));
+  };
+
+  return {
+    columns,
+    setColumns,
+  };
+};
+
+export const useRecords = (initialRecords: []) => {
+  const dispatch = useAppDispatch();
+  const records = useAppSelector(recordsSelector);
+
+  const setRecords = (records: []) => {
+    dispatch(setRecordsInState(records));
+  };
+
+  useEffect(() => {
+    if (initialRecords) {
+      setRecords(initialRecords);
+    }
+  }, [initialRecords]);
+
+  return {
+    records,
+    setRecords,
+  };
+};
+
+export const useMeta = (initialMeta: Record<string, unknown>) => {
+  const dispatch = useAppDispatch();
+  const meta = useAppSelector(metaSelector);
+
+  const setMeta = (meta: Record<string, unknown>) => {
+    dispatch(setMetaInState(meta));
+  };
+
+  useEffect(() => {
+    if (initialMeta) {
+      setMeta(initialMeta);
+    }
+  }, [initialMeta]);
+
+  return {
+    meta,
+    setMeta,
+  };
+};
+
+/**
+ * This hook handles the initialization and state updates for resizing columns.
+ */
+export const useResizableColumns = ({
+  dataSourceId,
+  tableName,
+}: {
+  dataSourceId: string;
+  tableName: string;
+}) => {
+  const dispatch = useAppDispatch();
+
+  const localStorageKey = localStorageColumnWidthsKey({
+    dataSourceId: dataSourceId as string,
+    tableName: tableName as string,
+  });
+
+  const updateState = ({
+    state,
+    columnWidths,
+  }: {
+    state: TableState;
+    columnWidths: any;
+  }) => {
+    // Check if we have the right data to compute the new widths
+    if (
+      state?.columnResizing?.columnWidths &&
+      Object.keys(state.columnResizing.columnWidths).length > 0 &&
+      !isEqual(state.columnResizing.columnWidths, columnWidths) &&
+      isNull(state.columnResizing.isResizingColumn)
+    ) {
+      // Create a final object that should be dispatched and stored in localStorage
+      const newWidths = merge(
+        {},
+        columnWidths,
+        state.columnResizing.columnWidths
+      );
+
+      // Dispatch and store it if it's different than what's there right now.
+      if (!isEqual(newWidths, columnWidths)) {
+        dispatch(setColumnWidths(newWidths));
+        window.localStorage.setItem(localStorageKey, JSON.stringify(newWidths));
+      }
+    }
+  };
+
+  // Parse the stored value and add it to redux
+  useEffect(() => {
+    let widths = {};
+
+    try {
+      const payload = window.localStorage.getItem(localStorageKey) as string;
+      widths = JSON.parse(payload);
+    } catch (error) {}
+
+    dispatch(setColumnWidths(widths));
+  }, []);
+
+  return updateState;
 };
 
 export const useProfile = () => {
@@ -250,7 +463,10 @@ export const useProfile = () => {
   2. At a later date; It returns the `track` method that you can use at a later date to track something.
     -> const track = useSegment()
 */
-export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
+export const useSegment = (
+  event?: string,
+  properties?: Record<string, unknown>
+) => {
   const { session, isLoading } = useProfile();
   const track = (event: string, properties?: Record<string, unknown>) =>
     segment().track(event, properties);

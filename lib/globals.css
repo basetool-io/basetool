@@ -37,12 +37,12 @@ body,
 
     &.isResizing {
       .resizer-bar {
-        @apply bg-gray-400;
+        @apply bg-gray-500;
       }
     }
 
     .resizer-bar {
-      @apply relative top-0 left-1/2 block w-px h-full bg-gray-200 -ml-px;
+      @apply relative top-0 left-1/2 block w-px h-full bg-gray-400 -ml-px;
     }
   }
 }
