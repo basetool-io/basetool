@@ -11,6 +11,7 @@ import {
 import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/mysql/schema";
+import { toast } from "react-toastify";
 import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
@@ -21,7 +22,7 @@ import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
 export interface IFormFields {
@@ -62,7 +63,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit, formState, setValue, getValues, watch } =
+  const { register, handleSubmit, formState, setValue, getValues } =
     useForm({
       defaultValues: {
         name: router.query.name || "",
@@ -108,47 +109,26 @@ function New() {
     }
   }, [organizations]);
 
-  const [isValidConnection, setIsValidConnection] = useState<
-    boolean | undefined
-  >();
-  const [isTestDisabled, setIsTestDisabled] = useState(false);
   const [checkConnection, { isLoading: isChecking }] =
     useCheckConnectionMutation();
-
-  const watchCredentials = watch(["credentials.host", "credentials.database", "credentials.user"]);
 
   const checkConnectionMethod = async () => {
     const type = getValues("type");
     const credentials = getValues("credentials");
-    const response = await checkConnection({
-      body: { type, credentials },
-    }).unwrap();
-
-    if (response.ok) {
-      setIsValidConnection(true);
+    if (
+      !isEmpty(getValues("credentials.host")) &&
+      !isEmpty(getValues("credentials.database")) &&
+      !isEmpty(getValues("credentials.user"))
+    ) {
+      await checkConnection({
+        body: { type, credentials },
+      }).unwrap();
     } else {
-      setIsValidConnection(false);
+      toast.error(
+        "Credentials are not complete. You have to input 'host', 'port', 'database' and 'user' in order to test connection."
+      );
     }
   };
-
-  const testColor = useMemo(
-    () =>
-      isUndefined(isValidConnection)
-        ? "gray"
-        : isValidConnection
-        ? "green"
-        : "red",
-    [isValidConnection]
-  );
-
-  useEffect(() => {
-    setIsTestDisabled(
-      isEmpty(watchCredentials[0]) ||
-        isEmpty(watchCredentials[1]) ||
-        isEmpty(watchCredentials[2])
-    );
-    setIsValidConnection(undefined);
-  }, [watchCredentials[0], watchCredentials[1], watchCredentials[2]]);
 
   return (
     <Layout hideSidebar={true}>
@@ -159,10 +139,9 @@ function New() {
           <PageWrapper.Footer
             left={
               <Button
-                colorScheme={testColor}
+                colorScheme="gray"
                 size="sm"
-                width="150px"
-                disabled={isTestDisabled}
+                variant="outline"
                 onClick={checkConnectionMethod}
                 leftIcon={<TerminalIcon className="h-4" />}
                 isLoading={isChecking}

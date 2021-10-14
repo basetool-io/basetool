@@ -3,8 +3,11 @@ import { IQueryServiceWrapper } from "./types";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 
 export const getQueryServiceClass = async (type: string) => {
+  const dataSourceType =
+    type === "maria_db" ? "mysql" : type;
+
   return (
-    await import(`@/plugins/data-sources/${type}/QueryService.ts`)
+    await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
   ).default;
 }
 
@@ -14,11 +17,9 @@ const getQueryService = async (payload: {
 }): Promise<IQueryServiceWrapper> => {
   let queryService;
   const { dataSource } = payload;
-  const dataSourceType =
-    dataSource.type === "maria_db" ? "mysql" : dataSource.type;
 
   try {
-    queryService = getQueryServiceClass(dataSourceType);
+    queryService = await getQueryServiceClass(dataSource.type);
 
     return new QueryServiceWrapper(queryService, payload);
   } catch (error: any) {

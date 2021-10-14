@@ -8,9 +8,10 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
+import { toast } from "react-toastify";
 import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
@@ -21,7 +22,7 @@ import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 export interface IFormFields {
   id?: number;
   name: string;
@@ -85,36 +86,22 @@ function New() {
     }
   }, []);
 
-  const [isValidConnection, setIsValidConnection] = useState<
-    boolean | undefined
-  >();
   const [checkConnection, { isLoading: isChecking }] =
     useCheckConnectionMutation();
-
-  const watchCredentials = watch("credentials.url");
 
   const checkConnectionMethod = async () => {
     const type = getValues("type");
     const credentials = getValues("credentials");
-    const response = await checkConnection({
-      body: { type, credentials },
-    }).unwrap();
-
-    if (response.ok) {
-      setIsValidConnection(true);
+    if (!isEmpty(getValues("credentials.url"))) {
+      await checkConnection({
+        body: { type, credentials },
+      }).unwrap();
     } else {
-      setIsValidConnection(false);
+      toast.error(
+        "Credentials are not complete. You have to input 'url' in order to test connection."
+      );
     }
   };
-
-  const testColor = useMemo(
-    () => isUndefined(isValidConnection) ? "gray" : (isValidConnection ? "green" : "red"),
-    [isValidConnection]
-  );
-
-  useEffect(() => {
-    setIsValidConnection(undefined);
-  }, [watchCredentials]);
 
   return (
     <Layout hideSidebar={true}>
@@ -125,10 +112,9 @@ function New() {
           <PageWrapper.Footer
             left={
               <Button
-                colorScheme={testColor}
+                colorScheme="gray"
                 size="sm"
-                width="150px"
-                disabled={isEmpty(watchCredentials)}
+                variant="outline"
                 onClick={checkConnectionMethod}
                 leftIcon={<TerminalIcon className="h-4" />}
                 isLoading={isChecking}
