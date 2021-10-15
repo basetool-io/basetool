@@ -15,8 +15,10 @@ import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton"
 import Layout from "@/components/Layout";
+import Link from "next/link"
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
+
 export interface IFormFields {
   id?: number;
   name: string;
@@ -110,21 +112,23 @@ function New() {
               <FormLabel>Name</FormLabel>
               <Input
                 type="string"
-                placeholder="My Postgres DB"
+                placeholder="My Stripe API"
                 {...register("name")}
+                autoFocus
               />
-              <FormHelperText>The name of your data source.</FormHelperText>
+              <FormHelperText>The name of your Stripe API.</FormHelperText>
             </FormControl>
 
             <FormControl id="secretKey" isInvalid={(errors as any)?.credentials?.secretKey?.messages?.length > 0}>
               <FormLabel>Secret key</FormLabel>
               <Input
                 type="string"
-                placeholder="sk_live_123qew"
+                placeholder="sk_live_123qwe"
                 {...register("credentials.secretKey")}
               />
               <FormHelperText>
-                The URL of your Postgres DB. The credentials are safely
+                Generate a new API key <Link href="https://dashboard.stripe.com/apikeys"><a className="underline text-blue-600" target="_blank">here</a></Link>. Scope the API key to whichever resources you want to use.
+                <br />   The credentials are safely
                 encrypted. We'll never show these credentials again.
               </FormHelperText>
             </FormControl>

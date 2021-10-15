@@ -141,6 +141,7 @@ function New() {
                 type="string"
                 placeholder="My Mysql DB"
                 {...register("name")}
+                autoFocus
               />
               <FormHelperText>The name of your data source.</FormHelperText>
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
