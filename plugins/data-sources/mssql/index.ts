@@ -5,9 +5,10 @@ const info: DataSourceInfo = {
   name: "SQL Server",
   description: "Microsoft SQL server data source",
   readOnly: false,
-  requests: {
-    columns: true
-  }
+  supports: {
+    filters: true,
+    columnsRequest: true,
+  },
 };
 
 export default info;

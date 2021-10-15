@@ -92,8 +92,8 @@ const Sidebar = () => {
                   onMouseOver={() => {
                     // If the datasource supports columns request we'll prefetch it on hover.
                     if (
-                      dataSourceResponse?.meta?.dataSourceInfo?.requests
-                        ?.columns
+                      dataSourceResponse?.meta?.dataSourceInfo?.supports
+                        ?.columnsRequest
                     ) {
                       prefetchColumns({
                         dataSourceId,

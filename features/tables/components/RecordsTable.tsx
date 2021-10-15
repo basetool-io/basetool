@@ -19,6 +19,7 @@ import {
   columnWidthsSelector,
   columnsSelector,
   recordsSelector,
+  resetState,
 } from "@/features/records/state-slice";
 import { getField } from "@/features/fields/factory";
 import { iconForField, makeField } from "@/features/fields";
@@ -26,6 +27,7 @@ import { isEmpty } from "lodash";
 import { parseColumns } from "..";
 import { prettifyData } from "@/features/fields";
 import {
+  useAppDispatch,
   useAppSelector,
   useColumns,
   useFilters,
@@ -353,6 +355,7 @@ const RecordsTable = ({
   tableName?: string;
 }) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   // @todo: Get filters from the URL param
   const { encodedFilters } = useFilters();
   dataSourceId ||= router.query.dataSourceId as string;
@@ -395,7 +398,7 @@ const RecordsTable = ({
       tableName,
     },
     {
-      skip: !dataSourceId || !tableName,
+      skip: !dataSourceId || !tableName || !dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest,
     }
   );
 
@@ -433,6 +436,19 @@ const RecordsTable = ({
   useEffect(() => {
     setPage(1);
   }, [encodedFilters]);
+
+  // Reset store on umount.
+  useEffect(() => {
+    return () => {
+      dispatch(resetState)
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetState)
+    }
+  }, [tableName]);
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">

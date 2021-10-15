@@ -46,7 +46,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       meta: {
         dataSourceInfo: {
           readOnly: dataSourceInfo?.readOnly || false,
-          requests: dataSourceInfo?.requests || {},
+          supports: dataSourceInfo?.supports || {},
         },
       },
     })

@@ -5,9 +5,10 @@ const info: DataSourceInfo = {
   name: "MySQL",
   description: "MySQL data source",
   readOnly: false,
-  requests: {
-    columns: true
-  }
+  supports: {
+    filters: true,
+    columnsRequest: true,
+  },
 };
 
 export default info;

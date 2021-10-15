@@ -15,9 +15,10 @@ const info: GoogleSheetsDataSourceInfo = {
     // 'https://www.googleapis.com/auth/drive.readonly',
   ],
   readOnly: false,
-  requests: {
-    columns: true
-  }
+  supports: {
+    filters: true,
+    columnsRequest: true,
+  },
 };
 
 export default info;

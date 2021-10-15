@@ -339,7 +339,7 @@ export const useColumns = ({
 
     if (
       dataSourceResponse?.ok &&
-      dataSourceResponse?.meta?.dataSourceInfo?.requests?.columns === false
+      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest === false
     ) {
       if (dataResponse?.ok) {
         columns = dataResponse?.meta?.columns;

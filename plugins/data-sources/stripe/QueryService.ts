@@ -4,84 +4,37 @@ import { IFilter } from "@/features/tables/components/Filter";
 import { IQueryService, RecordResponse, RecordsResponse } from "../types";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
+import { first, isBoolean, isNumber, isObjectLike } from "lodash";
 import { getColumnLabel } from "..";
-import { isBoolean, isNumber, isObjectLike } from "lodash";
 import Stripe from "stripe";
 
 type StripeValues = string | number | boolean | null;
 
-// queriableData = {
-//   datasourceId: '27',
-//   tableName: 'teams',
-//   record: {
-//     ...rest,
-//     team_id: 20,
-//   }
-//   teams: {
-//     team_id: new Team()
-//   }
-// }
-// {{teams.team_id}}
-// {{record.team_id.ceva.altceva}}
-
-// {{getRecord(datasourceId, tableName, recordId)}} // "definitia"
-// {{getRecord(datasourceID, tableName, record.team_id).name}}
-
-// {{getRecord id=record.team_id}}
-
-// 'balance_transaction'
-// 'charge'
-// 'customer'
-// 'dispute'
-// 'event'
-// 'file'
-// 'file_link'
-// 'mandate'
-// 'payment_intent'
-// 'payload'
-// 'product'
-// 'refund'
-// 'setup_attempt'
-// 'setup_intempt'
-// 'token'
-// 'coupon'
-// 'credit_note'
-// 'credit_note_line_item'
-// 'customer_balance_transaction'
-// 'discount'
-// 'invoice'
-// 'invoice_item'
-// 'Invoice_line_item_map'
-// 'line_item'
-// 'plan'
-// 'price'
-// 'promotion_code'
-// 'subscription'
-// 'subscription_item'
-// 'Subscription_schedule'
-// 'Usage_record'
-// 'Usage_record_summary'
-// 'Upcoming Invoices'
-// 'Upcoming_customer_invoice'
-// 'Bank_account'
-// 'card'
-// 'Payment_method'
-// 'Recipient'
-// 'Review'
-// 'Source'
-// 'Account'
-// 'Item'
-// 'order'
-// 'token'
-// 'token'
-// 'token'
-// 'token'
-// 'token'
-
-enum StripeEnabledApis {
+enum StripeListAPIs {
   customers = "customers",
   charges = "charges",
-  balance = "balance",
+  balanceTransactions = "balanceTransactions",
+  events = "events",
+  files = "files",
+  fileLinks = "fileLinks",
+  paymentIntents = "paymentIntents",
+  payouts = "payouts",
+  refunds = "refunds",
+  products = "products",
+  prices = "prices",
+  coupons = "coupons",
+  promotionCodes = "promotionCodes",
+  taxCodes = "taxCodes",
+  taxRates = "taxRates",
+  creditNotes = "creditNotes",
+  invoices = "invoices",
+  invoiceItems = "invoiceItems",
+  plans = "plans",
+  quotes = "quotes",
+  subscriptions = "subscriptions",
+  subscriptionSchedules = "subscriptionSchedules",
+  accounts = "accounts",
+  applicationFees = "applicationFees",
 }
 
 export interface StripeDataSource extends DataSource {
@@ -134,7 +87,7 @@ class QueryService implements IQueryService {
   }
 
   public async getTables() {
-    return Object.keys(StripeEnabledApis).map((name) => ({
+    return Object.keys(StripeListAPIs).map((name) => ({
       name,
     }));
   }
@@ -152,7 +105,7 @@ class QueryService implements IQueryService {
     orderDirection,
     select,
   }: {
-    tableName: string;
+    tableName: StripeListAPIs;
     filters: IFilter[];
     limit?: number;
     offset?: number;
@@ -160,20 +113,19 @@ class QueryService implements IQueryService {
     orderDirection: string;
     select: string[];
   }): Promise<RecordsResponse> {
-    if (
-      "list" in this.client[tableName as keyof Stripe] &&
-      (Object.values(StripeEnabledApis) as string[]).includes(tableName)
-    ) {
-      const records =
+    // Checking if the tableName is in the supported APIs
+    if (Object.values(StripeListAPIs).includes(tableName)) {
+      // casting as any[] because Stripe's API returns some weird object
+      const records: any[] =
         (
-          await this.client[tableName as StripeEnabledApis]?.list({
+          await this.client[tableName]?.list({
             limit,
-          })
-        )?.data || [];
+          } as any)
+        )?.data || []; // casting as any because TS squaks at list signature
 
       let columns: Column[] = [];
       if (records && records.length > 0) {
-        columns = recordToColumns(records[0]);
+        columns = recordToColumns(first(records));
       }
 
       return { records, columns };
@@ -191,17 +143,15 @@ class QueryService implements IQueryService {
     recordId,
     select,
   }: {
-    tableName: string;
+    tableName: StripeListAPIs;
     recordId: string;
     select: string[];
   }): Promise<RecordResponse<StripeValues> | undefined> {
-    if (
-      "retrieve" in this.client[tableName as keyof Stripe] &&
-      (Object.values(StripeEnabledApis) as string[]).includes(tableName)
-    ) {
-      const record = (await this.client[
-        tableName as StripeEnabledApis
-      ]?.retrieve(recordId)) as unknown as Record<string, StripeValues>;
+    // Checking if the tableName is in the supported APIs
+    if (Object.values(StripeListAPIs).includes(tableName)) {
+      const record = (await this.client[tableName]?.retrieve(
+        recordId
+      )) as unknown as Record<string, StripeValues>;
       const columns = recordToColumns(record);
 
       return { record, columns };

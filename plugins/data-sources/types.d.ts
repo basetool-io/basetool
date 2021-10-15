@@ -5,8 +5,9 @@ export type DataSourceInfo = {
   name: string;
   description: string;
   readOnly: boolean;
-  requests?: {
-    [name: string]: boolean
+  supports?: {
+    filters: boolean
+    columnsRequest: boolean
   };
 }
 

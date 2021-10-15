@@ -5,9 +5,10 @@ const info: DataSourceInfo = {
   name: "Stripe",
   description: "Stripe",
   readOnly: true,
-  requests: {
-    columns: false
-  }
+  supports: {
+    filters: false,
+    columnsRequest: false,
+  },
 };
 
 export default info;
