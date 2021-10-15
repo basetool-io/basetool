@@ -141,8 +141,8 @@ model View {
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
   tableName      String       @db.VarChar(255)
-  filters        Json         @default("{}")
-  orderRules     Json         @default("{}")
+  filters        Json         @default("[]")
+  orderRules     Json         @default("[]")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
