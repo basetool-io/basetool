@@ -19,6 +19,7 @@ model Organization {
   users       OrganizationUser[]
   dataSources DataSource[]
   roles       Role[]
+  views       View[]
 
   @@index([slug])
 }
@@ -104,6 +105,7 @@ model User {
   organizations  OrganizationUser[]
   accounts       Account[]
   sessions       Session[]
+  views          View[]
 }
 
 model VerificationRequest {
@@ -128,4 +130,20 @@ model Role {
   organizationUsers OrganizationUser[]
 
   @@index([organizationId])
+}
+
+model View {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  public         Boolean      @default(false)
+  user           User         @relation(references: [id], fields: [createdBy], onDelete: Cascade)
+  createdBy      Int
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+  organizationId Int
+  tableName      String       @db.VarChar(255)
+  filters        Json         @default("[]")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([createdBy, organizationId])
 }
