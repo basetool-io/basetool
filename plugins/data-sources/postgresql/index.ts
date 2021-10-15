@@ -1,14 +1,11 @@
-import { DataSourceInfo } from "../types"
+import { DataSourceInfo } from "../types";
+import { defaultSettings } from "../abstract-sql-query-service";
 
 const info: DataSourceInfo = {
+  ...defaultSettings,
   id: "postgresql",
   name: "PostgreSQL",
   description: "PostgreSQL data source",
-  readOnly: false,
-  supports: {
-    filters: true,
-    columnsRequest: true,
-  },
 };
 
 export default info;

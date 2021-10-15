@@ -31,8 +31,8 @@ import {
   useAppSelector,
   useColumns,
   useFilters,
-  useMeta,
   useOrderRecords,
+  usePagination,
   useRecords,
   useResizableColumns,
   useResponsive,
@@ -45,12 +45,10 @@ import { useRouter } from "next/router";
 import ItemControls from "@/features/tables/components/ItemControls";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MobileRow from "./MobileRow";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
 import numeral from "numeral";
-
-const DEFAULT_PER_PAGE = 24;
 
 const Cell = memo(
   ({
@@ -277,50 +275,6 @@ const TheTable = memo(() => {
   );
 });
 
-const usePagination = ({ perPage }: { perPage: number }) => {
-  const router = useRouter();
-
-  const [page, setPage] = useState<number>(
-    router.query.page ? parseInt(router.query.page as string, 10) : 1
-  );
-
-  const [limit, offset] = useMemo(() => {
-    const limit: number = perPage;
-    const offset = page === 1 ? 0 : (page - 1) * limit;
-
-    return [perPage, offset];
-  }, [page]);
-
-  const nextPage = () => {
-    const nextPageNumber = page + 1;
-
-    router.push({
-      pathname: router.pathname,
-      query: {
-        ...router.query,
-        page: nextPageNumber,
-      },
-    });
-    setPage(nextPageNumber);
-  };
-
-  const previousPage = () => {
-    let nextPageNumber = page - 1;
-    if (nextPageNumber <= 0) nextPageNumber = 1;
-
-    router.push({
-      pathname: router.pathname,
-      query: {
-        ...router.query,
-        page: nextPageNumber,
-      },
-    });
-    setPage(nextPageNumber);
-  };
-
-  return { page, limit, offset, nextPage, previousPage, setPage };
-};
-
 const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
@@ -371,11 +325,7 @@ const RecordsTable = ({
     router.query.orderBy as string,
     router.query.orderDirection as OrderDirection
   );
-  const [perPage] = useState(DEFAULT_PER_PAGE);
-  const { page, limit, offset, nextPage, previousPage, setPage } =
-    usePagination({
-      perPage,
-    });
+  const { limit, offset } = usePagination();
 
   const {
     data: recordsResponse,
@@ -398,11 +348,14 @@ const RecordsTable = ({
       tableName,
     },
     {
-      skip: !dataSourceId || !tableName || !dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest,
+      skip:
+        !dataSourceId ||
+        !tableName ||
+        !dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest,
     }
   );
 
-  const { records } = useRecords(recordsResponse?.data);
+  const { records } = useRecords(recordsResponse?.data, recordsResponse?.meta);
   useColumns({
     dataSourceResponse,
     dataResponse: recordsResponse,
@@ -410,45 +363,34 @@ const RecordsTable = ({
     tableName,
   });
 
-  const {
-    meta,
-  }: {
-    meta: any;
-  } = useMeta(recordsResponse?.meta);
-
-  const maxPages = useMemo(() => {
-    if (meta?.count) {
-      return Math.ceil(meta?.count / perPage);
-    }
-
-    return 1;
-  }, [meta?.count]);
-
-  const canPreviousPage = useMemo(() => page > 1, [page]);
-  const canNextPage = useMemo(() => page < maxPages, [page, maxPages]);
-
   const hasRecords = useMemo(() => records.length > 0, [records]);
   const tableIsVisible = useMemo(() => {
     return !isLoading && hasRecords;
   }, [isLoading, hasRecords]);
 
-  // Reset page to 1 when modifying filters.
-  useEffect(() => {
-    setPage(1);
-  }, [encodedFilters]);
-
-  // Reset store on umount.
+  // Reset data store on dismount.
   useEffect(() => {
     return () => {
-      dispatch(resetState)
-    }
+      dispatch(resetState);
+    };
   }, []);
 
+  // Reset data store on table change.
   useEffect(() => {
     return () => {
-      dispatch(resetState)
-    }
+      dispatch(resetState);
+    };
   }, [tableName]);
+
+  const PaginationComponent = useMemo(() => {
+    switch (dataSourceResponse?.meta?.dataSourceInfo?.pagination) {
+      default:
+      case "offset":
+        return OffsetPagination;
+      case "cursor":
+        return CursorPagination;
+    }
+  }, [dataSourceResponse?.meta?.dataSourceInfo?.pagination]);
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
@@ -466,51 +408,123 @@ const RecordsTable = ({
           )}
         </>
       )}
-      <nav
-        className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
-        aria-label="Pagination"
-      >
-        <div className="flex-1 flex justify-start">
-          <div className="inline-block text-gray-500 text-sm">
-            Showing {offset + 1}-{perPage * page} {meta?.count && "of "}
-            {meta?.count
-              ? `${
-                  meta.count < 1000
-                    ? meta.count
-                    : numeral(meta.count).format("0.0a")
-                } in total`
-              : ""}
-          </div>
-        </div>
-        <div>
-          <div className="flex justify-between sm:justify-end">
-            <Button
-              size="sm"
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}
-            >
-              <ChevronLeftIcon className="h-4 text-gray-600" />
-            </Button>
-            <div className="flex items-center px-2 space-x-1">
-              <span className="text-gray-500 mr-1">page</span> {page}{" "}
-              <span className="pl-1">
-                of{" "}
-                {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
-              </span>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => nextPage()}
-              disabled={!canNextPage}
-            >
-              <ChevronRightIcon className="h-4 text-gray-600" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex-1 flex justify-end"></div>
-      </nav>
+      <PaginationComponent />
     </div>
   );
 };
+
+const OffsetPagination = memo(() => {
+  const {
+    page,
+    perPage,
+    offset,
+    nextPage,
+    previousPage,
+    maxPages,
+    canPreviousPage,
+    canNextPage,
+    recordsCount,
+  } = usePagination();
+
+  return (
+    <nav
+      className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
+      aria-label="Pagination"
+    >
+      <div className="flex-1 flex justify-start">
+        <div className="inline-block text-gray-500 text-sm">
+          Showing {offset + 1}-{perPage * page} {recordsCount && "of "}
+          {recordsCount
+            ? `${
+                recordsCount < 1000
+                  ? recordsCount
+                  : numeral(recordsCount).format("0.0a")
+              } in total`
+            : ""}
+        </div>
+      </div>
+      <div>
+        <div className="flex justify-between sm:justify-end">
+          <Button
+            size="sm"
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+          >
+            <ChevronLeftIcon className="h-4 text-gray-600" />
+          </Button>
+          <div className="flex items-center px-2 space-x-1">
+            <span className="text-gray-500 mr-1">page</span> {page}{" "}
+            <span className="pl-1">
+              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
+            </span>
+          </div>
+          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
+            <ChevronRightIcon className="h-4 text-gray-600" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex-1 flex justify-end"></div>
+    </nav>
+  );
+});
+
+OffsetPagination.displayName = "OffsetPagination";
+
+const CursorPagination = memo(() => {
+  const {
+    page,
+    perPage,
+    offset,
+    nextPage,
+    previousPage,
+    maxPages,
+    canPreviousPage,
+    canNextPage,
+    recordsCount,
+  } = usePagination();
+
+  return (
+    <nav
+      className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
+      aria-label="Pagination"
+    >
+      <div className="flex-1 flex justify-start">
+        <div className="inline-block text-gray-500 text-sm">
+          Showing {offset + 1}-{perPage * page} {recordsCount && "of "}
+          {recordsCount
+            ? `${
+                recordsCount < 1000
+                  ? recordsCount
+                  : numeral(recordsCount).format("0.0a")
+              } in total`
+            : ""}
+        </div>
+      </div>
+      <div>
+        <div className="flex justify-between sm:justify-end">
+          <Button
+            size="sm"
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+          >
+            <ChevronLeftIcon className="h-4 text-gray-600" />
+          </Button>
+          <div className="flex items-center px-2 space-x-1">
+            <span className="text-gray-500 mr-1">page</span> {page}{" "}
+            <span className="pl-1">
+              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
+            </span>
+          </div>
+          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
+            <ChevronRightIcon className="h-4 text-gray-600" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex-1 flex justify-end"></div>
+    </nav>
+  );
+});
+
+CursorPagination.displayName = "CursorPagination";
 
 export default memo(RecordsTable);

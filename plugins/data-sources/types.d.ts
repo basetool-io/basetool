@@ -5,11 +5,14 @@ export type DataSourceInfo = {
   name: string;
   description: string;
   readOnly: boolean;
+  pagination: PaginationType;
   supports?: {
-    filters: boolean
-    columnsRequest: boolean
+    filters: boolean;
+    columnsRequest: boolean;
   };
-}
+};
+
+export type PaginationType = "offset" | "cursor";
 
 export type QueryResponse = {
   data: unknown;
@@ -78,6 +81,9 @@ export interface DataSourcePlugin {
 type RecordsResponse = {
   records: any[];
   columns?: Column[];
+  meta?: {
+    hasMore?: boolean;
+  };
 };
 
 type RecordResponse<T = unknown> = {

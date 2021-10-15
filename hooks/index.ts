@@ -15,9 +15,13 @@ import {
   allFiltersAppliedSelector,
   appliedFiltersSelector,
   columnsSelector,
+  encodedFiltersSelector,
   filtersSelector,
+  limitOffsetSelector,
   metaSelector,
   orderSelector,
+  pageSelector,
+  perPageSelector,
   recordsSelector,
   removeFilter,
   resetRecordsSelection as resetRecordsSelectionInState,
@@ -29,12 +33,13 @@ import {
   setMeta as setMetaInState,
   setOrderBy as setOrderByInState,
   setOrderDirection as setOrderDirectionInState,
+  setPage as setPageInState,
+  setPerPage as setPerPageInState,
   setRecords as setRecordsInState,
   setRecordsSelected as setRecordsSelectedInState,
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
-import { encodeObject } from "@/lib/encoding";
 import { isArray, isEqual, isNull, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { segment } from "@/lib/track";
@@ -53,86 +58,37 @@ import AccessControlService, {
 } from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import ApiService from "@/features/api/ApiService";
-import store from "@/lib/store";
 
 export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export const useFilters = (
-  initialFilters?: string | undefined
-): {
-  filters: Array<IFilter | IFilterGroup>;
-  setFilters: (filters: Array<IFilter | IFilterGroup>) => void;
-  appliedFilters: Array<IFilter | IFilterGroup>;
-  applyFilters: (filters: Array<IFilter | IFilterGroup>) => void;
-  allFiltersApplied: boolean;
-  removeFilter: (idx: number) => void;
-  updateFilter: (idx: number, filter: IFilter | IFilterGroup) => void;
-  resetFilters: () => void;
-  encodedFilters: string;
-} => {
-  // const router = useRouter()
+export const useFilters = (initialFilters?: string | undefined) => {
+  const dispatch = useAppDispatch();
+  const { setPage } = usePagination();
   const filters = useAppSelector(filtersSelector);
   const appliedFilters = useAppSelector(appliedFiltersSelector);
   const allFiltersApplied = useAppSelector(allFiltersAppliedSelector);
+  const encodedFilters = useAppSelector(encodedFiltersSelector);
 
-  // useEffect(() => {
-  //   console.log('useEffect->', initialFilters)
+  const setTheFilters = (filters: Array<IFilter | IFilterGroup>) =>
+    dispatch(setFilters(filters));
 
-  //   if (initialFilters) {
-  //     let decodedFilters
-  //     try {
-  //       decodedFilters = decodeObject(initialFilters)
-  //     } catch (error) {
-  //       console.log('error->', error)
-  //     }
-  //     console.log('decodedFilters->', decodedFilters, initialFilters)
+  const removeTheFilter = (idx: number) => dispatch(removeFilter(idx));
 
-  //     if (decodedFilters) store.dispatch(setFilters(decodedFilters))
-  //   }
+  const updateTheFilter = (idx: number, filter: IFilter | IFilterGroup) =>
+    dispatch(updateFilter({ idx, filter }));
 
-  // }, [])
-
-  const setTheFilters = (filters: Array<IFilter | IFilterGroup>) => {
-    store.dispatch(setFilters(filters));
-  };
-
-  const removeTheFilter = (idx: number) => {
-    store.dispatch(removeFilter(idx));
-  };
-
-  const updateTheFilter = (idx: number, filter: IFilter | IFilterGroup) => {
-    store.dispatch(updateFilter({ idx, filter }));
+  const applyFilters = (filters: Array<IFilter | IFilterGroup>) => {
+    if (!isEqual(appliedFilters, filters)) {
+      dispatch(setAppliedFilters(filters));
+      setPage(1);
+    }
   };
 
   const resetFilters = () => {
-    store.dispatch(setFilters([]));
-    store.dispatch(setAppliedFilters([]));
-
-    // router.push({
-    //   pathname: router.pathname,
-    //   query: {
-    //     ...router.query,
-    //     filters: null,
-    //   },
-    // });
-  };
-
-  const encodedFilters = useMemo(() => {
-    return appliedFilters ? encodeObject(appliedFilters) : "";
-  }, [appliedFilters]);
-  // console.log('encodedFilters->', encodedFilters)
-
-  const applyFilters = (filters: Array<IFilter | IFilterGroup>) => {
-    // router.push({
-    //   pathname: router.pathname,
-    //   query: {
-    //     ...router.query,
-    //     filters: encodeObject(filters),
-    //   },
-    // });
-    store.dispatch(setAppliedFilters(filters));
+    dispatch(setFilters([]));
+    dispatch(setAppliedFilters([]));
   };
 
   return {
@@ -180,12 +136,10 @@ export const useSidebarsVisible = (initialvalue?: boolean) => {
   return [sidebarsVisible, setSidebarsVisible] as const;
 };
 
-export const useOrganizationFromContext = ({
-  id,
+export const useOrganizationFromProfile = ({
   slug,
 }: {
-  id?: number;
-  slug?: string;
+  slug: string;
 }):
   | (Organization & {
       users: Array<OrganizationUser & { user: User }>;
@@ -193,12 +147,8 @@ export const useOrganizationFromContext = ({
   | undefined => {
   const { organizations } = useProfile();
   const organization = useMemo(
-    () =>
-      organizations?.find((o) => {
-        if (slug) return o.slug === slug;
-        if (id) return o.id === id;
-      }),
-    [organizations, id, slug]
+    () => organizations?.find((o) => o.slug === slug),
+    [organizations, slug]
   );
 
   return organization;
@@ -339,7 +289,8 @@ export const useColumns = ({
 
     if (
       dataSourceResponse?.ok &&
-      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest === false
+      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
+        false
     ) {
       if (dataResponse?.ok) {
         columns = dataResponse?.meta?.columns;
@@ -361,12 +312,19 @@ export const useColumns = ({
   };
 };
 
-export const useRecords = (initialRecords: []) => {
+export const useRecords = (
+  initialRecords: [],
+  meta?: Record<string, unknown>
+) => {
   const dispatch = useAppDispatch();
   const records = useAppSelector(recordsSelector);
 
   const setRecords = (records: []) => {
     dispatch(setRecordsInState(records));
+  };
+
+  const setMeta = (meta: Record<string, unknown>) => {
+    dispatch(setMetaInState(meta));
   };
 
   useEffect(() => {
@@ -375,29 +333,15 @@ export const useRecords = (initialRecords: []) => {
     }
   }, [initialRecords]);
 
+  useEffect(() => {
+    if (meta) {
+      setMeta(meta);
+    }
+  }, [meta]);
+
   return {
     records,
     setRecords,
-  };
-};
-
-export const useMeta = (initialMeta: Record<string, unknown>) => {
-  const dispatch = useAppDispatch();
-  const meta = useAppSelector(metaSelector);
-
-  const setMeta = (meta: Record<string, unknown>) => {
-    dispatch(setMetaInState(meta));
-  };
-
-  useEffect(() => {
-    if (initialMeta) {
-      setMeta(initialMeta);
-    }
-  }, [initialMeta]);
-
-  return {
-    meta,
-    setMeta,
   };
 };
 
@@ -460,6 +404,77 @@ export const useResizableColumns = ({
   }, []);
 
   return updateColumnWidths;
+};
+
+export const usePagination = ({
+  initialPerPage,
+}: { initialPerPage?: number } = {}) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const page = useAppSelector(pageSelector);
+  const perPage = useAppSelector(perPageSelector);
+  const [limit, offset] = useAppSelector(limitOffsetSelector);
+  const meta = useAppSelector(metaSelector);
+
+  const maxPages = useMemo(() => {
+    if (meta?.count) {
+      return Math.ceil((meta?.count as number) / perPage);
+    }
+
+    return 1;
+  }, [meta?.count]);
+
+  const canPreviousPage = useMemo(() => page > 1, [page]);
+  const canNextPage = useMemo(() => page < maxPages, [page, maxPages]);
+
+  const setPage = (page: number) => dispatch(setPageInState(page));
+  const setPerPage = (page: number) => dispatch(setPerPageInState(page));
+
+  const nextPage = () => {
+    const nextPageNumber = page + 1;
+
+    router.push({
+      pathname: router.pathname,
+      query: {
+        ...router.query,
+        page: nextPageNumber,
+      },
+    });
+    setPage(nextPageNumber);
+  };
+
+  const previousPage = () => {
+    let nextPageNumber = page - 1;
+    if (nextPageNumber <= 0) nextPageNumber = 1;
+
+    router.push({
+      pathname: router.pathname,
+      query: {
+        ...router.query,
+        page: nextPageNumber,
+      },
+    });
+    setPage(nextPageNumber);
+  };
+
+  useEffect(() => {
+    initialPerPage && setPerPage(initialPerPage);
+    router.query.page && setPage(parseInt(router.query.page as string));
+  }, []);
+
+  return {
+    page,
+    perPage,
+    limit,
+    offset,
+    nextPage,
+    previousPage,
+    setPage,
+    maxPages,
+    canPreviousPage,
+    canNextPage,
+    recordsCount: meta.count,
+  };
 };
 
 export const useProfile = () => {

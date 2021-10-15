@@ -1,14 +1,19 @@
 import { Column } from "../fields/types";
+import { DEFAULT_PER_PAGE } from "@/lib/constants";
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
+import { encodeObject } from "@/lib/encoding";
+import { isEmpty } from "lodash";
 
 interface AppState {
   records: [];
-  meta: Record<string, unknown>;
+  meta: Record<string, string | number | boolean | null>;
   columns: Column[];
   filters: Array<IFilter | IFilterGroup>;
   appliedFilters: Array<IFilter | IFilterGroup>;
+  page: number;
+  perPage: number;
   orderBy: string;
   orderDirection: OrderDirection;
   filtersPanelVisible: boolean;
@@ -22,6 +27,8 @@ const initialState: AppState = {
   columns: [],
   filters: [],
   appliedFilters: [],
+  page: 1,
+  perPage: DEFAULT_PER_PAGE,
   orderBy: "",
   orderDirection: "",
   filtersPanelVisible: false,
@@ -98,8 +105,21 @@ const recordsStateSlice = createSlice({
     /**
      * Meta
      */
-    setMeta(state, action: PayloadAction<Record<string, unknown>>) {
+    setMeta(
+      state,
+      action: PayloadAction<Record<string, string | number | boolean | null>>
+    ) {
       state.meta = action.payload;
+    },
+
+    /**
+     * Per page
+     */
+    setPage(state, action: PayloadAction<number>) {
+      state.page = action.payload;
+    },
+    setPerPage(state, action: PayloadAction<number>) {
+      state.perPage = action.payload;
     },
 
     /**
@@ -128,15 +148,6 @@ const recordsStateSlice = createSlice({
   },
 });
 
-// export const testSelector = () => {
-//   console.log('api!->', recordsApiSlice.endpoints)
-//   const p = recordsApiSlice.endpoints.getRecords.select({dataSourceId: '8', tableName: 'teams'})
-//   console.log('p->', p)
-//   // api.endpoints
-//   return p
-// };
-export const filtersSelector = ({ recordsState }: { recordsState: AppState }) =>
-  recordsState.filters;
 export const recordsSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.records;
 export const metaSelector = ({ recordsState }: { recordsState: AppState }) =>
@@ -152,16 +163,6 @@ export const orderSelector = ({ recordsState }: { recordsState: AppState }) => [
   recordsState.orderBy,
   recordsState.orderDirection,
 ];
-export const appliedFiltersSelector = ({
-  recordsState,
-}: {
-  recordsState: AppState;
-}) => recordsState.appliedFilters;
-export const allFiltersAppliedSelector = createSelector(
-  [filtersSelector, appliedFiltersSelector],
-  (filters, appliedFilters) =>
-    JSON.stringify(filters) === JSON.stringify(appliedFilters)
-);
 
 export const selectedRecordsSelector = ({
   recordsState,
@@ -173,6 +174,45 @@ export const allColumnsCheckedSelector = createSelector(
   [recordsSelector, selectedRecordsSelector],
   (records, selectedRecords): boolean =>
     records.length === selectedRecords.length && records.length > 0
+);
+
+/**
+ * Filters
+ */
+export const filtersSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.filters;
+export const appliedFiltersSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.appliedFilters;
+
+export const encodedFiltersSelector = createSelector(
+  [appliedFiltersSelector],
+  (appliedFilters) =>
+    isEmpty(appliedFilters) ? "" : encodeObject(appliedFilters)
+);
+export const allFiltersAppliedSelector = createSelector(
+  [filtersSelector, appliedFiltersSelector],
+  (filters, appliedFilters) =>
+    JSON.stringify(filters) === JSON.stringify(appliedFilters)
+);
+
+/**
+ * Pagination
+ */
+export const pageSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.page;
+export const perPageSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.perPage;
+export const limitOffsetSelector = createSelector(
+  [pageSelector, perPageSelector],
+  (page, perPage) => {
+    const limit: number = perPage;
+    const offset = page === 1 ? 0 : (page - 1) * limit;
+
+    return [limit, offset];
+  }
 );
 
 export const {
@@ -190,6 +230,9 @@ export const {
   setRecords,
 
   setMeta,
+
+  setPerPage,
+  setPage,
 
   setOrderBy,
   setOrderDirection,

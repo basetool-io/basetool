@@ -1,4 +1,4 @@
-import { useOrganizationFromContext } from "@/hooks";
+import { useOrganizationFromProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock"
 import Layout from "@/components/Layout";
@@ -7,7 +7,7 @@ import React from "react";
 
 function OrganizationShow() {
   const router = useRouter();
-  const organization = useOrganizationFromContext({
+  const organization = useOrganizationFromProfile({
     slug: router.query.organizationSlug as string,
   });
 

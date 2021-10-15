@@ -1,5 +1,6 @@
 import { decodeObject } from "@/lib/encoding";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { merge } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -31,7 +32,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const filters = decodeObject(req.query.filters as string);
 
-  const [{records, columns}, count] = await service.runQueries([
+  const [{ records, columns, meta }, count] = await service.runQueries([
     {
       name: "getRecords",
       payload: {
@@ -54,7 +55,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   ]);
 
-  res.json(ApiResponse.withData(records, { meta: { count, columns } }));
+  res.json(
+    ApiResponse.withData(records, { meta: merge({ count, columns }, meta) })
+  );
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {

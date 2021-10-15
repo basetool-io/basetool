@@ -116,19 +116,21 @@ class QueryService implements IQueryService {
     // Checking if the tableName is in the supported APIs
     if (Object.values(StripeListAPIs).includes(tableName)) {
       // casting as any[] because Stripe's API returns some weird object
-      const records: any[] =
-        (
-          await this.client[tableName]?.list({
-            limit,
-          } as any)
-        )?.data || []; // casting as any because TS squaks at list signature
+      const response = await this.client[tableName]?.list({
+        limit,
+      } as any); // casting as any because TS squaks at the `limit` param
+
+      const meta = {
+        hasMore: response.has_more,
+      };
+      const records: any[] = response?.data || [];
 
       let columns: Column[] = [];
       if (records && records.length > 0) {
         columns = recordToColumns(first(records));
       }
 
-      return { records, columns };
+      return { records, columns, meta };
     }
 
     return { records: [], columns: [] };

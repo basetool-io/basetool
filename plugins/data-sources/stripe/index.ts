@@ -5,6 +5,7 @@ const info: DataSourceInfo = {
   name: "Stripe",
   description: "Stripe",
   readOnly: true,
+  pagination: 'cursor',
   supports: {
     filters: false,
     columnsRequest: false,

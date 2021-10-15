@@ -47,6 +47,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         dataSourceInfo: {
           readOnly: dataSourceInfo?.readOnly || false,
           supports: dataSourceInfo?.supports || {},
+          pagination: dataSourceInfo?.pagination,
         },
       },
     })

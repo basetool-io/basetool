@@ -155,32 +155,37 @@ function TablesShow() {
           <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
             {filtersPanelVisible && <FiltersPanel ref={filtersPanel} />}
             <div className="flex flex-shrink-0">
-              <ButtonGroup size="xs" variant="outline" isAttached>
-                <Button
-                  onClick={() => toggleFiltersPanelVisible()}
-                  ref={filtersButton}
-                  leftIcon={<FilterIcon className="h-3 text-gray-600" />}
-                >
-                  <div className="text-gray-800">Filters</div>
-                  {!isEmpty(appliedFilters) && (
-                    <>
-                      <div className="text-gray-600 font-thin mr-1 ml-1">|</div>
-                      <div className="text-blue-600 font-thin">
-                        {appliedFilters.length}
-                      </div>
-                    </>
-                  )}
-                </Button>
-                {!isEmpty(appliedFilters) && (
-                  <Tooltip label="Reset filters">
-                    <IconButton
-                      aria-label="Remove filters"
-                      icon={<XIcon className="h-3" />}
-                      onClick={resetFilters}
-                    />
-                  </Tooltip>
+              {dataSourceResponse?.ok &&
+                dataSourceResponse?.meta?.dataSourceInfo?.supports?.filters && (
+                  <ButtonGroup size="xs" variant="outline" isAttached>
+                    <Button
+                      onClick={() => toggleFiltersPanelVisible()}
+                      ref={filtersButton}
+                      leftIcon={<FilterIcon className="h-3 text-gray-600" />}
+                    >
+                      <div className="text-gray-800">Filters</div>
+                      {!isEmpty(appliedFilters) && (
+                        <>
+                          <div className="text-gray-600 font-thin mr-1 ml-1">
+                            |
+                          </div>
+                          <div className="text-blue-600 font-thin">
+                            {appliedFilters.length}
+                          </div>
+                        </>
+                      )}
+                    </Button>
+                    {!isEmpty(appliedFilters) && (
+                      <Tooltip label="Reset filters">
+                        <IconButton
+                          aria-label="Remove filters"
+                          icon={<XIcon className="h-3" />}
+                          onClick={resetFilters}
+                        />
+                      </Tooltip>
+                    )}
+                  </ButtonGroup>
                 )}
-              </ButtonGroup>
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">

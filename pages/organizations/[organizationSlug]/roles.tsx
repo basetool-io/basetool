@@ -20,7 +20,7 @@ import {
   useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/features/roles/api-slice";
-import { useOrganizationFromContext, useSegment } from "@/hooks";
+import { useOrganizationFromProfile, useSegment } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -227,7 +227,7 @@ const RoleEditor = ({
 
 function Roles() {
   const router = useRouter();
-  const organization = useOrganizationFromContext({
+  const organization = useOrganizationFromProfile({
     slug: router.query.organizationSlug as string,
   });
   const [addNewRole, toggleAddNewRole] = useBoolean(false);
