@@ -30,7 +30,6 @@ function Inspector({
           <Input
             type="number"
             name="dimensions"
-            placeholder={`current value: ${column.fieldOptions.showDimensions}`}
             required={false}
             onChange={(e) => {
               setColumnOptions(column, {
