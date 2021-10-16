@@ -6,10 +6,12 @@ import {
 } from "@heroicons/react/outline";
 import { Collapse, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
+import { View } from "@/plugins/views/types";
 import { getLabel } from "@/features/data-sources";
 import { useAccessControl } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
+import { useGetViewsQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
@@ -51,6 +53,19 @@ const Sidebar = () => {
     defaultIsOpen: true,
   });
 
+  const {
+    data: viewsResponse,
+    isLoading: viewsAreLoading,
+    error: viewsError,
+  } = useGetViewsQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
+
+  const viewId = router.query.viewId as string;
+
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
       <div className="relative space-y-x w-full h-full flex flex-col">
@@ -73,6 +88,9 @@ const Sidebar = () => {
           )}
         </div>
         <hr className="-mt-px mb-2" />
+        {viewsError && (
+          <div>{"data" in viewsError && (viewsError?.data as any)?.messages[0]}</div>
+        )}
         <div className="relative space-y-1 px-2 flex-col">
           <div
             className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0"
@@ -93,10 +111,27 @@ const Sidebar = () => {
               </div>
             </Link>
 
-            <div className="flex">HERE WILL BE THE VIEWS</div>
+            {viewsAreLoading && (
+              <div className="flex-1 min-h-full">
+                <LoadingOverlay
+                  transparent={isEmpty(viewsResponse?.data)}
+                  subTitle={false}
+                />
+              </div>
+            )}
+            {viewsResponse?.ok &&
+              viewsResponse.data
+                .map((view: View, idx: number) => (
+                  <SidebarItem
+                    key={idx}
+                    active={view.id === parseInt(viewId)}
+                    label={view.name}
+                    link={`/data-sources/${dataSourceId}/views/${view.id}`}
+                  />
+                ))}
           </Collapse>
         </div>
-        <hr className="-mt-px mb-2" />
+        <hr className="mt-2 mb-2" />
         {error && (
           <div>{"data" in error && (error?.data as any)?.messages[0]}</div>
         )}

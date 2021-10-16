@@ -13,6 +13,8 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   switch (req.method) {
+    case "GET":
+      return handleGET(req, res);
     case "POST":
       return handlePOST(req, res);
     default:
@@ -62,6 +64,32 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       message: "View created",
     })
   );
+}
+
+async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  const views = await prisma.view.findMany({
+    where: {
+      dataSourceId: parseInt(req.query.dataSourceId as string),
+    },
+    orderBy: [
+      {
+        createdAt: "asc",
+      },
+    ],
+    select: {
+      id: true,
+      name: true,
+      public: true,
+      createdBy: true,
+      organizationId: true,
+      dataSourceId: true,
+      tableName: true,
+      filters: true,
+    },
+  });
+
+  console.log('views->', views)
+  res.json(ApiResponse.withData(views));
 }
 
 export default withMiddlewares(handler, {

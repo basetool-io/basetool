@@ -18,13 +18,21 @@ export const viewsApiSlice = createApi({
         }>
       >({
         query: ({ dataSourceId, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}/views/`,
+          url: `${apiUrl}/data-sources/${dataSourceId}/views`,
           method: "POST",
           body,
         }),
+      }),
+      getViews: builder.query<ApiResponse, { dataSourceId: string }>({
+        query({ dataSourceId }) {
+          return `/data-sources/${dataSourceId}/views`;
+        },
+        providesTags: (response, error, { dataSourceId }) => [
+          { type: "View", id: "LIST" },
+        ],
       }),
     };
   },
 });
 
-export const { useAddViewMutation } = viewsApiSlice;
+export const { useAddViewMutation, useGetViewsQuery } = viewsApiSlice;
