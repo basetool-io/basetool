@@ -34,14 +34,14 @@ function Inspector({
     setColumnOptions(column, {
       "fieldOptions.max": initialMaxValue,
       "fieldOptions.step": initialStepValue,
-      "fieldOptions.value_suffix": initialValueSuffix,
+      "fieldOptions.valueSuffix": initialValueSuffix,
       "fieldOptions.display_value": initialDisplayValue,
     });
   }, []);
 
   return (
     <>
-      <OptionWrapper helpText="Choose max value">
+      <OptionWrapper helpText="What is the maximum value the progress should have?">
         <FormControl id="max">
           <FormLabel>Max</FormLabel>
           <Input
@@ -61,7 +61,7 @@ function Inspector({
           />
         </FormControl>
       </OptionWrapper>
-      <OptionWrapper helpText="Choose max value">
+      <OptionWrapper helpText="Select the increments in which the user can update the value.">
         <FormControl id="step">
           <FormLabel>Step</FormLabel>
           <Input
@@ -81,7 +81,7 @@ function Inspector({
           />
         </FormControl>
       </OptionWrapper>
-      <OptionWrapper helpText="Choose value suffix">
+      <OptionWrapper helpText="You might want to add something at the end of the value like '%'">
         <FormControl id="valueSuffix" className="mt-2">
           <FormLabel>Value Suffix</FormLabel>
           <Input
@@ -92,7 +92,7 @@ function Inspector({
             value={fieldOptions.valueSuffix}
             onChange={(e) => {
               setColumnOptions(column, {
-                "fieldOptions.value_suffix": e.currentTarget.value,
+                "fieldOptions.valueSuffix": e.currentTarget.value,
               });
             }}
           />
