@@ -74,13 +74,6 @@ const recordsStateSlice = createSlice({
   },
 });
 
-// export const testSelector = () => {
-//   console.log('api!->', recordsApiSlice.endpoints)
-//   const p = recordsApiSlice.endpoints.getRecords.select({dataSourceId: '8', tableName: 'teams'})
-//   console.log('p->', p)
-//   // api.endpoints
-//   return p
-// };
 export const filtersSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.filters;
 export const appliedFiltersSelector = ({
