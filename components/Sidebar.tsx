@@ -1,5 +1,11 @@
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  PencilAltIcon,
+  PlusIcon,
+} from "@heroicons/react/outline";
+import { Collapse, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
-import { PencilAltIcon } from "@heroicons/react/outline";
 import { getLabel } from "@/features/data-sources";
 import { useAccessControl } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
@@ -38,6 +44,13 @@ const Sidebar = () => {
 
   const ac = useAccessControl();
 
+  const { isOpen: isTablesOpen, onToggle: toggleTablesOpen } = useDisclosure({
+    defaultIsOpen: true,
+  });
+  const { isOpen: isViewsOpen, onToggle: toggleViewsOpen } = useDisclosure({
+    defaultIsOpen: true,
+  });
+
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
       <div className="relative space-y-x w-full h-full flex flex-col">
@@ -59,44 +72,81 @@ const Sidebar = () => {
             </>
           )}
         </div>
-        <hr className="-mt-px mb-4" />
+        <hr className="-mt-px mb-2" />
+        <div className="relative space-y-1 px-2 flex-col">
+          <div
+            className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0"
+            onClick={toggleViewsOpen}
+          >
+            Views{" "}
+            {isViewsOpen ? (
+              <ChevronDownIcon className="h-4 inline pb-1" />
+            ) : (
+              <ChevronLeftIcon className="h-4 inline pb-1" />
+            )}
+          </div>
+
+          <Collapse in={isViewsOpen}>
+            <Link href={`/data-sources/${dataSourceId}/views/new`} passHref>
+              <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer">
+                <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />Create view
+              </div>
+            </Link>
+
+            <div className="flex">HERE WILL BE THE VIEWS</div>
+          </Collapse>
+        </div>
+        <hr className="-mt-px mb-2" />
         {error && (
           <div>{"data" in error && (error?.data as any)?.messages[0]}</div>
         )}
         <div className="relative space-y-1 px-2 flex-1">
-          {tablesAreLoading && (
-            <div className="flex-1 min-h-full">
-              <LoadingOverlay
-                transparent={isEmpty(tablesResponse?.data)}
-                subTitle={false}
-              />
-            </div>
-          )}
-          {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
-          {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-          {tablesResponse?.ok &&
-            tablesResponse.data
-              .filter((table: ListTable) =>
-                dataSourceResponse?.data.type === "postgresql" && table.schema
-                  ? table.schema === "public"
-                  : true
-              )
-              .filter((table: ListTable) => ac.canViewTable(table))
-              .filter((table: ListTable) => !table?.hidden)
-              .map((table: ListTable, idx: number) => (
-                <SidebarItem
-                  key={idx}
-                  active={table.name === tableName}
-                  label={getLabel(table)}
-                  link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-                  onMouseOver={() => {
-                    prefetchColumns({
-                      dataSourceId,
-                      tableName: table.name,
-                    });
-                  }}
+          <div
+            className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0"
+            onClick={toggleTablesOpen}
+          >
+            Tables{" "}
+            {isTablesOpen ? (
+              <ChevronDownIcon className="h-4 inline pb-1" />
+            ) : (
+              <ChevronLeftIcon className="h-4 inline pb-1" />
+            )}
+          </div>
+          <Collapse in={isTablesOpen}>
+            {tablesAreLoading && (
+              <div className="flex-1 min-h-full">
+                <LoadingOverlay
+                  transparent={isEmpty(tablesResponse?.data)}
+                  subTitle={false}
                 />
-              ))}
+              </div>
+            )}
+            {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
+            {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
+            {tablesResponse?.ok &&
+              tablesResponse.data
+                .filter((table: ListTable) =>
+                  dataSourceResponse?.data.type === "postgresql" && table.schema
+                    ? table.schema === "public"
+                    : true
+                )
+                .filter((table: ListTable) => ac.canViewTable(table))
+                .filter((table: ListTable) => !table?.hidden)
+                .map((table: ListTable, idx: number) => (
+                  <SidebarItem
+                    key={idx}
+                    active={table.name === tableName}
+                    label={getLabel(table)}
+                    link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                    onMouseOver={() => {
+                      prefetchColumns({
+                        dataSourceId,
+                        tableName: table.name,
+                      });
+                    }}
+                  />
+                ))}
+          </Collapse>
         </div>
       </div>
     </div>
