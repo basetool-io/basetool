@@ -61,7 +61,7 @@ function Inspector({
           />
         </FormControl>
       </OptionWrapper>
-      <OptionWrapper helpText="Choose max value">
+      <OptionWrapper helpText="Select the increments in which the user can update the value.">
         <FormControl id="step">
           <FormLabel>Step</FormLabel>
           <Input
