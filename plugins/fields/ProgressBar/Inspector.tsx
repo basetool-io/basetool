@@ -92,7 +92,7 @@ function Inspector({
             value={fieldOptions.valueSuffix}
             onChange={(e) => {
               setColumnOptions(column, {
-                "fieldOptions.value_suffix": e.currentTarget.value,
+                "fieldOptions.valueSuffix": e.currentTarget.value,
               });
             }}
           />
