@@ -41,7 +41,7 @@ function Inspector({
 
   return (
     <>
-      <OptionWrapper helpText="Choose max value">
+      <OptionWrapper helpText="What is the maximum value the progress should have?">
         <FormControl id="max">
           <FormLabel>Max</FormLabel>
           <Input
