@@ -1,5 +1,5 @@
+import { Checkbox, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect } from "react";
 import fieldOptions from "./fieldOptions";
@@ -11,14 +11,18 @@ function Inspector({
   column: Column;
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
-  const initialDimensions = column.fieldOptions.showDimensions
+  const initialShowDimensions = column.fieldOptions.showDimensions
     ? column.fieldOptions.showDimensions
     : fieldOptions.showDimensions;
+
+  const initialIndexDimensions = column.fieldOptions.indexDimensions
+    ? column.fieldOptions.indexDimensions
+    : fieldOptions.indexDimensions;
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
     setColumnOptions(column, {
-      "fieldOptions.showDimensions": initialDimensions,
+      "fieldOptions.showDimensions": initialShowDimensions,
     });
   }, []);
 
@@ -30,14 +34,15 @@ function Inspector({
           <Input
             type="number"
             name="dimensions"
-            placeholder={`current value: ${column.fieldOptions.showDimensions}`}
+            value={column.fieldOptions.showDimensions as number}
+            placeholder="Show Dimensions"
             required={false}
             onChange={(e) => {
               setColumnOptions(column, {
                 "fieldOptions.showDimensions":
                   parseInt(e.currentTarget.value) > 0
                     ? parseInt(e.currentTarget.value)
-                    : initialDimensions,
+                    : initialShowDimensions,
               });
             }}
           />
@@ -49,17 +54,33 @@ function Inspector({
           <Input
             type="number"
             name="dimensions"
-            placeholder={`current value: ${column.fieldOptions.indexDimensions}`}
+            value={column.fieldOptions.indexDimensions as number}
+            placeholder="Index Dimensions"
             required={false}
             onChange={(e) => {
               setColumnOptions(column, {
                 "fieldOptions.indexDimensions":
                   parseInt(e.currentTarget.value) > 0
                     ? parseInt(e.currentTarget.value)
-                    : initialDimensions,
+                    : initialIndexDimensions,
               });
             }}
           />
+        </FormControl>
+      </OptionWrapper>
+      <OptionWrapper helpText="Rounded gravatar">
+        <FormControl id="openNewTab" className="mt-2">
+          <FormLabel>Rounded Gravatar</FormLabel>
+          <Checkbox
+            isChecked={fieldOptions.rounded}
+            onChange={() =>
+              setColumnOptions(column, {
+                "fieldOptions.classRounded": "rounded-full",
+              })
+            }
+          >
+            Display Value
+          </Checkbox>
         </FormControl>
       </OptionWrapper>
     </>
