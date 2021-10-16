@@ -32,7 +32,7 @@ export interface IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    select: string[];
+    columns: Column[];
   }): Promise<[]>;
   getRecordsCount(payload: {
     tableName: string;
@@ -41,7 +41,7 @@ export interface IQueryService {
   getRecord(payload: {
     tableName: string;
     recordId: string;
-    select: string[];
+    columns: Column[];
   }): Promise<Record<string, unknown> | undefined>;
   updateRecord({
     tableName: string,
