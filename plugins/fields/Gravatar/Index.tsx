@@ -19,7 +19,7 @@ const Index = ({ field }: { field: Field }) => {
   return (
     <IndexFieldWrapper field={field} flush={true}>
       <Image
-        className={`min-w-10 ${rounded}`}
+        className={`min-w-10 ${rounded}`} //TODO tailwind rounded ignored by Image from nex/image
         src={src}
         width={indexDimensions}
         height={indexDimensions}
