@@ -120,9 +120,6 @@ svg.tea #steamR {
   stroke-dashoffset: 9;
   animation: steamSmall 2s infinite;
 }
-.rounded-full {
-  border-radius: 9999px;
-}
 @-moz-keyframes swing {
   50% {
     transform: rotate(-3deg);

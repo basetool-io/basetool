@@ -12,17 +12,20 @@ const Index = ({ field }: { field: Field }) => {
   const src = `https://www.gravatar.com/avatar/${md5(value as string)}`;
   const indexDimensions =
     (field.column.fieldOptions as GravatarFieldOptions)?.indexDimensions || 40;
+  const rounded = (field.column.fieldOptions as GravatarFieldOptions).rounded
+    ? "rounded-full"
+    : "";
 
   return (
     <IndexFieldWrapper field={field} flush={true}>
       <Image
-        className="min-w-10 rounded-full"
+        className={`min-w-10 ${rounded}`}
         src={src}
         width={indexDimensions}
         height={indexDimensions}
         alt={value as string}
         title={value as string}
-        priority
+        priority //the image will be considered high priority and preload
       />
     </IndexFieldWrapper>
   );

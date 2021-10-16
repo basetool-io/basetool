@@ -72,14 +72,14 @@ function Inspector({
         <FormControl id="openNewTab" className="mt-2">
           <FormLabel>Rounded Gravatar</FormLabel>
           <Checkbox
-            isChecked={fieldOptions.rounded}
+            isChecked={column.fieldOptions.rounded as boolean}
             onChange={() =>
               setColumnOptions(column, {
-                "fieldOptions.classRounded": "rounded-full",
+                "fieldOptions.rounded": !column.fieldOptions.rounded,
               })
             }
           >
-            Display Value
+            Rounded Gravatar
           </Checkbox>
         </FormControl>
       </OptionWrapper>
