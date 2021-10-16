@@ -34,7 +34,7 @@ function Inspector({
     setColumnOptions(column, {
       "fieldOptions.max": initialMaxValue,
       "fieldOptions.step": initialStepValue,
-      "fieldOptions.value_suffix": initialValueSuffix,
+      "fieldOptions.valueSuffix": initialValueSuffix,
       "fieldOptions.display_value": initialDisplayValue,
     });
   }, []);
