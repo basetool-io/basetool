@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "yarn tsc && next lint --quiet",
     "try": "yarn build && yarn start",
-    "ts-node": "ts-node --compiler-options '{\"module\":\"commonjs\"}'",
     "test:migrate": "zx ./scripts/test:migrate.mjs",
     "test:start-server": "NODE_ENV=test next dev -p 4099",
     "start-cypress": "zx ./scripts/start-cypress.mjs",
