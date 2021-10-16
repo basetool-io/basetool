@@ -35,7 +35,7 @@ function Inspector({
       "fieldOptions.max": initialMaxValue,
       "fieldOptions.step": initialStepValue,
       "fieldOptions.valueSuffix": initialValueSuffix,
-      "fieldOptions.display_value": initialDisplayValue,
+      "fieldOptions.displayValue": initialDisplayValue,
     });
   }, []);
 
