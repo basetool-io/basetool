@@ -40,7 +40,7 @@ function New() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
 
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
       name: "",
       public: true,
@@ -49,6 +49,13 @@ function New() {
     },
     resolver: joiResolver(schema),
   });
+
+  useEffect(() => {
+    setValue("dataSourceId", parseInt(dataSourceId), {
+      shouldDirty: true,
+      shouldTouch: true,
+    })
+  }, [dataSourceId])
 
   const { errors } = formState;
 
@@ -170,9 +177,9 @@ function New() {
                       onClick={() => {
                         setCurrentStep(step.index);
                       }}
-                      className="group pl-4 py-2 flex flex-col border-l-4 border-indigo-600 hover:border-indigo-800 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+                      className="group pl-4 py-2 flex flex-col border-l-4 border-blue-600 hover:border-cool-gray-800 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
                     >
-                      <span className="text-xs text-indigo-600 font-semibold tracking-wide uppercase group-hover:text-indigo-800">
+                      <span className="text-xs text-blue-600 font-semibold tracking-wide uppercase group-hover:text-cool-gray-800">
                         {step.id}
                       </span>
                       <span className="text-sm font-medium">{step.name}</span>
@@ -182,10 +189,10 @@ function New() {
                       onClick={() => {
                         setCurrentStep(step.index);
                       }}
-                      className="pl-4 py-2 flex flex-col border-l-4 border-indigo-600 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+                      className="pl-4 py-2 flex flex-col border-l-4 border-blue-600 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
                       aria-current="step"
                     >
-                      <span className="text-xs text-indigo-600 font-semibold tracking-wide uppercase">
+                      <span className="text-xs text-blue-600 font-semibold tracking-wide uppercase">
                         {step.id}
                       </span>
                       <span className="text-sm font-medium">{step.name}</span>
@@ -230,7 +237,7 @@ function New() {
                   <FormControl
                     id="dataSourceId"
                     isInvalid={!isUndefined(errors?.dataSourceId?.message)}
-                    isReadOnly={true}
+                    isDisabled={true}
                   >
                     <FormLabel>Select datasource</FormLabel>
                     {dataSourcesAreLoading && (

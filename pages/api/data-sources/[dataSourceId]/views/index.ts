@@ -88,7 +88,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  console.log('views->', views)
   res.json(ApiResponse.withData(views));
 }
 

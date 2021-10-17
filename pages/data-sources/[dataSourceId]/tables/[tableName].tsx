@@ -56,10 +56,15 @@ const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
   </div>
 );
 
-function TablesShow() {
+export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  let tableName: string;
+  if (viewTableName) {
+    tableName = viewTableName;
+  } else {
+    tableName = router.query.tableName as string;
+  }
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -144,7 +149,7 @@ function TablesShow() {
     if (confirmed) {
       await deleteBulkRecords({
         dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
+        tableName: tableName as string,
         recordIds: selectedRecords as number[],
       });
     }
@@ -176,7 +181,7 @@ function TablesShow() {
             {ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
-                  href={`/data-sources/${router.query.dataSourceId}/edit/tables/${router.query.tableName}/columns`}
+                  href={`/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}/columns`}
                   passHref
                 >
                   <Button
@@ -220,7 +225,7 @@ function TablesShow() {
             center={
               ac.createAny("record").granted && (
                 <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
+                  href={`/data-sources/${router.query.dataSourceId}/tables/${tableName}/new`}
                   passHref
                 >
                   <Button
@@ -244,11 +249,7 @@ function TablesShow() {
               <FiltersPanel ref={filtersPanel} columns={columns} />
             )}
             <div className="flex flex-shrink-0">
-              <ButtonGroup
-                size="xs"
-                variant="outline"
-                isAttached
-              >
+              <ButtonGroup size="xs" variant="outline" isAttached>
                 <Button
                   onClick={() => toggleFiltersPanelVisible()}
                   ref={filtersButton}
@@ -293,6 +294,9 @@ function TablesShow() {
       </PageWrapper>
     </Layout>
   );
+};
+function TablesShow() {
+  return <TableShowComponent />;
 }
 
 export default memo(TablesShow);

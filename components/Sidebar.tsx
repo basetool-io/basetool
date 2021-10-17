@@ -106,7 +106,7 @@ const Sidebar = () => {
 
           <Collapse in={isViewsOpen}>
             <Link href={`/data-sources/${dataSourceId}/views/new`} passHref>
-              <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer">
+              <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
                 <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />Create view
               </div>
             </Link>

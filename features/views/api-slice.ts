@@ -22,17 +22,31 @@ export const viewsApiSlice = createApi({
           method: "POST",
           body,
         }),
+        invalidatesTags: [
+          { type: "View", id: "LIST" },
+        ],
       }),
       getViews: builder.query<ApiResponse, { dataSourceId: string }>({
         query({ dataSourceId }) {
           return `/data-sources/${dataSourceId}/views`;
         },
-        providesTags: (response, error, { dataSourceId }) => [
+        providesTags: [
           { type: "View", id: "LIST" },
+        ],
+      }),
+      getView: builder.query<
+        ApiResponse,
+        Partial<{ dataSourceId: string, viewId: string }>
+      >({
+        query({ dataSourceId, viewId }) {
+          return `/data-sources/${dataSourceId}/views/${viewId}`;
+        },
+        providesTags: (result, error, { viewId }) => [
+          { type: "View", id: viewId },
         ],
       }),
     };
   },
 });
 
-export const { useAddViewMutation, useGetViewsQuery } = viewsApiSlice;
+export const { useAddViewMutation, useGetViewsQuery, useGetViewQuery } = viewsApiSlice;
