@@ -36,8 +36,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  console.log('views->', view)
-
   res.json(ApiResponse.withData(view));
 }
 

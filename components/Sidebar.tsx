@@ -8,7 +8,7 @@ import { Collapse, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { View } from "@/plugins/views/types";
 import { getLabel } from "@/features/data-sources";
-import { useAccessControl } from "@/hooks";
+import { useAccessControl, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
@@ -45,6 +45,8 @@ const Sidebar = () => {
   const prefetchColumns = usePrefetch("getColumns");
 
   const ac = useAccessControl();
+
+  const {role, user, isLoading: sessionIsLoading} = useProfile();
 
   const { isOpen: isTablesOpen, onToggle: toggleTablesOpen } = useDisclosure({
     defaultIsOpen: true,
@@ -111,7 +113,7 @@ const Sidebar = () => {
               </div>
             </Link>
 
-            {viewsAreLoading && (
+            {(viewsAreLoading || sessionIsLoading) && (
               <div className="flex-1 min-h-full">
                 <LoadingOverlay
                   transparent={isEmpty(viewsResponse?.data)}
@@ -121,6 +123,8 @@ const Sidebar = () => {
             )}
             {viewsResponse?.ok &&
               viewsResponse.data
+                // display only views created by logged in user or public views
+                .filter((view: View) => view.createdBy === user.id || view.public === true)
                 .map((view: View, idx: number) => (
                   <SidebarItem
                     key={idx}

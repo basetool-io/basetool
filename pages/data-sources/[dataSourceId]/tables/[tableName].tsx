@@ -17,7 +17,7 @@ import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { parseColumns } from "@/features/tables";
 import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
@@ -59,8 +59,9 @@ const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
 export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
+  const isViewShow = !isUndefined(viewTableName);
   let tableName: string;
-  if (viewTableName) {
+  if (isViewShow) {
     tableName = viewTableName;
   } else {
     tableName = router.query.tableName as string;
@@ -111,9 +112,10 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
 
   const parsedColumns = [
     checkboxColumn,
-    ...parseColumns({ dataSourceId, columns, tableName }),
-    controlsColumn,
+    ...parseColumns({ dataSourceId, columns, tableName })
   ];
+  // hide controls in view show (for now) because links don't work properly
+  if (!isViewShow) parsedColumns.push(controlsColumn);
   const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
   const [orderDirection, setOrderDirection] = useState<OrderDirection>(
     router.query.orderDirection as OrderDirection
@@ -178,7 +180,7 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
         flush={true}
         buttons={
           <ButtonGroup size="xs">
-            {ac.hasRole(OWNER_ROLE) &&
+            {!isViewShow && ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}/columns`}
