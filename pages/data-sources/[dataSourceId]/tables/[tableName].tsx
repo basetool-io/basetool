@@ -62,7 +62,7 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
   const isViewShow = !isUndefined(viewTableName);
   let tableName: string;
   if (isViewShow) {
-    tableName = viewTableName;
+    tableName = viewTableName as string;
   } else {
     tableName = router.query.tableName as string;
   }
