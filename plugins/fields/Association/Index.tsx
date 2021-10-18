@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
+import { getForeignName } from "./helpers";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
@@ -13,11 +14,7 @@ const Index = ({ field }: { field: Field }) => {
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = field.column.foreignKeyInfo.foreignTableName as string;
   const recordId = field.value || null;
-  const {
-    data: recordResponse,
-    error,
-    isLoading,
-  } = useGetRecordQuery(
+  const { data: recordResponse, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
       tableName,
