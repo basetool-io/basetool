@@ -14,7 +14,7 @@ function Inspector({
   // We'll check the column type first
   const initialValue = !isUndefined(column.fieldOptions.onlyDate)
     ? column.fieldOptions.onlyDate
-    : column.dataSourceInfo.type === "date";
+    : column?.dataSourceInfo?.type === "date";
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {

@@ -51,7 +51,7 @@ const MobileRow = ({
       }}
       className={classNames("flex flex-col w-full hover:bg-gray-100 bg-white")}
     >
-      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
+      <div className="td px-6 py-2 whitespace-nowrap text-sm truncate flex justify-between">
         <Checkbox
           size="lg"
           colorScheme="gray"

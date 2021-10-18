@@ -11,6 +11,7 @@ export type ListTable = {
   label?: string;
   authorizedRoles?: string[] | null;
   hidden?: boolean;
+  orderIndex?: number;
 };
 
 export type Table = {

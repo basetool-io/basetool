@@ -8,10 +8,14 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/maria_db/schema";
-import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
+import { toast } from "react-toastify";
+import {
+  useAddDataSourceMutation,
+  useCheckConnectionMutation,
+} from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -21,6 +25,7 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
+
 export interface IFormFields {
   id?: number;
   name: string;
@@ -59,7 +64,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit, formState, setValue } = useForm({
+  const { register, handleSubmit, formState, setValue, getValues } = useForm({
     defaultValues: {
       name: router.query.name || "",
       type: "maria_db",
@@ -104,6 +109,27 @@ function New() {
     }
   }, [organizations]);
 
+  const [checkConnection, { isLoading: isChecking }] =
+    useCheckConnectionMutation();
+
+  const checkConnectionMethod = async () => {
+    const type = getValues("type");
+    const credentials = getValues("credentials");
+    if (
+      !isEmpty(getValues("credentials.host")) &&
+      !isEmpty(getValues("credentials.database")) &&
+      !isEmpty(getValues("credentials.user"))
+    ) {
+      await checkConnection({
+        body: { type, credentials },
+      }).unwrap();
+    } else {
+      toast.error(
+        "Credentials are not complete. You have to input 'host', 'port', 'database' and 'user' in order to test connection."
+      );
+    }
+  };
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -111,6 +137,18 @@ function New() {
         buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
+            left={
+              <Button
+                colorScheme="gray"
+                size="sm"
+                variant="outline"
+                onClick={checkConnectionMethod}
+                leftIcon={<TerminalIcon className="h-4" />}
+                isLoading={isChecking}
+              >
+                Test connection
+              </Button>
+            }
             center={
               <Button
                 colorScheme="blue"

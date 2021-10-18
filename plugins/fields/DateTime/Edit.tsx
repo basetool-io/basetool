@@ -63,7 +63,7 @@ const Edit = ({
   const name = useMemo(() => register.name, [register?.name]);
   const hasError = useMemo(() => !isEmpty(errors[name]), [errors[name]]);
   // keep the value in text format for easier manipulation
-  const [localValue, setLocalValue] = useState("");
+  const [localValue, setLocalValue] = useState<string | null>("");
 
   const helpText = field?.column?.baseOptions?.help
     ? field.column.baseOptions.help
@@ -109,6 +109,8 @@ const Edit = ({
   useEffect(() => {
     if (isUndefined(field.value)) {
       setLocalValue(DateTime.now().setZone(timezone).toFormat(format));
+    } else if (isNull(field.value)) {
+      setLocalValue(null);
     } else {
       setLocalValue(
         DateTime.fromISO(field.value as string)
@@ -120,28 +122,34 @@ const Edit = ({
 
   // Set the value in the formData if it's valid
   useEffect(() => {
-    const value = DateTime.fromFormat(localValue, format).setZone(timezone);
-    if (value.isValid) {
-      if (view === Views.new) {
-        setValue(register.name, value.setZone("UTC").toISO(), {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      } else {
-        setValue(register.name, value.setZone("UTC").toISO());
+    if (!isNull(localValue)) {
+      const value = DateTime.fromFormat(localValue, format).setZone(timezone);
+      if (value.isValid) {
+        if (view === Views.new) {
+          setValue(register.name, value.setZone("UTC").toISO(), {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        } else {
+          setValue(register.name, value.setZone("UTC").toISO());
+        }
       }
     }
   }, [localValue]);
 
   // This memo holds returns the parsed value, if it's valid and if necesarry why the date is invalid.
   const [parsedValue, isValid, invalidReason] = useMemo(() => {
-    const parsed = DateTime.fromFormat(localValue, format).setZone(timezone);
-    if (parsed.isValid) {
-      return [parsed.toFormat(format), parsed.isValid, null];
-    }
+    if (!isNull(localValue)) {
+      const parsed = DateTime.fromFormat(localValue, format).setZone(timezone);
+      if (parsed.isValid) {
+        return [parsed.toFormat(format), parsed.isValid, null];
+      }
 
-    return [localValue, false, parsed.invalidReason];
+      return [localValue, false, parsed.invalidReason];
+    } else {
+      return ['', true, null]
+    }
   }, [localValue, field.value]);
 
   return (

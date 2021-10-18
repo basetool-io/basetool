@@ -35,10 +35,7 @@ const RecordRow = ({
       className={classNames("tr relative hover:bg-gray-50 bg-white")}
     >
       {row.cells.map((cell) => (
-        <div
-          {...cell.getCellProps()}
-          className="td"
-        >
+        <div {...cell.getCellProps()} className="td">
           {cell.render("Cell")}
         </div>
       ))}

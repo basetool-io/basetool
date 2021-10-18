@@ -30,6 +30,18 @@ export const parseColumns = ({
     try {
       width = columnWidths[column.name] || DEFAULT_COLUMN_WIDTH;
     } catch (error) {}
+    //   columnWidth =
+    //     parseInt(window.localStorage.getItem(localStorageKey) as string) ||
+    //     DEFAULT_COLUMN_WIDTH;
+    // } catch (error) {
+    //   columnWidth = DEFAULT_COLUMN_WIDTH;
+    // }
+
+    // const prettyColumnName = getColumnNameLabel(
+    //   column?.baseOptions?.label,
+    //   column?.label,
+    //   column?.name
+    // );
 
     return {
       Header: getColumnNameLabel(

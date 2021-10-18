@@ -20,10 +20,12 @@ import { IntFilterConditions } from "@/features/tables/components/IntConditionCo
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
+import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions } from "@/features/fields";
+import { getBaseOptions, getFilteredColumns } from "@/features/fields";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
+import Handlebars from "handlebars";
 import logger from "@/lib/logger";
 import schemaInspector from "knex-schema-inspector";
 import type { Knex } from "knex";
@@ -418,7 +420,7 @@ abstract class AbstractQueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
-    select,
+    columns,
   }: {
     tableName: string;
     filters: Array<IFilter | IFilterGroup>;
@@ -426,11 +428,12 @@ abstract class AbstractQueryService implements IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    select: string[];
+    columns: Column[];
   }): Promise<RecordsResponse> {
     const query = this.client.table(tableName);
+
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select(select);
+      query.limit(limit).offset(offset);
     }
 
     if (filters) {
@@ -441,9 +444,30 @@ abstract class AbstractQueryService implements IQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    const records = await query.select()
+    const records = await query.select();
 
-    return { records: records as unknown as [] };
+    const computedColumns = columns.filter(
+      (column: Column) => column?.baseOptions?.computed === true
+    );
+
+    computedColumns.forEach((computedColumn: Column) => {
+      const editorData = computedColumn?.baseOptions?.computedSource;
+      records.forEach((record: any) => {
+        this.computeValue(record, editorData, computedColumn.name);
+      });
+    });
+
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    records.forEach((record, index, array) => {
+      array[index] = Object.fromEntries(
+        Object.entries(record).filter(([key]) => filteredColumns.includes(key))
+      );
+    });
+
+    return { records: records as unknown as []};
   }
 
   public async getRecordsCount({
@@ -465,11 +489,11 @@ abstract class AbstractQueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
-    select,
+    columns,
   }: {
     tableName: string;
     recordId: string;
-    select: string[];
+    columns: Column[];
   }): Promise<RecordResponse | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
@@ -477,11 +501,28 @@ abstract class AbstractQueryService implements IQueryService {
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
     const rows = await this.client
-      .select(select)
+      .select()
       .where(pk, recordId)
       .table(tableName);
 
-    return { record: rows[0] };
+    const computedColumns = columns.filter(
+      (column: Column) => column?.baseOptions?.computed === true
+    );
+
+    computedColumns.forEach((computedColumn) => {
+      const editorData = computedColumn?.baseOptions?.computedSource;
+      this.computeValue(rows[0], editorData, computedColumn.name);
+    });
+
+    const filteredColumns = getFilteredColumns(columns, Views.show).map(
+      ({ name }) => name
+    );
+
+    const record = Object.fromEntries(
+      Object.entries(rows[0]).filter(([key]) => filteredColumns.includes(key))
+    );
+
+    return { record }
   }
 
   public async createRecord({
@@ -680,6 +721,20 @@ abstract class AbstractQueryService implements IQueryService {
 
     // @todo: fetch foreign keys before responding
     return columns as [];
+  }
+
+  private async computeValue(record: any, editorData: string, computedName: string) {
+    const queryableData = { record };
+    if (editorData) {
+      try {
+        const template = Handlebars.compile(editorData);
+        const value = template(queryableData);
+
+        record[computedName] = value;
+      } catch (error) {
+        console.error("Couldn't parse value.", error);
+      }
+    }
   }
 
   private async getPrimaryKeyColumn({

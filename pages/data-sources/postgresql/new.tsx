@@ -7,10 +7,15 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/data-sources/postgresql/schema";
-import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
+import { toast } from "react-toastify";
+import {
+  useAddDataSourceMutation,
+  useCheckConnectionMutation,
+} from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -52,7 +57,7 @@ function New() {
     }
   };
 
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, getValues, watch } = useForm({
     defaultValues: {
       name: router.query.name || "",
       type: "postgresql",
@@ -81,6 +86,23 @@ function New() {
     }
   }, []);
 
+  const [checkConnection, { isLoading: isChecking }] =
+    useCheckConnectionMutation();
+
+  const checkConnectionMethod = async () => {
+    const type = getValues("type");
+    const credentials = getValues("credentials");
+    if (!isEmpty(getValues("credentials.url"))) {
+      await checkConnection({
+        body: { type, credentials },
+      }).unwrap();
+    } else {
+      toast.error(
+        "Credentials are not complete. You have to input 'url' in order to test connection."
+      );
+    }
+  };
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -88,6 +110,18 @@ function New() {
         buttons={<BackButton href="/data-sources/new" />}
         footer={
           <PageWrapper.Footer
+            left={
+              <Button
+                colorScheme="gray"
+                size="sm"
+                variant="outline"
+                onClick={checkConnectionMethod}
+                leftIcon={<TerminalIcon className="h-4" />}
+                isLoading={isChecking}
+              >
+                Test connection
+              </Button>
+            }
             center={
               <Button
                 colorScheme="blue"

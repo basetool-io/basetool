@@ -139,7 +139,7 @@ function New() {
               <FormLabel>Name</FormLabel>
               <Input
                 type="string"
-                placeholder="My Mysql DB"
+                placeholder="My MSSQL DB"
                 {...register("name")}
                 autoFocus
               />

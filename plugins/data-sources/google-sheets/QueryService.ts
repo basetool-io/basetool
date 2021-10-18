@@ -200,7 +200,7 @@ class QueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
-    select,
+    columns,
   }: {
     tableName: string;
     filters: [];
@@ -236,7 +236,7 @@ class QueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
-    select,
+    columns,
   }: {
     tableName: string;
     recordId: string;
