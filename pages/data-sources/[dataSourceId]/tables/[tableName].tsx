@@ -50,9 +50,15 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   );
 };
 
-const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
+const SelectorColumnCell = ({
+  row,
+  dataSourceId,
+}: {
+  row: Row<any>;
+  dataSourceId: string;
+}) => (
   <div className="flex items-center justify-center h-full">
-    <ItemControls recordId={row?.original?.id} />
+    <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
   </div>
 );
 
@@ -98,7 +104,9 @@ function TablesShow() {
     Header: "controls_column",
     accessor: (row: any, i: number) => `controls_column_${i}`,
     // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <SelectorColumnCell row={row.row} />,
+    Cell: (row: any) => (
+      <SelectorColumnCell row={row.row} dataSourceId={dataSourceId} />
+    ),
     width: 104,
     minWidth: 104,
     maxWidth: 104,
@@ -218,7 +226,8 @@ function TablesShow() {
               )
             }
             center={
-              ac.createAny("record").granted && (
+              ac.createAny("record").granted &&
+              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/new`}
                   passHref
@@ -244,11 +253,7 @@ function TablesShow() {
               <FiltersPanel ref={filtersPanel} columns={columns} />
             )}
             <div className="flex flex-shrink-0">
-              <ButtonGroup
-                size="xs"
-                variant="outline"
-                isAttached
-              >
+              <ButtonGroup size="xs" variant="outline" isAttached>
                 <Button
                   onClick={() => toggleFiltersPanelVisible()}
                   ref={filtersButton}
