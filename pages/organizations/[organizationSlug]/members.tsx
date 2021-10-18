@@ -17,7 +17,7 @@ import {
   useUpdateMemberRoleMutation,
 } from "@/features/organizations/api-slice";
 import { useInviteMemberMutation } from "@/features/organizations/api-slice";
-import { useOrganizationFromContext, useProfile, useSegment } from "@/hooks";
+import { useOrganizationFromProfile, useProfile, useSegment } from "@/hooks";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import Layout from "@/components/Layout";
@@ -233,7 +233,7 @@ const CreateUser = ({ organization }: { organization: CustomOrganization }) => {
 function Members() {
   const router = useRouter();
   const [addNew, toggleAddNew] = useBoolean(false);
-  const temporaryOrganization = useOrganizationFromContext({
+  const temporaryOrganization = useOrganizationFromProfile({
     slug: router.query.organizationSlug as string,
   });
   const {

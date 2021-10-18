@@ -149,6 +149,7 @@ function New() {
                 type="string"
                 placeholder="My Postgres DB"
                 {...register("name")}
+                autoFocus
               />
               <FormHelperText>The name of your data source.</FormHelperText>
             </FormControl>
