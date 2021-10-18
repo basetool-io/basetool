@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
-import { useForeignName } from "./hooks";
+import { getForeignName } from "./helpers";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -26,14 +26,13 @@ const Show = ({ field }: { field: Field }) => {
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
-  const getForeignName = useForeignName(field);
 
   return (
     <ShowFieldWrapper field={field}>
       {isLoading && <Shimmer height={32} />}
       {isLoading || (
         <>
-          {getForeignName(recordResponse?.data) || field.value}
+          {getForeignName(recordResponse?.data, field) || field.value}
           <Link
             href={`/data-sources/${router.query.dataSourceId}/tables/${field.column.foreignKeyInfo.foreignTableName}/${field.value}?fromTable=${router.query.tableName}&fromRecord=${router.query.recordId}`}
           >

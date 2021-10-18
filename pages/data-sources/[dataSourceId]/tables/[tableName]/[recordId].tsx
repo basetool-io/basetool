@@ -10,6 +10,7 @@ import {
   useGetRecordQuery,
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice"
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head";
@@ -25,6 +26,12 @@ function RecordsShow() {
   const dataSourceId = router.query.dataSourceId as string;
   const tableName = router.query.tableName as string;
   const recordId = router.query.recordId as string;
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
   const { data, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
@@ -126,7 +133,8 @@ function RecordsShow() {
                     )
                   }
                   right={
-                    ac.updateAny("record").granted && (
+                    ac.updateAny("record").granted &&
+                    !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                       <Link
                         href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
                         passHref

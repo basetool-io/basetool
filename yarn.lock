@@ -1542,14 +1542,6 @@
   resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-2.0.4.tgz#f7b5a86ccd843c0ccaddfaedd9ee1081bc1cde3b"
   integrity sha512-l3xuhmyF2kBldy15SeY6d6HbK2BacEcSK1qTF1ISPtPHr29JH0C1fndz9ExXLKpGl0J6pZi+dGp1i5xesMt60Q==
 
-"@types/mailgun-js@^0.22.12":
-  version "0.22.12"
-  resolved "https://registry.yarnpkg.com/@types/mailgun-js/-/mailgun-js-0.22.12.tgz#b0dcb590b56ef3e599ab1f262882493d318e5510"
-  integrity sha512-fTjuh2mOPoJF2BN0QAhE5iPOBls333KIJrmrrJHObMDuBCgEfaENLX2LH1FjKqhfuWfGotKOfPFZMuSok5Ow7g==
-  dependencies:
-    "@types/node" "*"
-    form-data "^2.5.0"
-
 "@types/minimist@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
