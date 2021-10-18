@@ -2,16 +2,30 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
 import { useAccessControl, useResponsive } from "@/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import React, { memo } from "react";
 
-function ItemControls({ recordId }: { recordId: string }) {
+function ItemControls({
+  recordId,
+  dataSourceId,
+}: {
+  recordId: string;
+  dataSourceId: string;
+}) {
   const router = useRouter();
   const { isMd } = useResponsive();
 
   const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
+
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
   const handleDelete = async () => {
     const confirmed = confirm("Are you sure you want to remove this record?");
@@ -25,20 +39,21 @@ function ItemControls({ recordId }: { recordId: string }) {
   };
 
   return (
-    <div className="flex space-x-2 items-center h-full">
-      {ac.readAny("record").granted && (
-        <Link
-          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}`}
-        >
-          <a>
-            <Tooltip label="View record">
-              <div>
-                <EyeIcon className={isMd ? "h-5" : "h-6"} />
-              </div>
-            </Tooltip>
-          </a>
-        </Link>
-      )}
+    <div className="flex space-x-2 items-center h-full text-gray-500">
+      {ac.updateAny("record").granted &&
+        !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
+          <Link
+            href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}`}
+          >
+            <a>
+              <Tooltip label="View record">
+                <div>
+                  <EyeIcon className={isMd ? "h-5" : "h-6"} />
+                </div>
+              </Tooltip>
+            </a>
+          </Link>
+        )}
       {ac.updateAny("record").granted && (
         <Link
           href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}/edit`}
