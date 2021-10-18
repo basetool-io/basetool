@@ -39,7 +39,7 @@ function ItemControls({
   };
 
   return (
-    <div className="flex space-x-2 items-center h-full">
+    <div className="flex space-x-2 items-center h-full text-gray-500">
       {ac.readAny("record").granted && (
         <Link
           href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}`}

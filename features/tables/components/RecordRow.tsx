@@ -37,7 +37,7 @@ const RecordRow = ({
       {row.cells.map((cell) => (
         <div
           {...cell.getCellProps()}
-          className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate"
+          className="td"
         >
           {cell.render("Cell")}
         </div>
