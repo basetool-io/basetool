@@ -62,10 +62,10 @@ function Error({ statusCode }: any) {
   );
 }
 
-Error.getInitialProps = ({ res, err }: any) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+// Error.getInitialProps = ({ res, err }: any) => {
+//   const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
 
-  return { statusCode };
-};
+//   return { statusCode };
+// };
 
 export default Error;
