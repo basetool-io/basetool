@@ -267,6 +267,7 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     DateFilterConditions.is_not_null,
     SelectFilterConditions.is_not_null,
   ];
+  console.log('filter->', filter)
 
   if (NULL_FILTERS.includes(filter.condition)) {
     if (filter.verb === FilterVerbs.or) {

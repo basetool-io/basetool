@@ -125,6 +125,10 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
   const ac = useAccessControl();
 
   useEffect(() => {
+    console.log('appliedFilters->', appliedFilters)
+  }, [appliedFilters]);
+
+  useEffect(() => {
     resetFilters();
   }, [tableName]);
 
