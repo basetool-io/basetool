@@ -1,11 +1,12 @@
-import { DataSourcePlugin } from './types'
+import { DataSourcePlugin } from "./types";
+import { humanize } from "@/lib/humanize";
 import postgresql from "./postgresql";
 
 const dataSources: DataSourcePlugin[] = [postgresql];
 
-export default dataSources
+export default dataSources;
 
-const availableDataSources = [
+export const availableDataSources = [
   {
     id: "postgresql",
     label: "PostgreSQL",
@@ -31,7 +32,8 @@ const availableDataSources = [
     id: "stripe",
     label: "Stripe",
     enabled: true,
-    comingSoon: true,
+    comingSoon: false,
+    beta: true,
   },
   {
     id: "mssql",
@@ -65,4 +67,8 @@ const availableDataSources = [
   // },
 ];
 
-export {availableDataSources}
+export const getColumnLabel = (column: { name: string }) => {
+  if (column.name === "id") return "ID";
+
+  return humanize(column.name);
+};

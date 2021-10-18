@@ -1,5 +1,19 @@
 import type { Column } from "@/features/fields/types";
 
+export type DataSourceInfo = {
+  id: string;
+  name: string;
+  description: string;
+  readOnly: boolean;
+  pagination: PaginationType;
+  supports?: {
+    filters: boolean;
+    columnsRequest: boolean;
+  };
+};
+
+export type PaginationType = "offset" | "cursor";
+
 export type QueryResponse = {
   data: unknown;
   meta: unknown;
