@@ -44,6 +44,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           : null,
         orderBy: req.query.orderBy as string,
         orderDirection: req.query.orderDirection as string,
+        startingAfter: req.query.startingAfter as string,
+        endingBefore: req.query.endingBefore as string,
       },
     },
     {

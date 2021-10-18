@@ -17,6 +17,8 @@ import {
   columnsSelector,
   encodedFiltersSelector,
   filtersSelector,
+  firstRecordIdSelector,
+  lastRecordIdSelector,
   limitOffsetSelector,
   metaSelector,
   orderSelector,
@@ -58,6 +60,7 @@ import AccessControlService, {
 } from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import ApiService from "@/features/api/ApiService";
+import URI from "urijs";
 
 export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -324,7 +327,7 @@ export const useRecords = (
   };
 
   const setMeta = (meta: Record<string, unknown>) => {
-    dispatch(setMetaInState(meta));
+    dispatch(setMetaInState(meta as any));
   };
 
   useEffect(() => {
@@ -406,9 +409,62 @@ export const useResizableColumns = ({
   return updateColumnWidths;
 };
 
-export const usePagination = ({
-  initialPerPage,
-}: { initialPerPage?: number } = {}) => {
+export const useOffsetPagination = () => {
+  const router = useRouter();
+  const meta = useAppSelector(metaSelector);
+  const firstRecordId = useAppSelector(firstRecordIdSelector);
+  const lastRecordId = useAppSelector(lastRecordIdSelector);
+  const hasMore = useMemo(() => meta?.hasMore === true, [meta?.hasMore]);
+
+  const [canNextPage, canPreviousPage] = useMemo(() => {
+    let canNext = true;
+    if (router.query.startingAfter) {
+      canNext = hasMore;
+    } else if (router.query.endingBefore) {
+      canNext = true;
+    }
+
+    let canPrevious = false;
+    if (router.query.endingBefore) {
+      canPrevious = hasMore;
+    } else if (router.query.startingAfter) {
+      canPrevious = true;
+    }
+
+    return [canNext, canPrevious];
+  }, [router.query.startingAfter, router.query.endingBefore, hasMore]);
+
+  const nextPageLink = useMemo(() => {
+    const uri = URI(router.asPath);
+    uri.setQuery({
+      startingAfter: lastRecordId,
+    });
+    uri.removeQuery("endingBefore");
+
+    return uri.toString();
+  }, [router.query, lastRecordId]);
+
+  const previousPageLink = useMemo(() => {
+    const uri = URI(router.asPath);
+    uri.setQuery({
+      endingBefore: firstRecordId,
+    });
+    uri.removeQuery("startingAfter");
+
+    return uri.toString();
+  }, [router.query, firstRecordId]);
+
+  return {
+    nextPageLink,
+    previousPageLink,
+    canNextPage,
+    canPreviousPage,
+    hasMore,
+    firstRecordId,
+    lastRecordId,
+  };
+};
+export const usePagination = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const page = useAppSelector(pageSelector);
@@ -458,7 +514,6 @@ export const usePagination = ({
   };
 
   useEffect(() => {
-    initialPerPage && setPerPage(initialPerPage);
     router.query.page && setPage(parseInt(router.query.page as string));
   }, []);
 
@@ -470,6 +525,7 @@ export const usePagination = ({
     nextPage,
     previousPage,
     setPage,
+    setPerPage,
     maxPages,
     canPreviousPage,
     canNextPage,

@@ -4,7 +4,7 @@ import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { encodeObject } from "@/lib/encoding";
-import { isEmpty } from "lodash";
+import { first, isEmpty, last } from "lodash";
 
 interface AppState {
   records: [];
@@ -19,6 +19,7 @@ interface AppState {
   filtersPanelVisible: boolean;
   selectedRecords: number[];
   columnWidths: Record<string, number>;
+  previousStartingAfter?: string;
 }
 
 const initialState: AppState = {
@@ -113,13 +114,16 @@ const recordsStateSlice = createSlice({
     },
 
     /**
-     * Per page
+     * Pagination
      */
     setPage(state, action: PayloadAction<number>) {
       state.page = action.payload;
     },
     setPerPage(state, action: PayloadAction<number>) {
       state.perPage = action.payload;
+    },
+    setPreviousStartingAfter(state, action: PayloadAction<string>) {
+      state.previousStartingAfter = action.payload;
     },
 
     /**
@@ -148,8 +152,6 @@ const recordsStateSlice = createSlice({
   },
 });
 
-export const recordsSelector = ({ recordsState }: { recordsState: AppState }) =>
-  recordsState.records;
 export const metaSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.meta;
 export const columnsSelector = ({ recordsState }: { recordsState: AppState }) =>
@@ -164,6 +166,25 @@ export const orderSelector = ({ recordsState }: { recordsState: AppState }) => [
   recordsState.orderDirection,
 ];
 
+/**
+ * Records
+ */
+export const recordsSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.records;
+export const firstRecordIdSelector = createSelector(
+  [recordsSelector],
+  (records): string | undefined =>
+    records.length > 0 ? (first(records) as any)?.id : undefined
+);
+export const lastRecordIdSelector = createSelector(
+  [recordsSelector],
+  (records): string | undefined =>
+    records.length > 0 ? (last(records) as any)?.id : undefined
+);
+
+/**
+ * Selection
+ */
 export const selectedRecordsSelector = ({
   recordsState,
 }: {

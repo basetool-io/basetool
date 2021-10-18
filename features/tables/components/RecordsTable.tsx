@@ -1,5 +1,5 @@
 import { Column as BaseToolColumn } from "@/features/fields/types";
-import { Button, Checkbox } from "@chakra-ui/react";
+import { Button, Checkbox, Tooltip } from "@chakra-ui/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -31,6 +31,7 @@ import {
   useAppSelector,
   useColumns,
   useFilters,
+  useOffsetPagination,
   useOrderRecords,
   usePagination,
   useRecords,
@@ -43,6 +44,7 @@ import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import ItemControls from "@/features/tables/components/ItemControls";
+import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MobileRow from "./MobileRow";
 import React, { memo, useEffect, useMemo } from "react";
@@ -171,12 +173,12 @@ const TheTable = memo(() => {
   return (
     <div
       className={
-        "table-widget relative divide-y bg-blue-gray-100 divide-blue-gray-100 overflow-auto w-full md:w-auto"
+        "table-widget relative divide-y bg-blue-gray-200 divide-blue-gray-200 overflow-auto w-full md:w-auto"
       }
       {...getTableProps()}
     >
       {isMd && (
-        <div className="bg-blue-gray-100 rounded-t">
+        <div className="bg-blue-gray-200 rounded-t">
           {headerGroups.map((headerGroup) => (
             <div
               {...headerGroup.getHeaderGroupProps()}
@@ -216,17 +218,17 @@ const TheTable = memo(() => {
                           handleOrder(column.meta.name)
                         }
                       >
-                        <IconElement className="h-3 inline-block mr-2" />
+                        <IconElement className="h-3 inline-flex flex-shrink-0 mr-2" />
                         <span className="inline-block leading-none">
                           <>
                             {column.render("Header")}
                             {column?.meta && column.meta.name === orderBy && (
                               <>
                                 {orderDirection === "desc" && (
-                                  <SortDescendingIcon className="h-4 inline" />
+                                  <SortDescendingIcon className="h-4 inline-flex" />
                                 )}
                                 {orderDirection === "asc" && (
-                                  <SortAscendingIcon className="h-4 inline" />
+                                  <SortAscendingIcon className="h-4 inline-flex" />
                                 )}
                               </>
                             )}
@@ -237,7 +239,7 @@ const TheTable = memo(() => {
                     <div
                       {...column.getResizerProps()}
                       className={classNames(
-                        "resizer group-hover:opacity-100 opacity-20",
+                        "resizer group-hover:opacity-100 opacity-10",
                         {
                           isResizing: column.isResizing,
                         }
@@ -267,7 +269,7 @@ const TheTable = memo(() => {
         return (
           <>
             {isMd || component}
-            {isMd && <div {...getTableBodyProps()}>{component}</div>}
+            {isMd && <div {...getTableBodyProps()} className="bg-white">{component}</div>}
           </>
         );
       })}
@@ -338,8 +340,10 @@ const RecordsTable = ({
     filters: encodedFilters,
     limit: limit.toString(),
     offset: offset.toString(),
-    orderBy: orderBy ? orderBy : "",
-    orderDirection: orderDirection ? orderDirection : "",
+    orderBy: orderBy,
+    orderDirection: orderDirection,
+    startingAfter: router.query.startingAfter as string,
+    endingBefore: router.query.endingBefore as string,
   });
 
   const { data: columnsResponse } = useGetColumnsQuery(
@@ -471,53 +475,35 @@ const OffsetPagination = memo(() => {
 OffsetPagination.displayName = "OffsetPagination";
 
 const CursorPagination = memo(() => {
-  const {
-    page,
-    perPage,
-    offset,
-    nextPage,
-    previousPage,
-    maxPages,
-    canPreviousPage,
-    canNextPage,
-    recordsCount,
-  } = usePagination();
+  const { previousPageLink, nextPageLink, canNextPage, canPreviousPage } =
+    useOffsetPagination();
 
   return (
     <nav
       className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
       aria-label="Pagination"
     >
-      <div className="flex-1 flex justify-start">
-        <div className="inline-block text-gray-500 text-sm">
-          Showing {offset + 1}-{perPage * page} {recordsCount && "of "}
-          {recordsCount
-            ? `${
-                recordsCount < 1000
-                  ? recordsCount
-                  : numeral(recordsCount).format("0.0a")
-              } in total`
-            : ""}
-        </div>
-      </div>
+      <div className="flex-1 flex justify-start"></div>
       <div>
-        <div className="flex justify-between sm:justify-end">
-          <Button
-            size="sm"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
+        <div className="flex justify-between sm:justify-end space-x-4">
+          <Tooltip
+            title={canPreviousPage ? "Load more records" : "No more records"}
           >
-            <ChevronLeftIcon className="h-4 text-gray-600" />
-          </Button>
-          <div className="flex items-center px-2 space-x-1">
-            <span className="text-gray-500 mr-1">page</span> {page}{" "}
-            <span className="pl-1">
-              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
-            </span>
-          </div>
-          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
-            <ChevronRightIcon className="h-4 text-gray-600" />
-          </Button>
+            <Link href={previousPageLink} passHref>
+              <Button as="a" size="sm" isDisabled={!canPreviousPage} onClick={(e) => !canPreviousPage && e.preventDefault()}>
+                <ChevronLeftIcon className="h-4 text-gray-600" />
+              </Button>
+            </Link>
+          </Tooltip>
+          <Tooltip
+            title={canNextPage ? "Load more records" : "No more records"}
+          >
+            <Link href={nextPageLink} passHref>
+              <Button as="a" size="sm" isDisabled={!canNextPage} onClick={(e) => !canNextPage && e.preventDefault()}>
+                <ChevronRightIcon className="h-4 text-gray-600" />
+              </Button>
+            </Link>
+          </Tooltip>
         </div>
       </div>
       <div className="flex-1 flex justify-end"></div>

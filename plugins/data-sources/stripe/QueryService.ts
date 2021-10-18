@@ -104,6 +104,8 @@ class QueryService implements IQueryService {
     orderBy,
     orderDirection,
     select,
+    startingAfter,
+    endingBefore,
   }: {
     tableName: StripeListAPIs;
     filters: IFilter[];
@@ -112,17 +114,24 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
     select: string[];
+    startingAfter?: string;
+    endingBefore?: string;
   }): Promise<RecordsResponse> {
     // Checking if the tableName is in the supported APIs
     if (Object.values(StripeListAPIs).includes(tableName)) {
-      // casting as any[] because Stripe's API returns some weird object
-      const response = await this.client[tableName]?.list({
+      // casting as any because TS squaks at the `limit` param
+      const params: any = {
         limit,
-      } as any); // casting as any because TS squaks at the `limit` param
+      };
+      if (startingAfter) params.starting_after = startingAfter;
+      if (endingBefore) params.ending_before = endingBefore;
+
+      const response = await this.client[tableName]?.list(params);
 
       const meta = {
         hasMore: response.has_more,
       };
+      // casting as any[] because Stripe's API returns some weird object
       const records: any[] = response?.data || [];
 
       let columns: Column[] = [];

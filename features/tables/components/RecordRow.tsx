@@ -2,7 +2,7 @@ import { Row } from "react-table";
 import { columnWidthsSelector } from "@/features/records/state-slice";
 import { useAppSelector } from "@/hooks";
 import { usePrefetch } from "@/features/records/api-slice";
-import React, { memo, useRef } from "react";
+import React, { memo } from "react";
 import classNames from "classnames";
 
 const RecordRow = ({
@@ -14,7 +14,6 @@ const RecordRow = ({
   dataSourceId: string;
   tableName: string;
 }) => {
-  const rowRef = useRef<any>();
   const prefetchRecord = usePrefetch("getRecord");
 
   useAppSelector(columnWidthsSelector); // keep this so the columnWidths will trigger a change
@@ -34,7 +33,6 @@ const RecordRow = ({
         }
       }}
       className={classNames("tr relative hover:bg-gray-50 bg-white")}
-      ref={rowRef}
     >
       {row.cells.map((cell) => (
         <div

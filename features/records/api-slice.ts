@@ -21,6 +21,8 @@ export const recordsApiSlice = createApi({
           offset?: string;
           orderBy?: string;
           orderDirection?: string;
+          startingAfter?: string;
+          endingBefore?: string;
         }
       >({
         query: ({
@@ -31,6 +33,8 @@ export const recordsApiSlice = createApi({
           offset,
           orderBy,
           orderDirection,
+          startingAfter,
+          endingBefore,
         }) => {
           const queryParams = URI()
             .query({
@@ -39,6 +43,8 @@ export const recordsApiSlice = createApi({
               offset,
               orderBy,
               orderDirection,
+              startingAfter,
+              endingBefore,
             })
             .query()
             .toString();
@@ -75,7 +81,11 @@ export const recordsApiSlice = createApi({
       }),
       createRecord: builder.mutation<
         ApiResponse,
-        Partial<{ dataSourceId: string; tableName: string; body: Record<string, unknown> }>
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          body: Record<string, unknown>;
+        }>
       >({
         query: ({ dataSourceId, tableName, body }) => ({
           url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records`,
@@ -132,12 +142,17 @@ export const recordsApiSlice = createApi({
           body: recordIds,
         }),
         invalidatesTags: (result, error, { recordIds }) => {
+          if (!recordIds) return [{ type: "Record", id: "LIST" }];
 
-          if(!recordIds) return [{ type: "Record", id: "LIST" }];
+          const tagsForRecords = recordIds.map((recordId) => ({
+            type: "Record",
+            id: recordId.toString(),
+          }));
 
-          const tagsForRecords = recordIds.map((recordId) => ({ type: "Record", id: recordId.toString() }));
-
-          return [...tagsForRecords, { type: "Record", id: "LIST" }] as { type: "Record", id: string }[];
+          return [...tagsForRecords, { type: "Record", id: "LIST" }] as {
+            type: "Record";
+            id: string;
+          }[];
         },
       }),
     };
