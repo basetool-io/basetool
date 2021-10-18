@@ -10,10 +10,11 @@ const Show = ({ field }: { field: Field }) => {
     <ShowFieldWrapper field={field}>
       <div
         className="text-center text-sm font-semibold w-full leading-none mb-1"
-        hidden={!fieldOptions.displayValue}
       >
-        {field.value}
-        {fieldOptions.valueSuffix}
+        {fieldOptions.displayValue && <>
+       	  {field.value}
+          {fieldOptions.valueSuffix}
+        </>}
       </div>
       <progress
         max={fieldOptions.max}
