@@ -162,7 +162,7 @@ export const useSidebarsVisible = (initialvalue?: boolean) => {
   return [sidebarsVisible, setSidebarsVisible] as const;
 };
 
-export const useOrganizationFromContext = ({
+export const useOrganizationFromProfile = ({
   id,
   slug,
 }: {

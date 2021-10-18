@@ -217,7 +217,7 @@ function TablesShow() {
                         "record",
                         selectedRecords.length
                       )}`}
-                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" is displayed */}
+                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
                     {selectedRecords.length === 0 && (
                       <>&nbsp;&nbsp;&nbsp;&nbsp;</>
                     )}

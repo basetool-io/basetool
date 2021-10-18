@@ -1,11 +1,12 @@
 import { Column } from "../fields/types";
-import { LOCAL_STORAGE_PREFIX } from "@/lib/constants";
+import {
+  DEFAULT_COLUMN_WIDTH,
+  LOCAL_STORAGE_PREFIX,
+  MAX_COLUMN_WIDTH,
+  MIN_COLUMN_WIDTH,
+} from "@/lib/constants";
 import { Column as ReactTableColumn } from "react-table";
 import { getColumnNameLabel } from "../fields";
-
-export const DEFAULT_COLUMN_WIDTH = 150;
-export const MIN_COLUMN_WIDTH = 30;
-export const MAX_COLUMN_WIDTH = 800;
 
 export const localStorageColumnWidthKey = ({
   dataSourceId,
@@ -44,7 +45,11 @@ export const parseColumns = ({
       columnWidth = DEFAULT_COLUMN_WIDTH;
     }
 
-    const prettyColumnName = getColumnNameLabel(column?.baseOptions?.label, column?.label, column?.name);
+    const prettyColumnName = getColumnNameLabel(
+      column?.baseOptions?.label,
+      column?.label,
+      column?.name
+    );
 
     return {
       Header: prettyColumnName,

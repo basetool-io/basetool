@@ -7,13 +7,13 @@ import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
 
-const IndexFieldWrapper = ({ cell }: { cell: any }) => {
+const MobileIndexFieldWrapper = ({ cell }: { cell: any }) => {
   const column = useMemo(() => cell.column?.meta, [cell]);
   const IconElement = useMemo(() => iconForField(column), [column.fieldType]);
 
   return (
-    <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate">
-      <div className="flex items-center space-x-2 md:min-h-16 md:py-4">
+    <div className="td px-6 py-0 whitespace-nowrap text-sm text-gray-500 truncate">
+      <div className="flex items-center space-x-2 md:min-h-16 md:py-4 -mb-3">
         <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
         <span>{column.label}</span>
       </div>
@@ -54,7 +54,7 @@ const MobileRow = ({
       }}
       className={classNames("flex flex-col w-full hover:bg-gray-100 bg-white")}
     >
-      <div className="td px-6 py-2 whitespace-nowrap text-sm text-gray-500 truncate flex justify-between">
+      <div className="td px-6 py-2 whitespace-nowrap text-sm truncate flex justify-between">
         <Checkbox
           size="lg"
           colorScheme="gray"
@@ -71,7 +71,7 @@ const MobileRow = ({
         // We won't render the column if there isn't a meta property. This cell could be the record selector cell.
         .filter((cell: any) => cell.column?.meta)
         .map((cell) => (
-          <IndexFieldWrapper cell={cell} />
+          <MobileIndexFieldWrapper cell={cell} />
         ))}
     </div>
   );

@@ -177,8 +177,9 @@ function New() {
               <FormLabel>Name</FormLabel>
               <Input
                 type="string"
-                placeholder="My Mysql DB"
+                placeholder="My MariaDB database"
                 {...register("name")}
+                autoFocus
               />
               <FormHelperText>The name of your data source.</FormHelperText>
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
