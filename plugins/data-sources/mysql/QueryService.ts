@@ -19,6 +19,10 @@ class QueryService extends AbstractQueryService {
   getClient(): Knex {
     const credentials = this.getCredentials();
 
+    return QueryService.initClient(credentials);
+  }
+
+  static initClient(credentials: MysqlCredentials) {
     const connection: Knex.StaticConnectionConfig = {
       host: credentials.host,
       port: credentials.port,

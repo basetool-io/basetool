@@ -51,6 +51,7 @@
     "joi": "^17.4.2",
     "knex": "^0.95.10",
     "knex-schema-inspector": "^1.6.2",
+    "knex-utils": "^5.4.0",
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
     "mysql": "^2.18.1",

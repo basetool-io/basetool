@@ -1,7 +1,7 @@
-import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types"
-import { FieldType } from "@/features/fields/types"
+import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
+import { FieldType } from "@/features/fields/types";
 import { PostgresCredentials } from "./types";
-import { idColumns } from "@/features/fields"
+import { idColumns } from "@/features/fields";
 import { knex } from "knex";
 import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService";
 import type { Knex } from "knex";
@@ -19,6 +19,10 @@ class QueryService extends AbstractQueryService {
   getClient(): Knex {
     const credentials = this.getCredentials();
 
+    return QueryService.initClient(credentials);
+  }
+
+  static initClient(credentials: PostgresCredentials) {
     const connectionString = credentials.url;
     const connection: Knex.StaticConnectionConfig = {
       connectionString,
@@ -37,9 +41,7 @@ class QueryService extends AbstractQueryService {
     return client;
   }
 
-  public getFieldTypeFromColumnInfo (
-    column: ColumnWithBaseOptions
-  ): FieldType {
+  public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {
     if (column.foreignKeyInfo) {
       return "Association";
     }
