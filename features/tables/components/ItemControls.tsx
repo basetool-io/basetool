@@ -1,14 +1,48 @@
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
+import { isUndefined } from "lodash";
 import { useAccessControl, useResponsive } from "@/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
+import { useGetViewQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 
 function ItemControls({ recordId }: { recordId: string }) {
   const router = useRouter();
   const { isMd } = useResponsive();
+
+  let showHref = "";
+  if (!isUndefined(router.query.tableName)) {
+    showHref = `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}`;
+  } else if (!isUndefined(router.query.viewId)) {
+    showHref = `/data-sources/${router.query.dataSourceId}/views/${router.query.viewId}/records/${recordId}`;
+  }
+
+  const [tableName, setTableName] = useState("");
+
+  if (router.query.tableName && tableName !== router.query.tableName) {
+    setTableName(router.query.tableName as string);
+  }
+
+  const dataSourceId = router.query.dataSourceId as string;
+  const viewId = router.query.viewId as string;
+
+  const { data: viewResponse } = useGetViewQuery(
+    {
+      dataSourceId,
+      viewId,
+    },
+    {
+      skip: !dataSourceId || !viewId,
+    }
+  );
+
+  useEffect(() => {
+    if (viewResponse?.ok) {
+      setTableName(viewResponse.data.tableName);
+    }
+  }, [viewResponse]);
 
   const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
@@ -18,7 +52,7 @@ function ItemControls({ recordId }: { recordId: string }) {
     if (confirmed) {
       await deleteRecord({
         dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
+        tableName: tableName,
         recordId: recordId,
       }).unwrap();
     }
@@ -27,9 +61,7 @@ function ItemControls({ recordId }: { recordId: string }) {
   return (
     <div className="flex space-x-2 items-center h-full">
       {ac.readAny("record").granted && (
-        <Link
-          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}`}
-        >
+        <Link href={showHref}>
           <a>
             <Tooltip label="View record">
               <div>
@@ -40,9 +72,7 @@ function ItemControls({ recordId }: { recordId: string }) {
         </Link>
       )}
       {ac.updateAny("record").granted && (
-        <Link
-          href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${recordId}/edit`}
-        >
+        <Link href={`${showHref}/edit`}>
           <a>
             <Tooltip label="Edit record">
               <div>

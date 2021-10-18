@@ -1,9 +1,11 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
+import { isUndefined } from "lodash";
 import { useAccessControl, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -20,10 +22,16 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
-function RecordsShow() {
+export const RecordsShowComponent = ({ view }: { view?: View }) => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  const isViewShow = !isUndefined(view);
+  let tableName: string;
+  if (isViewShow) {
+    tableName = view.tableName as string;
+  } else {
+    tableName = router.query.tableName as string;
+  }
   const recordId = router.query.recordId as string;
   const { data, error, isLoading } = useGetRecordQuery(
     {
@@ -93,7 +101,7 @@ function RecordsShow() {
   }, [canRead, router]);
 
   // Don't show them the show page if the user can't read
-  if (!canRead) return "";
+  if (!canRead) return null;
 
   return (
     <>
@@ -166,6 +174,10 @@ function RecordsShow() {
       </Layout>
     </>
   );
+}
+
+function RecordsShow() {
+  return <RecordsShowComponent />;
 }
 
 export default RecordsShow;

@@ -1,11 +1,10 @@
-import { TableShowComponent } from "../tables/[tableName]";
+import { RecordsEditComponent } from "@/pages/data-sources/[dataSourceId]/tables/[tableName]/[recordId]/edit";
 import { View } from "@/plugins/views/types";
-import { useFilters } from "@/hooks";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import React, { memo, useEffect, useState } from "react";
 
-function ViewTableShow() {
+function ViewRecordsShow() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
   const viewId = router.query.viewId as string;
@@ -21,22 +20,16 @@ function ViewTableShow() {
   );
 
   const [view, setView] = useState<View>();
-  const { filters, setFilters, applyFilters, resetFilters } = useFilters();
 
   useEffect(() => {
     if(viewResponse?.ok) {
       setView(viewResponse.data);
-      if (viewResponse.data.filters.length > 0) {
-        resetFilters();
-        setFilters(viewResponse.data.filters);
-        applyFilters(viewResponse.data.filters);
-      }
     }
   }, [viewResponse]);
 
   return (
-    <TableShowComponent view={view}/>
+    <RecordsEditComponent view={view}/>
   );
 }
 
-export default memo(ViewTableShow);
+export default memo(ViewRecordsShow);

@@ -15,6 +15,7 @@ import {
 import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
+import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, isUndefined } from "lodash";
@@ -56,13 +57,13 @@ const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
   </div>
 );
 
-export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) => {
+export const TableShowComponent = ({ view }: { view?: View }) => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
-  const isViewShow = !isUndefined(viewTableName);
+  const isViewShow = !isUndefined(view);
   let tableName: string;
   if (isViewShow) {
-    tableName = viewTableName as string;
+    tableName = view.tableName as string;
   } else {
     tableName = router.query.tableName as string;
   }
@@ -112,10 +113,9 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
 
   const parsedColumns = [
     checkboxColumn,
-    ...parseColumns({ dataSourceId, columns, tableName })
+    ...parseColumns({ dataSourceId, columns, tableName }),
+    controlsColumn,
   ];
-  // hide controls in view show (for now) because links don't work properly
-  if (!isViewShow) parsedColumns.push(controlsColumn);
   const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
   const [orderDirection, setOrderDirection] = useState<OrderDirection>(
     router.query.orderDirection as OrderDirection
@@ -123,10 +123,6 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const { appliedFilters, resetFilters } = useFilters();
   const ac = useAccessControl();
-
-  useEffect(() => {
-    console.log('appliedFilters->', appliedFilters)
-  }, [appliedFilters]);
 
   useEffect(() => {
     resetFilters();
@@ -184,7 +180,8 @@ export const TableShowComponent = ({viewTableName} : {viewTableName?:string}) =>
         flush={true}
         buttons={
           <ButtonGroup size="xs">
-            {!isViewShow && ac.hasRole(OWNER_ROLE) &&
+            {!isViewShow &&
+              ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
                   href={`/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}/columns`}

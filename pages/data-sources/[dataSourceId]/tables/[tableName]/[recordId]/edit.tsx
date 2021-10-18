@@ -1,6 +1,7 @@
+import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { useAccessControl, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
@@ -10,10 +11,16 @@ import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { useEffect, useMemo } from "react";
 
-function RecordsEdit() {
+export const RecordsEditComponent = ({ view }: { view?: View }) => {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  const isViewShow = !isUndefined(view);
+  let tableName: string;
+  if (isViewShow) {
+    tableName = view.tableName as string;
+  } else {
+    tableName = router.query.tableName as string;
+  }
   const recordId = router.query.recordId as string;
   const {
     data: recordResponse,
@@ -51,14 +58,20 @@ function RecordsEdit() {
   // Redirect to record page if the user can't edit
   useEffect(() => {
     if (!canEdit && router) {
-      router.push(
-        `/data-sources/${dataSourceId}/tables/${tableName}/${recordId}`
-      );
+      if (isViewShow) {
+        router.push(
+          `/data-sources/${dataSourceId}/views/${view.id}/records/${recordId}`
+        );
+      } else {
+        router.push(
+          `/data-sources/${dataSourceId}/tables/${tableName}/${recordId}`
+        );
+      }
     }
   }, [canEdit, router]);
 
   // Don't show them the edit page if the user can't edit
-  if (!canEdit) return "";
+  if (!canEdit) return null;
 
   return (
     <Layout>
@@ -71,6 +84,10 @@ function RecordsEdit() {
       )}
     </Layout>
   );
+};
+
+function RecordsEdit() {
+  return <RecordsEditComponent />;
 }
 
 export default RecordsEdit;

@@ -2,6 +2,7 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
+import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
@@ -56,10 +57,12 @@ const Form = ({
   record,
   columns,
   formForCreate = false,
+  view,
 }: {
   record: Record;
   columns: Column[];
   formForCreate?: boolean;
+  view?: View;
 }) => {
   const router = useRouter();
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
