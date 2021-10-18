@@ -1,11 +1,5 @@
 import { Column as BaseToolColumn } from "@/features/fields/types";
-import { Button, Checkbox, Tooltip } from "@chakra-ui/react";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  SortAscendingIcon,
-  SortDescendingIcon,
-} from "@heroicons/react/outline";
+import { Checkbox } from "@chakra-ui/react";
 import { OrderDirection } from "../types";
 import {
   Row,
@@ -14,6 +8,10 @@ import {
   useResizeColumns,
   useTable,
 } from "react-table";
+import {
+  SortAscendingIcon,
+  SortDescendingIcon,
+} from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import {
   columnWidthsSelector,
@@ -31,7 +29,6 @@ import {
   useAppSelector,
   useColumns,
   useFilters,
-  useOffsetPagination,
   useOrderRecords,
   usePagination,
   useRecords,
@@ -43,14 +40,14 @@ import { useGetColumnsQuery } from "../api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import CursorPagination from "./CursorPagination"
 import ItemControls from "@/features/tables/components/ItemControls";
-import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MobileRow from "./MobileRow";
+import OffsetPagination from "./OffsetPagination"
 import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
-import numeral from "numeral";
 
 const Cell = memo(
   ({
@@ -416,101 +413,5 @@ const RecordsTable = ({
     </div>
   );
 };
-
-const OffsetPagination = memo(() => {
-  const {
-    page,
-    perPage,
-    offset,
-    nextPage,
-    previousPage,
-    maxPages,
-    canPreviousPage,
-    canNextPage,
-    recordsCount,
-  } = usePagination();
-
-  return (
-    <nav
-      className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
-      aria-label="Pagination"
-    >
-      <div className="flex-1 flex justify-start">
-        <div className="inline-block text-gray-500 text-sm">
-          Showing {offset + 1}-{perPage * page} {recordsCount && "of "}
-          {recordsCount
-            ? `${
-                recordsCount < 1000
-                  ? recordsCount
-                  : numeral(recordsCount).format("0.0a")
-              } in total`
-            : ""}
-        </div>
-      </div>
-      <div>
-        <div className="flex justify-between sm:justify-end">
-          <Button
-            size="sm"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-          >
-            <ChevronLeftIcon className="h-4 text-gray-600" />
-          </Button>
-          <div className="flex items-center px-2 space-x-1">
-            <span className="text-gray-500 mr-1">page</span> {page}{" "}
-            <span className="pl-1">
-              of {maxPages < 1000 ? maxPages : numeral(maxPages).format("0.0a")}
-            </span>
-          </div>
-          <Button size="sm" onClick={() => nextPage()} disabled={!canNextPage}>
-            <ChevronRightIcon className="h-4 text-gray-600" />
-          </Button>
-        </div>
-      </div>
-      <div className="flex-1 flex justify-end"></div>
-    </nav>
-  );
-});
-
-OffsetPagination.displayName = "OffsetPagination";
-
-const CursorPagination = memo(() => {
-  const { previousPageLink, nextPageLink, canNextPage, canPreviousPage } =
-    useOffsetPagination();
-
-  return (
-    <nav
-      className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
-      aria-label="Pagination"
-    >
-      <div className="flex-1 flex justify-start"></div>
-      <div>
-        <div className="flex justify-between sm:justify-end space-x-4">
-          <Tooltip
-            title={canPreviousPage ? "Load more records" : "No more records"}
-          >
-            <Link href={previousPageLink} passHref>
-              <Button as="a" size="sm" isDisabled={!canPreviousPage} onClick={(e) => !canPreviousPage && e.preventDefault()}>
-                <ChevronLeftIcon className="h-4 text-gray-600" />
-              </Button>
-            </Link>
-          </Tooltip>
-          <Tooltip
-            title={canNextPage ? "Load more records" : "No more records"}
-          >
-            <Link href={nextPageLink} passHref>
-              <Button as="a" size="sm" isDisabled={!canNextPage} onClick={(e) => !canNextPage && e.preventDefault()}>
-                <ChevronRightIcon className="h-4 text-gray-600" />
-              </Button>
-            </Link>
-          </Tooltip>
-        </div>
-      </div>
-      <div className="flex-1 flex justify-end"></div>
-    </nav>
-  );
-});
-
-CursorPagination.displayName = "CursorPagination";
 
 export default memo(RecordsTable);
