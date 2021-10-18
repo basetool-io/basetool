@@ -420,7 +420,7 @@ abstract class AbstractQueryService implements IQueryService {
     filters,
     orderBy,
     orderDirection,
-    columns,
+    columns = [],
   }: {
     tableName: string;
     filters: Array<IFilter | IFilterGroup>;

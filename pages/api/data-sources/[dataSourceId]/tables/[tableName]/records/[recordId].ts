@@ -1,5 +1,6 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
+import { getColumns } from "../columns"
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -55,9 +56,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
+  const tableName = req.query.tableName as string
+
+  // Some data sources support computed fields. We need the columns beforehand for that.
+  const retrievedColumns = await getColumns({ dataSource, tableName });
+
   const { record, columns } = await service.runQuery("getRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
+    columns: retrievedColumns,
   });
 
   res.json(ApiResponse.withData(record, { meta: { columns } }));

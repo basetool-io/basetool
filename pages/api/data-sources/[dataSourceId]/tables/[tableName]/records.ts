@@ -1,4 +1,5 @@
 import { decodeObject } from "@/lib/encoding";
+import { getColumns } from "./columns"
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { merge } from "lodash";
 import { serverSegment } from "@/lib/track";
@@ -32,6 +33,11 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   const filters = decodeObject(req.query.filters as string);
 
+  const tableName = req.query.tableName as string
+
+  // Some data sources support computed fields. We need the columns beforehand for that.
+  const retrievedColumns = await getColumns({ dataSource, tableName });
+
   const [{ records, columns, meta }, count] = await service.runQueries([
     {
       name: "getRecords",
@@ -46,6 +52,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         orderDirection: req.query.orderDirection as string,
         startingAfter: req.query.startingAfter as string,
         endingBefore: req.query.endingBefore as string,
+        columns: retrievedColumns,
       },
     },
     {
