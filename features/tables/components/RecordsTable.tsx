@@ -49,27 +49,6 @@ import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
 
-const Cell = memo(
-  ({
-    row,
-    column,
-    tableName,
-  }: {
-    row: Row;
-    column: { meta: BaseToolColumn };
-    tableName: string;
-  }) => {
-    const field = makeField({
-      record: row.original,
-      column: column?.meta,
-      tableName,
-    });
-    const Element = getField(column.meta, Views.index);
-
-    return <Element field={field} />;
-  }
-);
-
 const TheTable = memo(() => {
   const router = useRouter();
   const { isMd } = useResponsive();
@@ -86,9 +65,9 @@ const TheTable = memo(() => {
     Header: "selector_column",
     accessor: (row: any, i: number) => `selector_column_${i}`,
     Cell: CheckboxColumnCell,
-    width: 70,
-    minWidth: 70,
-    maxWidth: 70,
+    width: 50,
+    minWidth: 50,
+    maxWidth: 50,
   };
 
   const controlsColumn = {
@@ -298,6 +277,27 @@ const SelectorColumnCell = ({
   <div className="flex items-center justify-center h-full">
     <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
   </div>
+);
+
+const Cell = memo(
+  ({
+    row,
+    column,
+    tableName,
+  }: {
+    row: Row;
+    column: { meta: BaseToolColumn };
+    tableName: string;
+  }) => {
+    const field = makeField({
+      record: row.original,
+      column: column?.meta,
+      tableName,
+    });
+    const Element = getField(column.meta, Views.index);
+
+    return <Element field={field} />;
+  }
 );
 
 const RecordsTable = ({
