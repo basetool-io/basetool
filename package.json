@@ -30,6 +30,7 @@
     "accesscontrol": "^2.2.1",
     "analytics-node": "^5.1.0",
     "autoprefixer": "^10.3.2",
+    "aws-sdk": "^2.1009.0",
     "axios": "^0.21.2",
     "bcrypt": "^5.0.1",
     "classnames": "^2.3.1",
