@@ -19,7 +19,7 @@ import { isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -39,7 +39,7 @@ export interface IFormFields {
 
 function New() {
   const router = useRouter();
-  const { dataSourceId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
 
   const { register, handleSubmit, formState, setValue, watch } = useForm({
     defaultValues: {
@@ -52,11 +52,12 @@ function New() {
   });
 
   useEffect(() => {
-    if (dataSourceId) setValue("dataSourceId", parseInt(dataSourceId), {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
-  }, [dataSourceId])
+    if (dataSourceId)
+      setValue("dataSourceId", parseInt(dataSourceId), {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+  }, [dataSourceId]);
 
   const watchDataSourceId = watch("dataSourceId");
 
@@ -65,53 +66,44 @@ function New() {
   const { data: dataSourcesResponse, isLoading: dataSourcesAreLoading } =
     useGetDataSourcesQuery();
 
-  const { data: tablesResponse, isLoading: tablesAreLoading, error: tablesError } =
+  const { data: tablesResponse, isLoading: tablesAreLoading } =
     useGetTablesQuery(
-      {dataSourceId: watchDataSourceId.toString() },
+      { dataSourceId: watchDataSourceId.toString() },
       {
         skip: !watchDataSourceId.toString(),
       }
     );
 
-  const [addView] = useAddViewMutation();
-  const [formIsLoading, setFormIsLoading] = useState(false);
+  const [addView, { isLoading: formIsLoading }] = useAddViewMutation();
   const onSubmit = async (formData: IFormFields) => {
-    setFormIsLoading(true);
-
-    let response;
-    try {
-      response = await addView({ body: formData }).unwrap();
-    } catch (error) {
-      setFormIsLoading(false);
-    }
-
-    setFormIsLoading(false);
+    const response = await addView({ body: formData }).unwrap();
 
     if (response && response.ok) {
-      await router.push(
-        `/views/${response.data.id}`
-      );
+      await router.push(`/views/${response.data.id}`);
     }
   };
 
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
-    { index: 0, id: "Step 1", name: "Add name" },
-    { index: 1, id: "Step 2", name: "Select data" },
-    { index: 2, id: "Step 3", name: "Sharing" },
+    { id: "Step 1", name: "Add name" },
+    { id: "Step 2", name: "Select data" },
+    { id: "Step 3", name: "Sharing" },
   ];
 
   // Switch to the page with errors.
   useEffect(() => {
     if (!isUndefined(errors?.name?.message)) {
       setCurrentStep(0);
-    } else if (!isUndefined(errors?.tableName?.message) || !isUndefined(errors?.dataSourceId?.message)) {
+    } else if (
+      !isUndefined(errors?.tableName?.message) ||
+      !isUndefined(errors?.dataSourceId?.message)
+    ) {
       setCurrentStep(1);
     } else if (!isUndefined(errors?.public?.message)) {
       setCurrentStep(2);
     }
-  }, [errors])
+  }, [errors]);
 
   return (
     <Layout>
@@ -173,12 +165,12 @@ function New() {
               role="list"
               className="space-y-4 md:flex md:space-y-0 md:space-x-8"
             >
-              {steps.map((step) => (
+              {steps.map((step, idx: number) => (
                 <li key={step.name} className="md:flex-1 cursor-pointer">
-                  {step.index < currentStep ? (
+                  {idx < currentStep ? (
                     <a
                       onClick={() => {
-                        setCurrentStep(step.index);
+                        setCurrentStep(idx);
                       }}
                       className="group pl-4 py-2 flex flex-col border-l-4 border-blue-600 hover:border-cool-gray-800 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
                     >
@@ -187,10 +179,10 @@ function New() {
                       </span>
                       <span className="text-sm font-medium">{step.name}</span>
                     </a>
-                  ) : step.index === currentStep ? (
+                  ) : idx === currentStep ? (
                     <a
                       onClick={() => {
-                        setCurrentStep(step.index);
+                        setCurrentStep(idx);
                       }}
                       className="pl-4 py-2 flex flex-col border-l-4 border-blue-600 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
                       aria-current="step"
@@ -203,7 +195,7 @@ function New() {
                   ) : (
                     <a
                       onClick={() => {
-                        setCurrentStep(step.index);
+                        setCurrentStep(idx);
                       }}
                       className="group pl-4 py-2 flex flex-col border-l-4 border-gray-200 hover:border-gray-300 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
                     >
@@ -240,7 +232,6 @@ function New() {
                   <FormControl
                     id="dataSourceId"
                     isInvalid={!isUndefined(errors?.dataSourceId?.message)}
-                    // isDisabled={true}
                   >
                     <FormLabel>Select datasource</FormLabel>
                     {dataSourcesAreLoading && (
@@ -268,9 +259,6 @@ function New() {
                     isInvalid={!isUndefined(errors?.tableName?.message)}
                   >
                     <FormLabel>Select table name</FormLabel>
-                    <pre>
-                      {JSON.stringify(tablesError, null, 2)}
-                    </pre>
                     {tablesAreLoading && <Shimmer width={450} height={40} />}
                     {tablesAreLoading || (
                       <Select {...register("tableName")}>

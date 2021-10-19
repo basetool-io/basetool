@@ -14,7 +14,7 @@ import { Role } from "@prisma/client";
 import { Save } from "react-feather";
 import { getLabel } from "@/features/data-sources";
 import { isArray, isNull, isUndefined, pick } from "lodash";
-import { useAppRouter, useSegment } from "@/hooks";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import {
@@ -29,7 +29,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 
 function Edit() {
-  const { dataSourceId, tableName } = useAppRouter();
+  const { dataSourceId, tableName } = useDataSourceContext();
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(

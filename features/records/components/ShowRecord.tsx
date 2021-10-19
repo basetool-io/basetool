@@ -4,7 +4,7 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl, useAppRouter, useProfile } from "@/hooks";
+import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -23,8 +23,8 @@ import isEmpty from "lodash/isEmpty";
 
 const ShowRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, tableIndexHref, recordHref } =
-    useAppRouter();
+  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath } =
+    useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -55,26 +55,6 @@ const ShowRecord = () => {
 
   const record = useMemo(() => data?.data, [data?.data]);
 
-  const backLink = useMemo(() => {
-    if (router.query.fromTable) {
-      if (router.query.fromRecord) {
-        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
-      } else {
-        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}`;
-      }
-    }
-
-    if (router.query.fromView) {
-      if (router.query.fromRecord) {
-        return `/views/${router.query.fromView}/records/${router.query.fromRecord}`;
-      } else {
-        return `/views/${router.query.fromView}`;
-      }
-    }
-
-    return tableIndexHref;
-  }, [router.query]);
-
   const ac = useAccessControl();
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
@@ -88,7 +68,7 @@ const ShowRecord = () => {
         recordId: record.id.toString(),
       }).unwrap();
 
-      if (response?.ok) router.push(backLink);
+      if (response?.ok) router.push(tableIndexPath);
     }
   };
 
@@ -102,7 +82,7 @@ const ShowRecord = () => {
   // Redirect to record page if the user can't read
   useEffect(() => {
     if (!canRead && router) {
-      router.push(tableIndexHref);
+      router.push(tableIndexPath);
     }
   }, [canRead, router]);
 
@@ -123,7 +103,7 @@ const ShowRecord = () => {
               icon={<EyeIcon className="inline h-5 text-gray-500" />}
               crumbs={[router.query.tableName as string, "View record"]}
               flush={true}
-              buttons={<BackButton href={backLink} />}
+              buttons={<BackButton href={tableIndexPath} />}
               footer={
                 <PageWrapper.Footer
                   left={
@@ -142,7 +122,7 @@ const ShowRecord = () => {
                   right={
                     ac.updateAny("record").granted &&
                     !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                      <Link href={`${recordHref}/${record.id}/edit`} passHref>
+                      <Link href={`${recordsPath}/${record.id}/edit`} passHref>
                         <Button
                           as="a"
                           colorScheme="blue"

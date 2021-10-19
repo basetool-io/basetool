@@ -1,7 +1,7 @@
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { useAccessControl, useAppRouter, useProfile } from "@/hooks";
+import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
@@ -12,7 +12,7 @@ import React, { memo, useEffect, useMemo } from "react";
 
 const EditRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, recordHref } = useAppRouter();
+  const { dataSourceId, tableName, recordId, recordsPath } = useDataSourceContext();
 
   const {
     data: recordResponse,
@@ -50,7 +50,7 @@ const EditRecord = () => {
   // Redirect to record page if the user can't edit
   useEffect(() => {
     if (!canEdit) {
-      router.push(`${recordHref}/${recordId}`);
+      router.push(`${recordsPath}/${recordId}`);
     }
   }, [canEdit]);
 

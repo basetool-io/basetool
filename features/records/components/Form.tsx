@@ -9,11 +9,11 @@ import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
-import { useAppRouter } from "@/hooks";
 import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
 } from "@/features/records/api-slice";
+import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import BackButton from "./BackButton";
@@ -63,7 +63,8 @@ const Form = ({
   formForCreate?: boolean;
 }) => {
   const router = useRouter();
-  const {dataSourceId, tableName, recordId, tableIndexHref, recordHref} = useAppRouter();
+  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath } =
+    useDataSourceContext();
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
 
   const setTheSchema = async () => {
@@ -85,29 +86,10 @@ const Form = ({
 
   const diff = difference(record, formData);
 
-  const backLink = useMemo(() => {
-    if (router.query.fromTable) {
-      if (router.query.fromRecord) {
-        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
-      } else {
-        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}`;
-      }
-    }
-
-    if (router.query.fromView) {
-      if (router.query.fromRecord) {
-        return `/views/${router.query.fromView}/records/${router.query.fromRecord}`;
-      } else {
-        return `/views/${router.query.fromView}`;
-      }
-    }
-
-    if (formForCreate) {
-      return tableIndexHref;
-    } else {
-      return `${recordHref}/${recordId}`;
-    }
-  }, [router.query]);
+  const backLink = useMemo(
+    () => (formForCreate ? tableIndexPath : `${recordsPath}/${recordId}`),
+    [formForCreate, tableIndexPath, recordsPath, recordId]
+  );
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
@@ -138,16 +120,10 @@ const Form = ({
           const { data } = response;
           const { id } = data;
           if (response.ok) {
-            await router.push(
-              `${recordHref}/${id}`
-            );
+            await router.push(`${recordsPath}/${id}`);
           }
         }
-      } else if (
-        dataSourceId &&
-        tableName &&
-        record.id
-      ) {
+      } else if (dataSourceId && tableName && record.id) {
         const changes = Object.fromEntries(
           Object.entries(diff)
             .filter(([name]) => touchedFields.includes(name))
@@ -195,10 +171,7 @@ const Form = ({
     <>
       <PageWrapper
         icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
-        crumbs={[
-          tableName,
-          formForCreate ? "Create record" : "Edit record",
-        ]}
+        crumbs={[tableName, formForCreate ? "Create record" : "Edit record"]}
         flush={true}
         buttons={<BackButton href={backLink} />}
         footer={

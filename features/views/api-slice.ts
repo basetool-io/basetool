@@ -25,7 +25,7 @@ export const viewsApiSlice = createApi({
           { type: "View", id: "LIST" },
         ],
       }),
-      getViews: builder.query<ApiResponse, any>({
+      getViews: builder.query<ApiResponse, void>({
         query() {
           return `/views`;
         },

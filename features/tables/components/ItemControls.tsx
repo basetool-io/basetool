@@ -1,6 +1,6 @@
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
-import { useAccessControl, useAppRouter, useResponsive } from "@/hooks";
+import { useAccessControl, useDataSourceContext, useResponsive } from "@/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import Link from "next/link";
@@ -8,22 +8,20 @@ import React, { memo } from "react";
 
 function ItemControls({
   recordId,
-  dataSourceId: dataSourceIdProp,
 }: {
   recordId: string;
-  dataSourceId: string;
 }) {
   const { isMd } = useResponsive();
 
-  const { dataSourceId, tableName, recordHref } = useAppRouter();
+  const { dataSourceId, tableName, recordsPath } = useDataSourceContext();
 
   const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId: dataSourceIdProp },
+    { dataSourceId },
     {
-      skip: !dataSourceIdProp,
+      skip: !dataSourceId,
     }
   );
 
@@ -42,7 +40,7 @@ function ItemControls({
     <div className="flex space-x-2 items-center h-full text-gray-500">
       {ac.updateAny("record").granted &&
         !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-          <Link href={`${recordHref}/${recordId}`}>
+          <Link href={`${recordsPath}/${recordId}`}>
             <a>
               <Tooltip label="View record">
                 <div>
@@ -53,7 +51,7 @@ function ItemControls({
           </Link>
         )}
       {ac.updateAny("record").granted && (
-        <Link href={`${recordHref}/${recordId}/edit`}>
+        <Link href={`${recordsPath}/${recordId}/edit`}>
           <a>
             <Tooltip label="Edit record">
               <div>

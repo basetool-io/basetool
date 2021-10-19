@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
 import { getForeignName } from "./helpers";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import Link from "next/link";
@@ -10,13 +10,12 @@ import React, { memo } from "react";
 import Shimmer from "@/components/Shimmer";
 
 const Index = ({ field }: { field: Field }) => {
-  const { dataSourceId, tableName, viewId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
   const foreignTableName = field.column.foreignKeyInfo
     .foreignTableName as string;
   const foreignRecordId = field.value || null;
   const {
     data: recordResponse,
-    error,
     isLoading,
   } = useGetRecordQuery(
     {
@@ -27,13 +26,6 @@ const Index = ({ field }: { field: Field }) => {
     { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
   );
 
-  let href = `/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`;
-  if (viewId) {
-    href = `${href}/?fromView=${viewId}`;
-  } else {
-    href = `${href}/?fromTable=${tableName}`;
-  }
-
   return (
     <IndexFieldWrapper field={field}>
       {isLoading && <Shimmer height={16.5} />}
@@ -41,7 +33,7 @@ const Index = ({ field }: { field: Field }) => {
         <>
           {getForeignName(recordResponse?.data, field) || field.value}
           <Link
-            href={href}
+            href={`/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`}
           >
             <a
               title="Go to record"

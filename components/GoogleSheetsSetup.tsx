@@ -1,17 +1,18 @@
-import { useAppRouter } from "@/hooks";
 import {
   useGetDataSourceQuery,
   useGetSheetsQuery,
   useSetSheetToDataSourceMutation,
 } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useState } from "react";
 
 function GoogleSheetsSetup() {
-  const { dataSourceId } = useAppRouter();
+  const router = useRouter();
+  const dataSourceId = router.query.dataSourceId as string;
   const dataSourceName = "google-sheets";
   const [isReloading, setIsReloading] = useState(false);
   const { refetch: refetchDataSource } = useGetDataSourceQuery(

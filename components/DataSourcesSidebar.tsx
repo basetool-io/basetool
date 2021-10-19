@@ -8,7 +8,7 @@ import { DataSource } from "@prisma/client";
 import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
-import { useAppRouter, useProfile, useSidebarsVisible } from "@/hooks";
+import { useDataSourceContext, useProfile, useSidebarsVisible } from "@/hooks";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
@@ -85,7 +85,7 @@ const DataSourcesSidebar = () => {
   const { role, isLoading: sessionIsLoading } = useProfile();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
   const prefetchTables = usePrefetch("getTables");
-  const { dataSourceId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
 
   return (
     <div

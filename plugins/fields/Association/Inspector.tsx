@@ -1,7 +1,7 @@
 import { Code, FormControl, FormLabel, Input, Select } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { isUndefined } from "lodash";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useBoolean } from "react-use";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
@@ -22,7 +22,7 @@ function Inspector({
   const [editRaw, toggleEditRaw] = useBoolean(false);
 
   // fetch the column for that foreign table ahed of time to better show the user what fields he can choose
-  const { dataSourceId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
   const tableName = column.foreignKeyInfo.foreignTableName;
   const {
     data: columnsResponse,

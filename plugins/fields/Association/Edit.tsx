@@ -10,7 +10,7 @@ import { Views } from "@/features/fields/enums";
 import { getForeignName } from "./helpers";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import Link from "next/link";
@@ -49,7 +49,7 @@ const Edit = ({
       : null;
 
   // Get all the options
-  const { dataSourceId, tableName } = useAppRouter();
+  const { dataSourceId, tableName } = useDataSourceContext();
   const foreignTableName = field?.column?.foreignKeyInfo?.foreignTableName;
 
   const { data: recordsResponse, isLoading } = useGetRecordsQuery(

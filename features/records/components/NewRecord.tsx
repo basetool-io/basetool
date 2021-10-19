@@ -1,7 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
@@ -9,7 +9,7 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useMemo } from "react";
 
 const NewRecord = () => {
-  const { dataSourceId, tableName } = useAppRouter();
+  const { dataSourceId, tableName } = useDataSourceContext();
   const {
     data: columnsResponse,
     isLoading,

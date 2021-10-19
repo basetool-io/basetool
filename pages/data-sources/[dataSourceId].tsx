@@ -1,5 +1,5 @@
 import { isNull } from "lodash";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
@@ -10,7 +10,7 @@ import React, { useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function DataSourcesShow() {
-  const { dataSourceId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
   const { data, error, isLoading } = useGetTablesQuery(
     { dataSourceId },
     { skip: !dataSourceId }

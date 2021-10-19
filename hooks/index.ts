@@ -27,7 +27,7 @@ import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
@@ -245,66 +245,62 @@ export const useProfile = () => {
   return { user, role, organizations, isLoading, session };
 };
 
-export const useAppRouter = () => {
+export const useDataSourceContext = () => {
   const router = useRouter();
 
-  const [dataSourceId, setDataSourceId] = useState(
-    router.query.dataSourceId as string
+  const viewId = useMemo(
+    () => router.query.viewId as string,
+    [router.query.viewId]
   );
-  const [tableName, setTableName] = useState(router.query.tableName as string);
-  const [viewId, setViewId] = useState(router.query.viewId as string);
-  const [recordId, setRecordId] = useState(router.query.recordId as string);
-  const [columnName, setColumnName] = useState(router.query.columnName as string);
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
-  const [tableIndexHref, setTableIndexHref] = useState<string>(
-    isUndefined(viewId)
-      ? `/data-sources/${dataSourceId}/tables/${tableName}`
-      : `/views/${viewId}`
-  );
-
-  const [recordHref, setRecordHref] = useState<string>(
-    isUndefined(viewId)
-      ? tableIndexHref
-      : `${tableIndexHref}/records`
-  );
-
-  const [newRecordHref, setNewRecordHref] = useState<string>(
-    `${recordHref}/new`
-  );
-
-  const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
-    { viewId },
-    { skip: !viewId }
-  );
-
-  useEffect(() => {
-    setDataSourceId(router.query.dataSourceId as string);
-    setTableName(router.query.tableName as string);
-    setViewId(router.query.viewId as string);
-    setRecordId(router.query.recordId as string);
-    setColumnName(router.query.columnName as string);
+  const { dataSourceId, tableName } = useMemo(() => {
+    let dataSourceId = router.query.dataSourceId as string;
+    let tableName = router.query.tableName as string;
 
     if (isUndefined(dataSourceId) || isUndefined(tableName)) {
       if (!isUndefined(viewId)) {
         if (viewResponse?.ok) {
-          const { dataSourceId, tableName } = viewResponse.data;
-          setDataSourceId(dataSourceId.toString());
-          setTableName(tableName);
+          dataSourceId = viewResponse.data.dataSourceId.toString();
+          tableName = viewResponse.data.tableName;
         }
       }
     }
+
+    return {
+      dataSourceId,
+      tableName,
+    };
   }, [router.query, viewResponse]);
+
+  const recordId = useMemo(
+    () => router.query.recordId as string,
+    [router.query.recordId]
+  );
+
+  const tableIndexPath = useMemo(
+    () =>
+      isUndefined(viewId)
+        ? `/data-sources/${dataSourceId}/tables/${tableName}`
+        : `/views/${viewId}`,
+    [dataSourceId, tableName, viewId]
+  );
+
+  const recordsPath = useMemo(
+    () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
+    [tableIndexPath, viewId]
+  );
+
+  const newRecordPath = useMemo(() => `${recordsPath}/new`, [recordsPath]);
 
   return {
     dataSourceId,
     tableName,
     viewId,
     recordId,
-    columnName,
-    isLoading: viewIsLoading,
-    tableIndexHref,
-    recordHref,
-    newRecordHref,
+    tableIndexPath,
+    recordsPath,
+    newRecordPath,
   };
 };
 

@@ -5,12 +5,12 @@ import {
   PlusCircleIcon,
   PlusIcon,
 } from "@heroicons/react/outline";
-import { Collapse, useDisclosure } from "@chakra-ui/react";
+import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
-import { View } from "@/plugins/views/types";
+import { View } from "@prisma/client";
 import { getLabel } from "@/features/data-sources";
 import { isUndefined } from "lodash";
-import { useAccessControl, useAppRouter, useProfile } from "@/hooks";
+import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
@@ -22,7 +22,7 @@ import SidebarItem from "./SidebarItem";
 import isEmpty from "lodash/isEmpty";
 
 const Sidebar = () => {
-  const { dataSourceId, tableName, viewId } = useAppRouter();
+  const { dataSourceId, tableName, viewId } = useDataSourceContext();
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(
@@ -42,12 +42,11 @@ const Sidebar = () => {
     }
   );
 
-  //TODO fix this ts error
   const {
     data: viewsResponse,
     isLoading: viewsAreLoading,
     error: viewsError,
-  } = useGetViewsQuery(null);
+  } = useGetViewsQuery();
 
   const prefetchColumns = usePrefetch("getColumns");
 
@@ -92,14 +91,14 @@ const Sidebar = () => {
         <div className="relative space-y-1 px-2 flex-col">
           <div className="flex justify-between w-full">
             <div
-              className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0"
+              className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 w-full cursor-pointer"
               onClick={toggleViewsOpen}
             >
               Views{" "}
               {isViewsOpen ? (
-                <ChevronDownIcon className="h-3 inline cursor-pointer" />
+                <ChevronDownIcon className="h-3 inline" />
               ) : (
-                <ChevronLeftIcon className="h-3 inline cursor-pointer" />
+                <ChevronLeftIcon className="h-3 inline" />
               )}
             </div>
             {viewsResponse?.ok &&
@@ -108,10 +107,14 @@ const Sidebar = () => {
                   (view.createdBy === user.id || view.public === true) &&
                   view.dataSourceId === parseInt(dataSourceId)
               ).length > 0 && (
-                <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
-                  <div className="flex justify-center items-center">
-                    <PlusCircleIcon className="h-4 inline cursor-pointer" />
-                  </div>
+                <Link href={`/views/new?dataSourceId=${dataSourceId}`}>
+                  <a className="flex justify-center items-center mx-2">
+                  <Tooltip label="Add view">
+                    <div>
+                      <PlusCircleIcon className="h-4 inline cursor-pointer" />
+                    </div>
+                  </Tooltip>
+                  </a>
                 </Link>
               )}
           </div>
@@ -168,14 +171,14 @@ const Sidebar = () => {
             )}
             <div className="relative space-y-1 px-2 flex-1">
               <div
-                className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0"
+                className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 cursor-pointer"
                 onClick={toggleTablesOpen}
               >
                 Tables{" "}
                 {isTablesOpen ? (
-                  <ChevronDownIcon className="h-3 inline cursor-pointer" />
+                  <ChevronDownIcon className="h-3 inline" />
                 ) : (
-                  <ChevronLeftIcon className="h-3 inline cursor-pointer" />
+                  <ChevronLeftIcon className="h-3 inline" />
                 )}
               </div>
               <Collapse in={isTablesOpen}>

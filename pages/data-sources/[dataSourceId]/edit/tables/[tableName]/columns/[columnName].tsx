@@ -24,13 +24,13 @@ import {
   without,
 } from "lodash";
 import { getColumnNameLabel, getColumnOptions } from "@/features/fields";
-import { useAppRouter, useSegment } from "@/hooks";
 import {
   useCreateColumnMutation,
   useDeleteColumnMutation,
   useGetColumnsQuery,
   useUpdateColumnMutation,
 } from "@/features/tables/api-slice";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
@@ -103,7 +103,8 @@ export const INITIAL_NEW_COLUMN = {
 
 function ColumnEdit() {
   const router = useRouter();
-  const {dataSourceId, tableName, columnName} = useAppRouter();
+  const { dataSourceId, tableName } = useDataSourceContext();
+  const columnName = router.query.columnName as string;
 
   const isCreateField = useMemo(
     () => columnName === INITIAL_NEW_COLUMN.name,
@@ -285,9 +286,9 @@ function ColumnEdit() {
 
   const saveTableSettings = async () => {
     await updateTable({
-      dataSourceId: dataSourceId,
-      tableName: tableName,
-      columnName: columnName,
+      dataSourceId,
+      tableName,
+      columnName,
       body: { changes },
     }).unwrap();
   };
@@ -298,9 +299,9 @@ function ColumnEdit() {
   const deleteField = async () => {
     if (confirm("Are you sure you want to remove this field?")) {
       await deleteColumn({
-        dataSourceId: dataSourceId,
-        tableName: tableName,
-        columnName: columnName,
+        dataSourceId,
+        tableName,
+        columnName,
       });
       await router.push(
         `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`
@@ -319,8 +320,8 @@ function ColumnEdit() {
       },
     };
     const response = await createColumn({
-      dataSourceId: dataSourceId,
-      tableName: tableName,
+      dataSourceId,
+      tableName,
       body: newColumn,
     });
 

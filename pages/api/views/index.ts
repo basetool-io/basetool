@@ -52,7 +52,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Added view",
+    event: "Added a view",
     properties: {
       name: req.body.name,
       dataSourceId: req.body.dataSourceId,

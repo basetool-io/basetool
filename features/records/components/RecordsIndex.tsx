@@ -21,7 +21,7 @@ import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
 import {
   useAccessControl,
-  useAppRouter,
+  useDataSourceContext,
   useFilters,
   useSelectRecords,
 } from "@/hooks";
@@ -57,19 +57,17 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
 
 const SelectorColumnCell = ({
   row,
-  dataSourceId,
 }: {
   row: Row<any>;
-  dataSourceId: string;
 }) => (
   <div className="flex items-center justify-center h-full">
-    <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
+    <ItemControls recordId={row?.original?.id} />
   </div>
 );
 
 const RecordsIndex = () => {
   const router = useRouter();
-  const { viewId, tableName, dataSourceId, newRecordHref } = useAppRouter();
+  const { viewId, tableName, dataSourceId, newRecordPath } = useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -109,7 +107,7 @@ const RecordsIndex = () => {
     accessor: (row: any, i: number) => `controls_column_${i}`,
     // eslint-disable-next-line react/display-name
     Cell: (row: any) => (
-      <SelectorColumnCell row={row.row} dataSourceId={dataSourceId} />
+      <SelectorColumnCell row={row.row} />
     ),
     width: 104,
     minWidth: 104,
@@ -233,7 +231,7 @@ const RecordsIndex = () => {
             center={
               ac.createAny("record").granted &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link href={newRecordHref} passHref>
+                <Link href={newRecordPath} passHref>
                   <Button
                     as="a"
                     colorScheme="blue"

@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { merge } from "lodash";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import {
   useGetDataSourceQuery,
   useRemoveDataSourceMutation,
@@ -35,7 +35,7 @@ const DataSourcesEditLayout = ({
   children?: ReactElement;
 }) => {
   const router = useRouter();
-  const { dataSourceId: appRouterDataSourceId } = useAppRouter();
+  const { dataSourceId: appRouterDataSourceId } = useDataSourceContext();
   dataSourceId ||= appRouterDataSourceId;
 
   const {
@@ -49,7 +49,7 @@ const DataSourcesEditLayout = ({
     }
   );
 
-  backLink ||= `/data-sources/${appRouterDataSourceId}/`;
+  backLink ||= `/data-sources/${dataSourceId}/`;
   crumbs ||= [dataSourceResponse?.data?.name, "Edit"];
 
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =

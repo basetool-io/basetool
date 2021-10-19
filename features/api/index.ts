@@ -13,6 +13,9 @@ export const getDataSourceFromRequest = async (
       where: {
         id: parseInt(req.query.viewId as string, 10),
       },
+      select: {
+        dataSourceId: true,
+      },
     });
 
     if (view) {

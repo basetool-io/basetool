@@ -6,8 +6,8 @@ import { ItemTypes } from "@/lib/ItemTypes";
 import { PlusIcon, SelectorIcon } from "@heroicons/react/outline";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { useAppRouter, useSegment } from "@/hooks";
 import { useBoolean } from "react-use";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDrop } from "react-dnd";
 import {
   useGetColumnsQuery,
@@ -15,6 +15,7 @@ import {
   useUpdateTableMutation,
 } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -35,8 +36,11 @@ const TableColumnsEditLayout = ({
   footerElements?: FooterElements;
   children?: ReactElement;
 }) => {
-  const { dataSourceId: appRouterDataSourceId, tableName: appRouterTableName, columnName: appRouterColumnName } = useAppRouter();
+  const router = useRouter();
+  const { dataSourceId: appRouterDataSourceId, tableName } = useDataSourceContext();
   dataSourceId ||= appRouterDataSourceId;
+
+  const columnName = router.query.columnName as string;
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -48,9 +52,9 @@ const TableColumnsEditLayout = ({
   const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
-      tableName: appRouterTableName,
+      tableName: tableName,
     },
-    { skip: !dataSourceId || !appRouterTableName }
+    { skip: !dataSourceId || !tableName }
   );
 
   const { data: tablesResponse } = useGetTablesQuery(
@@ -113,7 +117,7 @@ const TableColumnsEditLayout = ({
   const updateColumnsOrder = async () => {
     if (tablesResponse?.ok) {
       const table = tablesResponse.data.find(
-        (table: any) => table.name === appRouterTableName
+        (table: any) => table.name === tableName
       );
 
       const tableColumns = { ...table.columns };
@@ -129,8 +133,8 @@ const TableColumnsEditLayout = ({
       });
 
       await updateTable({
-        dataSourceId: appRouterDataSourceId,
-        tableName: appRouterTableName,
+        dataSourceId: dataSourceId,
+        tableName: tableName,
         body: { columns: tableColumns },
       }).unwrap();
     }
@@ -148,10 +152,10 @@ const TableColumnsEditLayout = ({
 
   return (
     <DataSourcesEditLayout
-      backLink={`/data-sources/${appRouterDataSourceId}/tables/${appRouterTableName}`}
+      backLink={`/data-sources/${dataSourceId}/tables/${tableName}`}
       backLabel="Back to table"
       crumbs={
-        crumbs || [dataSourceResponse?.data.name, "Edit", appRouterTableName, "Columns"]
+        crumbs || [dataSourceResponse?.data.name, "Edit", tableName, "Columns"]
       }
       isLoading={isLoading}
       footerElements={footerElements}
@@ -184,8 +188,8 @@ const TableColumnsEditLayout = ({
                         icon={
                           <IconElement className="h-4 mr-2 flex flex-shrink-0" />
                         }
-                        href={`/data-sources/${dataSourceId}/edit/tables/${appRouterTableName}/columns/${col.name}`}
-                        active={col.name === appRouterColumnName}
+                        href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${col.name}`}
+                        active={col.name === columnName}
                         onClick={() => track("Selected column in edit columns")}
                         itemType={ItemTypes.COLUMN}
                         reordering={reordering}
@@ -208,8 +212,8 @@ const TableColumnsEditLayout = ({
               <div className="mt-2">
                 <ColumnListItem
                   icon={<PlusIcon className="h-4 mr-2 flex flex-shrink-0" />}
-                  href={`/data-sources/${dataSourceId}/edit/tables/${appRouterTableName}/columns/${INITIAL_NEW_COLUMN.name}`}
-                  active={INITIAL_NEW_COLUMN.name === appRouterColumnName}
+                  href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${INITIAL_NEW_COLUMN.name}`}
+                  active={INITIAL_NEW_COLUMN.name === columnName}
                   onClick={() => track("Add column in edit columns")}
                 >
                   Add new field

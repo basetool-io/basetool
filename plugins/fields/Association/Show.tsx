@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
 import { getForeignName } from "./helpers";
-import { useAppRouter } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import Link from "next/link";
 import React, { memo } from "react";
@@ -10,13 +10,12 @@ import Shimmer from "@/components/Shimmer";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 
 const Show = ({ field }: { field: Field }) => {
-  const { dataSourceId, tableName, viewId, recordId } = useAppRouter();
+  const { dataSourceId } = useDataSourceContext();
 
   const foreignTableName = field.column.foreignKeyInfo.foreignTableName as string;
   const foreignRecordId = field.value || null;
   const {
     data: recordResponse,
-    error,
     isLoading,
   } = useGetRecordQuery(
     {
@@ -27,13 +26,6 @@ const Show = ({ field }: { field: Field }) => {
     { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
   );
 
-  let href = `/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`;
-  if (viewId) {
-    href = `${href}/?fromView=${viewId}&fromRecord=${recordId}`;
-  } else {
-    href = `${href}/?fromTable=${tableName}&fromRecord=${recordId}`;
-  }
-
   return (
     <ShowFieldWrapper field={field}>
       {isLoading && <Shimmer height={32} />}
@@ -41,7 +33,7 @@ const Show = ({ field }: { field: Field }) => {
         <>
           {getForeignName(recordResponse?.data, field) || field.value}
           <Link
-            href={href}
+            href={`/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`}
           >
             <a title="Go to record">
               <Tooltip label="Go to record">
