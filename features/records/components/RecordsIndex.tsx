@@ -55,9 +55,15 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   );
 };
 
-const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
+const SelectorColumnCell = ({
+  row,
+  dataSourceId,
+}: {
+  row: Row<any>;
+  dataSourceId: string;
+}) => (
   <div className="flex items-center justify-center h-full">
-    <ItemControls recordId={row?.original?.id} />
+    <ItemControls recordId={row?.original?.id} dataSourceId={dataSourceId} />
   </div>
 );
 
@@ -102,7 +108,9 @@ const RecordsIndex = () => {
     Header: "controls_column",
     accessor: (row: any, i: number) => `controls_column_${i}`,
     // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <SelectorColumnCell row={row.row} />,
+    Cell: (row: any) => (
+      <SelectorColumnCell row={row.row} dataSourceId={dataSourceId} />
+    ),
     width: 104,
     minWidth: 104,
     maxWidth: 104,
@@ -214,7 +222,7 @@ const RecordsIndex = () => {
                         "record",
                         selectedRecords.length
                       )}`}
-                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" is displayed */}
+                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
                     {selectedRecords.length === 0 && (
                       <>&nbsp;&nbsp;&nbsp;&nbsp;</>
                     )}
@@ -223,7 +231,8 @@ const RecordsIndex = () => {
               )
             }
             center={
-              ac.createAny("record").granted && (
+              ac.createAny("record").granted &&
+              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link href={newRecordHref} passHref>
                   <Button
                     as="a"

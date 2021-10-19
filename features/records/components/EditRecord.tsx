@@ -45,7 +45,7 @@ const EditRecord = () => {
     if (profileIsLoading) return true;
 
     return ac.updateAny("record").granted;
-  }, [ac]);
+  }, [ac, profileIsLoading]);
 
   // Redirect to record page if the user can't edit
   useEffect(() => {

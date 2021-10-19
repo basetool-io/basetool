@@ -10,6 +10,7 @@ import {
   useGetRecordQuery,
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head";
@@ -22,7 +23,14 @@ import isEmpty from "lodash/isEmpty";
 
 const ShowRecord = () => {
   const router = useRouter();
-  const {dataSourceId, tableName, recordId, tableIndexHref, recordHref} = useAppRouter();
+  const { dataSourceId, tableName, recordId, tableIndexHref, recordHref } =
+    useAppRouter();
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
   const { data, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
@@ -132,11 +140,9 @@ const ShowRecord = () => {
                     )
                   }
                   right={
-                    ac.updateAny("record").granted && (
-                      <Link
-                        href={`${recordHref}/${record.id}/edit`}
-                        passHref
-                      >
+                    ac.updateAny("record").granted &&
+                    !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
+                      <Link href={`${recordHref}/${record.id}/edit`} passHref>
                         <Button
                           as="a"
                           colorScheme="blue"
@@ -172,6 +178,6 @@ const ShowRecord = () => {
       </Layout>
     </>
   );
-}
+};
 
 export default memo(ShowRecord);
