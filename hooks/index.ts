@@ -272,29 +272,6 @@ export const useAppRouter = () => {
     `${recordHref}/new`
   );
 
-  const [backLinkHref, setBackLinkHref] = useState<string>(
-    'ham');
-
-  // const backLink = useMemo(() => {
-  //   if (router.query.fromTable) {
-  //     if (router.query.fromRecord) {
-  //       return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
-  //     } else {
-  //       return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}`;
-  //     }
-  //   }
-
-  //   if (router.query.fromView) {
-  //     if (router.query.fromRecord) {
-  //       return `/views/${router.query.fromView}/records/${router.query.fromRecord}`;
-  //     } else {
-  //       return `/views/${router.query.fromView}`;
-  //     }
-  //   }
-
-  //   return tableIndexHref;
-  // }, [router.query]);
-
   const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
     { viewId },
     { skip: !viewId }
@@ -328,7 +305,6 @@ export const useAppRouter = () => {
     tableIndexHref,
     recordHref,
     newRecordHref,
-    backLinkHref,
   };
 };
 
