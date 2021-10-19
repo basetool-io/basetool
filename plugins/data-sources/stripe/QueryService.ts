@@ -116,6 +116,7 @@ class QueryService implements IQueryService {
     select: string[];
     startingAfter?: string;
     endingBefore?: string;
+    columns?: Column[];
   }): Promise<RecordsResponse> {
     // Checking if the tableName is in the supported APIs
     if (Object.values(StripeListAPIs).includes(tableName)) {
@@ -157,6 +158,7 @@ class QueryService implements IQueryService {
     tableName: StripeListAPIs;
     recordId: string;
     select: string[];
+    columns?: Column[];
   }): Promise<RecordResponse<StripeValues> | undefined> {
     // Checking if the tableName is in the supported APIs
     if (Object.values(StripeListAPIs).includes(tableName)) {
@@ -197,6 +199,8 @@ const recordToColumns = (record: Record<string, StripeValues>): Column[] =>
         label: "",
         disconnected: false,
         defaultValue: "",
+        computed: false,
+        computedSource: "",
       },
       fieldType: getFieldTypeFromColumnInfo(key, value),
       fieldOptions: {},

@@ -428,7 +428,7 @@ abstract class AbstractQueryService implements IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    columns: Column[];
+    columns?: Column[];
   }): Promise<RecordsResponse> {
     const query = this.client.table(tableName);
 
@@ -489,11 +489,11 @@ abstract class AbstractQueryService implements IQueryService {
   public async getRecord({
     tableName,
     recordId,
-    columns,
+    columns = [],
   }: {
     tableName: string;
     recordId: string;
-    columns: Column[];
+    columns?: Column[];
   }): Promise<RecordResponse | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 

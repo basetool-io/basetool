@@ -209,6 +209,7 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
     select: string[];
+    columns?: Column[];
   }): Promise<RecordsResponse> {
     await this.loadInfo();
 
@@ -241,6 +242,7 @@ class QueryService implements IQueryService {
     tableName: string;
     recordId: string;
     select: string[];
+    columns?: Column[];
   }): Promise<RecordResponse | undefined> {
     await this.loadInfo();
 

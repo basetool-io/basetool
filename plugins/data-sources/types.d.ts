@@ -45,7 +45,7 @@ export interface IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    columns: Column[];
+    columns?: Column[];
   }): Promise<RecordsResponse>;
   getRecordsCount(payload: {
     tableName: string;
@@ -54,7 +54,7 @@ export interface IQueryService {
   getRecord(payload: {
     tableName: string;
     recordId: string;
-    columns: Column[];
+    columns?: Column[];
   }): Promise<RecordResponse | undefined>;
   updateRecord?({
     tableName: string,
