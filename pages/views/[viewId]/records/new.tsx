@@ -1,12 +1,8 @@
-import { NewComponent } from "@/pages/data-sources/[dataSourceId]/tables/[tableName]/new";
+import NewRecord from "@/features/records/components/NewRecord";
 import React, { memo } from "react";
 
-function ViewNew() {
-
-  //New Record
-  return (
-    <NewComponent/>
-  );
+function New() {
+  return <NewRecord />;
 }
 
-export default memo(ViewNew);
+export default memo(New);

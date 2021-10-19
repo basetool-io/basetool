@@ -1,10 +1,8 @@
-import { RecordsShowComponent } from "../../../data-sources/[dataSourceId]/tables/[tableName]/[recordId]";
 import React, { memo } from "react";
+import ShowRecord from "@/features/records/components/ShowRecord";
 
-function ViewRecordsShow() {
-  return (
-    <RecordsShowComponent />
-  );
+function Show() {
+  return <ShowRecord />;
 }
 
-export default memo(ViewRecordsShow);
+export default memo(Show);

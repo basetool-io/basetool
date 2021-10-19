@@ -1,11 +1,8 @@
-import { TableShowComponent } from "../data-sources/[dataSourceId]/tables/[tableName]";
 import React, { memo } from "react";
+import RecordsIndex from "@/features/records/components/RecordsIndex";
 
-function ViewTableShow() {
-
-  return (
-    <TableShowComponent/>
-  );
+function Index() {
+  return <RecordsIndex />;
 }
 
-export default memo(ViewTableShow);
+export default memo(Index);

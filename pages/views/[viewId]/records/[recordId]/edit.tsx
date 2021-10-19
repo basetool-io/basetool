@@ -1,10 +1,8 @@
-import { RecordsEditComponent } from "@/pages/data-sources/[dataSourceId]/tables/[tableName]/[recordId]/edit";
+import EditRecord from "@/features/records/components/EditRecord";
 import React, { memo } from "react";
 
-function ViewRecordsShow() {
-  return (
-    <RecordsEditComponent />
-  );
+function Edit() {
+  return <EditRecord />;
 }
 
-export default memo(ViewRecordsShow);
+export default memo(Edit);
