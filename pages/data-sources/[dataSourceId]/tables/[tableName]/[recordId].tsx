@@ -1,12 +1,10 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
-import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { isUndefined } from "lodash";
-import { useAccessControl, useProfile } from "@/hooks";
+import { useAccessControl, useAppRouter, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -22,17 +20,9 @@ import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
-export const RecordsShowComponent = ({ view }: { view?: View }) => {
+export const RecordsShowComponent = () => {
   const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const isViewShow = !isUndefined(view);
-  let tableName: string;
-  if (isViewShow) {
-    tableName = view.tableName as string;
-  } else {
-    tableName = router.query.tableName as string;
-  }
-  const recordId = router.query.recordId as string;
+  const {dataSourceId, tableName, recordId, tableIndexHref, recordHref} = useAppRouter();
   const { data, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
@@ -58,6 +48,7 @@ export const RecordsShowComponent = ({ view }: { view?: View }) => {
   const record = useMemo(() => data?.data, [data?.data]);
 
   const backLink = useMemo(() => {
+    // TODO have to think how to transform these for views.
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
         return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
@@ -66,7 +57,7 @@ export const RecordsShowComponent = ({ view }: { view?: View }) => {
       }
     }
 
-    return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
+    return tableIndexHref;
   }, [router.query]);
 
   const ac = useAccessControl();
@@ -77,8 +68,8 @@ export const RecordsShowComponent = ({ view }: { view?: View }) => {
     const confirmed = confirm("Are you sure you want to remove this record?");
     if (confirmed) {
       const response = await deleteRecord({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
+        dataSourceId: dataSourceId,
+        tableName: tableName,
         recordId: record.id.toString(),
       }).unwrap();
 
@@ -96,7 +87,7 @@ export const RecordsShowComponent = ({ view }: { view?: View }) => {
   // Redirect to record page if the user can't read
   useEffect(() => {
     if (!canRead && router) {
-      router.push(`/data-sources/${dataSourceId}/tables/${tableName}`);
+      router.push(tableIndexHref);
     }
   }, [canRead, router]);
 
@@ -136,7 +127,7 @@ export const RecordsShowComponent = ({ view }: { view?: View }) => {
                   right={
                     ac.updateAny("record").granted && (
                       <Link
-                        href={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${record.id}/edit`}
+                        href={`${recordHref}/${record.id}/edit`}
                         passHref
                       >
                         <Button

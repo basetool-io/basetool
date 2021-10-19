@@ -40,7 +40,7 @@ function New() {
   const router = useRouter();
   const dataSourceId = router.query.dataSourceId as string;
 
-  const { register, handleSubmit, formState, setValue } = useForm({
+  const { register, handleSubmit, formState, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       public: true,
@@ -51,22 +51,24 @@ function New() {
   });
 
   useEffect(() => {
-    setValue("dataSourceId", parseInt(dataSourceId), {
+    if (dataSourceId) setValue("dataSourceId", parseInt(dataSourceId), {
       shouldDirty: true,
       shouldTouch: true,
     })
   }, [dataSourceId])
+
+  const watchDataSourceId = watch("dataSourceId");
 
   const { errors } = formState;
 
   const { data: dataSourcesResponse, isLoading: dataSourcesAreLoading } =
     useGetDataSourcesQuery();
 
-  const { data: tablesResponse, isLoading: tablesAreLoading } =
+  const { data: tablesResponse, isLoading: tablesAreLoading, error: tablesError } =
     useGetTablesQuery(
-      { dataSourceId },
+      {dataSourceId: watchDataSourceId.toString() },
       {
-        skip: !dataSourceId,
+        skip: !watchDataSourceId.toString(),
       }
     );
 
@@ -77,7 +79,7 @@ function New() {
 
     let response;
     try {
-      response = await addView({ dataSourceId, body: formData }).unwrap();
+      response = await addView({ body: formData }).unwrap();
     } catch (error) {
       setFormIsLoading(false);
     }
@@ -86,7 +88,7 @@ function New() {
 
     if (response && response.ok) {
       await router.push(
-        `/data-sources/${dataSourceId}/views/${response.data.id}`
+        `/views/${response.data.id}`
       );
     }
   };
@@ -237,7 +239,7 @@ function New() {
                   <FormControl
                     id="dataSourceId"
                     isInvalid={!isUndefined(errors?.dataSourceId?.message)}
-                    isDisabled={true}
+                    // isDisabled={true}
                   >
                     <FormLabel>Select datasource</FormLabel>
                     {dataSourcesAreLoading && (
@@ -265,6 +267,9 @@ function New() {
                     isInvalid={!isUndefined(errors?.tableName?.message)}
                   >
                     <FormLabel>Select table name</FormLabel>
+                    <pre>
+                      {JSON.stringify(tablesError, null, 2)}
+                    </pre>
                     {tablesAreLoading && <Shimmer width={450} height={40} />}
                     {tablesAreLoading || (
                       <Select {...register("tableName")}>

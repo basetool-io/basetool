@@ -2,7 +2,6 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
-import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
@@ -10,6 +9,7 @@ import { isFunction } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
+import { useAppRouter } from "@/hooks";
 import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
@@ -57,14 +57,13 @@ const Form = ({
   record,
   columns,
   formForCreate = false,
-  view,
 }: {
   record: Record;
   columns: Column[];
   formForCreate?: boolean;
-  view?: View;
 }) => {
   const router = useRouter();
+  const {dataSourceId, tableName, recordId, tableIndexHref, recordHref} = useAppRouter();
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
 
   const setTheSchema = async () => {
@@ -87,6 +86,7 @@ const Form = ({
   const diff = difference(record, formData);
 
   const backLink = useMemo(() => {
+    // TODO have to think how to transform these for views.
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
         return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
@@ -96,9 +96,9 @@ const Form = ({
     }
 
     if (formForCreate) {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
+      return tableIndexHref;
     } else {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`;
+      return `${recordHref}/${recordId}`;
     }
   }, [router.query]);
 
@@ -116,8 +116,8 @@ const Form = ({
     try {
       if (formForCreate) {
         response = await createRecord({
-          dataSourceId: router.query.dataSourceId as string,
-          tableName: router.query.tableName as string,
+          dataSourceId: dataSourceId,
+          tableName: tableName,
           body: {
             record: Object.fromEntries(
               Object.entries(formData).filter(([name]) =>
@@ -132,13 +132,13 @@ const Form = ({
           const { id } = data;
           if (response.ok) {
             await router.push(
-              `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
+              `${recordHref}/${id}`
             );
           }
         }
       } else if (
-        router.query.dataSourceId &&
-        router.query.tableName &&
+        dataSourceId &&
+        tableName &&
         record.id
       ) {
         const changes = Object.fromEntries(
@@ -161,8 +161,8 @@ const Form = ({
         );
 
         const response = await updateRecord({
-          dataSourceId: router.query.dataSourceId as string,
-          tableName: router.query.tableName as string,
+          dataSourceId: dataSourceId,
+          tableName: tableName,
           recordId: record.id.toString(),
           body: {
             changes,
@@ -189,7 +189,7 @@ const Form = ({
       <PageWrapper
         icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
         crumbs={[
-          router.query.tableName as string,
+          tableName,
           formForCreate ? "Create record" : "Edit record",
         ]}
         flush={true}
@@ -221,7 +221,7 @@ const Form = ({
                   const field = makeField({
                     record: formData as Record,
                     column,
-                    tableName: router.query.tableName as string,
+                    tableName: tableName,
                   });
                   let schemaForColumn;
                   try {

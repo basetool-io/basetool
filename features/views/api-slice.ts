@@ -13,12 +13,11 @@ export const viewsApiSlice = createApi({
       addView: builder.mutation<
         ApiResponse,
         Partial<{
-          dataSourceId: string;
           body: unknown;
         }>
       >({
-        query: ({ dataSourceId, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}/views`,
+        query: ({ body }) => ({
+          url: `${apiUrl}/views`,
           method: "POST",
           body,
         }),
@@ -26,9 +25,9 @@ export const viewsApiSlice = createApi({
           { type: "View", id: "LIST" },
         ],
       }),
-      getViews: builder.query<ApiResponse, { dataSourceId: string }>({
-        query({ dataSourceId }) {
-          return `/data-sources/${dataSourceId}/views`;
+      getViews: builder.query<ApiResponse, any>({
+        query() {
+          return `/views`;
         },
         providesTags: [
           { type: "View", id: "LIST" },
@@ -36,10 +35,10 @@ export const viewsApiSlice = createApi({
       }),
       getView: builder.query<
         ApiResponse,
-        Partial<{ dataSourceId: string, viewId: string }>
+        Partial<{ viewId: string }>
       >({
-        query({ dataSourceId, viewId }) {
-          return `/data-sources/${dataSourceId}/views/${viewId}`;
+        query({ viewId }) {
+          return `/views/${viewId}`;
         },
         providesTags: (result, error, { viewId }) => [
           { type: "View", id: viewId },

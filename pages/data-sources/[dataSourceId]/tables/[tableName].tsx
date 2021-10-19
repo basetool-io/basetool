@@ -15,12 +15,11 @@ import {
 import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
-import { View } from "@/plugins/views/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty } from "lodash";
 import { parseColumns } from "@/features/tables";
-import { useAccessControl, useFilters, useSelectRecords } from "@/hooks";
+import { useAccessControl, useAppRouter, useFilters, useSelectRecords } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
@@ -57,16 +56,9 @@ const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
   </div>
 );
 
-export const TableShowComponent = ({ view }: { view?: View }) => {
+export const TableShowComponent = () => {
   const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const isViewShow = !isUndefined(view);
-  let tableName: string;
-  if (isViewShow) {
-    tableName = view.tableName as string;
-  } else {
-    tableName = router.query.tableName as string;
-  }
+  const {viewId, tableName, dataSourceId, newRecordHref} = useAppRouter();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -150,8 +142,8 @@ export const TableShowComponent = ({ view }: { view?: View }) => {
     );
     if (confirmed) {
       await deleteBulkRecords({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: tableName as string,
+        dataSourceId: dataSourceId,
+        tableName: tableName,
         recordIds: selectedRecords as number[],
       });
     }
@@ -180,11 +172,11 @@ export const TableShowComponent = ({ view }: { view?: View }) => {
         flush={true}
         buttons={
           <ButtonGroup size="xs">
-            {!isViewShow &&
+            {!viewId &&
               ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
-                  href={`/data-sources/${router.query.dataSourceId}/edit/tables/${tableName}/columns`}
+                  href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
                   passHref
                 >
                   <Button
@@ -228,7 +220,7 @@ export const TableShowComponent = ({ view }: { view?: View }) => {
             center={
               ac.createAny("record").granted && (
                 <Link
-                  href={`/data-sources/${router.query.dataSourceId}/tables/${tableName}/new`}
+                  href={newRecordHref}
                   passHref
                 >
                   <Button

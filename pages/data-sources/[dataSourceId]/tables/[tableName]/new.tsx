@@ -1,17 +1,15 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { isArray, isEmpty } from "lodash";
+import { useAppRouter } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
-import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay"
 import React, { useMemo } from "react";
 
-function New() {
-  const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+export const NewComponent = () => {
+  const {dataSourceId, tableName} = useAppRouter();
   const {
     data: columnsResponse,
     isLoading,
@@ -44,6 +42,10 @@ function New() {
       )}
     </Layout>
   );
+}
+
+function New() {
+  return <NewComponent />;
 }
 
 export default New;

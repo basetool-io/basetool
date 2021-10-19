@@ -4,7 +4,7 @@ import { pick } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "../../../../../features/api/middlewares/IsSignedIn";
+import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -45,7 +45,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       public: req.body.public,
       createdBy: user.id,
       organizationId: organizationId,
-      dataSourceId: parseInt(req.body.dataSourceId as string),
+      dataSourceId: req.body.dataSourceId,
       tableName: req.body.tableName,
     },
   });
@@ -55,6 +55,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     event: "Added view",
     properties: {
       name: req.body.name,
+      dataSourceId: req.body.dataSourceId,
       table: req.body.tableName,
     },
   });
@@ -67,9 +68,30 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  const user = (await getUserFromRequest(req, {
+    select: {
+      id: true,
+      organizations: {
+        include: {
+          organization: true,
+        },
+      },
+    },
+  })) as User & {
+    organizations: OrganizationUser[];
+  };
+
+  const organizationIds = user.organizations.map(
+    ({ organizationId }) => organizationId
+  );
+
+  if (!user) return res.status(404).send("");
+
   const views = await prisma.view.findMany({
     where: {
-      dataSourceId: parseInt(req.query.dataSourceId as string),
+      organizationId: {
+        in: organizationIds,
+      },
     },
     orderBy: [
       {
