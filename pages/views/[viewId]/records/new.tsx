@@ -3,6 +3,7 @@ import React, { memo } from "react";
 
 function ViewNew() {
 
+  //New Record
   return (
     <NewComponent/>
   );

@@ -24,6 +24,7 @@ import {
   without,
 } from "lodash";
 import { getColumnNameLabel, getColumnOptions } from "@/features/fields";
+import { useAppRouter, useSegment } from "@/hooks";
 import {
   useCreateColumnMutation,
   useDeleteColumnMutation,
@@ -32,7 +33,6 @@ import {
 } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
-import { useSegment } from "@/hooks";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import TableColumnsEditLayout from "@/features/data-sources/components/TableColumnsEditLayout";
@@ -103,9 +103,7 @@ export const INITIAL_NEW_COLUMN = {
 
 function ColumnEdit() {
   const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
-  const columnName = router.query.columnName as string;
+  const {dataSourceId, tableName, columnName} = useAppRouter();
 
   const isCreateField = useMemo(
     () => columnName === INITIAL_NEW_COLUMN.name,
@@ -287,9 +285,9 @@ function ColumnEdit() {
 
   const saveTableSettings = async () => {
     await updateTable({
-      dataSourceId: router.query.dataSourceId as string,
-      tableName: router.query.tableName as string,
-      columnName: router.query.columnName as string,
+      dataSourceId: dataSourceId,
+      tableName: tableName,
+      columnName: columnName,
       body: { changes },
     }).unwrap();
   };
@@ -300,9 +298,9 @@ function ColumnEdit() {
   const deleteField = async () => {
     if (confirm("Are you sure you want to remove this field?")) {
       await deleteColumn({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
-        columnName: router.query.columnName as string,
+        dataSourceId: dataSourceId,
+        tableName: tableName,
+        columnName: columnName,
       });
       await router.push(
         `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`
@@ -321,8 +319,8 @@ function ColumnEdit() {
       },
     };
     const response = await createColumn({
-      dataSourceId: router.query.dataSourceId as string,
-      tableName: router.query.tableName as string,
+      dataSourceId: dataSourceId,
+      tableName: tableName,
       body: newColumn,
     });
 

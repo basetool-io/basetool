@@ -48,12 +48,19 @@ export const RecordsShowComponent = () => {
   const record = useMemo(() => data?.data, [data?.data]);
 
   const backLink = useMemo(() => {
-    // TODO have to think how to transform these for views.
     if (router.query.fromTable) {
       if (router.query.fromRecord) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
       } else {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
+        return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}`;
+      }
+    }
+
+    if (router.query.fromView) {
+      if (router.query.fromRecord) {
+        return `/views/${router.query.fromView}/records/${router.query.fromRecord}`;
+      } else {
+        return `/views/${router.query.fromView}`;
       }
     }
 

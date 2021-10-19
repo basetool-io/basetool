@@ -19,6 +19,7 @@ import { isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { schema } from "@/plugins/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
+import { useAppRouter } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -38,7 +39,7 @@ export interface IFormFields {
 
 function New() {
   const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
+  const { dataSourceId } = useAppRouter();
 
   const { register, handleSubmit, formState, setValue, watch } = useForm({
     defaultValues: {

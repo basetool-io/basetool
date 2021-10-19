@@ -254,6 +254,7 @@ export const useAppRouter = () => {
   const [tableName, setTableName] = useState(router.query.tableName as string);
   const [viewId, setViewId] = useState(router.query.viewId as string);
   const [recordId, setRecordId] = useState(router.query.recordId as string);
+  const [columnName, setColumnName] = useState(router.query.columnName as string);
 
   const [tableIndexHref, setTableIndexHref] = useState<string>(
     isUndefined(viewId)
@@ -271,6 +272,29 @@ export const useAppRouter = () => {
     `${recordHref}/new`
   );
 
+  const [backLinkHref, setBackLinkHref] = useState<string>(
+    'ham');
+
+  // const backLink = useMemo(() => {
+  //   if (router.query.fromTable) {
+  //     if (router.query.fromRecord) {
+  //       return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
+  //     } else {
+  //       return `/data-sources/${dataSourceId}/tables/${router.query.fromTable}`;
+  //     }
+  //   }
+
+  //   if (router.query.fromView) {
+  //     if (router.query.fromRecord) {
+  //       return `/views/${router.query.fromView}/records/${router.query.fromRecord}`;
+  //     } else {
+  //       return `/views/${router.query.fromView}`;
+  //     }
+  //   }
+
+  //   return tableIndexHref;
+  // }, [router.query]);
+
   const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
     { viewId },
     { skip: !viewId }
@@ -281,6 +305,7 @@ export const useAppRouter = () => {
     setTableName(router.query.tableName as string);
     setViewId(router.query.viewId as string);
     setRecordId(router.query.recordId as string);
+    setColumnName(router.query.columnName as string);
 
     if (isUndefined(dataSourceId) || isUndefined(tableName)) {
       if (!isUndefined(viewId)) {
@@ -298,10 +323,12 @@ export const useAppRouter = () => {
     tableName,
     viewId,
     recordId,
+    columnName,
     isLoading: viewIsLoading,
     tableIndexHref,
     recordHref,
-    newRecordHref
+    newRecordHref,
+    backLinkHref,
   };
 };
 

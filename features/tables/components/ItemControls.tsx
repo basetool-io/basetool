@@ -38,7 +38,7 @@ function ItemControls({ recordId }: { recordId: string }) {
         </Link>
       )}
       {ac.updateAny("record").granted && (
-        <Link href={`$${recordHref}/${recordId}/edit`}>
+        <Link href={`${recordHref}/${recordId}/edit`}>
           <a>
             <Tooltip label="Edit record">
               <div>
