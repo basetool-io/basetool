@@ -89,8 +89,7 @@
     "tailwindcss": "^2.2.15",
     "tedious": "^13.0.4",
     "urijs": "^1.19.7",
-    "uuid": "^8.3.2",
-    "zx": "^4.2.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.15.0",
