@@ -31,9 +31,9 @@ const ShowFieldWrapper = ({
 
   return (
     <div className="flex flex-col md:flex-row border-b md:min-h-16 py-2 md:py-0 space-y-3 md:space-y-0">
-      <div className="w-48 md:w-48 lg:w-64 xl:w-64 px-4 md:px-6 flex items-start space-x-2">
+      <div className="w-full md:w-48 lg:w-64 xl:w-64 px-4 md:px-6 flex items-start space-x-2">
         <div className="flex items-center space-x-2 md:min-h-16 md:py-4">
-          <IconElement className="h-4 inline-block flex-shrink-0" />{" "}
+          <IconElement className="h-4 self-start mt-1 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
           <span>{prettyColumnName}</span>
         </div>
       </div>

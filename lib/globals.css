@@ -37,12 +37,12 @@ body,
 
     &.isResizing {
       .resizer-bar {
-        @apply bg-gray-400;
+        @apply bg-gray-500;
       }
     }
 
     .resizer-bar {
-      @apply relative top-0 left-1/2 block w-px h-full bg-gray-200 -ml-px;
+      @apply relative top-0 left-1/2 block w-px h-full bg-gray-400 -ml-px;
     }
   }
 }
@@ -252,6 +252,19 @@ svg.tea #steamR {
   background: #ddd;
   background: linear-gradient(to right, var(--chakra-colors-gray-200) 8%, var(--chakra-colors-gray-300) 18%, var(--chakra-colors-gray-200) 33%);
   background-size: 1200px 100%;
+}
+
+progress {
+  @apply h-2 bg-white border border-gray-400 rounded shadow-inner;
+}
+progress[value]::-webkit-progress-bar {
+  @apply bg-white border border-gray-500 rounded shadow-inner;
+}
+progress[value]::-webkit-progress-value {
+  @apply bg-green-600 rounded;
+}
+progress[value]::-moz-progress-bar {
+  @apply bg-green-600 rounded appearance-none;
 }
 
 @-webkit-keyframes shimmer {

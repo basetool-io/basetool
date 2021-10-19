@@ -37,7 +37,10 @@ const recordsStateSlice = createSlice({
     setFilters(state, action: PayloadAction<Array<IFilter | IFilterGroup>>) {
       state.filters = [...action.payload];
     },
-    setAppliedFilters(state, action: PayloadAction<Array<IFilter | IFilterGroup>>) {
+    setAppliedFilters(
+      state,
+      action: PayloadAction<Array<IFilter | IFilterGroup>>
+    ) {
       state.appliedFilters = [...action.payload];
     },
     removeFilter(state, action: PayloadAction<number>) {
@@ -50,7 +53,7 @@ const recordsStateSlice = createSlice({
     ) {
       const { idx, filter } = action.payload;
       //change all filters to the value set by idx 1
-      if(idx === 1) {
+      if (idx === 1) {
         state.filters.forEach((f) => {
           f.verb = filter.verb;
         });
@@ -59,7 +62,7 @@ const recordsStateSlice = createSlice({
     },
     toggleRecordSelection(state, action: PayloadAction<number>) {
       const index = state.selectedRecords.indexOf(action.payload);
-      if(index >= 0) {
+      if (index >= 0) {
         state.selectedRecords.splice(index, 1);
       } else {
         state.selectedRecords.push(action.payload);
@@ -87,7 +90,11 @@ export const allFiltersAppliedSelector = createSelector(
     JSON.stringify(filters) === JSON.stringify(appliedFilters)
 );
 
-export const selectedRecordsSelector = ({ recordsState }: { recordsState: AppState }) => recordsState.selectedRecords;
+export const selectedRecordsSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.selectedRecords;
 
 export const {
   resetState,

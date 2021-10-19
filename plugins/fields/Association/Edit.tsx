@@ -7,10 +7,10 @@ import {
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
+import { getForeignName } from "./helpers";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
 import { useAppRouter } from "@/hooks";
-import { useForeignName } from "./hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import Link from "next/link";
@@ -51,7 +51,6 @@ const Edit = ({
   // Get all the options
   const { dataSourceId, tableName } = useAppRouter();
   const foreignTableName = field?.column?.foreignKeyInfo?.foreignTableName;
-  const getForeignName = useForeignName(field);
 
   const { data: recordsResponse, isLoading } = useGetRecordsQuery(
     {
@@ -83,7 +82,7 @@ const Edit = ({
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
                 <option key={record.id} value={record.id}>
-                  {getForeignName(record)}
+                  {getForeignName(record, field)}
                 </option>
               ))}
           </Select>

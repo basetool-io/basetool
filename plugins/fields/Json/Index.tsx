@@ -1,6 +1,6 @@
 import { Code } from "@chakra-ui/layout";
 import { Field } from "@/features/fields/types";
-import { isNull, isUndefined } from "lodash";
+import { isNull, isObjectLike, isUndefined } from "lodash";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import React, { memo } from "react";
 
@@ -12,10 +12,20 @@ const Index = ({ field }: { field: Field }) => {
         ? null
         : JSON.stringify(JSON.parse(field.value as string), null, 2);
   } catch (e) {
-    value = "{}";
+    value = field.value;
   }
 
-  return <IndexFieldWrapper field={field}>{isNull(value) ? <Code>null</Code> : value}</IndexFieldWrapper>;
+  if (isObjectLike(field.value)) value = JSON.stringify(field.value);
+
+  return (
+    <IndexFieldWrapper field={field}>
+      {isNull(value) ? (
+        <Code>null</Code>
+      ) : (
+        <span className="font-mono">{value}</span>
+      )}
+    </IndexFieldWrapper>
+  );
 };
 
 export default memo(Index);

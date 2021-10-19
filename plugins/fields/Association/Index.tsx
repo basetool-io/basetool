@@ -1,8 +1,8 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
+import { getForeignName } from "./helpers";
 import { useAppRouter } from "@/hooks";
-import { useForeignName } from "./hooks";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import Link from "next/link";
@@ -26,7 +26,6 @@ const Index = ({ field }: { field: Field }) => {
     },
     { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
   );
-  const getForeignName = useForeignName(field);
 
   let href = `/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`;
   if (viewId) {
@@ -40,7 +39,7 @@ const Index = ({ field }: { field: Field }) => {
       {isLoading && <Shimmer height={16.5} />}
       {isLoading || (
         <>
-          {getForeignName(recordResponse?.data) || field.value}
+          {getForeignName(recordResponse?.data, field) || field.value}
           <Link
             href={href}
           >
