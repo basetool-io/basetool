@@ -75,7 +75,11 @@ export const recordsApiSlice = createApi({
       }),
       createRecord: builder.mutation<
         ApiResponse,
-        Partial<{ dataSourceId: string; tableName: string; body: Record<string, unknown> }>
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          body: Record<string, unknown>;
+        }>
       >({
         query: ({ dataSourceId, tableName, body }) => ({
           url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records`,
@@ -114,9 +118,7 @@ export const recordsApiSlice = createApi({
           url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, { recordId }) => [
-          { type: "Record", id: recordId },
-        ],
+        invalidatesTags: [{ type: "Record", id: "LIST" }],
       }),
       deleteBulkRecords: builder.mutation<
         ApiResponse,
@@ -131,14 +133,7 @@ export const recordsApiSlice = createApi({
           method: "DELETE",
           body: recordIds,
         }),
-        invalidatesTags: (result, error, { recordIds }) => {
-
-          if(!recordIds) return [{ type: "Record", id: "LIST" }];
-
-          const tagsForRecords = recordIds.map((recordId) => ({ type: "Record", id: recordId.toString() }));
-
-          return [...tagsForRecords, { type: "Record", id: "LIST" }] as { type: "Record", id: string }[];
-        },
+        invalidatesTags: [{ type: "Record", id: "LIST" }],
       }),
     };
   },

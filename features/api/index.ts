@@ -6,16 +6,35 @@ import prisma from "@/prisma";
 export const getDataSourceFromRequest = async (
   req: NextApiRequest,
   options: Record<string, unknown> = {}
-): Promise<DataSource | null> =>
-  prisma.dataSource.findFirst({
+): Promise<DataSource | null> => {
+  let dataSourceIdFromView: string | null = null;
+  if (req.query.viewId) {
+    const view = await prisma.view.findFirst({
+      where: {
+        id: parseInt(req.query.viewId as string, 10),
+      },
+      select: {
+        dataSourceId: true,
+      },
+    });
+
+    if (view) {
+      dataSourceIdFromView = view.dataSourceId.toString();
+    }
+  }
+
+  return await prisma.dataSource.findFirst({
     where: {
       id: parseInt(
-        (req.query.dataSourceId || req.body.dataSourceId) as string,
+        (req.query.dataSourceId ||
+          req.body.dataSourceId ||
+          dataSourceIdFromView) as string,
         10
       ),
     },
     ...options,
   });
+};
 
 export const getOrganizationFromRequest = async (
   req: NextApiRequest,

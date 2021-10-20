@@ -216,7 +216,6 @@ class QueryService implements IQueryService {
 
     const sheet = this.doc.sheetsByTitle[tableName];
     const rawRows = await sheet.getRows();
-    // console.log('rows->', rows)
     const rows = rawRows.map((row) => {
       return Object.fromEntries(
         Object.entries(row)

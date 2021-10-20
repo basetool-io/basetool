@@ -5,18 +5,17 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
-import { OWNER_ROLE } from "@/features/roles"
+import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
+import { useDataSourceContext, useProfile, useSidebarsVisible } from "@/hooks";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
-import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
 import Avatar from "react-avatar";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
-import isNull from "lodash/isNull";
 
 const DataSourceItem = ({
   active,
@@ -83,9 +82,10 @@ const DataSourcesSidebar = () => {
   const router = useRouter();
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
-  const {role, isLoading: sessionIsLoading} = useProfile();
+  const { role, isLoading: sessionIsLoading } = useProfile();
   const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
   const prefetchTables = usePrefetch("getTables");
+  const { dataSourceId } = useDataSourceContext();
 
   return (
     <div
@@ -130,11 +130,7 @@ const DataSourcesSidebar = () => {
                 {!isLoading &&
                   dataSourcesResponse?.ok &&
                   dataSourcesResponse.data.map((dataSource: DataSource) => {
-                    const reg = new RegExp(
-                      String.raw`/data-sources/${dataSource.id.toString()}($|/|\?)`
-                    );
-
-                    const active = !isNull(router.asPath.match(reg));
+                    const active = parseInt(dataSourceId) === dataSource.id;
                     let name = dataSource.name.replace(/[^a-zA-Z ]/g, "");
                     if (name == name.toUpperCase()) {
                       name = name.split("").join(" ");
@@ -181,23 +177,25 @@ const DataSourcesSidebar = () => {
               {/* @todo: link to complaints */}
 
               {/* Show the beta page only to owners */}
-              {role && role.name === OWNER_ROLE && <Link href="/beta" passHref>
-                <a className="block">
-                  <div
-                    className={classNames(
-                      "flex-1 flex text-gray-300 hover:text-white font-normal cursor-pointer text-sm rounded-md leading-none p-1",
-                      {
-                        "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow leading-none":
-                          router.asPath === `/beta`,
-                      }
-                    )}
-                  >
-                    <div className="w-full text-center uppercase text-sm font-bold">
-                      Beta
+              {role && role.name === OWNER_ROLE && (
+                <Link href="/beta" passHref>
+                  <a className="block">
+                    <div
+                      className={classNames(
+                        "flex-1 flex text-gray-300 hover:text-white font-normal cursor-pointer text-sm rounded-md leading-none p-1",
+                        {
+                          "bg-cool-gray-800 hover:bg-cool-gray-900 inner-shadow leading-none":
+                            router.asPath === `/beta`,
+                        }
+                      )}
+                    >
+                      <div className="w-full text-center uppercase text-sm font-bold">
+                        Beta
+                      </div>
                     </div>
-                  </div>
-                </a>
-              </Link>}
+                  </a>
+                </Link>
+              )}
               <DataSourceItem
                 active={router.asPath.includes(`/profile`)}
                 compact={compact}

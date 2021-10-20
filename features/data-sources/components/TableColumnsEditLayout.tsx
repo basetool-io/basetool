@@ -7,6 +7,7 @@ import { PlusIcon, SelectorIcon } from "@heroicons/react/outline";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useBoolean } from "react-use";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDrop } from "react-dnd";
 import {
   useGetColumnsQuery,
@@ -15,7 +16,6 @@ import {
 } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
-import { useSegment } from "@/hooks";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -37,8 +37,10 @@ const TableColumnsEditLayout = ({
   children?: ReactElement;
 }) => {
   const router = useRouter();
-  dataSourceId ||= router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  const { dataSourceId: appRouterDataSourceId, tableName } = useDataSourceContext();
+  dataSourceId ||= appRouterDataSourceId;
+
+  const columnName = router.query.columnName as string;
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -50,7 +52,7 @@ const TableColumnsEditLayout = ({
   const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
-      tableName,
+      tableName: tableName,
     },
     { skip: !dataSourceId || !tableName }
   );
@@ -115,7 +117,7 @@ const TableColumnsEditLayout = ({
   const updateColumnsOrder = async () => {
     if (tablesResponse?.ok) {
       const table = tablesResponse.data.find(
-        (table: any) => table.name === router.query.tableName
+        (table: any) => table.name === tableName
       );
 
       const tableColumns = { ...table.columns };
@@ -131,8 +133,8 @@ const TableColumnsEditLayout = ({
       });
 
       await updateTable({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
+        dataSourceId: dataSourceId,
+        tableName: tableName,
         body: { columns: tableColumns },
       }).unwrap();
     }
@@ -150,7 +152,7 @@ const TableColumnsEditLayout = ({
 
   return (
     <DataSourcesEditLayout
-      backLink={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
+      backLink={`/data-sources/${dataSourceId}/tables/${tableName}`}
       backLabel="Back to table"
       crumbs={
         crumbs || [dataSourceResponse?.data.name, "Edit", tableName, "Columns"]
@@ -187,7 +189,7 @@ const TableColumnsEditLayout = ({
                           <IconElement className="h-4 mr-2 flex flex-shrink-0" />
                         }
                         href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${col.name}`}
-                        active={col.name === router.query.columnName}
+                        active={col.name === columnName}
                         onClick={() => track("Selected column in edit columns")}
                         itemType={ItemTypes.COLUMN}
                         reordering={reordering}
@@ -211,7 +213,7 @@ const TableColumnsEditLayout = ({
                 <ColumnListItem
                   icon={<PlusIcon className="h-4 mr-2 flex flex-shrink-0" />}
                   href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${INITIAL_NEW_COLUMN.name}`}
-                  active={INITIAL_NEW_COLUMN.name === router.query.columnName}
+                  active={INITIAL_NEW_COLUMN.name === columnName}
                   onClick={() => track("Add column in edit columns")}
                 >
                   Add new field

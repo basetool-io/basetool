@@ -8,6 +8,7 @@ import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
 import { tablesApiSlice } from "@/features/tables/api-slice";
 import { toast } from "react-toastify";
+import { viewsApiSlice } from "@/features/views/api-slice";
 import appReducer from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
 
@@ -48,6 +49,7 @@ const store = configureStore({
     [rolesApiSlice.reducerPath]: rolesApiSlice.reducer,
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
     [profileApiSlice.reducerPath]: profileApiSlice.reducer,
+    [viewsApiSlice.reducerPath]: viewsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -57,6 +59,7 @@ const store = configureStore({
       rolesApiSlice.middleware,
       tablesApiSlice.middleware,
       profileApiSlice.middleware,
+      viewsApiSlice.middleware,
       rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",

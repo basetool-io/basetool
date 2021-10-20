@@ -11,6 +11,7 @@ function SidebarItem({
   active?: boolean;
   label: string;
   link: string;
+  onClick?: () => void;
   [name: string]: any;
 }) {
   return (

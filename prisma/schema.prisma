@@ -60,6 +60,7 @@ model DataSource {
   organizationId       Int?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+  views                View[]
 
   @@index([organizationId])
 }
@@ -140,10 +141,12 @@ model View {
   createdBy      Int
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
+  dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  dataSourceId   Int
   tableName      String       @db.VarChar(255)
   filters        Json         @default("[]")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@index([createdBy, organizationId])
+  @@index([createdBy, organizationId, dataSourceId])
 }
