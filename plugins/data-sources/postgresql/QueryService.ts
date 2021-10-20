@@ -1,17 +1,36 @@
 import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
-import { PostgresCredentials } from "./types";
+import { PostgresCredentials, PostgresLegacyCredentials } from "./types";
 import { idColumns } from "@/features/fields";
 import { knex } from "knex";
 import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService";
+import URI from "urijs";
 import type { Knex } from "knex";
 
 class QueryService extends AbstractQueryService {
-  public getCredentials() {
-    const credentials = this.getParsedCredentials() as PostgresCredentials;
+  public getCredentials(): PostgresCredentials {
+    const parsedCredentials = this.getParsedCredentials() as
+      | PostgresCredentials
+      | PostgresLegacyCredentials;
 
-    if (!credentials || !credentials.url)
+    if (!parsedCredentials || Object.keys(parsedCredentials).length === 0)
       throw new Error("No credentials on record.");
+    let credentials;
+
+    // If this is a legacy connection, break apart the connection string to regular credentials
+    if ("url" in parsedCredentials) {
+      const uri = URI(parsedCredentials.url);
+      credentials = {
+        host: uri.hostname(),
+        port: parseInt(uri.port()),
+        database: uri.path().replace("/", ""),
+        username: uri.username(),
+        password: uri.password(),
+        useSsl: parsedCredentials.useSsl,
+      };
+    } else {
+      credentials = parsedCredentials;
+    }
 
     return credentials;
   }
@@ -23,10 +42,7 @@ class QueryService extends AbstractQueryService {
   }
 
   static initClient(credentials: PostgresCredentials) {
-    const connectionString = credentials.url;
-    const connection: Knex.StaticConnectionConfig = {
-      connectionString,
-    };
+    const connection: Knex.StaticConnectionConfig = credentials;
 
     if (credentials.useSsl) {
       connection.ssl = { rejectUnauthorized: false };
