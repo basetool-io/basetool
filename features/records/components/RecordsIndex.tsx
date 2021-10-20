@@ -29,6 +29,7 @@ import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useGetViewQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import ErrorWrapper from "@/components/ErrorWrapper";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
@@ -89,6 +90,11 @@ const RecordsIndex = ({
     }
   );
 
+  const {
+    data: viewResponse,
+    isLoading: viewIsLoading,
+  } = useGetViewQuery({ viewId }, { skip: !viewId });
+
   const columns = useMemo(
     () => getFilteredColumns(columnsResponse?.data, Views.index),
     [columnsResponse?.data]
@@ -123,12 +129,18 @@ const RecordsIndex = ({
     router.query.orderDirection as OrderDirection
   );
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const { appliedFilters, resetFilters } = useFilters();
+  const { appliedFilters, resetFilters, setFilters, applyFilters } = useFilters();
   const ac = useAccessControl();
 
   useEffect(() => {
     resetFilters();
-  }, [tableName]);
+    if (viewResponse?.ok) {
+      if (viewResponse.data.filters) {
+        setFilters(viewResponse.data.filters);
+        applyFilters(viewResponse.data.filters);
+      }
+    }
+  }, [tableName, viewResponse]);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -270,11 +282,12 @@ const RecordsIndex = ({
                   <FiltersPanel ref={filtersPanel} columns={columns} />
                 )}
                 <div className="flex flex-shrink-0">
-                  <ButtonGroup size="xs" variant="outline" isAttached>
+                  <ButtonGroup size="xs" variant="outline" isAttached >
                     <Button
                       onClick={() => toggleFiltersPanelVisible()}
                       ref={filtersButton}
                       leftIcon={<FilterIcon className="h-3 text-gray-600" />}
+                      isLoading={viewIsLoading}
                     >
                       <div className="text-gray-800">Filters</div>
                       {!isEmpty(appliedFilters) && (
