@@ -200,7 +200,8 @@ const RecordsIndex = ({
                       </Button>
                     </Link>
                   )}
-                {viewId && (
+                {viewId &&
+                  ac.hasRole(OWNER_ROLE) && (
                   <Link href={`/views/${viewId}/edit`} passHref>
                     <Button
                       colorScheme="blue"

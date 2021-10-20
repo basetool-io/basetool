@@ -79,7 +79,7 @@ function New() {
     const response = await addView({ body: formData }).unwrap();
 
     if (response && response.ok) {
-      await router.push(`/views/${response.data.id}`);
+      await router.push(`/views/${response.data.id}/edit`);
     }
   };
 
