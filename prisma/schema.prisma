@@ -148,5 +148,7 @@ model View {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@index([createdBy, organizationId, dataSourceId])
+  @@index([createdBy])
+  @@index([organizationId])
+  @@index([dataSourceId])
 }
