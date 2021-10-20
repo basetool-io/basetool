@@ -55,19 +55,20 @@ const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
   );
 };
 
-const SelectorColumnCell = ({
-  row,
-}: {
-  row: Row<any>;
-}) => (
+const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
   <div className="flex items-center justify-center h-full">
     <ItemControls recordId={row?.original?.id} />
   </div>
 );
 
-const RecordsIndex = () => {
+const RecordsIndex = ({
+  displayOnlyTable = false,
+}: {
+  displayOnlyTable?: boolean;
+}) => {
   const router = useRouter();
-  const { viewId, tableName, dataSourceId, newRecordPath } = useDataSourceContext();
+  const { viewId, tableName, dataSourceId, newRecordPath } =
+    useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -106,9 +107,7 @@ const RecordsIndex = () => {
     Header: "controls_column",
     accessor: (row: any, i: number) => `controls_column_${i}`,
     // eslint-disable-next-line react/display-name
-    Cell: (row: any) => (
-      <SelectorColumnCell row={row.row} />
-    ),
+    Cell: (row: any) => <SelectorColumnCell row={row.row} />,
     width: 104,
     minWidth: 104,
     maxWidth: 104,
@@ -170,133 +169,165 @@ const RecordsIndex = () => {
   );
 
   return (
-    <Layout>
-      {isLoading && (
-        <LoadingOverlay
-          inPageWrapper
-          transparent={isEmpty(columnsResponse?.data)}
-        />
-      )}
-      {error && <ErrorWrapper error={error} />}
-      <PageWrapper
-        heading="Browse records"
-        flush={true}
-        buttons={
-          <ButtonGroup size="xs">
-            {!viewId &&
-              ac.hasRole(OWNER_ROLE) &&
-              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link
-                  href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
-                  passHref
-                >
-                  <Button
-                    colorScheme="blue"
-                    variant="ghost"
-                    leftIcon={<PencilAltIcon className="h-4" />}
-                  >
-                    Edit columns
-                  </Button>
-                </Link>
-              )}
-          </ButtonGroup>
-        }
-        footer={
-          <PageWrapper.Footer
-            left={
-              ac.deleteAny("record").granted && (
-                <Tooltip label={deleteMessage} placement="bottom" gutter={10}>
-                  <Button
-                    className="text-red-600 text-sm cursor-pointer"
-                    variant="link"
-                    colorScheme="red"
-                    leftIcon={<TrashIcon className="h-4" />}
-                    isLoading={isDeleting}
-                    isDisabled={selectedRecords.length === 0}
-                    onClick={handleDeleteMultiple}
-                  >
-                    {selectedRecords.length > 0 &&
-                      `Delete ${selectedRecords.length} ${pluralize(
-                        "record",
-                        selectedRecords.length
-                      )}`}
-                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
-                    {selectedRecords.length === 0 && (
-                      <>&nbsp;&nbsp;&nbsp;&nbsp;</>
-                    )}
-                  </Button>
-                </Tooltip>
-              )
-            }
-            center={
-              ac.createAny("record").granted &&
-              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link href={newRecordPath} passHref>
-                  <Button
-                    as="a"
-                    colorScheme="blue"
-                    size="sm"
-                    width="300px"
-                    leftIcon={<PlusIcon className="h-4" />}
-                  >
-                    Create record
-                  </Button>
-                </Link>
-              )
-            }
-          />
-        }
-      >
-        <div className="relative flex flex-col flex-1 w-full h-full">
-          <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
-            {filtersPanelVisible && (
-              <FiltersPanel ref={filtersPanel} columns={columns} />
-            )}
-            <div className="flex flex-shrink-0">
-              <ButtonGroup size="xs" variant="outline" isAttached>
-                <Button
-                  onClick={() => toggleFiltersPanelVisible()}
-                  ref={filtersButton}
-                  leftIcon={<FilterIcon className="h-3 text-gray-600" />}
-                >
-                  <div className="text-gray-800">Filters</div>
-                  {!isEmpty(appliedFilters) && (
-                    <>
-                      <div className="text-gray-600 font-thin mr-1 ml-1">|</div>
-                      <div className="text-blue-600 font-thin">
-                        {appliedFilters.length}
-                      </div>
-                    </>
+    <>
+      {!displayOnlyTable && (
+        <Layout>
+          {isLoading && (
+            <LoadingOverlay
+              inPageWrapper
+              transparent={isEmpty(columnsResponse?.data)}
+            />
+          )}
+          {error && <ErrorWrapper error={error} />}
+          <PageWrapper
+            heading="Browse records"
+            flush={true}
+            buttons={
+              <ButtonGroup size="xs">
+                {!viewId &&
+                  ac.hasRole(OWNER_ROLE) &&
+                  !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
+                    <Link
+                      href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
+                      passHref
+                    >
+                      <Button
+                        colorScheme="blue"
+                        variant="ghost"
+                        leftIcon={<PencilAltIcon className="h-4" />}
+                      >
+                        Edit columns
+                      </Button>
+                    </Link>
                   )}
-                </Button>
-                {!isEmpty(appliedFilters) && (
-                  <Tooltip label="Reset filters">
-                    <IconButton
-                      aria-label="Remove filters"
-                      icon={<XIcon className="h-3" />}
-                      onClick={resetFilters}
-                    />
-                  </Tooltip>
+                {viewId && (
+                  <Link href={`/views/${viewId}/edit`} passHref>
+                    <Button
+                      colorScheme="blue"
+                      variant="ghost"
+                      leftIcon={<PencilAltIcon className="h-4" />}
+                    >
+                      Edit view
+                    </Button>
+                  </Link>
                 )}
               </ButtonGroup>
-            </div>
-          </div>
-          <div className="relative flex-1 flex h-full max-w-full w-full">
-            {dataSourceId && (
-              <RecordsTable
-                columns={parsedColumns}
-                orderBy={orderBy}
-                setOrderBy={setOrderBy}
-                orderDirection={orderDirection}
-                setOrderDirection={setOrderDirection}
-                tableName={tableName}
-                dataSourceId={dataSourceId}
+            }
+            footer={
+              <PageWrapper.Footer
+                left={
+                  ac.deleteAny("record").granted && (
+                    <Tooltip
+                      label={deleteMessage}
+                      placement="bottom"
+                      gutter={10}
+                    >
+                      <Button
+                        className="text-red-600 text-sm cursor-pointer"
+                        variant="link"
+                        colorScheme="red"
+                        leftIcon={<TrashIcon className="h-4" />}
+                        isLoading={isDeleting}
+                        isDisabled={selectedRecords.length === 0}
+                        onClick={handleDeleteMultiple}
+                      >
+                        {selectedRecords.length > 0 &&
+                          `Delete ${selectedRecords.length} ${pluralize(
+                            "record",
+                            selectedRecords.length
+                          )}`}
+                        {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
+                        {selectedRecords.length === 0 && (
+                          <>&nbsp;&nbsp;&nbsp;&nbsp;</>
+                        )}
+                      </Button>
+                    </Tooltip>
+                  )
+                }
+                center={
+                  ac.createAny("record").granted &&
+                  !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
+                    <Link href={newRecordPath} passHref>
+                      <Button
+                        as="a"
+                        colorScheme="blue"
+                        size="sm"
+                        width="300px"
+                        leftIcon={<PlusIcon className="h-4" />}
+                      >
+                        Create record
+                      </Button>
+                    </Link>
+                  )
+                }
               />
-            )}
-          </div>
-        </div>
-      </PageWrapper>
-    </Layout>
+            }
+          >
+            <div className="relative flex flex-col flex-1 w-full h-full">
+              <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
+                {filtersPanelVisible && (
+                  <FiltersPanel ref={filtersPanel} columns={columns} />
+                )}
+                <div className="flex flex-shrink-0">
+                  <ButtonGroup size="xs" variant="outline" isAttached>
+                    <Button
+                      onClick={() => toggleFiltersPanelVisible()}
+                      ref={filtersButton}
+                      leftIcon={<FilterIcon className="h-3 text-gray-600" />}
+                    >
+                      <div className="text-gray-800">Filters</div>
+                      {!isEmpty(appliedFilters) && (
+                        <>
+                          <div className="text-gray-600 font-thin mr-1 ml-1">
+                            |
+                          </div>
+                          <div className="text-blue-600 font-thin">
+                            {appliedFilters.length}
+                          </div>
+                        </>
+                      )}
+                    </Button>
+                    {!isEmpty(appliedFilters) && (
+                      <Tooltip label="Reset filters">
+                        <IconButton
+                          aria-label="Remove filters"
+                          icon={<XIcon className="h-3" />}
+                          onClick={resetFilters}
+                        />
+                      </Tooltip>
+                    )}
+                  </ButtonGroup>
+                </div>
+              </div>
+              <div className="relative flex-1 flex h-full max-w-full w-full">
+                {dataSourceId && (
+                  <RecordsTable
+                    columns={parsedColumns}
+                    orderBy={orderBy}
+                    setOrderBy={setOrderBy}
+                    orderDirection={orderDirection}
+                    setOrderDirection={setOrderDirection}
+                    tableName={tableName}
+                    dataSourceId={dataSourceId}
+                  />
+                )}
+              </div>
+            </div>
+          </PageWrapper>
+        </Layout>
+      )}
+      {displayOnlyTable && (
+        <RecordsTable
+          columns={parsedColumns}
+          orderBy={orderBy}
+          setOrderBy={setOrderBy}
+          orderDirection={orderDirection}
+          setOrderDirection={setOrderDirection}
+          tableName={tableName}
+          dataSourceId={dataSourceId}
+        />
+      )}
+    </>
   );
 };
 
