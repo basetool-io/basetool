@@ -7,7 +7,7 @@ export const getDataSourceFromRequest = async (
   req: NextApiRequest,
   options: Record<string, unknown> = {}
 ): Promise<DataSource | null> => {
-  let dataSourceIdFromView: string | null = null;
+  let dataSourceIdFromView: string | undefined = undefined;
   if (req.query.viewId) {
     const view = await prisma.view.findFirst({
       where: {
