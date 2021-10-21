@@ -1,25 +1,25 @@
 import { DataSource } from "@prisma/client";
 import {
-  IQueryService,
   IQueryServiceWrapper,
   QueryServiceWrapperPayload,
 } from "./types";
+import { ISQLQueryService } from "./abstract-sql-query-service/types"
 import { LOCALHOST } from "@/lib/constants";
 import { Server } from "net";
 import getPort from "get-port";
 import tunnel from "tunnel-ssh";
 
 export default class QueryServiceWrapper implements IQueryServiceWrapper {
-  public queryService: IQueryService;
+  public queryService: ISQLQueryService;
   public dataSource: DataSource;
   public tunnel: Server | undefined;
 
   constructor(queryService: any, payload: QueryServiceWrapperPayload) {
     this.dataSource = payload.dataSource;
-    this.queryService = new queryService(payload) as IQueryService;
+    this.queryService = new queryService(payload) as ISQLQueryService;
   }
 
-  public async runQuery(name: keyof IQueryService, payload?: unknown) {
+  public async runQuery(name: keyof ISQLQueryService, payload?: unknown) {
     await this.queryService.connect();
 
     let response;
@@ -89,7 +89,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   }
 
   public async runQueries(
-    queries: { name: keyof IQueryService; payload?: unknown }[]
+    queries: { name: keyof ISQLQueryService; payload?: unknown }[]
   ) {
     await this.queryService.connect();
 

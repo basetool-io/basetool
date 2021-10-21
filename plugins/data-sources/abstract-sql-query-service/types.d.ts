@@ -1,3 +1,4 @@
+import { IQueryService } from "../types";
 import type { Column } from "@/components/fields/types";
 import type { Knex } from "knex";
 
@@ -93,3 +94,15 @@ export type ClientOverrides = {
   host: string;
   port: number;
 };
+
+export interface ISQLQueryService extends IQueryService {
+  dataSourceType: SQLDataSourceTypes;
+
+  public getClient(): Knex;
+  public setClient(client: Knex): this;
+  public updateClient(overrides: ClientOverrides): this;
+  public getCredentials(): DataSourceCredentials;
+  public getSSHCredentials(): DataSourceCredentials;
+  public getParsedCredentials(): DataSourceCredentials;
+  public getParsedSSHCredentials(): DataSourceCredentials;
+}

@@ -22,21 +22,13 @@ export type QueryResponse = {
 };
 
 export interface IQueryServiceWrapper {
-  runQuery(name: keyof IQueryService, payload?: unknown);
-  runQueries(queries: { name: keyof IQueryService; payload?: unknown }[]);
+  runQuery(name: keyof ISQLQueryService, payload?: unknown);
+  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]);
 }
+
 export interface IQueryService {
   dataSource: DataSource | undefined;
-  dataSourceType: SQLDataSourceTypes;
   queryResult: unknown;
-
-  public getClient(): Knex;
-  public setClient(client: Knex): this;
-  public updateClient(overrides: ClientOverrides): this;
-  public getCredentials(): DataSourceCredentials;
-  public getSSHCredentials(): DataSourceCredentials;
-  public getParsedCredentials(): DataSourceCredentials;
-  public getParsedSSHCredentials(): DataSourceCredentials;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;

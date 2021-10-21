@@ -9,6 +9,7 @@ import {
   ColumnWithStoredOptions,
   DataSourceCredentials,
   ForeignKeyInfo,
+  ISQLQueryService,
   SQLDataSourceTypes,
   SqlColumnOptions,
 } from "./types";
@@ -365,7 +366,7 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   }
 };
 
-abstract class AbstractQueryService {
+abstract class AbstractQueryService implements ISQLQueryService {
   public client!: Knex;
 
   public inspector!: SchemaInspector;
