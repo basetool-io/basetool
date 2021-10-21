@@ -61,10 +61,7 @@ const MobileRow = ({
           isChecked={selectedRecords.includes(row?.original?.id)}
           onChange={(e) => toggleRecordSelection(row?.original?.id)}
         />
-        <ItemControls
-          recordId={row?.original?.id}
-          dataSourceId={dataSourceId}
-        />
+        <ItemControls recordId={row?.original?.id} />
       </div>
 
       {row.cells

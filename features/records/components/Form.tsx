@@ -13,6 +13,7 @@ import {
   useCreateRecordMutation,
   useUpdateRecordMutation,
 } from "@/features/records/api-slice";
+import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import BackButton from "./BackButton";
@@ -62,6 +63,8 @@ const Form = ({
   formForCreate?: boolean;
 }) => {
   const router = useRouter();
+  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath } =
+    useDataSourceContext();
   const [schema, setSchema] = useState<ObjectSchema>(Joi.object());
 
   const setTheSchema = async () => {
@@ -83,21 +86,10 @@ const Form = ({
 
   const diff = difference(record, formData);
 
-  const backLink = useMemo(() => {
-    if (router.query.fromTable) {
-      if (router.query.fromRecord) {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}/${router.query.fromRecord}`;
-      } else {
-        return `/data-sources/${router.query.dataSourceId}/tables/${router.query.fromTable}`;
-      }
-    }
-
-    if (formForCreate) {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`;
-    } else {
-      return `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${router.query.recordId}`;
-    }
-  }, [router.query]);
+  const backLink = useMemo(
+    () => (formForCreate ? tableIndexPath : `${recordsPath}/${recordId}`),
+    [formForCreate, tableIndexPath, recordsPath, recordId]
+  );
 
   const [createRecord, { isLoading: isCreating }] = useCreateRecordMutation();
   const [updateRecord, { isLoading: isUpdating }] = useUpdateRecordMutation();
@@ -113,8 +105,8 @@ const Form = ({
     try {
       if (formForCreate) {
         response = await createRecord({
-          dataSourceId: router.query.dataSourceId as string,
-          tableName: router.query.tableName as string,
+          dataSourceId: dataSourceId,
+          tableName: tableName,
           body: {
             record: Object.fromEntries(
               Object.entries(formData).filter(([name]) =>
@@ -128,16 +120,10 @@ const Form = ({
           const { data } = response;
           const { id } = data;
           if (response.ok) {
-            await router.push(
-              `/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}/${id}`
-            );
+            await router.push(`${recordsPath}/${id}`);
           }
         }
-      } else if (
-        router.query.dataSourceId &&
-        router.query.tableName &&
-        record.id
-      ) {
+      } else if (dataSourceId && tableName && record.id) {
         const changes = Object.fromEntries(
           Object.entries(diff)
             .filter(([name]) => touchedFields.includes(name))
@@ -158,8 +144,8 @@ const Form = ({
         );
 
         const response = await updateRecord({
-          dataSourceId: router.query.dataSourceId as string,
-          tableName: router.query.tableName as string,
+          dataSourceId: dataSourceId,
+          tableName: tableName,
           recordId: record.id.toString(),
           body: {
             changes,
@@ -185,10 +171,7 @@ const Form = ({
     <>
       <PageWrapper
         icon={<PencilAltIcon className="inline h-5 text-gray-500" />}
-        crumbs={[
-          router.query.tableName as string,
-          formForCreate ? "Create record" : "Edit record",
-        ]}
+        crumbs={[tableName, formForCreate ? "Create record" : "Edit record"]}
         flush={true}
         buttons={<BackButton href={backLink} />}
         footer={
@@ -218,7 +201,7 @@ const Form = ({
                   const field = makeField({
                     record: formData as Record,
                     column,
-                    tableName: router.query.tableName as string,
+                    tableName: tableName,
                   });
                   let schemaForColumn;
                   try {

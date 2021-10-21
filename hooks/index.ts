@@ -21,15 +21,18 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { encodeObject } from "@/lib/encoding";
-import { segment } from "@/lib/track"
+import { isUndefined } from "lodash";
+import { segment } from "@/lib/track";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
 import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
+import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import AccessControlService, {
   Role,
@@ -242,6 +245,65 @@ export const useProfile = () => {
   return { user, role, organizations, isLoading, session };
 };
 
+export const useDataSourceContext = () => {
+  const router = useRouter();
+
+  const viewId = useMemo(
+    () => router.query.viewId as string,
+    [router.query.viewId]
+  );
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+
+  const { dataSourceId, tableName } = useMemo(() => {
+    let dataSourceId = router.query.dataSourceId as string;
+    let tableName = router.query.tableName as string;
+
+    if (isUndefined(dataSourceId) || isUndefined(tableName)) {
+      if (!isUndefined(viewId)) {
+        if (viewResponse?.ok) {
+          dataSourceId = viewResponse.data.dataSourceId.toString();
+          tableName = viewResponse.data.tableName;
+        }
+      }
+    }
+
+    return {
+      dataSourceId,
+      tableName,
+    };
+  }, [router.query, viewResponse]);
+
+  const recordId = useMemo(
+    () => router.query.recordId as string,
+    [router.query.recordId]
+  );
+
+  const tableIndexPath = useMemo(
+    () =>
+      isUndefined(viewId)
+        ? `/data-sources/${dataSourceId}/tables/${tableName}`
+        : `/views/${viewId}`,
+    [dataSourceId, tableName, viewId]
+  );
+
+  const recordsPath = useMemo(
+    () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
+    [tableIndexPath, viewId]
+  );
+
+  const newRecordPath = useMemo(() => `${recordsPath}/new`, [recordsPath]);
+
+  return {
+    dataSourceId,
+    tableName,
+    viewId,
+    recordId,
+    tableIndexPath,
+    recordsPath,
+    newRecordPath,
+  };
+};
+
 /*
   This hook can be used in two ways.
 
@@ -250,7 +312,10 @@ export const useProfile = () => {
   2. At a later date; It returns the `track` method that you can use at a later date to track something.
     -> const track = useSegment()
 */
-export const useSegment = (event?: string, properties?: Record<string, unknown>) => {
+export const useSegment = (
+  event?: string,
+  properties?: Record<string, unknown>
+) => {
   const { session, isLoading } = useProfile();
   const track = (event: string, properties?: Record<string, unknown>) =>
     segment().track(event, properties);

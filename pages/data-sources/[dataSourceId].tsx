@@ -1,7 +1,7 @@
 import { isNull } from "lodash";
+import { useDataSourceContext } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice"
-import { useRouter } from "next/router";
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -10,8 +10,7 @@ import React, { useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 
 function DataSourcesShow() {
-  const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
+  const { dataSourceId } = useDataSourceContext();
   const { data, error, isLoading } = useGetTablesQuery(
     { dataSourceId },
     { skip: !dataSourceId }
@@ -23,12 +22,17 @@ function DataSourcesShow() {
     }
   );
 
-  const showSetup = useMemo(() => isNull(dataSourceResponse?.data?.options?.spreadsheetId), [dataSourceResponse?.data?.options?.spreadsheetId])
+  const showSetup = useMemo(
+    () => isNull(dataSourceResponse?.data?.options?.spreadsheetId),
+    [dataSourceResponse?.data?.options?.spreadsheetId]
+  );
 
   return (
     <Layout>
       {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-      {error && <div>Error: {'data' in error && (error?.data as any)?.messages[0]}</div>}
+      {error && (
+        <div>Error: {"data" in error && (error?.data as any)?.messages[0]}</div>
+      )}
       {!isLoading && data?.ok && (
         <>
           {showSetup && <GoogleSheetsSetup />}

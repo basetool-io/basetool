@@ -5,19 +5,18 @@ import { SelectorIcon } from "@heroicons/react/outline";
 import { getLabel } from "@/features/data-sources";
 import { isEmpty } from "lodash";
 import { useBoolean } from "react-use";
+import { useDataSourceContext } from "@/hooks";
 import { useDrop } from "react-dnd";
 import { useGetDataSourceQuery } from "../api-slice";
 import { useGetTablesQuery, useUpdateTablesMutation } from "@/features/tables/api-slice";
-import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useEffect, useState } from "react";
 import update from "immutability-helper";
 
 const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
-  const router = useRouter();
-  dataSourceId ||= router.query.dataSourceId as string;
-
+  const { dataSourceId: appRouterDataSourceId, tableName } = useDataSourceContext();
+  dataSourceId ||= appRouterDataSourceId;
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -90,7 +89,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
       });
 
       await updateTables({
-        dataSourceId: router.query.dataSourceId as string,
+        dataSourceId: dataSourceId,
         body: { tables: dataSourceTables },
       }).unwrap();
     }
@@ -130,7 +129,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
             return (
               <ColumnListItem
                 key={table.name}
-                active={table.name === router.query.tableName}
+                active={table.name === tableName}
                 href={`/data-sources/${dataSourceId}/edit/tables/${table.name}`}
                 itemType={ItemTypes.TABLE}
                 reordering={reordering}
