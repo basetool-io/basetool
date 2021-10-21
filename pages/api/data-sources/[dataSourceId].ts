@@ -5,7 +5,7 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "../../../features/api/middlewares/OwnsDataSource";
-import getDataSourceInfo from "@/plugins/data-sources/getDataSourceInfo"
+import getDataSourceInfo from "@/plugins/data-sources/getDataSourceInfo";
 import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -56,7 +56,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   const data = req.body;
-  const schema = await getSchema(req.body.type);
+  const schema = getSchema(req.body.type);
 
   if (schema) {
     const validator = schema.validate(data, { abortEarly: false });

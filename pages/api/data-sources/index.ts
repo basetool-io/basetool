@@ -99,7 +99,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     }[];
   };
 
-  const schema = await getSchema(req.body.type);
+  const schema = getSchema(req.body.type);
   if (schema) {
     const validator = schema.validate(req.body, { abortEarly: false });
 

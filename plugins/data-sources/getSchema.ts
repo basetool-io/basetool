@@ -1,11 +1,15 @@
-import { AnySchema } from 'joi'
+import { AnySchema } from "joi";
+import { schema as mysqlSchema } from "./mysql/schema";
+import { schema as postgresqlSchema } from "./postgresql/schema";
 
-const getSchema = async (id: string): Promise<AnySchema | undefined> => {
-  try {
-    return (
-      await import(`@/plugins/data-sources/${id}/schema.ts`)
-    ).default;
-  } catch (error) {
+const getSchema = (id: string): AnySchema => {
+  switch (id) {
+    case "mysql":
+    case "maria_db":
+      return mysqlSchema;
+    case "postgresql":
+    default:
+      return postgresqlSchema;
   }
 };
 

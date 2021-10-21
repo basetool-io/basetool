@@ -10,10 +10,9 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
-import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types"
+import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { merge } from "lodash";
-import { schema } from "@/plugins/data-sources/mysql/schema";
 import { toast } from "react-toastify";
 import {
   useAddDataSourceMutation,
@@ -27,6 +26,7 @@ import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo } from "react";
+import getSchema from "@/plugins/data-sources/getSchema";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
 
@@ -45,7 +45,7 @@ export type IFormFields = {
   };
 };
 
-function NewDataSourceForm({
+const NewDataSourceForm = ({
   type,
   placeholders = {},
   defaultValues = {},
@@ -88,7 +88,7 @@ function NewDataSourceForm({
       password?: string;
     };
   };
-}) {
+}) => {
   defaultValues = merge(
     {
       name: "",
@@ -110,7 +110,6 @@ function NewDataSourceForm({
   const { organizations } = useProfile();
 
   const onSubmit = async (formData: IFormFields) => {
-
     let response;
     try {
       response = await addDataSource({ body: formData }).unwrap();
@@ -120,6 +119,8 @@ function NewDataSourceForm({
       await router.push(`/data-sources/${response.data.id}`);
     }
   };
+
+  const schema = getSchema(type);
 
   const { register, handleSubmit, formState, setValue, getValues } = useForm({
     defaultValues,
@@ -447,6 +448,6 @@ function NewDataSourceForm({
       </PageWrapper>
     </Layout>
   );
-}
+};
 
 export default memo(NewDataSourceForm);
