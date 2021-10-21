@@ -28,7 +28,6 @@ export interface IQueryServiceWrapper {
 
 export interface IQueryService {
   dataSource: DataSource | undefined;
-  queryResult: unknown;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
