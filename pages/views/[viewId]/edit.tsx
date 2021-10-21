@@ -1,16 +1,25 @@
 import {
   Button,
   Checkbox,
+  Collapse,
   FormControl,
   FormLabel,
   Input,
+  Tooltip,
+  useDisclosure,
 } from "@chakra-ui/react";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  PencilAltIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { Save } from "react-feather";
-import { TrashIcon } from "@heroicons/react/outline";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
-import { getFilteredColumns } from "@/features/fields";
-import { pick } from "lodash";
+import { getFilteredColumns, iconForField } from "@/features/fields";
+import { isEmpty, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
@@ -26,6 +35,99 @@ import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import RecordsIndex from "@/features/records/components/RecordsIndex";
+
+const CompactFiltersView = ({
+  filters,
+}: {
+  filters: Array<IFilter | IFilterGroup>;
+}) => {
+  const FilterShow = ({ filter }: { filter: IFilter }) => {
+    const IconElement = iconForField(filter.column);
+
+    return (
+      <div className="flex w-full">
+        <div className="w-1/3 text-xs">
+          <IconElement className="h-3 inline-block flex-shrink-0 mr-1" />
+          <span>{filter.column.label}</span>
+        </div>
+        <div className="w-1/3 text-xs">
+          {filter.condition.replaceAll("_", " ")}
+        </div>
+        <div className="w-1/3 text-xs">
+          {filter.value
+            ? filter.value
+            : filter.option
+            ? filter.option.replaceAll("_", " ")
+            : ""}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-1">
+      {isEmpty(filters) && (
+        <div className="text-sm text-gray-600">
+          No base filters applied to this view
+        </div>
+      )}
+
+      {isEmpty(filters) ||
+        filters.map((filter, idx) => {
+          if ("isGroup" in filter && filter.isGroup) {
+            return (
+              <>
+                {filter.filters.map((f, i) => {
+                  return (
+                    <>
+                      <div className="flex w-full text-xs text-gray-700">
+                        <div className="w-1/4 flex">
+                          <div className="w-1/2">
+                            {i === 0 && (
+                              <div className="mr-1">
+                                {idx + 1} {idx === 0 ? "where" : filter.verb}
+                              </div>
+                            )}
+                          </div>
+                          <div className="w-1/2">
+                            {i === 0 ? "where" : f.verb}
+                            {i < filter.filters.length - 1 && (
+                            <hr className="mt-1" />
+                          )}
+                          </div>
+                        </div>
+                        <div className="w-3/4">
+                          <FilterShow filter={f} />
+                          {i < filter.filters.length - 1 && (
+                            <hr className="mt-1" />
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })}
+                {idx < filters.length - 1 && <hr />}
+              </>
+            );
+          } else {
+            return (
+              <>
+                <div className="flex w-full text-xs text-gray-700">
+                  <div className="w-1/4">
+                    {idx + 1} {idx === 0 ? "where" : filter.verb}
+                  </div>
+                  <div className="w-3/4">
+                    <FilterShow filter={filter as IFilter} />
+                  </div>
+                </div>
+                {idx < filters.length - 1 && <hr />}
+              </>
+            );
+          }
+        })}
+    </div>
+  );
+};
 
 const Edit = () => {
   const router = useRouter();
@@ -43,10 +145,11 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, applyFilters, appliedFilters } =
+  const { setFilters, applyFilters, appliedFilters, resetFilters } =
     useFilters();
 
   useEffect(() => {
+    resetFilters();
     if (viewResponse?.ok) {
       setLocalView(viewResponse.data);
       if (viewResponse.data.filters) {
@@ -87,8 +190,6 @@ const Edit = () => {
 
   const {
     data: columnsResponse,
-    error,
-    isLoading,
   } = useGetColumnsQuery(
     {
       dataSourceId,
@@ -113,6 +214,10 @@ const Edit = () => {
     if (e.target !== filtersButton.current) {
       toggleFiltersPanelVisible(false);
     }
+  });
+
+  const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
+    defaultIsOpen: true,
   });
 
   return (
@@ -151,9 +256,9 @@ const Edit = () => {
         flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
-          <div className="flex flex-shrink-0 w-1/4 border-r px-2 py-2">
+          <div className="flex flex-shrink-0 w-1/4 border-r p-4">
             {localView && (
-              <form onSubmit={handleSubmit} className="space-y-2">
+              <form onSubmit={handleSubmit} className="space-y-2 w-full">
                 <FormControl id="name" size="sm" isRequired>
                   <FormLabel>Name</FormLabel>
                   <Input
@@ -201,22 +306,38 @@ const Edit = () => {
                     }
                   />
                 </FormControl>
-                <div>
-                  <Button
-                    size="xs"
-                    onClick={() => toggleFiltersPanelVisible()}
-                    ref={filtersButton}
+
+                <div className="relative flex justify-between w-full">
+                  <div
+                    className="w-full cursor-pointer"
+                    onClick={toggleFiltersOpen}
                   >
-                    Base filters
-                  </Button>
+                    Base filters{" "}
+                    {isFiltersOpen ? (
+                      <ChevronDownIcon className="h-3 inline" />
+                    ) : (
+                      <ChevronLeftIcon className="h-3 inline" />
+                    )}
+                  </div>
+                  <Tooltip label="Edit filters">
+                    <div
+                      className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+                      onClick={() => toggleFiltersPanelVisible()}
+                      ref={filtersButton}
+                    >
+                      <PencilAltIcon className="h-4 inline" />
+                      Edit
+                    </div>
+                  </Tooltip>
                   {filtersPanelVisible && (
-                    <FiltersPanel
-                      ref={filtersPanel}
-                      columns={columns}
-                      fromViewEdit={true}
-                    />
+                    <div className="absolute left-auto right-0 -top-8">
+                      <FiltersPanel ref={filtersPanel} columns={columns} />
+                    </div>
                   )}
                 </div>
+                <Collapse in={isFiltersOpen}>
+                  <CompactFiltersView filters={appliedFilters} />
+                </Collapse>
               </form>
             )}
           </div>

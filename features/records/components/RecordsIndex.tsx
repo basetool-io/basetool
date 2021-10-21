@@ -141,7 +141,7 @@ const RecordsIndex = ({
         const baseFilters = viewResponse.data.filters.map(
           (filter: IFilter | IFilterGroup) => ({
             ...filter,
-            isBaseFilter: true,
+            isBase: true,
           })
         );
         setFilters(baseFilters);
@@ -190,12 +190,12 @@ const RecordsIndex = ({
 
   const [appliedNonBaseFilters, setAppliedNonBaseFilters] = useState<Array<IFilter| IFilterGroup>>(appliedFilters);
   useEffect(() => {
-    setAppliedNonBaseFilters(appliedFilters.filter(filter => !filter.isBaseFilter));
+    setAppliedNonBaseFilters(appliedFilters.filter(filter => !filter.isBase));
   }, [appliedFilters])
 
   const resetNonBaseFilters = () => {
     appliedFilters.forEach((filter: IFilter| IFilterGroup, idx: number) => {
-      if(!filter.isBaseFilter) {
+      if(!filter.isBase) {
         removeFilter(idx);
       }
     });

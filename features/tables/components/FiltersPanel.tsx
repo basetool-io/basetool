@@ -19,10 +19,8 @@ import isEmpty from "lodash/isEmpty";
 const FiltersPanel = (
   {
     columns,
-    fromViewEdit = false,
   }: {
     columns: Column[];
-    fromViewEdit?: boolean;
   },
   ref: any
 ) => {
@@ -61,9 +59,7 @@ const FiltersPanel = (
   return (
     <div
       ref={ref}
-      className={`absolute border rounded-md shadow-lg bg-white z-20 min-w-[31.2rem] min-h-[6rem] p-4 ${
-        fromViewEdit ? "mt-2" : "mt-8"
-      }`}
+      className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[31.2rem] min-h-[6rem] p-4 mt-8"
     >
       <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-3">
         <div className="space-y-4">
@@ -81,7 +77,7 @@ const FiltersPanel = (
                 return (
                   <div
                     className={
-                      filter?.isBaseFilter
+                      filter?.isBase
                         ? "opacity-60 pointer-events-none"
                         : ""
                     }
@@ -99,7 +95,7 @@ const FiltersPanel = (
                 return (
                   <div
                     className={
-                      filter?.isBaseFilter
+                      filter?.isBase
                         ? "opacity-60 pointer-events-none"
                         : ""
                     }
