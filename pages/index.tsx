@@ -11,11 +11,9 @@ import React, { useMemo, useState } from "react";
 function Index() {
   const { user, isLoading: profileIsLoading } = useProfile();
 
-  const {
-    data: dataSourcesResponse,
-    isLoading,
-    error,
-  } = useGetDataSourcesQuery();
+  const { data: dataSourcesResponse } = useGetDataSourcesQuery(undefined, {
+    skip: !user.email,
+  });
   const [genericProjects, setGenericProjects] = useState<
     {
       name: string;
