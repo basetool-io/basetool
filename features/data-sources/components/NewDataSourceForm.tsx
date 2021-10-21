@@ -7,8 +7,10 @@ import {
   FormLabel,
   Input,
   Select,
+  Switch,
 } from "@chakra-ui/react";
 import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types"
 import { joiResolver } from "@hookform/resolvers/joi";
 import { merge } from "lodash";
 import { schema } from "@/plugins/data-sources/mysql/schema";
@@ -17,22 +19,21 @@ import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
 } from "@/features/data-sources/api-slice";
+import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
-
-export type SQLDataSourceId = "mysql" | "postgresql" | "maria_db" | "mssql";
 
 export type IFormFields = {
   id?: number;
   name: string;
-  type: SQLDataSourceId;
+  type: SQLDataSourceTypes;
   organizationId: number;
   credentials: {
     host: string;
@@ -49,8 +50,25 @@ function NewDataSourceForm({
   placeholders = {},
   defaultValues = {},
 }: {
-  type: SQLDataSourceId;
-  placeholders?: Record<string, string>;
+  type: SQLDataSourceTypes;
+  placeholders?: {
+    name?: string;
+    type?: string;
+    organizationId?: string;
+    credentials?: {
+      host?: string;
+      port?: string;
+      database?: string;
+      user?: string;
+      password?: string;
+    };
+    ssh?: {
+      host?: string;
+      port?: string;
+      user?: string;
+      password?: string;
+    };
+  };
   defaultValues?: {
     name?: string;
     type?: string;
@@ -62,6 +80,12 @@ function NewDataSourceForm({
       user?: string;
       password?: string;
       useSsl?: boolean;
+    };
+    ssh?: {
+      host?: string;
+      port?: number | "";
+      user?: string;
+      password?: string;
     };
   };
 }) {
@@ -81,22 +105,16 @@ function NewDataSourceForm({
     },
     defaultValues
   );
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [addDataSource] = useAddDataSourceMutation();
+  const [addDataSource, { isLoading }] = useAddDataSourceMutation();
   const { organizations } = useProfile();
 
   const onSubmit = async (formData: IFormFields) => {
-    setIsLoading(true);
 
     let response;
     try {
       response = await addDataSource({ body: formData }).unwrap();
-    } catch (error) {
-      setIsLoading(false);
-    }
-
-    setIsLoading(false);
+    } catch (error) {}
 
     if (response && response.ok) {
       await router.push(`/data-sources/${response.data.id}`);
@@ -155,6 +173,8 @@ function NewDataSourceForm({
     }
   };
 
+  const [connectWithSsh, toggleConnectWithSsh] = useBoolean(false);
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -204,7 +224,7 @@ function NewDataSourceForm({
             >
               <FormLabel>Name</FormLabel>
               <Input
-                type="string"
+                type="text"
                 placeholder={placeholders.name}
                 {...register("name")}
                 autoFocus
@@ -213,35 +233,40 @@ function NewDataSourceForm({
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              id="host"
-              isInvalid={!isUndefined(errors?.credentials?.host?.message)}
-            >
-              <FormLabel>Host</FormLabel>
-              <Input
-                type="string"
-                placeholder={placeholders.host}
-                {...register("credentials.host")}
-              />
-              <FormErrorMessage>
-                {errors?.credentials?.host?.message}
-              </FormErrorMessage>
-            </FormControl>
-
-            <FormControl
-              id="port"
-              isInvalid={!isUndefined(errors?.credentials?.port?.message)}
-            >
-              <FormLabel>Port</FormLabel>
-              <Input
-                type="number"
-                placeholder={placeholders.port}
-                {...register("credentials.port")}
-              />
-              <FormErrorMessage>
-                {errors?.credentials?.port?.message}
-              </FormErrorMessage>
-            </FormControl>
+            <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="sm:w-3/4">
+                <FormControl
+                  id="host"
+                  isInvalid={!isUndefined(errors?.credentials?.host?.message)}
+                >
+                  <FormLabel>Host</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder={placeholders?.credentials?.host}
+                    {...register("credentials.host")}
+                  />
+                  <FormErrorMessage>
+                    {errors?.credentials?.host?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </div>
+              <div className="flex-1">
+                <FormControl
+                  id="port"
+                  isInvalid={!isUndefined(errors?.credentials?.port?.message)}
+                >
+                  <FormLabel>Port</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder={placeholders?.credentials?.port}
+                    {...register("credentials.port")}
+                  />
+                  <FormErrorMessage>
+                    {errors?.credentials?.port?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </div>
+            </div>
 
             <FormControl
               id="database"
@@ -249,8 +274,8 @@ function NewDataSourceForm({
             >
               <FormLabel>Database name</FormLabel>
               <Input
-                type="string"
-                placeholder={placeholders.database}
+                type="text"
+                placeholder={placeholders?.credentials?.database}
                 {...register("credentials.database")}
               />
               <FormErrorMessage>
@@ -258,39 +283,47 @@ function NewDataSourceForm({
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              id="user"
-              isInvalid={!isUndefined(errors?.credentials?.user?.message)}
-            >
-              <FormLabel>Username</FormLabel>
-              <Input
-                type="string"
-                placeholder={placeholders.user}
-                {...register("credentials.user")}
-              />
-              <FormErrorMessage>
-                {errors?.credentials?.user?.message}
-              </FormErrorMessage>
-            </FormControl>
+            <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="sm:w-1/2">
+                <FormControl
+                  id="user"
+                  isInvalid={!isUndefined(errors?.credentials?.user?.message)}
+                >
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder={placeholders?.credentials?.user}
+                    {...register("credentials.user")}
+                  />
+                  <FormErrorMessage>
+                    {errors?.credentials?.user?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </div>
 
-            <FormControl
-              id="password"
-              isInvalid={!isUndefined(errors?.credentials?.password?.message)}
-            >
-              <FormLabel>Password</FormLabel>
-              <Input
-                type="string"
-                placeholder={placeholders.password}
-                {...register("credentials.password")}
-              />
-              <FormErrorMessage>
-                {errors?.credentials?.password?.message}
-              </FormErrorMessage>
-            </FormControl>
+              <div className="sm:w-1/2">
+                <FormControl
+                  id="password"
+                  isInvalid={
+                    !isUndefined(errors?.credentials?.password?.message)
+                  }
+                >
+                  <FormLabel>Password</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder={placeholders?.credentials?.password}
+                    {...register("credentials.password")}
+                  />
+                  <FormErrorMessage>
+                    {errors?.credentials?.password?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </div>
+            </div>
 
-            <div>
-              The credentials are safely encrypted. We'll never show these
-              credentials again.
+            <div className="text-gray-600 text-sm">
+              The credentials are safely encrypted. We'll never display these
+              credentials ever again.
             </div>
 
             <FormControl id="credentials_useSsl">
@@ -303,6 +336,94 @@ function NewDataSourceForm({
                 {errors?.credentials?.useSsl?.message}
               </FormErrorMessage>
             </FormControl>
+
+            <FormControl display="flex" alignItems="center">
+              <FormLabel htmlFor="email-alerts" mb="0">
+                Connect with SSH
+              </FormLabel>
+              <Switch
+                id="email-alerts"
+                isChecked={connectWithSsh}
+                onChange={() => toggleConnectWithSsh()}
+              />
+            </FormControl>
+
+            {connectWithSsh && (
+              <>
+                <div className="font-xl font-bold">SSH connection details</div>
+
+                <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                  <div className="sm:w-3/4">
+                    <FormControl
+                      id="host"
+                      isInvalid={!isUndefined(errors?.ssh?.host?.message)}
+                    >
+                      <FormLabel>Host</FormLabel>
+                      <Input
+                        type="text"
+                        placeholder={placeholders?.ssh?.host}
+                        {...register("ssh.host")}
+                      />
+                      <FormErrorMessage>
+                        {errors?.ssh?.host?.message}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </div>
+                  <div className="flex-1">
+                    <FormControl
+                      id="port"
+                      isInvalid={!isUndefined(errors?.ssh?.port?.message)}
+                    >
+                      <FormLabel>Port</FormLabel>
+                      <Input
+                        type="number"
+                        placeholder={placeholders?.ssh?.port}
+                        {...register("ssh.port")}
+                      />
+                      <FormErrorMessage>
+                        {errors?.ssh?.port?.message}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </div>
+                </div>
+
+                <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                  <div className="sm:w-1/2">
+                    <FormControl
+                      id="user"
+                      isInvalid={!isUndefined(errors?.ssh?.user?.message)}
+                    >
+                      <FormLabel>Username</FormLabel>
+                      <Input
+                        type="text"
+                        placeholder={placeholders?.ssh?.user}
+                        {...register("ssh.user")}
+                      />
+                      <FormErrorMessage>
+                        {errors?.ssh?.user?.message}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </div>
+
+                  <div className="sm:w-1/2">
+                    <FormControl
+                      id="password"
+                      isInvalid={!isUndefined(errors?.ssh?.password?.message)}
+                    >
+                      <FormLabel>Password</FormLabel>
+                      <Input
+                        type="password"
+                        placeholder={placeholders?.ssh?.password}
+                        {...register("ssh.password")}
+                      />
+                      <FormErrorMessage>
+                        {errors?.ssh?.password?.message}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </div>
+                </div>
+              </>
+            )}
 
             <FormControl
               id="organization"

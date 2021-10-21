@@ -1,4 +1,5 @@
 import type { Column } from "@/features/fields/types";
+import type { DataSource } from "@/prisma";
 
 export type DataSourceInfo = {
   id: string;
@@ -26,7 +27,16 @@ export interface IQueryServiceWrapper {
 }
 export interface IQueryService {
   dataSource: DataSource | undefined;
+  dataSourceType: SQLDataSourceTypes;
   queryResult: unknown;
+
+  public getClient(): Knex;
+  public setClient(client: Knex): this;
+  public updateClient(overrides: ClientOverrides): this;
+  public getCredentials(): DataSourceCredentials;
+  public getSSHCredentials(): DataSourceCredentials;
+  public getParsedCredentials(): DataSourceCredentials;
+  public getParsedSSHCredentials(): DataSourceCredentials;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
@@ -78,3 +88,15 @@ export interface DataSourcePlugin {
   name: string;
   description: string;
 }
+
+export type SSHCredentials = {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+};
+
+export type QueryServiceWrapperPayload = {
+  dataSource: DataSource;
+  options?: Record<string, unknown>;
+};

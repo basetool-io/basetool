@@ -110,11 +110,15 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   // encrypt the credentials
   const encryptedCredentials = encrypt(JSON.stringify(req.body.credentials));
+  // encrypt the ssh credentials
+  const encryptedSSHCredentials = encrypt(JSON.stringify(req.body.ssh));
+
   const dataSource = await prisma.dataSource.create({
     data: {
       name: req.body.name,
       type: req.body.type,
       encryptedCredentials,
+      encryptedSSHCredentials,
       organizationId: parseInt(req.body.organizationId as string),
     },
   });

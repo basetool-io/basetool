@@ -85,7 +85,11 @@ export type ColumnWithStoredOptions = ColumnWithFieldOptions;
 
 export type SqlColumnOptions = Knex.ColumnInfo;
 
-export type DataSourceCredentials =
-  | PostgresCredentials
-  | MysqlCredentials
-  | null;
+export type DataSourceCredentials = PgCredentials | MysqlCredentials | null;
+
+export type SQLDataSourceTypes = "mysql" | "postgresql" | "maria_db" | "mssql";
+
+export type ClientOverrides = {
+  host: string;
+  port: number;
+};

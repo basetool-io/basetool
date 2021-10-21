@@ -2,21 +2,21 @@ import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { SqlColumnOptions, Tables } from "../abstract-sql-query-service/types";
 
-export type PostgresCredentials = {
+export type PgCredentials = {
   host: string;
   port: number;
   database: string;
-  username: string;
+  user: string;
   password: string;
   useSsl: boolean;
 };
 
-export type PostgresLegacyCredentials = {
+export type PgLegacyCredentials = {
   url: string;
   useSsl: boolean;
 };
 
-export interface PostgresqlDataSource extends DataSource {
+export interface PgDataSource extends DataSource {
   options: {
     url?: string;
     columns?: Column[];
@@ -24,4 +24,4 @@ export interface PostgresqlDataSource extends DataSource {
   };
 }
 
-export type PostgresqlColumnOptions = SqlColumnOptions;
+export type PgColumnOptions = SqlColumnOptions;

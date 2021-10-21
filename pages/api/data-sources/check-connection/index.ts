@@ -1,5 +1,5 @@
-import { checkHeartbeat } from 'knex-utils';
-import { getQueryServiceClass } from '@/plugins/data-sources/getQueryService';
+import { checkHeartbeat } from "knex-utils";
+import { getKnexClient } from "@/plugins/data-sources/abstract-sql-query-service/getKnexClient";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -18,15 +18,17 @@ const handler = async (
 };
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  const queryService = await getQueryServiceClass(req.body.type);
-
-  const client = await queryService.initClient(req.body.credentials);
+  const client = getKnexClient(req.body.type, req.body.credentials);
   const response = await checkHeartbeat(client);
 
   if (response.isOk) {
     return res.json(ApiResponse.withMessage("Connection successful"));
   } else {
-    return res.json(ApiResponse.withError(response.error ? response.error.toString() : "An error occurred"));
+    return res.json(
+      ApiResponse.withError(
+        response.error ? response.error.toString() : "An error occurred"
+      )
+    );
   }
 }
 

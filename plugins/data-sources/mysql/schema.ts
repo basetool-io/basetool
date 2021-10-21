@@ -11,5 +11,6 @@ export const schema = Joi.object({
     password: Joi.string().allow(""),
     useSsl: Joi.boolean(),
   }),
+  ssh: Joi.object(),
   organizationId: Joi.string().required(),
 });
