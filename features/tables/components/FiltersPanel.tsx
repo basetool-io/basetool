@@ -79,22 +79,38 @@ const FiltersPanel = (
             filters.map((filter, idx) => {
               if ("isGroup" in filter && filter.isGroup) {
                 return (
-                  <GroupFiltersPanel
-                    key={idx}
-                    idx={idx}
-                    columns={columns}
-                    verb={(filter as IFilterGroup).verb}
-                    filters={(filter as IFilterGroup).filters}
-                  />
+                  <div
+                    className={
+                      filter?.isBaseFilter
+                        ? "opacity-60 pointer-events-none"
+                        : ""
+                    }
+                  >
+                    <GroupFiltersPanel
+                      key={idx}
+                      idx={idx}
+                      columns={columns}
+                      verb={(filter as IFilterGroup).verb}
+                      filters={(filter as IFilterGroup).filters}
+                    />
+                  </div>
                 );
               } else {
                 return (
-                  <Filter
-                    key={idx}
-                    idx={idx}
-                    columns={columns}
-                    filter={filter as IFilter}
-                  />
+                  <div
+                    className={
+                      filter?.isBaseFilter
+                        ? "opacity-60 pointer-events-none"
+                        : ""
+                    }
+                  >
+                    <Filter
+                      key={idx}
+                      idx={idx}
+                      columns={columns}
+                      filter={filter as IFilter}
+                    />
+                  </div>
                 );
               }
             })}

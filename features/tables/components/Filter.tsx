@@ -31,12 +31,14 @@ export type IFilter = {
   option?: string;
   value: string;
   verb: FilterVerb;
+  isBaseFilter?: boolean;
 };
 
 export type IFilterGroup = {
   isGroup: boolean;
   verb: FilterVerb;
   filters: IFilter[];
+  isBaseFilter?: boolean;
 };
 
 export const getDefaultFilterCondition = (fieldType: FieldType) => {

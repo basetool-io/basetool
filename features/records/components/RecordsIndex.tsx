@@ -12,6 +12,7 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
+import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
@@ -90,10 +91,10 @@ const RecordsIndex = ({
     }
   );
 
-  const {
-    data: viewResponse,
-    isLoading: viewIsLoading,
-  } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
+    { viewId },
+    { skip: !viewId }
+  );
 
   const columns = useMemo(
     () => getFilteredColumns(columnsResponse?.data, Views.index),
@@ -129,18 +130,25 @@ const RecordsIndex = ({
     router.query.orderDirection as OrderDirection
   );
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const { appliedFilters, resetFilters, setFilters, applyFilters } = useFilters();
+  const { appliedFilters, resetFilters, setFilters, applyFilters, removeFilter } =
+    useFilters();
   const ac = useAccessControl();
 
   useEffect(() => {
     resetFilters();
     if (viewResponse?.ok) {
       if (viewResponse.data.filters) {
-        setFilters(viewResponse.data.filters);
-        applyFilters(viewResponse.data.filters);
+        const baseFilters = viewResponse.data.filters.map(
+          (filter: IFilter | IFilterGroup) => ({
+            ...filter,
+            isBaseFilter: true,
+          })
+        );
+        setFilters(baseFilters);
+        applyFilters(baseFilters);
       }
     }
-  }, [tableName, viewResponse]);
+  }, [tableName, viewId, viewResponse]);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -180,6 +188,19 @@ const RecordsIndex = ({
     [selectedRecords.length]
   );
 
+  const [appliedNonBaseFilters, setAppliedNonBaseFilters] = useState<Array<IFilter| IFilterGroup>>(appliedFilters);
+  useEffect(() => {
+    setAppliedNonBaseFilters(appliedFilters.filter(filter => !filter.isBaseFilter));
+  }, [appliedFilters])
+
+  const resetNonBaseFilters = () => {
+    appliedFilters.forEach((filter: IFilter| IFilterGroup, idx: number) => {
+      if(!filter.isBaseFilter) {
+        removeFilter(idx);
+      }
+    });
+  }
+
   return (
     <>
       {!displayOnlyTable && (
@@ -212,8 +233,7 @@ const RecordsIndex = ({
                       </Button>
                     </Link>
                   )}
-                {viewId &&
-                  ac.hasRole(OWNER_ROLE) && (
+                {viewId && ac.hasRole(OWNER_ROLE) && (
                   <Link href={`/views/${viewId}/edit`} passHref>
                     <Button
                       colorScheme="blue"
@@ -282,7 +302,7 @@ const RecordsIndex = ({
                   <FiltersPanel ref={filtersPanel} columns={columns} />
                 )}
                 <div className="flex flex-shrink-0">
-                  <ButtonGroup size="xs" variant="outline" isAttached >
+                  <ButtonGroup size="xs" variant="outline" isAttached>
                     <Button
                       onClick={() => toggleFiltersPanelVisible()}
                       ref={filtersButton}
@@ -290,23 +310,23 @@ const RecordsIndex = ({
                       isLoading={viewIsLoading}
                     >
                       <div className="text-gray-800">Filters</div>
-                      {!isEmpty(appliedFilters) && (
+                      {!isEmpty(appliedNonBaseFilters) && (
                         <>
                           <div className="text-gray-600 font-thin mr-1 ml-1">
                             |
                           </div>
                           <div className="text-blue-600 font-thin">
-                            {appliedFilters.length}
+                            {appliedNonBaseFilters.length}
                           </div>
                         </>
                       )}
                     </Button>
-                    {!isEmpty(appliedFilters) && (
+                    {!isEmpty(appliedNonBaseFilters) && (
                       <Tooltip label="Reset filters">
                         <IconButton
                           aria-label="Remove filters"
                           icon={<XIcon className="h-3" />}
-                          onClick={resetFilters}
+                          onClick={resetNonBaseFilters}
                         />
                       </Tooltip>
                     )}
