@@ -18,7 +18,7 @@ import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { Save } from "react-feather";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
-import { getFilteredColumns, iconForField } from "@/features/fields";
+import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useFilters } from "@/hooks";
@@ -41,29 +41,6 @@ const CompactFiltersView = ({
 }: {
   filters: Array<IFilter | IFilterGroup>;
 }) => {
-  const FilterShow = ({ filter }: { filter: IFilter }) => {
-    const IconElement = iconForField(filter.column);
-
-    return (
-      <div className="flex w-full">
-        <div className="w-1/3 text-xs">
-          <IconElement className="h-3 inline-block flex-shrink-0 mr-1" />
-          <span>{filter.column.label}</span>
-        </div>
-        <div className="w-1/3 text-xs">
-          {filter.condition.replaceAll("_", " ")}
-        </div>
-        <div className="w-1/3 text-xs">
-          {filter.value
-            ? filter.value
-            : filter.option
-            ? filter.option.replaceAll("_", " ")
-            : ""}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-1">
       {isEmpty(filters) && (
@@ -76,52 +53,39 @@ const CompactFiltersView = ({
         filters.map((filter, idx) => {
           if ("isGroup" in filter && filter.isGroup) {
             return (
-              <>
+              <div className="bg-gray-50 rounded">
                 {filter.filters.map((f, i) => {
                   return (
-                    <>
-                      <div className="flex w-full text-xs text-gray-700">
-                        <div className="w-1/4 flex">
-                          <div className="w-1/2">
-                            {i === 0 && (
-                              <div className="mr-1">
-                                {idx + 1} {idx === 0 ? "where" : filter.verb}
-                              </div>
-                            )}
-                          </div>
-                          <div className="w-1/2">
-                            {i === 0 ? "where" : f.verb}
-                            {i < filter.filters.length - 1 && (
-                            <hr className="mt-1" />
-                          )}
-                          </div>
-                        </div>
-                        <div className="w-3/4">
-                          <FilterShow filter={f} />
-                          {i < filter.filters.length - 1 && (
-                            <hr className="mt-1" />
-                          )}
-                        </div>
-                      </div>
-                    </>
+                    <div className="text-gray-600 px-1">
+                      {idx === 0 || i === 0 ? "" : f.verb}{" "}
+                      <span className="font-bold ">{f.column.label}</span>{" "}
+                      {f.condition.replaceAll("_", " ")}{" "}
+                      <span className="font-bold">
+                        {f.value
+                          ? f.value
+                          : f.option
+                          ? f.option.replaceAll("_", " ")
+                          : ""}
+                      </span>
+                    </div>
                   );
                 })}
-                {idx < filters.length - 1 && <hr />}
-              </>
+              </div>
             );
           } else {
             return (
-              <>
-                <div className="flex w-full text-xs text-gray-700">
-                  <div className="w-1/4">
-                    {idx + 1} {idx === 0 ? "where" : filter.verb}
-                  </div>
-                  <div className="w-3/4">
-                    <FilterShow filter={filter as IFilter} />
-                  </div>
-                </div>
-                {idx < filters.length - 1 && <hr />}
-              </>
+              <div className="text-gray-600 px-1">
+                {idx === 0 ? "" : filter.verb}{" "}
+                <span className="font-bold">{(filter as IFilter).column.label}</span>{" "}
+                {(filter as IFilter).condition.replaceAll("_", " ")}{" "}
+                <span className="font-bold">
+                  {(filter as IFilter).value
+                    ? (filter as IFilter).value
+                    : (filter as IFilter)?.option
+                    ? (filter as any).option.replaceAll("_", " ")
+                    : ""}
+                </span>
+              </div>
             );
           }
         })}
@@ -188,9 +152,7 @@ const Edit = () => {
     }).unwrap();
   };
 
-  const {
-    data: columnsResponse,
-  } = useGetColumnsQuery(
+  const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
       tableName,
@@ -341,7 +303,7 @@ const Edit = () => {
               </form>
             )}
           </div>
-          <div className="relative flex-1 flex h-full max-w-full w-full opacity-60 pointer-events-none">
+          <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             <RecordsIndex displayOnlyTable={true} />
           </div>
         </div>
