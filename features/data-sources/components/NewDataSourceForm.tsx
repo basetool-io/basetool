@@ -257,7 +257,7 @@ function NewDataSourceForm({
                 >
                   <FormLabel>Port</FormLabel>
                   <Input
-                    type="password"
+                    type="text"
                     placeholder={placeholders?.credentials?.port}
                     {...register("credentials.port")}
                   />
@@ -310,7 +310,7 @@ function NewDataSourceForm({
                 >
                   <FormLabel>Password</FormLabel>
                   <Input
-                    type="text"
+                    type="password"
                     placeholder={placeholders?.credentials?.password}
                     {...register("credentials.password")}
                   />
