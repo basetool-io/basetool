@@ -116,6 +116,7 @@ export const runInSSHTunnel = async ({
           .then((response: any) => resolve(response))
           .catch((error: any) => reject(error));
       });
+      sshTunnel.on("error", (error) => reject(error));
     }
   );
 
