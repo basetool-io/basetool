@@ -2,11 +2,12 @@ import {
   Button,
   Checkbox,
   Collapse,
-  FormControl,
-  FormLabel,
-  Input,
+  Editable,
+  EditableInput,
+  EditablePreview,
   Tooltip,
   useDisclosure,
+  useEditableControls,
 } from "@chakra-ui/react";
 import {
   ChevronDownIcon,
@@ -23,6 +24,7 @@ import { isEmpty, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useFilters } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,
   useRemoveViewMutation,
@@ -53,30 +55,37 @@ const CompactFiltersView = ({
         filters.map((filter, idx) => {
           if ("isGroup" in filter && filter.isGroup) {
             return (
-              <div className="bg-gray-50 rounded">
-                {filter.filters.map((f, i) => {
-                  return (
-                    <div className="text-gray-600 px-1">
-                      {idx === 0 || i === 0 ? "" : f.verb}{" "}
-                      <span className="font-bold ">{f.column.label}</span>{" "}
-                      {f.condition.replaceAll("_", " ")}{" "}
-                      <span className="font-bold">
-                        {f.value
-                          ? f.value
-                          : f.option
-                          ? f.option.replaceAll("_", " ")
-                          : ""}
-                      </span>
-                    </div>
-                  );
-                })}
+              <div className="text-gray-600">
+                <span>{filter.verb}</span>
+                <div className="bg-gray-200 rounded">
+                  {filter.filters.map((f, i) => {
+                    return (
+                      <div className="px-1">
+                        {idx === 0 || i === 0 ? "" : f.verb}{" "}
+                        <div>
+                          <span className="font-bold ">{f.column.label}</span>{" "}
+                          {f.condition.replaceAll("_", " ")}{" "}
+                          <span className="font-bold">
+                            {f.value
+                              ? f.value
+                              : f.option
+                              ? f.option.replaceAll("_", " ")
+                              : ""}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           } else {
             return (
-              <div className="text-gray-600 px-1">
-                {idx === 0 ? "" : filter.verb}{" "}
-                <span className="font-bold">{(filter as IFilter).column.label}</span>{" "}
+              <div className="text-gray-600">
+                <div><span>{idx === 0 ? "" : filter.verb}</span></div>
+                <span className="font-bold">
+                  {(filter as IFilter).column.label}
+                </span>{" "}
                 {(filter as IFilter).condition.replaceAll("_", " ")}{" "}
                 <span className="font-bold">
                   {(filter as IFilter).value
@@ -97,6 +106,13 @@ const Edit = () => {
   const router = useRouter();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
   const [localView, setLocalView] = useState<View>();
+
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    {
+      skip: !dataSourceId,
+    }
+  );
 
   const {
     data: viewResponse,
@@ -145,7 +161,12 @@ const Edit = () => {
       body: pick(
         {
           ...localView,
-          filters: appliedFilters,
+          filters: appliedFilters.map(
+            (filter: IFilter | IFilterGroup) => ({
+              ...filter,
+              isBase: true,
+            })
+          ),
         },
         ["name", "public", "dataSourceId", "tableName", "filters"]
       ),
@@ -181,6 +202,26 @@ const Edit = () => {
   const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
     defaultIsOpen: true,
   });
+
+  const EditableControls = () => {
+    const { isEditing, getEditButtonProps } = useEditableControls();
+
+    if (!isEditing) {
+      return (
+        <Tooltip label="Edit name">
+          <div
+            className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+            {...getEditButtonProps()}
+          >
+            <PencilAltIcon className="h-4 inline" />
+            Edit
+          </div>
+        </Tooltip>
+      );
+    } else {
+      return <div></div>;
+    }
+  };
 
   return (
     <Layout hideSidebar={true}>
@@ -220,58 +261,65 @@ const Edit = () => {
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
             {localView && (
-              <form onSubmit={handleSubmit} className="space-y-2 w-full">
-                <FormControl id="name" size="sm" isRequired>
-                  <FormLabel>Name</FormLabel>
-                  <Input
-                    type="text"
-                    name="name"
-                    placeholder="ActiveUsers"
+              <div className="space-y-2 w-full">
+                <div className="relative flex w-full">
+                  <div className="w-1/4 my-auto mr-1 font-bold">Name</div>
+                  <Editable
+                    className="flex-1"
                     value={localView?.name}
-                    onChange={(e) =>
-                      setLocalView({
-                        ...localView,
-                        name: e.currentTarget.value,
-                      })
-                    }
-                  />
-                </FormControl>
-                <FormControl id="dataSource" isDisabled={true}>
-                  <FormLabel>DataSource</FormLabel>
-                  <Input
-                    type="text"
-                    name="dataSource"
-                    placeholder="Id of the DataSource"
-                    value={localView?.dataSourceId}
-                  />
-                </FormControl>
-                <FormControl id="tableName" isDisabled={true}>
-                  <FormLabel>TableName</FormLabel>
-                  <Input
-                    type="text"
-                    name="tableName"
-                    placeholder="Name of the Table"
-                    value={localView?.tableName}
-                  />
-                </FormControl>
-                <FormControl id="public">
-                  <FormLabel>Public</FormLabel>
-                  <Checkbox
-                    size="lg"
-                    colorScheme="gray"
-                    checked={localView?.public}
-                    onChange={(e) =>
-                      setLocalView({
-                        ...localView,
-                        public: !localView?.public,
-                      })
-                    }
-                  />
-                </FormControl>
+                    onChange={(value: string) => {
+                      if (value && !isEmpty(value)) {
+                        setLocalView({
+                          ...localView,
+                          name: value,
+                        });
+                      }
+                    }}
+                    // isPreviewFocusable={false}
+                  >
+                    <div className="relative flex justify-between w-full">
+                      <div className="w-full">
+                        <EditablePreview className="cursor-pointer" />
+                        <EditableInput />
+                      </div>
+                      <EditableControls />
+                    </div>
+                  </Editable>
+                </div>
+                {dataSourceResponse?.ok && (
+                  <div className="relative flex w-full h-[30px]">
+                    <div className="w-1/4 my-auto mr-1 font-bold">
+                      DataSource
+                    </div>
+                    <div className="my-auto">
+                      {dataSourceResponse.data.name}
+                    </div>
+                  </div>
+                )}
+                <div className="relative flex w-full h-[30px]">
+                  <div className="w-1/4 my-auto mr-1 font-bold">Table name</div>
+                  <div className="my-auto">{localView?.tableName}</div>
+                </div>
+                <div className="relative flex w-full h-[30px]">
+                  <div className="w-1/4 my-auto mr-1 font-bold">Public</div>
+                  <div className="my-auto pt-1">
+                    <Checkbox
+                      size="lg"
+                      colorScheme="gray"
+                      isChecked={localView?.public}
+                      onChange={(e) =>
+                        setLocalView({
+                          ...localView,
+                          public: !localView?.public,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
 
                 <div className="relative flex justify-between w-full">
                   <div
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer font-bold"
                     onClick={toggleFiltersOpen}
                   >
                     Base filters{" "}
@@ -293,14 +341,14 @@ const Edit = () => {
                   </Tooltip>
                   {filtersPanelVisible && (
                     <div className="absolute left-auto right-0 -top-8">
-                      <FiltersPanel ref={filtersPanel} columns={columns} />
+                      <FiltersPanel ref={filtersPanel} columns={columns} isEditBaseFilters={true} />
                     </div>
                   )}
                 </div>
                 <Collapse in={isFiltersOpen}>
                   <CompactFiltersView filters={appliedFilters} />
                 </Collapse>
-              </form>
+              </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">

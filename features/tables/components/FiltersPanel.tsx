@@ -19,8 +19,10 @@ import isEmpty from "lodash/isEmpty";
 const FiltersPanel = (
   {
     columns,
+    isEditBaseFilters = false,
   }: {
     columns: Column[];
+    isEditBaseFilters?: boolean;
   },
   ref: any
 ) => {
@@ -73,15 +75,9 @@ const FiltersPanel = (
           )}
           {isEmpty(filters) ||
             filters.map((filter, idx) => {
-              if ("isGroup" in filter && filter.isGroup) {
-                return (
-                  <div
-                    className={
-                      filter?.isBase
-                        ? "opacity-60 pointer-events-none"
-                        : ""
-                    }
-                  >
+              const FilterComponent = () => {
+                if ("isGroup" in filter && filter.isGroup) {
+                  return (
                     <GroupFiltersPanel
                       key={idx}
                       idx={idx}
@@ -89,26 +85,30 @@ const FiltersPanel = (
                       verb={(filter as IFilterGroup).verb}
                       filters={(filter as IFilterGroup).filters}
                     />
-                  </div>
-                );
-              } else {
+                  );
+                }
+
                 return (
-                  <div
-                    className={
-                      filter?.isBase
-                        ? "opacity-60 pointer-events-none"
-                        : ""
-                    }
-                  >
-                    <Filter
-                      key={idx}
-                      idx={idx}
-                      columns={columns}
-                      filter={filter as IFilter}
-                    />
-                  </div>
+                  <Filter
+                    key={idx}
+                    idx={idx}
+                    columns={columns}
+                    filter={filter as IFilter}
+                  />
                 );
-              }
+              };
+
+              return (
+                <div
+                  className={
+                    filter?.isBase && !isEditBaseFilters
+                      ? "opacity-60 pointer-events-none"
+                      : ""
+                  }
+                >
+                  <FilterComponent />
+                </div>
+              );
             })}
         </div>
         <hr />

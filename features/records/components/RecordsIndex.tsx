@@ -141,22 +141,9 @@ const RecordsIndex = ({
 
   useEffect(() => {
     resetFilters();
-    if (viewResponse?.ok) {
-      if (viewResponse.data.filters) {
-        if (!router.pathname.includes("/edit")) {
-          const baseFilters = viewResponse.data.filters.map(
-            (filter: IFilter | IFilterGroup) => ({
-              ...filter,
-              isBase: true,
-            })
-          );
-          setFilters(baseFilters);
-          applyFilters(baseFilters);
-        } else {
-          setFilters(viewResponse.data.filters);
-          applyFilters(viewResponse.data.filters);
-        }
-      }
+    if (viewResponse?.ok && viewResponse.data.filters) {
+      setFilters(viewResponse.data.filters);
+      applyFilters(viewResponse.data.filters);
     }
   }, [tableName, viewId, viewResponse]);
 
