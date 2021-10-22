@@ -18,7 +18,7 @@ import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { parseColumns } from "@/features/tables";
 import {
   useAccessControl,
@@ -65,8 +65,12 @@ const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
 
 const RecordsIndex = ({
   displayOnlyTable = false,
+  editViewOrderBy,
+  editViewOrderDirection,
 }: {
   displayOnlyTable?: boolean;
+  editViewOrderBy?: string;
+  editViewOrderDirection?: string;
 }) => {
   const router = useRouter();
   const { viewId, tableName, dataSourceId, newRecordPath } =
@@ -141,9 +145,21 @@ const RecordsIndex = ({
 
   useEffect(() => {
     resetFilters();
-    if (viewResponse?.ok && viewResponse.data.filters) {
-      setFilters(viewResponse.data.filters);
-      applyFilters(viewResponse.data.filters);
+    if (viewResponse?.ok) {
+      if (viewResponse.data.filters) {
+        setFilters(viewResponse.data.filters);
+        applyFilters(viewResponse.data.filters);
+      }
+
+      if (
+        viewResponse.data.orderRule &&
+        !isEmpty(viewResponse.data.orderRule) &&
+        isUndefined(router.query.orderBy) &&
+        isUndefined(router.query.orderDirection)
+      ) {
+        setOrderBy(viewResponse.data.orderRule.columnName);
+        setOrderDirection(viewResponse.data.orderRule.direction);
+      }
     }
   }, [tableName, viewId, viewResponse]);
 
@@ -351,9 +367,9 @@ const RecordsIndex = ({
       {displayOnlyTable && (
         <RecordsTable
           columns={parsedColumns}
-          orderBy={orderBy}
+          orderBy={editViewOrderBy || orderBy}
           setOrderBy={setOrderBy}
-          orderDirection={orderDirection}
+          orderDirection={editViewOrderDirection as OrderDirection || orderDirection}
           setOrderDirection={setOrderDirection}
           tableName={tableName}
           dataSourceId={dataSourceId}

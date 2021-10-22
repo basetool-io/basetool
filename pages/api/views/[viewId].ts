@@ -40,6 +40,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       dataSourceId: true,
       tableName: true,
       filters: true,
+      orderRule: true,
     },
   });
 
@@ -58,6 +59,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const user = await getUserFromRequest(req);
+
 
   await prisma.view.update({
     where: {
