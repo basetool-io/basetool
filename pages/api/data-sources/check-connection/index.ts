@@ -57,7 +57,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   } else {
     return res.json(
       ApiResponse.withError(
-        response.error ? response.error.toString() : "An error occurred"
+        response.error ? response.error.toString() : "Something went wrong with the request. The credentials might be invalid."
       )
     );
   }
