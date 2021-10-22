@@ -130,22 +130,32 @@ const RecordsIndex = ({
     router.query.orderDirection as OrderDirection
   );
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const { appliedFilters, resetFilters, setFilters, applyFilters, removeFilter } =
-    useFilters();
+  const {
+    appliedFilters,
+    resetFilters,
+    setFilters,
+    applyFilters,
+    removeFilter,
+  } = useFilters();
   const ac = useAccessControl();
 
   useEffect(() => {
     resetFilters();
     if (viewResponse?.ok) {
       if (viewResponse.data.filters) {
-        const baseFilters = viewResponse.data.filters.map(
-          (filter: IFilter | IFilterGroup) => ({
-            ...filter,
-            isBase: true,
-          })
-        );
-        setFilters(baseFilters);
-        applyFilters(baseFilters);
+        if (!router.pathname.includes("/edit")) {
+          const baseFilters = viewResponse.data.filters.map(
+            (filter: IFilter | IFilterGroup) => ({
+              ...filter,
+              isBase: true,
+            })
+          );
+          setFilters(baseFilters);
+          applyFilters(baseFilters);
+        } else {
+          setFilters(viewResponse.data.filters);
+          applyFilters(viewResponse.data.filters);
+        }
       }
     }
   }, [tableName, viewId, viewResponse]);
@@ -188,18 +198,19 @@ const RecordsIndex = ({
     [selectedRecords.length]
   );
 
-  const [appliedNonBaseFilters, setAppliedNonBaseFilters] = useState<Array<IFilter| IFilterGroup>>(appliedFilters);
+  const [appliedNonBaseFilters, setAppliedNonBaseFilters] =
+    useState<Array<IFilter | IFilterGroup>>(appliedFilters);
   useEffect(() => {
-    setAppliedNonBaseFilters(appliedFilters.filter(filter => !filter.isBase));
-  }, [appliedFilters])
+    setAppliedNonBaseFilters(appliedFilters.filter((filter) => !filter.isBase));
+  }, [appliedFilters]);
 
   const resetNonBaseFilters = () => {
-    appliedFilters.forEach((filter: IFilter| IFilterGroup, idx: number) => {
-      if(!filter.isBase) {
+    appliedFilters.forEach((filter: IFilter | IFilterGroup, idx: number) => {
+      if (!filter.isBase) {
         removeFilter(idx);
       }
     });
-  }
+  };
 
   return (
     <>
