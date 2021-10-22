@@ -1,6 +1,14 @@
+import {
+  ClientOverrides,
+  DataSourceCredentials,
+  ISQLQueryService,
+} from "./abstract-sql-query-service/types";
 import { DataSource } from "@prisma/client";
-import { IQueryServiceWrapper, QueryServiceWrapperPayload } from "./types";
-import { ISQLQueryService } from "./abstract-sql-query-service/types";
+import {
+  IQueryServiceWrapper,
+  QueryServiceWrapperPayload,
+  SSHCredentials,
+} from "./types";
 import { LOCALHOST } from "@/lib/constants";
 import { Server } from "net";
 import getPort from "get-port";
@@ -34,9 +42,20 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
     // If the datasource has SSH credentials we should use a tunnel to pass the connection through.
     if (this.dataSource.encryptedSSHCredentials) {
+      const overrides = await getOverrides();
+      // Update the client with the new SSH tunnel credentials
+      await this.queryService.updateClient(overrides);
+
+      const dbCredentials = this.queryService.getCredentials();
+      dbCredentials.port = parseInt(dbCredentials.port);
+      const SSHCredentials = this.queryService.getSSHCredentials();
+      SSHCredentials.port = parseInt(SSHCredentials.port);
+
       response = await runInSSHTunnel({
-        queryService: this.queryService,
+        overrides,
         actions,
+        dbCredentials,
+        SSHCredentials,
       });
     } else {
       response = await Promise.all(actions.map((a) => a()));
@@ -48,27 +67,28 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   }
 }
 
-const runInSSHTunnel = async ({
-  queryService,
-  actions,
-}: {
-  queryService: ISQLQueryService;
-  actions: Array<() => Promise<unknown>>;
-}): Promise<Array<unknown>> => {
-  let sshTunnel: Server | undefined;
-  let response: Array<unknown>;
-
-  // Tunnelling overrides
-  const overrides = {
+// SSH Tunnelling overrides.
+// This is mostly needed to fetch a port from localhost at the moment.
+export const getOverrides = async () => {
+  return {
     host: LOCALHOST,
     port: await getPort(),
   };
+};
 
-  // Update the client with the new SSH tunnel credentials
-  await queryService.updateClient(overrides);
-
-  const credentials = queryService.getCredentials();
-  const SSHCredentials = queryService.getSSHCredentials();
+export const runInSSHTunnel = async ({
+  overrides,
+  actions,
+  dbCredentials,
+  SSHCredentials,
+}: {
+  overrides: ClientOverrides;
+  actions: Array<() => Promise<unknown>>;
+  dbCredentials: DataSourceCredentials;
+  SSHCredentials: SSHCredentials;
+}): Promise<Array<unknown>> => {
+  let sshTunnel: Server | undefined;
+  let response: Array<unknown>;
 
   // Create a tunnel config object
   const tunnelConfig = {
@@ -76,10 +96,10 @@ const runInSSHTunnel = async ({
     username: SSHCredentials.user,
     password: SSHCredentials.password,
     host: SSHCredentials.host,
-    port: parseInt(SSHCredentials.port),
+    port: SSHCredentials.port,
     // Credentials for the Datasource we're hooking into
-    dstHost: credentials.host,
-    dstPort: parseInt(credentials.port),
+    dstHost: dbCredentials.host,
+    dstPort: dbCredentials.port,
     // Credentials for the tunnel we're using to bridge the connection.
     localHost: overrides.host,
     localPort: overrides.port,

@@ -102,6 +102,9 @@ const NewDataSourceForm = ({
         password: "",
         useSsl: true,
       },
+      ssh: {
+        port: 22
+      }
     },
     defaultValues
   );
@@ -159,13 +162,22 @@ const NewDataSourceForm = ({
   const checkConnectionMethod = async () => {
     const type = getValues("type");
     const credentials = getValues("credentials");
+    const ssh = getValues("ssh");
+    let body: any = { type, credentials };
+
+    // Add the SSH credentials
+    if (connectWithSsh)
+      body = {
+        ...body,
+        ssh,
+      };
     if (
       !isEmpty(getValues("credentials.host")) &&
       !isEmpty(getValues("credentials.database")) &&
       !isEmpty(getValues("credentials.user"))
     ) {
       await checkConnection({
-        body: { type, credentials },
+        body,
       }).unwrap();
     } else {
       toast.error(

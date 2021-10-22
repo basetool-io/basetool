@@ -382,6 +382,8 @@ abstract class AbstractQueryService implements ISQLQueryService {
   };
 
   constructor({ dataSource }: { dataSource: DataSource }) {
+    if (!dataSource) throw new Error("No data source provided.");
+
     this.dataSource = dataSource;
     this.dataSourceType = dataSource.type as SQLDataSourceTypes;
 
@@ -420,15 +422,15 @@ abstract class AbstractQueryService implements ISQLQueryService {
   }
 
   public getParsedCredentials(): DataSourceCredentials {
-    if (!this.dataSource || !this.dataSource.encryptedCredentials)
-      throw new Error("No data source provided.");
+    if (!this.dataSource.encryptedCredentials)
+      throw new Error("No credentials provided.");
 
     return parseEncryptedString(this.dataSource.encryptedCredentials);
   }
 
   public getParsedSSHCredentials(): DataSourceCredentials {
-    if (!this.dataSource || !this.dataSource.encryptedSSHCredentials)
-      throw new Error("No data source provided.");
+    if (!this.dataSource.encryptedSSHCredentials)
+      throw new Error("No SSH credentials provided.");
 
     return parseEncryptedString(this.dataSource.encryptedSSHCredentials);
   }
