@@ -11,7 +11,7 @@ import BackButton from "@/features/records/components/BackButton";
 import DataSourceEditSidebar from "@/features/data-sources/components/DataSourceEditSidebar";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { ReactElement } from "react";
+import React, { ReactElement, memo } from "react";
 
 const DataSourcesEditLayout = ({
   dataSourceId,
@@ -107,4 +107,4 @@ const DataSourcesEditLayout = ({
   );
 };
 
-export default DataSourcesEditLayout;
+export default memo(DataSourcesEditLayout);

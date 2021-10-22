@@ -1,44 +1,36 @@
 import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
-import { PostgresCredentials } from "./types";
+import { PgCredentials, PgLegacyCredentials } from "./types";
 import { idColumns } from "@/features/fields";
-import { knex } from "knex";
 import AbstractQueryService from "../abstract-sql-query-service/AbstractQueryService";
-import type { Knex } from "knex";
+import URI from "urijs";
 
 class QueryService extends AbstractQueryService {
-  public getCredentials() {
-    const credentials = this.getParsedCredentials() as PostgresCredentials;
+  public getCredentials(): PgCredentials {
+    const parsedCredentials = this.getParsedCredentials() as
+      | PgCredentials
+      | PgLegacyCredentials;
 
-    if (!credentials || !credentials.url)
+    if (!parsedCredentials || Object.keys(parsedCredentials).length === 0)
       throw new Error("No credentials on record.");
+    let credentials;
 
-    return credentials;
-  }
-
-  getClient(): Knex {
-    const credentials = this.getCredentials();
-
-    return QueryService.initClient(credentials);
-  }
-
-  static initClient(credentials: PostgresCredentials) {
-    const connectionString = credentials.url;
-    const connection: Knex.StaticConnectionConfig = {
-      connectionString,
-    };
-
-    if (credentials.useSsl) {
-      connection.ssl = { rejectUnauthorized: false };
+    // If this is a legacy connection, break apart the connection string to regular credentials
+    if ("url" in parsedCredentials) {
+      const uri = URI(parsedCredentials.url);
+      credentials = {
+        host: uri.hostname(),
+        port: parseInt(uri.port()),
+        database: uri.path().replace("/", ""),
+        user: uri.username(),
+        password: uri.password(),
+        useSsl: parsedCredentials.useSsl,
+      };
+    } else {
+      credentials = parsedCredentials;
     }
 
-    const client = knex({
-      client: "pg",
-      connection,
-      debug: false,
-    });
-
-    return client;
+    return credentials;
   }
 
   public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {

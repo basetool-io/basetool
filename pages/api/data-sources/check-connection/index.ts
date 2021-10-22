@@ -1,5 +1,11 @@
-import { checkHeartbeat } from 'knex-utils';
-import { getQueryServiceClass } from '@/plugins/data-sources/getQueryService';
+import { HeartbeatResult } from "knex-utils/dist/lib/heartbeatUtils"
+import { checkHeartbeat } from "knex-utils";
+import { first } from "lodash"
+import { getKnexClient } from "@/plugins/data-sources/abstract-sql-query-service/getKnexClient";
+import {
+  getOverrides,
+  runInSSHTunnel,
+} from "@/plugins/data-sources/QueryServiceWrapper";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -18,15 +24,42 @@ const handler = async (
 };
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  const queryService = await getQueryServiceClass(req.body.type);
+  // Get local port number
+  const overrides = await getOverrides();
+  // Set the dbCredentials
+  const dbCredentials = {
+    ...req.body.credentials,
+  };
+  // Add the overrides to the client credentials
+  const clientCredentials = {
+    ...req.body.credentials,
+    ...overrides,
+  };
+  // Set the SSH creds
+  const SSHCredentials = {
+    ...req.body.ssh
+  }
+  // Get a new client
+  const client = getKnexClient(req.body.type, clientCredentials);
 
-  const client = await queryService.initClient(req.body.credentials);
-  const response = await checkHeartbeat(client);
+  // Wrap the action in an array
+  const actions = [() => checkHeartbeat(client)];
+  // Check the connection
+  const response = first(await runInSSHTunnel({
+    overrides,
+    actions,
+    dbCredentials,
+    SSHCredentials,
+  })) as HeartbeatResult;
 
   if (response.isOk) {
     return res.json(ApiResponse.withMessage("Connection successful"));
   } else {
-    return res.json(ApiResponse.withError(response.error ? response.error.toString() : "An error occurred"));
+    return res.json(
+      ApiResponse.withError(
+        response.error ? response.error.toString() : "Something went wrong with the request. The credentials might be invalid."
+      )
+    );
   }
 }
 
