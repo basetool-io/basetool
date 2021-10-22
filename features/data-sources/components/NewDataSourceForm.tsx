@@ -89,6 +89,9 @@ const NewDataSourceForm = ({
     };
   };
 }) => {
+  const router = useRouter();
+  const [addDataSource, { isLoading }] = useAddDataSourceMutation();
+  const { organizations } = useProfile();
   defaultValues = merge(
     {
       name: "",
@@ -108,10 +111,20 @@ const NewDataSourceForm = ({
     },
     defaultValues
   );
-  const router = useRouter();
-  const [addDataSource, { isLoading }] = useAddDataSourceMutation();
-  const { organizations } = useProfile();
 
+  /**
+   * Init the form
+   */
+  const schema = getSchema(type);
+  const { register, handleSubmit, formState, setValue, getValues } = useForm({
+    defaultValues,
+    resolver: joiResolver(schema),
+  });
+  const errors = useMemo(() => formState.errors, [formState.errors]);
+
+  /**
+   * Submit the form
+   */
   const onSubmit = async (formData: IFormFields) => {
     let response;
     try {
@@ -123,15 +136,9 @@ const NewDataSourceForm = ({
     }
   };
 
-  const schema = getSchema(type);
-
-  const { register, handleSubmit, formState, setValue, getValues } = useForm({
-    defaultValues,
-    resolver: joiResolver(schema),
-  });
-
-  const errors = useMemo(() => formState.errors, [formState.errors]);
-
+  /**
+   * If we get some credentials through the url params, they must be removed after use
+   */
   useEffect(() => {
     if (router.query.credentials) {
       // reset the URL if we get the credentials through the params for added security
@@ -147,6 +154,9 @@ const NewDataSourceForm = ({
     }
   }, []);
 
+  /**
+   * Set the first org as selected
+   */
   useEffect(() => {
     if (organizations && organizations.length > 0 && organizations[0].id) {
       setValue("organizationId", organizations[0].id?.toString(), {
@@ -156,6 +166,9 @@ const NewDataSourceForm = ({
     }
   }, [organizations]);
 
+  /**
+   * Check the connection
+   */
   const [checkConnection, { isLoading: isChecking }] =
     useCheckConnectionMutation();
 
@@ -186,6 +199,9 @@ const NewDataSourceForm = ({
     }
   };
 
+  /**
+   * Toggle SSH connection
+   */
   const [connectWithSsh, toggleConnectWithSsh] = useBoolean(false);
 
   return (
