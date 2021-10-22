@@ -254,6 +254,10 @@ svg.tea #steamR {
   background-size: 1200px 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 progress {
   @apply h-2 bg-white border border-gray-400 rounded shadow-inner;
 }

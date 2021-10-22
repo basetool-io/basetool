@@ -17,7 +17,7 @@ import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
-import { schema } from "@/plugins/views/schema";
+import { schema } from "@/features/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
 import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";

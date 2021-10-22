@@ -1,5 +1,5 @@
 import { getUserFromRequest } from "@/features/api";
-import { schema } from "@/plugins/views/schema";
+import { schema } from "@/features/views/schema";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
