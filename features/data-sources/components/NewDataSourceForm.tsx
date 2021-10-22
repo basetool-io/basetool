@@ -67,6 +67,7 @@ const NewDataSourceForm = ({
       port?: string;
       user?: string;
       password?: string;
+      passphrase?: string;
     };
   };
   defaultValues?: {
@@ -86,6 +87,8 @@ const NewDataSourceForm = ({
       port?: number | "";
       user?: string;
       password?: string;
+      key?: any;
+      passphrase?: string;
     };
   };
 }) => {
@@ -106,8 +109,8 @@ const NewDataSourceForm = ({
         useSsl: true,
       },
       ssh: {
-        port: 22
-      }
+        port: 22,
+      },
     },
     defaultValues
   );
@@ -200,9 +203,12 @@ const NewDataSourceForm = ({
   };
 
   /**
-   * Toggle SSH connection
+   * SSH Settings
    */
+  // Toggle SSH connection
   const [connectWithSsh, toggleConnectWithSsh] = useBoolean(false);
+  // Toggle SSH with key
+  const [connectWithSshKey, toggleConnectWithSshKey] = useBoolean(false);
 
   return (
     <Layout hideSidebar={true}>
@@ -260,6 +266,23 @@ const NewDataSourceForm = ({
               />
               <FormHelperText>The name of your data source.</FormHelperText>
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl
+              id="organization"
+              isInvalid={!isUndefined(errors?.organizationId?.message)}
+            >
+              <FormLabel>Organization</FormLabel>
+              <Select {...register("organizationId")}>
+                {organizations.map(({ id, name }) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>
+                {errors?.organizationId?.message}
+              </FormErrorMessage>
             </FormControl>
 
             <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
@@ -367,11 +390,11 @@ const NewDataSourceForm = ({
             </FormControl>
 
             <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="email-alerts" mb="0">
+              <FormLabel htmlFor="connect-with-ssh" mb="0">
                 Connect with SSH
               </FormLabel>
               <Switch
-                id="email-alerts"
+                id="connect-with-ssh"
                 isChecked={connectWithSsh}
                 onChange={() => toggleConnectWithSsh()}
               />
@@ -422,7 +445,7 @@ const NewDataSourceForm = ({
                       id="user"
                       isInvalid={!isUndefined(errors?.ssh?.user?.message)}
                     >
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>User</FormLabel>
                       <Input
                         type="text"
                         placeholder={placeholders?.ssh?.user}
@@ -442,6 +465,7 @@ const NewDataSourceForm = ({
                       <FormLabel>Password</FormLabel>
                       <Input
                         type="password"
+                        disabled={connectWithSshKey}
                         placeholder={placeholders?.ssh?.password}
                         {...register("ssh.password")}
                       />
@@ -451,25 +475,58 @@ const NewDataSourceForm = ({
                     </FormControl>
                   </div>
                 </div>
+
+                <FormControl display="flex" alignItems="center">
+                  <FormLabel htmlFor="connect-with-ssh-key" mb="0">
+                    Connect using SSH key
+                  </FormLabel>
+                  <Switch
+                    id="connect-with-key"
+                    isChecked={connectWithSshKey}
+                    onChange={() => toggleConnectWithSshKey()}
+                  />
+                </FormControl>
+
+                {connectWithSshKey && (
+                  <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div className="sm:w-1/2">
+                      <FormControl
+                        id="ssh-key"
+                        isInvalid={!isUndefined(errors?.ssh?.key?.message)}
+                      >
+                        <FormLabel>SSH key</FormLabel>
+                        <input
+                          type="file"
+                          {...register("ssh.key")}
+                        />
+                        <FormErrorMessage>
+                          {errors?.ssh?.key?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                    <div className="sm:w-1/2">
+                      <FormControl
+                        id="passphrase"
+                        isInvalid={
+                          !isUndefined(errors?.ssh?.passphrase?.message)
+                        }
+                      >
+                        <FormLabel>SSH key passphrase</FormLabel>
+                        <Input
+                          type="text"
+                          placeholder={placeholders?.ssh?.passphrase}
+                          {...register("ssh.passphrase")}
+                        />
+                        <FormHelperText>Leave empty if the key is not encrypted.</FormHelperText>
+                        <FormErrorMessage>
+                          {errors?.ssh?.passphrase?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                  </div>
+                )}
               </>
             )}
-
-            <FormControl
-              id="organization"
-              isInvalid={!isUndefined(errors?.organizationId?.message)}
-            >
-              <FormLabel>Organization</FormLabel>
-              <Select {...register("organizationId")}>
-                {organizations.map(({ id, name }) => (
-                  <option key={id} value={id}>
-                    {name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>
-                {errors?.organizationId?.message}
-              </FormErrorMessage>
-            </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>
         </div>

@@ -1480,6 +1480,13 @@
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.4.1.tgz#bfd02c1f2224567676c1545199f87c3a861d878d"
   integrity sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==
 
+"@types/formidable@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@types/formidable/-/formidable-1.2.4.tgz#9cb074253f9431a8bf3546ee2297b679c4d89483"
+  integrity sha512-Z+ICLPV/BPYK5pHYDryNKRk26etA9WCicg620XZM0Uqto5gOv6XySMIlXQ3Ae6V3tS7CZNpE8UdHuuxOZxWVfw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/fs-extra@^9.0.12":
   version "9.0.13"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.13.tgz#7594fbae04fe7f1918ce8b3d213f74ff44ac1f45"
@@ -4106,6 +4113,11 @@ form-data@~2.3.2:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
+
+formidable@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.2.tgz#bf69aea2972982675f00865342b982986f6b8dd9"
+  integrity sha512-V8gLm+41I/8kguQ4/o1D3RIHRmhYFG4pnNyonvua+40rqcEmT4+V71yaZ3B457xbbgCsCfjSPi65u/W6vK1U5Q==
 
 fraction.js@^4.1.1:
   version "4.1.1"

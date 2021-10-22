@@ -108,12 +108,37 @@ export const dataSourcesApiSlice = createApi({
           { type: "DataSource", id: "LIST" },
         ],
       }),
-      checkConnection: builder.mutation<ApiResponse, Partial<{ body: unknown }>>({
-        query: ({ body }) => ({
-          url: `${apiUrl}/data-sources/check-connection`,
-          method: "POST",
-          body,
-        }),
+      checkConnection: builder.mutation<unknown, Partial<{ body: any }>>({
+        /**
+         * Using queryFn to build up the FormData object
+         */
+        async queryFn({ body }, _queryApi, _extraOptions, fetchWithBQ) {
+          // upload with multipart/form-data
+          const formData = new FormData();
+
+          // Append common data
+          formData.append("type", body.type);
+          formData.append("credentials", JSON.stringify(body.credentials));
+
+          // Append ssh if it meets the requirements.
+          if (body.ssh.host) {
+            formData.append("ssh", JSON.stringify(body.ssh));
+            // Append the file
+            formData.append("key", body.ssh.key[0]);
+          }
+
+          const response = await fetchWithBQ({
+            url: `${apiUrl}/data-sources/check-connection`,
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.error) throw response.error;
+
+          return response.data
+            ? { data: response.data }
+            : { error: response.error };
+        },
       }),
     };
   },

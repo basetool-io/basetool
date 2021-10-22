@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import {
   ClientOverrides,
   DataSourceCredentials,
@@ -10,6 +11,7 @@ import {
   SSHCredentials,
 } from "./types";
 import { LOCALHOST } from "@/lib/constants";
+import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
 import getPort from "get-port";
 import tunnel from "tunnel-ssh";
@@ -81,11 +83,15 @@ export const runInSSHTunnel = async ({
   actions,
   dbCredentials,
   SSHCredentials,
+  privateKey,
+  passphrase,
 }: {
   overrides: ClientOverrides;
   actions: Array<() => Promise<unknown>>;
   dbCredentials: DataSourceCredentials;
   SSHCredentials: SSHCredentials;
+  privateKey?: Buffer;
+  passphrase?: string;
 }): Promise<Array<unknown>> => {
   let sshTunnel: Server | undefined;
   let response: Array<unknown>;
@@ -103,6 +109,8 @@ export const runInSSHTunnel = async ({
     // Credentials for the tunnel we're using to bridge the connection.
     localHost: overrides.host,
     localPort: overrides.port,
+    privateKey,
+    passphrase,
   };
 
   // Because the tunnel uses a callback we're going to wrap it into a promise so we can await for it later.
@@ -116,7 +124,12 @@ export const runInSSHTunnel = async ({
           .then((response: any) => resolve(response))
           .catch((error: any) => reject(error));
       });
-      sshTunnel.on("error", (error) => reject(error));
+      sshTunnel.on("error", (error) =>
+        {
+          // console.log('error->', error)
+          return reject(new SSHConnectionError(error.message))
+        }
+      );
     }
   );
 

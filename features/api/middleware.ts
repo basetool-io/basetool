@@ -46,9 +46,9 @@ export const withMiddlewares =
       return await handler(req, res);
     } catch (error: any) {
       captureException(error);
-
+// console.log('process.env.ERRORS_FORMATTED_AS_JSON->', process.env.ERRORS_FORMATTED_AS_JSON)
       // Show a prety message in production and throw the error in development
-      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON) {
+      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === 'true') {
         if (!res.headersSent) {
           const status = error.code && isNumber(error.code) ? error.code : 500
 
