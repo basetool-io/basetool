@@ -82,8 +82,13 @@ const DataSourcesSidebar = () => {
   const router = useRouter();
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
-  const { role, isLoading: sessionIsLoading } = useProfile();
-  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const { user, role, isLoading: sessionIsLoading } = useProfile();
+  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery(
+    undefined,
+    {
+      skip: !user.email,
+    }
+  );
   const prefetchTables = usePrefetch("getTables");
   const { dataSourceId } = useDataSourceContext();
 
