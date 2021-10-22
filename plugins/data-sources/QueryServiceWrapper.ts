@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import {
   ClientOverrides,
   DataSourceCredentials,

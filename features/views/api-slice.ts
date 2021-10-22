@@ -44,8 +44,38 @@ export const viewsApiSlice = createApi({
           { type: "View", id: viewId },
         ],
       }),
+      removeView: builder.mutation<
+        ApiResponse,
+        Partial<{ viewId: string }>
+      >({
+        query: ({ viewId }) => ({
+          url: `${apiUrl}/views/${viewId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "View", id: "LIST" },
+          { type: "View", id: viewId },
+        ],
+      }),
+      updateView: builder.mutation<
+        ApiResponse,
+        Partial<{
+          viewId: string;
+          body: unknown;
+        }>
+      >({
+        query: ({ viewId, body }) => ({
+          url: `${apiUrl}/views/${viewId}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "View", id: "LIST" },
+          { type: "View", id: viewId },
+        ],
+      }),
     };
   },
 });
 
-export const { useAddViewMutation, useGetViewsQuery, useGetViewQuery } = viewsApiSlice;
+export const { useAddViewMutation, useGetViewsQuery, useGetViewQuery, useRemoveViewMutation, useUpdateViewMutation } = viewsApiSlice;

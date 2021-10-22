@@ -13,6 +13,17 @@ export enum IntFilterConditions {
   is_not_null = "is_not_null",
 }
 
+export const options = {
+  is: "=",
+  is_not: "!=",
+  gt: ">",
+  gte: ">=",
+  lt: "<",
+  lte: "<=",
+  is_null: "is_null",
+  is_not_null: "is_not_null",
+}
+
 function IntConditionComponent({
   filter,
   onChange,
@@ -20,18 +31,8 @@ function IntConditionComponent({
   filter: IFilter;
   onChange: (condition: IntFilterConditions) => void;
 }) {
-  const options = {
-    is: "=",
-    is_not: "!=",
-    gt: ">",
-    gte: ">=",
-    lt: "<",
-    lte: "<=",
-    is_null: "is_null",
-    is_not_null: "is_not_null",
-  }
 
-return (
+  return (
     <ConditionSelect
       value={filter.condition}
       options={Object.entries(options)}
