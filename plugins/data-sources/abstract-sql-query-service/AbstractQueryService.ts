@@ -1,6 +1,6 @@
 import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
-import { Column, FieldType } from "@/features/fields/types";
 import {
+  ClientOverrides,
   ColumnWithBaseOptions,
   ColumnWithFieldOptions,
   ColumnWithFieldType,
@@ -9,20 +9,25 @@ import {
   ColumnWithStoredOptions,
   DataSourceCredentials,
   ForeignKeyInfo,
+  ISQLQueryService,
+  SQLDataSourceTypes,
   SqlColumnOptions,
 } from "./types";
+import { Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { DateFilterConditions } from "./../../../features/tables/components/DateConditionComponent";
 import { FilterVerbs } from "@/features/tables/components/VerbComponent";
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
-import { IQueryService } from "../types";
 import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { MysqlCredentials } from "../mysql/types";
+import { PgCredentials } from "../postgresql/types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, getFilteredColumns } from "@/features/fields";
+import { getKnexClient } from "./getKnexClient";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
 import Handlebars from "handlebars";
@@ -361,14 +366,14 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
   }
 };
 
-abstract class AbstractQueryService implements IQueryService {
-  public client: Knex;
+abstract class AbstractQueryService implements ISQLQueryService {
+  public client!: Knex;
 
-  public inspector: SchemaInspector;
+  public inspector!: SchemaInspector;
 
   public dataSource: DataSource;
 
-  public queryResult: unknown = {};
+  public dataSourceType: SQLDataSourceTypes;
 
   public options?: {
     queryParams?: {
@@ -377,34 +382,61 @@ abstract class AbstractQueryService implements IQueryService {
   };
 
   constructor({ dataSource }: { dataSource: DataSource }) {
-    this.dataSource = dataSource;
+    if (!dataSource) throw new Error("No data source provided.");
 
-    this.client = this.getClient();
+    this.dataSource = dataSource;
+    this.dataSourceType = dataSource.type as SQLDataSourceTypes;
+
+    this.setClient();
+  }
+
+  public getClient(overrides?: ClientOverrides): Knex {
+    const credentials = this.getCredentials();
+
+    return getKnexClient(this.dataSourceType, credentials, overrides);
+  }
+
+  public setClient(client?: Knex): this {
+    if (client) {
+      this.client = client;
+    } else {
+      this.client = this.getClient();
+    }
 
     this.inspector = schemaInspector(this.client);
+
+    return this;
+  }
+
+  /**
+   * Update the client with overrides
+   */
+  public updateClient(overrides: ClientOverrides): this {
+    const client = this.getClient(overrides);
+
+    return this.setClient(client);
+  }
+
+  public getSSHCredentials(): DataSourceCredentials {
+    return this.getParsedSSHCredentials();
   }
 
   public getParsedCredentials(): DataSourceCredentials {
-    if (!this.dataSource || !this.dataSource.encryptedCredentials)
-      throw new Error("No data source provided.");
+    if (!this.dataSource.encryptedCredentials)
+      throw new Error("No credentials provided.");
 
-    const credentialsAsAString = decrypt(this.dataSource.encryptedCredentials);
+    return parseEncryptedString(this.dataSource.encryptedCredentials);
+  }
 
-    if (!credentialsAsAString) throw new Error("No credentials on record.");
+  public getParsedSSHCredentials(): DataSourceCredentials {
+    if (!this.dataSource.encryptedSSHCredentials)
+      throw new Error("No SSH credentials provided.");
 
-    let credentials: DataSourceCredentials;
-
-    try {
-      credentials = JSON.parse(credentialsAsAString);
-    } catch (error) {
-      throw new Error("Failed to parse encrypted credentials");
-    }
-
-    return credentials;
+    return parseEncryptedString(this.dataSource.encryptedSSHCredentials);
   }
 
   public async connect(): Promise<this> {
-    // This client does not need to connect
+    // This client type does not need to connect
 
     return this;
   }
@@ -723,7 +755,11 @@ abstract class AbstractQueryService implements IQueryService {
     return columns as [];
   }
 
-  private async computeValue(record: any, editorData: string, computedName: string) {
+  private async computeValue(
+    record: any,
+    editorData: string,
+    computedName: string
+  ) {
     const queryableData = { record };
     if (editorData) {
       try {
@@ -765,8 +801,8 @@ abstract class AbstractQueryService implements IQueryService {
     return foreignKeys;
   }
 
-  abstract getClient(): Knex;
   abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
+  public abstract getCredentials(): PgCredentials | MysqlCredentials;
 }
 
 const getColumnLabel = (column: { name: string }) => {
@@ -802,5 +838,23 @@ async function getDefaultFieldOptionsForFields(
     fieldOptionsTuple.filter((tuple) => !isUndefined(tuple)) as any[]
   );
 }
+
+const parseEncryptedString = (
+  encryptedString: string
+): Record<string, unknown> => {
+  const credentialsAsAString = decrypt(encryptedString);
+
+  if (!credentialsAsAString) throw new Error("No credentials on record.");
+
+  let credentials: DataSourceCredentials;
+
+  try {
+    credentials = JSON.parse(credentialsAsAString);
+  } catch (error) {
+    throw new Error("Failed to parse encrypted credentials");
+  }
+
+  return credentials;
+};
 
 export default AbstractQueryService;

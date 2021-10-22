@@ -89,12 +89,20 @@ const FiltersPanel = (
                 }
 
                 return (
-                  <Filter
-                    key={idx}
-                    idx={idx}
-                    columns={columns}
-                    filter={filter as IFilter}
-                  />
+                  <div
+                    className={
+                      filter?.isBase
+                        ? "opacity-60 pointer-events-none"
+                        : ""
+                    }
+                  >
+                    <Filter
+                      key={idx}
+                      idx={idx}
+                      columns={columns}
+                      filter={filter as IFilter}
+                    />
+                  </div>
                 );
               };
 

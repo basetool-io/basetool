@@ -27,8 +27,6 @@ class QueryService implements IQueryService {
 
   public dataSource: GoogleSheetsDataSource;
 
-  public queryResult: unknown = {};
-
   public options?: GoogleDataSourceOptions;
 
   private doc: GoogleSpreadsheet | undefined;

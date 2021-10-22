@@ -51,16 +51,17 @@ model OrganizationInvitation {
 }
 
 model DataSource {
-  id                   Int           @id @default(autoincrement())
-  name                 String        @db.VarChar(255)
-  options              Json          @default("{}")
-  encryptedCredentials String?
-  type                 String        @db.VarChar(255)
-  organization         Organization? @relation(references: [id], fields: [organizationId])
-  organizationId       Int?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  views                View[]
+  id                      Int           @id @default(autoincrement())
+  name                    String        @db.VarChar(255)
+  options                 Json          @default("{}")
+  encryptedCredentials    String?
+  encryptedSSHCredentials String?
+  type                    String        @db.VarChar(255)
+  organization            Organization? @relation(references: [id], fields: [organizationId])
+  organizationId          Int?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  views                   View[]
 
   @@index([organizationId])
 }
