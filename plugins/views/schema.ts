@@ -5,4 +5,5 @@ export const schema = Joi.object({
   public: Joi.boolean().required(),
   dataSourceId: Joi.number().required(),
   tableName: Joi.string().required(),
+  filters: Joi.array().items(Joi.object()),
 });

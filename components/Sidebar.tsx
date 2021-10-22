@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/outline";
 import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
+import { OWNER_ROLE } from "@/features/roles";
 import { View } from "@prisma/client";
 import { getLabel } from "@/features/data-sources";
 import { isUndefined } from "lodash";
@@ -160,7 +161,8 @@ const Sidebar = () => {
                 ))}
           </Collapse>
         </div>
-        {tablesResponse?.ok && (
+        {tablesResponse?.ok &&
+          ac.hasRole(OWNER_ROLE) && (
           <>
             <hr className="mt-2 mb-2" />
             {tablesError && (

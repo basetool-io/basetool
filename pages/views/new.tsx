@@ -79,7 +79,7 @@ function New() {
     const response = await addView({ body: formData }).unwrap();
 
     if (response && response.ok) {
-      await router.push(`/views/${response.data.id}`);
+      await router.push(`/views/${response.data.id}/edit`);
     }
   };
 
@@ -210,7 +210,7 @@ function New() {
             </ol>
           </nav>
           <div className="py-2 flex flex-col justify-center align-middle w-full h-full px-40">
-            <form className="my-0 space-y-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="my-0 space-y-2">
               {currentStep === 0 && (
                 <FormControl
                   id="name"
@@ -221,6 +221,12 @@ function New() {
                     type="string"
                     placeholder="Active users"
                     {...register("name")}
+                    onKeyUp={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        setCurrentStep(1);
+                      }
+                    }}
                   />
                   <FormHelperText>The name of your view.</FormHelperText>
                   <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
@@ -261,7 +267,15 @@ function New() {
                     <FormLabel>Select table name</FormLabel>
                     {tablesAreLoading && <Shimmer width={450} height={40} />}
                     {tablesAreLoading || (
-                      <Select {...register("tableName")}>
+                      <Select
+                        {...register("tableName")}
+                        onKeyUp={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            setCurrentStep(2);
+                          }
+                        }}
+                      >
                         {tablesResponse?.ok &&
                           tablesResponse?.data.map(
                             (table: ListTable, idx: number) => (
@@ -289,6 +303,12 @@ function New() {
                     size="lg"
                     colorScheme="gray"
                     {...register("public")}
+                    onKeyUp={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSubmit(onSubmit)(e);
+                      }
+                    }}
                   />
                   <FormHelperText>
                     Will this view be visible to everyone?.
