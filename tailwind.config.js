@@ -9,6 +9,7 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
     // './src/widgets/**/*.{js,ts,jsx,tsx}',
     "./plugins/data-sources/**/*.{js,ts,jsx,tsx}",
+    "./plugins/fields/**/*.{js,ts,jsx,tsx}",
     "./lib/**/*.css",
   ],
   mode: "jit",

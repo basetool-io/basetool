@@ -5,28 +5,33 @@ import { isNull } from "lodash";
 import Image from "next/image";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import React, { memo } from "react";
+import classNames from "classnames";
 import md5 from "md5";
 
 const Index = ({ field }: { field: Field }) => {
-  const value = isNull(field.value) ? <Code>null</Code> : field.value;
-  const src = `https://www.gravatar.com/avatar/${md5(value as string)}`;
+  const value = field.value ? field.value.toString() : "";
+  const dimensions =
+    (field.column.fieldOptions as GravatarFieldOptions)?.showDimensions || 340;
+
+  const src = `https://www.gravatar.com/avatar/${md5(value)}?s=${dimensions}`;
   const indexDimensions =
     (field.column.fieldOptions as GravatarFieldOptions)?.indexDimensions || 40;
-  const rounded = (field.column.fieldOptions as GravatarFieldOptions).rounded
-    ? "rounded-full"
-    : "";
 
   return (
     <IndexFieldWrapper field={field} flush={true}>
-      <Image
-        className={`min-w-10 ${rounded}`} //TODO tailwind rounded ignored by Image from nex/image
-        src={src}
-        width={indexDimensions}
-        height={indexDimensions}
-        alt={value as string}
-        title={value as string}
-        priority //the image will be considered high priority and preload
-      />
+      {isNull(field.value) && <Code>null</Code>}
+      {isNull(field.value) || (
+        <Image
+          className={classNames("min-w-10", {
+            "rounded-full": field.column.fieldOptions.rounded,
+          })}
+          src={src}
+          width={indexDimensions}
+          height={indexDimensions}
+          alt={value}
+          title={value}
+        />
+      )}
     </IndexFieldWrapper>
   );
 };

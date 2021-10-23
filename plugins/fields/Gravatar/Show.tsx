@@ -8,23 +8,24 @@ import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFiel
 import md5 from "md5";
 
 const Show = ({ field }: { field: Field }) => {
-  const value = isNull(field.value) ? <Code>null</Code> : field.value;
+  const value = field.value ? field.value.toString() : "";
   const dimensions =
     (field.column.fieldOptions as GravatarFieldOptions)?.showDimensions || 340;
 
-  const src = `https://www.gravatar.com/avatar/${md5(
-    value as string
-  )}?s=${dimensions}`;
+  const src = `https://www.gravatar.com/avatar/${md5(value)}?s=${dimensions}`;
 
   return (
     <ShowFieldWrapper field={field}>
-      <Image
-        src={src}
-        width={dimensions}
-        height={dimensions}
-        alt={value as string}
-        title={value as string}
-      />
+      {isNull(field.value) && <Code>null</Code>}
+      {isNull(field.value) || (
+        <Image
+          src={src}
+          width={dimensions}
+          height={dimensions}
+          alt={value}
+          title={value}
+        />
+      )}
     </ShowFieldWrapper>
   );
 };
