@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { merge } from "lodash";
+import { useDataSourceContext } from "@/hooks";
 import {
   useGetDataSourceQuery,
   useRemoveDataSourceMutation,
@@ -10,7 +11,7 @@ import BackButton from "@/features/records/components/BackButton";
 import DataSourceEditSidebar from "@/features/data-sources/components/DataSourceEditSidebar";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { ReactElement } from "react";
+import React, { ReactElement, memo } from "react";
 
 const DataSourcesEditLayout = ({
   dataSourceId,
@@ -34,7 +35,8 @@ const DataSourcesEditLayout = ({
   children?: ReactElement;
 }) => {
   const router = useRouter();
-  dataSourceId ||= router.query.dataSourceId as string;
+  const { dataSourceId: appRouterDataSourceId } = useDataSourceContext();
+  dataSourceId ||= appRouterDataSourceId;
 
   const {
     data: dataSourceResponse,
@@ -47,7 +49,7 @@ const DataSourcesEditLayout = ({
     }
   );
 
-  backLink ||= `/data-sources/${router.query.dataSourceId}/`;
+  backLink ||= `/data-sources/${dataSourceId}/`;
   crumbs ||= [dataSourceResponse?.data?.name, "Edit"];
 
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
@@ -105,4 +107,4 @@ const DataSourcesEditLayout = ({
   );
 };
 
-export default DataSourcesEditLayout;
+export default memo(DataSourcesEditLayout);

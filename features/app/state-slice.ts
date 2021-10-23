@@ -23,12 +23,9 @@ const appStateSlice = createSlice({
   },
 });
 
-export const sidebarsVisibleSelector = ({ appState }: { appState: AppState }) => appState.sidebarsVisible
+export const sidebarsVisibleSelector = ({ appState }: { appState: AppState }) =>
+  appState.sidebarsVisible;
 
-
-export const {
-  resetState,
-  setSidebarVisibile,
-} = appStateSlice.actions;
+export const { resetState, setSidebarVisibile } = appStateSlice.actions;
 
 export default appStateSlice.reducer;

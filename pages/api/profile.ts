@@ -22,6 +22,7 @@ const handler = async (
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const user = (await getUserFromRequest(req, {
     select: {
+      id: true,
       email: true,
       firstName: true,
       lastName: true,

@@ -1,9 +1,9 @@
 import { Code, FormControl, FormLabel, Input, Select } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { isUndefined } from "lodash";
+import { useDataSourceContext } from "@/hooks";
 import { useBoolean } from "react-use";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
-import { useRouter } from "next/router";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo } from "react";
 import fieldOptions from "./fieldOptions";
@@ -15,7 +15,6 @@ function Inspector({
   column: Column;
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
-  const router = useRouter();
   const initialValue = useMemo(
     () => (column.fieldOptions.nameColumn as string) || fieldOptions.nameColumn,
     [column.fieldOptions.nameColumn, fieldOptions.nameColumn]
@@ -23,7 +22,7 @@ function Inspector({
   const [editRaw, toggleEditRaw] = useBoolean(false);
 
   // fetch the column for that foreign table ahed of time to better show the user what fields he can choose
-  const dataSourceId = router.query.dataSourceId as string;
+  const { dataSourceId } = useDataSourceContext();
   const tableName = column.foreignKeyInfo.foreignTableName;
   const {
     data: columnsResponse,

@@ -30,9 +30,9 @@ import {
   useGetColumnsQuery,
   useUpdateColumnMutation,
 } from "@/features/tables/api-slice";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
-import { useSegment } from "@/hooks";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import TableColumnsEditLayout from "@/features/data-sources/components/TableColumnsEditLayout";
@@ -103,8 +103,7 @@ export const INITIAL_NEW_COLUMN = {
 
 function ColumnEdit() {
   const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  const { dataSourceId, tableName } = useDataSourceContext();
   const columnName = router.query.columnName as string;
 
   const isCreateField = useMemo(
@@ -287,9 +286,9 @@ function ColumnEdit() {
 
   const saveTableSettings = async () => {
     await updateTable({
-      dataSourceId: router.query.dataSourceId as string,
-      tableName: router.query.tableName as string,
-      columnName: router.query.columnName as string,
+      dataSourceId,
+      tableName,
+      columnName,
       body: { changes },
     }).unwrap();
   };
@@ -300,9 +299,9 @@ function ColumnEdit() {
   const deleteField = async () => {
     if (confirm("Are you sure you want to remove this field?")) {
       await deleteColumn({
-        dataSourceId: router.query.dataSourceId as string,
-        tableName: router.query.tableName as string,
-        columnName: router.query.columnName as string,
+        dataSourceId,
+        tableName,
+        columnName,
       });
       await router.push(
         `/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`
@@ -321,8 +320,8 @@ function ColumnEdit() {
       },
     };
     const response = await createColumn({
-      dataSourceId: router.query.dataSourceId as string,
-      tableName: router.query.tableName as string,
+      dataSourceId,
+      tableName,
       body: newColumn,
     });
 

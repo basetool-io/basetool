@@ -7,11 +7,11 @@ import {
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
+import { getForeignName } from "./helpers";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
-import { useForeignName } from "./hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
-import { useRouter } from "next/router";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import Link from "next/link";
 import React, { memo, useMemo } from "react";
@@ -49,17 +49,15 @@ const Edit = ({
       : null;
 
   // Get all the options
-  const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const tableName = field?.column?.foreignKeyInfo?.foreignTableName;
-  const getForeignName = useForeignName(field);
+  const { dataSourceId, tableName } = useDataSourceContext();
+  const foreignTableName = field?.column?.foreignKeyInfo?.foreignTableName;
 
   const { data: recordsResponse, isLoading } = useGetRecordsQuery(
     {
       dataSourceId,
-      tableName,
+      tableName: foreignTableName,
     },
-    { skip: !dataSourceId || !tableName }
+    { skip: !dataSourceId || !foreignTableName }
   );
 
   return (
@@ -84,7 +82,7 @@ const Edit = ({
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
                 <option key={record.id} value={record.id}>
-                  {getForeignName(record)}
+                  {getForeignName(record, field)}
                 </option>
               ))}
           </Select>
@@ -95,7 +93,7 @@ const Edit = ({
             {humanize(field.column.name)} <Code>name</Code> or{" "}
             <Code>title</Code>{" "}
             <Link
-              href={`/data-sources/${dataSourceId}/tables/${router.query.tableName}/edit`}
+              href={`/data-sources/${dataSourceId}/tables/${tableName}/edit`}
             >
               <a className="text-blue-600 cursor-pointer">here</a>
             </Link>

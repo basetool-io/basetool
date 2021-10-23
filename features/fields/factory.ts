@@ -18,6 +18,9 @@ import JsonShowField from "@/plugins/fields/Json/Show";
 import NumberEditField from "@/plugins/fields/Number/Edit";
 import NumberIndexField from "@/plugins/fields/Number/Index";
 import NumberShowField from "@/plugins/fields/Number/Show";
+import ProgressBarEditField from "@/plugins/fields/ProgressBar/Edit";
+import ProgressBarIndexField from "@/plugins/fields/ProgressBar/Index";
+import ProgressBarShowField from "@/plugins/fields/ProgressBar/Show";
 import SelectEditField from "@/plugins/fields/Select/Edit";
 import SelectIndexField from "@/plugins/fields/Select/Index";
 import SelectShowField from "@/plugins/fields/Select/Show";
@@ -29,7 +32,6 @@ import TextareaIndexField from "@/plugins/fields/Textarea/Index";
 import TextareaShowField from "@/plugins/fields/Textarea/Show";
 import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
 import GravatarShowField from "@/plugins/fields/Gravatar/Show";
-
 import type { Column } from "./types";
 
 export const getFieldForEdit = (column: Column) => {
@@ -53,6 +55,8 @@ export const getFieldForEdit = (column: Column) => {
       return JsonEditField;
     case "Association":
       return AssociationEditField;
+    case "ProgressBar":
+      return ProgressBarEditField;
   }
 };
 
@@ -77,6 +81,8 @@ export const getFieldForShow = (column: Column) => {
       return JsonShowField;
     case "Association":
       return AssociationShowField;
+    case "ProgressBar":
+      return ProgressBarShowField;
     case "Gravatar":
       return GravatarShowField;
   }
@@ -103,6 +109,8 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
+    case "ProgressBar":
+      return ProgressBarIndexField;
     case "Gravatar":
       return GravatarIndexField;
   }

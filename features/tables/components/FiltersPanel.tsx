@@ -16,7 +16,16 @@ import GroupFiltersPanel from "./GroupFiltersPanel";
 import React, { forwardRef } from "react";
 import isEmpty from "lodash/isEmpty";
 
-const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
+const FiltersPanel = (
+  {
+    columns,
+    isEditBaseFilters = false,
+  }: {
+    columns: Column[];
+    isEditBaseFilters?: boolean;
+  },
+  ref: any
+) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
@@ -52,7 +61,7 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
   return (
     <div
       ref={ref}
-      className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[31.2rem] min-h-[6rem] mt-8 p-4"
+      className="absolute border rounded-md shadow-lg bg-white z-20 min-w-[31.2rem] min-h-[6rem] p-4 mt-8"
     >
       <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-3">
         <div className="space-y-4">
@@ -66,26 +75,48 @@ const FiltersPanel = ({ columns }: { columns: Column[] }, ref: any) => {
           )}
           {isEmpty(filters) ||
             filters.map((filter, idx) => {
-              if ("isGroup" in filter && filter.isGroup) {
+              const FilterComponent = () => {
+                if ("isGroup" in filter && filter.isGroup) {
+                  return (
+                    <GroupFiltersPanel
+                      key={idx}
+                      idx={idx}
+                      columns={columns}
+                      verb={(filter as IFilterGroup).verb}
+                      filters={(filter as IFilterGroup).filters}
+                    />
+                  );
+                }
+
                 return (
-                  <GroupFiltersPanel
-                    key={idx}
-                    idx={idx}
-                    columns={columns}
-                    verb={(filter as IFilterGroup).verb}
-                    filters={(filter as IFilterGroup).filters}
-                  />
+                  <div
+                    className={
+                      filter?.isBase
+                        ? "opacity-60 pointer-events-none"
+                        : ""
+                    }
+                  >
+                    <Filter
+                      key={idx}
+                      idx={idx}
+                      columns={columns}
+                      filter={filter as IFilter}
+                    />
+                  </div>
                 );
-              } else {
-                return (
-                  <Filter
-                    key={idx}
-                    idx={idx}
-                    columns={columns}
-                    filter={filter as IFilter}
-                  />
-                );
-              }
+              };
+
+              return (
+                <div
+                  className={
+                    filter?.isBase && !isEditBaseFilters
+                      ? "opacity-60 pointer-events-none"
+                      : ""
+                  }
+                >
+                  <FilterComponent />
+                </div>
+              );
             })}
         </div>
         <hr />

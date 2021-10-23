@@ -1,4 +1,19 @@
 import type { Column } from "@/features/fields/types";
+import type { DataSource } from "@/prisma";
+
+export type DataSourceInfo = {
+  id: string;
+  name: string;
+  description: string;
+  readOnly: boolean;
+  pagination: PaginationType;
+  supports?: {
+    filters: boolean;
+    columnsRequest: boolean;
+  };
+};
+
+export type PaginationType = "offset" | "cursor";
 
 export type QueryResponse = {
   data: unknown;
@@ -7,12 +22,12 @@ export type QueryResponse = {
 };
 
 export interface IQueryServiceWrapper {
-  runQuery(name: keyof IQueryService, payload?: unknown);
-  runQueries(queries: { name: keyof IQueryService; payload?: unknown }[]);
+  runQuery(name: keyof ISQLQueryService, payload?: unknown);
+  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]);
 }
+
 export interface IQueryService {
   dataSource: DataSource | undefined;
-  queryResult: unknown;
 
   connect(): Promise<this>;
   disconnect(): Promise<this>;
@@ -64,3 +79,15 @@ export interface DataSourcePlugin {
   name: string;
   description: string;
 }
+
+export type SSHCredentials = {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+};
+
+export type QueryServiceWrapperPayload = {
+  dataSource: DataSource;
+  options?: Record<string, unknown>;
+};

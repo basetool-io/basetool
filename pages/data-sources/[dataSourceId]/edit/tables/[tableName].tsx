@@ -14,6 +14,7 @@ import { Role } from "@prisma/client";
 import { Save } from "react-feather";
 import { getLabel } from "@/features/data-sources";
 import { isArray, isNull, isUndefined, pick } from "lodash";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import {
@@ -21,8 +22,6 @@ import {
   usePrefetch,
   useUpdateTableMutation,
 } from "@/features/tables/api-slice";
-import { useRouter } from "next/router";
-import { useSegment } from "@/hooks";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import Link from "next/link";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
@@ -30,9 +29,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 
 function Edit() {
-  const router = useRouter();
-  const dataSourceId = router.query.dataSourceId as string;
-  const tableName = router.query.tableName as string;
+  const { dataSourceId, tableName } = useDataSourceContext();
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
     useGetDataSourceQuery(
@@ -127,7 +124,7 @@ function Edit() {
 
   return (
     <DataSourcesEditLayout
-      backLink={`/data-sources/${router.query.dataSourceId}/tables/${router.query.tableName}`}
+      backLink={`/data-sources/${dataSourceId}/tables/${tableName}`}
       backLabel="Back to table"
       crumbs={[dataSourceResponse?.data.name, "Edit", table?.name]}
       isLoading={dataSourceIsLoading}

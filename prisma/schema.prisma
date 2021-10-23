@@ -51,15 +51,17 @@ model OrganizationInvitation {
 }
 
 model DataSource {
-  id                   Int           @id @default(autoincrement())
-  name                 String        @db.VarChar(255)
-  options              Json          @default("{}")
-  encryptedCredentials String?
-  type                 String        @db.VarChar(255)
-  organization         Organization? @relation(references: [id], fields: [organizationId])
-  organizationId       Int?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  id                      Int           @id @default(autoincrement())
+  name                    String        @db.VarChar(255)
+  options                 Json          @default("{}")
+  encryptedCredentials    String?
+  encryptedSSHCredentials String?
+  type                    String        @db.VarChar(255)
+  organization            Organization? @relation(references: [id], fields: [organizationId])
+  organizationId          Int?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  views                   View[]
 
   @@index([organizationId])
 }
@@ -140,10 +142,14 @@ model View {
   createdBy      Int
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
+  dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  dataSourceId   Int
   tableName      String       @db.VarChar(255)
   filters        Json         @default("[]")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@index([createdBy, organizationId])
+  @@index([createdBy])
+  @@index([organizationId])
+  @@index([dataSourceId])
 }

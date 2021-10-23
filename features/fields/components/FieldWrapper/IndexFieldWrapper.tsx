@@ -12,10 +12,10 @@ const IndexFieldWrapper = ({
 }) => (
   <div
     className={classNames(
-      "leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis",
+      "leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis px-6 whitespace-nowrap text-sm text-gray-500 truncate",
       {
-        "py-0": flush,
-        "py-2": !flush,
+        "py-2": flush,
+        "py-4": !flush,
       }
     )}
   >
