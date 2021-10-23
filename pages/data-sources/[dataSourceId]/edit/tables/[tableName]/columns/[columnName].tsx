@@ -207,19 +207,16 @@ function ColumnEdit() {
       });
     }
 
+    if (localColumn && localColumn.baseOptions.readonly) {
+      setColumnOptions(localColumn, { "baseOptions.required": false });
+    }
+
     if (localColumn && localColumn.baseOptions.nullable) {
       setColumnOptions(localColumn, { "baseOptions.required": false });
 
       if (isEmpty(localColumn.baseOptions.nullValues)) {
         setColumnOptions(localColumn, { "baseOptions.nullValues": [""] });
       }
-    }
-
-    if (localColumn && localColumn.baseOptions.readonly) {
-      setColumnOptions(localColumn, {
-        "baseOptions.required": false,
-        "baseOptions.nullable": true,
-      });
     }
   }, [
     localColumn?.baseOptions?.required,
@@ -602,7 +599,10 @@ You can control where the field is visible here.`}
                       <Checkbox
                         id="required"
                         isChecked={localColumn.baseOptions.required === true}
-                        isDisabled={localColumn.baseOptions.nullable === true}
+                        isDisabled={
+                          localColumn.baseOptions.nullable === true ||
+                          localColumn.baseOptions.readonly === true
+                        }
                         onChange={() =>
                           setColumnOptions(localColumn, {
                             "baseOptions.required":
