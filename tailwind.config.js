@@ -97,9 +97,6 @@ module.exports = {
           },
         },
       },
-      borderRadius: {
-        full: "9999px",
-      },
     },
   },
   variants: {
