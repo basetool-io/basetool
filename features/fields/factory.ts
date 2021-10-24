@@ -30,6 +30,8 @@ import TextShowField from "@/plugins/fields/Text/Show";
 import TextareaEditField from "@/plugins/fields/Textarea/Edit";
 import TextareaIndexField from "@/plugins/fields/Textarea/Index";
 import TextareaShowField from "@/plugins/fields/Textarea/Show";
+import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
+import GravatarShowField from "@/plugins/fields/Gravatar/Show";
 import type { Column } from "./types";
 
 export const getFieldForEdit = (column: Column) => {
@@ -79,8 +81,10 @@ export const getFieldForShow = (column: Column) => {
       return JsonShowField;
     case "Association":
       return AssociationShowField;
-      case "ProgressBar":
+    case "ProgressBar":
       return ProgressBarShowField;
+    case "Gravatar":
+      return GravatarShowField;
   }
 };
 
@@ -105,8 +109,10 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
-      case "ProgressBar":
+    case "ProgressBar":
       return ProgressBarIndexField;
+    case "Gravatar":
+      return GravatarIndexField;
   }
 };
 
