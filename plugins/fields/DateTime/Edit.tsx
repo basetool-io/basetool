@@ -148,7 +148,7 @@ const Edit = ({
 
       return [localValue, false, parsed.invalidReason];
     } else {
-      return ['', true, null]
+      return ["", true, null];
     }
   }, [localValue, field.value]);
 
@@ -172,6 +172,7 @@ const Edit = ({
                 timeIntervals={15}
                 timeCaption="Time"
                 customInput={<CustomInput />}
+                readOnly={readonly}
               />
             </InputRightAddon>
           </InputGroup>
