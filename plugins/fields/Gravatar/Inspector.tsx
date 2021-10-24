@@ -1,5 +1,6 @@
 import { Checkbox, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import { merge } from "lodash";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect } from "react";
 import fieldOptions from "./fieldOptions";
@@ -11,18 +12,13 @@ function Inspector({
   column: Column;
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
-  const initialShowDimensions = column.fieldOptions.showDimensions
-    ? column.fieldOptions.showDimensions
-    : fieldOptions.showDimensions;
-
-  const initialIndexDimensions = column.fieldOptions.indexDimensions
-    ? column.fieldOptions.indexDimensions
-    : fieldOptions.indexDimensions;
+  const options = merge(fieldOptions, column.fieldOptions);
 
   // when changing the field type to this one, the new options are not automatically passed to the column
   useEffect(() => {
     setColumnOptions(column, {
-      "fieldOptions.showDimensions": initialShowDimensions,
+      "fieldOptions.indexDimensions": options.indexDimensions,
+      "fieldOptions.showDimensions": options.showDimensions,
     });
   }, []);
 
@@ -34,7 +30,7 @@ function Inspector({
           <Input
             type="number"
             name="dimensions"
-            value={column.fieldOptions.showDimensions as number}
+            value={options.showDimensions as number}
             placeholder="Show Dimensions"
             required={false}
             onChange={(e) => {
@@ -42,7 +38,7 @@ function Inspector({
                 "fieldOptions.showDimensions":
                   parseInt(e.currentTarget.value) > 0
                     ? parseInt(e.currentTarget.value)
-                    : initialShowDimensions,
+                    : options.showDimensions,
               });
             }}
           />
@@ -54,7 +50,7 @@ function Inspector({
           <Input
             type="number"
             name="dimensions"
-            value={column.fieldOptions.indexDimensions as number}
+            value={options.indexDimensions as number}
             placeholder="Index Dimensions"
             required={false}
             onChange={(e) => {
@@ -62,7 +58,7 @@ function Inspector({
                 "fieldOptions.indexDimensions":
                   parseInt(e.currentTarget.value) > 0
                     ? parseInt(e.currentTarget.value)
-                    : initialIndexDimensions,
+                    : options.indexDimensions,
               });
             }}
           />
@@ -70,16 +66,16 @@ function Inspector({
       </OptionWrapper>
       <OptionWrapper helpText="Rounded gravatar">
         <FormControl id="openNewTab" className="mt-2">
-          <FormLabel>Rounded Gravatar</FormLabel>
+          <FormLabel>Avatar shape</FormLabel>
           <Checkbox
-            isChecked={column.fieldOptions.rounded as boolean}
+            isChecked={options.rounded as boolean}
             onChange={() =>
               setColumnOptions(column, {
-                "fieldOptions.rounded": !column.fieldOptions.rounded,
+                "fieldOptions.rounded": !options.rounded,
               })
             }
           >
-            Rounded Gravatar
+            Rounded avatar
           </Checkbox>
         </FormControl>
       </OptionWrapper>
