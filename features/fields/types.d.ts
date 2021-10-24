@@ -12,7 +12,7 @@ export type FieldType =
   | "Json"
   | "Association"
   | "ProgressBar"
-  ;
+  | "Gravatar";
 
 export type ForeignKey = {
   /* eslint-disable camelcase */
