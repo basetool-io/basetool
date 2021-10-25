@@ -6,12 +6,17 @@ import {
   PlusIcon,
 } from "@heroicons/react/outline";
 import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { FavouriteItem, View } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { OWNER_ROLE } from "@/features/roles";
-import { View } from "@prisma/client";
 import { getLabel } from "@/features/data-sources";
 import { isUndefined } from "lodash";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import {
+  useAccessControl,
+  useDataSourceContext,
+  useFavourites,
+  useProfile,
+} from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
@@ -21,6 +26,7 @@ import React, { memo } from "react";
 import Shimmer from "./Shimmer";
 import SidebarItem from "./SidebarItem";
 import isEmpty from "lodash/isEmpty";
+import router from "next/router";
 
 const Sidebar = () => {
   const { dataSourceId, tableName, viewId } = useDataSourceContext();
@@ -66,6 +72,8 @@ const Sidebar = () => {
       defaultIsOpen: true,
     });
 
+  const { favourites, isLoading: favouritesIsLoading, isFavourite } = useFavourites();
+
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
       <div className="relative space-y-x w-full h-full flex flex-col">
@@ -107,8 +115,26 @@ const Sidebar = () => {
               )}
             </div>
           </div>
+          <Collapse in={isFavouritesOpen}>
+            {favourites &&
+              favourites.map((favourite: FavouriteItem, idx: number) => (
+                <SidebarItem
+                  key={idx}
+                  active={favourite.url === router.asPath}
+                  label={favourite.name}
+                  link={favourite.url}
+                />
+              ))}
+          </Collapse>
+          {(favouritesIsLoading) && (
+              <div className="flex-1 min-h-full">
+                <LoadingOverlay
+                  transparent={isEmpty(viewsResponse?.data)}
+                  subTitle={false}
+                />
+              </div>
+            )}
         </div>
-        <Collapse in={isFavouritesOpen}>HERE PUT FAVS</Collapse>
 
         <hr className="mt-2 mb-2" />
         <div className="relative space-y-1 px-2 flex-col">
@@ -176,7 +202,7 @@ const Sidebar = () => {
                 .map((view: View, idx: number) => (
                   <SidebarItem
                     key={idx}
-                    active={view.id === parseInt(viewId)}
+                    active={view.id === parseInt(viewId) && !isFavourite(`/views/${view.id}`)}
                     label={view.name}
                     link={`/views/${view.id}`}
                   />
@@ -228,7 +254,7 @@ const Sidebar = () => {
                     .map((table: ListTable, idx: number) => (
                       <SidebarItem
                         key={idx}
-                        active={table.name === tableName && isUndefined(viewId)}
+                        active={table.name === tableName && isUndefined(viewId) && !isFavourite(`/data-sources/${dataSourceId}/tables/${table.name}`)}
                         label={getLabel(table)}
                         link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                         onMouseOver={() => {

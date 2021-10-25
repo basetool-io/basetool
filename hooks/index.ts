@@ -1,6 +1,7 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import {
   DataSource,
+  FavouriteItem,
   Organization,
   OrganizationUser,
   User,
@@ -27,7 +28,12 @@ import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
-import { useEffect } from "react";
+import {
+  useAddFavouriteMutation,
+  useGetFavouritesQuery,
+  useRemoveFavouriteMutation,
+} from "@/features/favourites/api-slice";
+import { useEffect, useState } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
@@ -329,4 +335,50 @@ export const useSegment = (
 
   // return the track method to be used at a later time
   return track;
+};
+
+export const useFavourites = (): {
+  favourites: FavouriteItem[];
+  addFavourite: (name: string, url: string) => void;
+  removeFavourite: (url: string) => void;
+  isFavourite: (url: string) => boolean;
+  isLoading: boolean;
+} => {
+  const { data: favouritesResponse, isLoading: favsAreLoading } =
+    useGetFavouritesQuery();
+  const [addFavourite, { isLoading: addFavIsLoading }] =
+    useAddFavouriteMutation();
+  const [removeFavourite, { isLoading: remFavIsLoading }] =
+    useRemoveFavouriteMutation();
+
+  const [favourites, setFavourites] = useState<FavouriteItem[]>([]);
+
+  useEffect(() => {
+    if (favouritesResponse?.ok) {
+      setFavourites(favouritesResponse.data);
+    }
+  }, [favouritesResponse]);
+
+  const addTheFavourite = async (name: string, url: string) => {
+    await addFavourite({ body: { name, url } }).unwrap();
+  };
+
+  const removeTheFavourite = async (url: string) => {
+    const favouriteId = favourites
+      .find((fav) => fav.url === url)
+      ?.id.toString();
+    await removeFavourite({ favouriteId }).unwrap();
+  };
+
+  const isFavourite = (url: string) => {
+    return favourites.some((fav) => fav.url === url);
+  };
+
+  return {
+    favourites,
+    addFavourite: addTheFavourite,
+    removeFavourite: removeTheFavourite,
+    isFavourite,
+    isLoading: favsAreLoading || addFavIsLoading || remFavIsLoading,
+  };
 };

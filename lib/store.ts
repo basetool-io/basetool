@@ -1,5 +1,6 @@
 import { Middleware, configureStore } from "@reduxjs/toolkit";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
+import { favouritesApiSlice } from "@/features/favourites/api-slice";
 import { keys } from "lodash";
 import { organizationsApiSlice } from "@/features/organizations/api-slice"
 import { profileApiSlice } from "@/features/profile/api-slice";
@@ -50,6 +51,7 @@ const store = configureStore({
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
     [profileApiSlice.reducerPath]: profileApiSlice.reducer,
     [viewsApiSlice.reducerPath]: viewsApiSlice.reducer,
+    [favouritesApiSlice.reducerPath]: favouritesApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -60,7 +62,8 @@ const store = configureStore({
       tablesApiSlice.middleware,
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
-      rtkQueryErrorLogger
+      favouritesApiSlice.middleware,
+      rtkQueryErrorLogger,
     ),
   devTools: process.env.NODE_ENV !== "production",
 });

@@ -73,7 +73,7 @@ const recordsStateSlice = createSlice({
     },
     resetRecordsSelection(state) {
       state.selectedRecords = [];
-    },
+    }
   },
 });
 
