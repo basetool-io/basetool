@@ -8,8 +8,10 @@ import { ISQLQueryService } from "./abstract-sql-query-service/types";
 import { LOCALHOST } from "@/lib/constants";
 import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
+import { decrypt, encrypt } from "@/lib/crypto";
 import { s3KeysBucket } from "@/features/data-sources";
 import S3 from "aws-sdk/clients/s3";
+import cache from "@/features/cache";
 import getPort from "get-port";
 import tunnel from "tunnel-ssh";
 
@@ -52,22 +54,9 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
       // Grab the SSH key from S3 if required
       if (SSHCredentials.connectsWithKey) {
-        const S3Client = new S3({
-          accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
-          region: process.env.AWS_S3_DS_KEYS_REGION,
-        });
-
-        const params = {
-          Key: this.queryService.dataSource.id.toString(),
-          Bucket: s3KeysBucket(),
-        };
-
-        const response = await S3Client.getObject(params).promise();
-
-        if (!response.ETag) throw new Error("Failed to fetch the SSH key.");
-
-        SSHCredentials.privateKey = response.Body;
+        SSHCredentials.privateKey = await getSSHKey(
+          this.queryService.dataSource.id.toString()
+        );
       }
 
       response = await runInSSHTunnel({
@@ -153,4 +142,46 @@ export const runInSSHTunnel = async ({
   if (sshTunnel) await sshTunnel.close();
 
   return response;
+};
+
+/**
+ * Fetches and caches the key from S3
+ */
+const getSSHKey = async (Key: string) => {
+  // Cache the key for 15 minutes so we avoid the S3 transport time.
+  const stringifiedKey = await cache.fetch<string>({
+    key: `ssh_key:${Key}`,
+    options: {
+      expiresIn: 900, // 15 minutes
+    },
+    callback: async () => {
+      const key = await fetchKeyFromS3(Key);
+
+      return encrypt(key?.toString() as string);
+    },
+  });
+
+  return decrypt(stringifiedKey);
+};
+
+/**
+ * Fetches the key from S3
+ */
+const fetchKeyFromS3 = async (Key: string) => {
+  const S3Client = new S3({
+    accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_S3_DS_KEYS_REGION,
+  });
+
+  const params = {
+    Key,
+    Bucket: s3KeysBucket(),
+  };
+
+  const response = await S3Client.getObject(params).promise();
+
+  if (!response.ETag) throw new Error("Failed to fetch the SSH key.");
+
+  return response.Body;
 };
