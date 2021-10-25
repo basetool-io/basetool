@@ -61,7 +61,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
         const params = {
           Key: this.queryService.dataSource.id.toString(),
-          Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}-${process.env.NODE_ENV}`,
+          Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}${process.env.NODE_ENV}`,
         };
 
         const response = await S3Client.getObject(params).promise();

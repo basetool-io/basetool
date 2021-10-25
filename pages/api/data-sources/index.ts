@@ -204,7 +204,7 @@ const storeSSHKey = async ({ Key, Body }: { Key: string; Body: Buffer }) => {
   const params = {
     Key,
     Body,
-    Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}-${process.env.NODE_ENV}`,
+    Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}${process.env.NODE_ENV}`,
   };
 
   return await S3Client.putObject(params).promise();
