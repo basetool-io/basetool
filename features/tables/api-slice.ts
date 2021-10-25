@@ -100,7 +100,7 @@ export const tablesApiSlice = createApi({
           { type: "TableColumns", id: "LIST" },
         ],
       }),
-      updateTables: builder.mutation<
+      updateTablesOrder: builder.mutation<
         ApiResponse,
         Partial<{
           dataSourceId: string;
@@ -108,7 +108,7 @@ export const tablesApiSlice = createApi({
         }>
       >({
         query: ({ dataSourceId, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}`,
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/order`,
           method: "PUT",
           body,
         }),
