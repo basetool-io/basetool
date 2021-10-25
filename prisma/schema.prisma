@@ -108,6 +108,7 @@ model User {
   accounts       Account[]
   sessions       Session[]
   views          View[]
+  favouriteItem  FavouriteItem[]
 }
 
 model VerificationRequest {
@@ -152,4 +153,16 @@ model View {
   @@index([createdBy])
   @@index([organizationId])
   @@index([dataSourceId])
+}
+
+model FavouriteItem {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  url       String   @db.VarChar(255)
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
