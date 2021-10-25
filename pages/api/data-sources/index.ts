@@ -77,6 +77,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       name: true,
       organizationId: true,
       type: true,
+      options: true,
     },
   });
 
@@ -121,6 +122,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   // Parse and assign the credentials
   const type = fields.type;
   const credentials = JSON.parse(fields.credentials);
+  const options = JSON.parse(fields.options);
   const ssh = fields.ssh ? JSON.parse(fields.ssh) : {};
   delete ssh.key // remove the file reference
   const body = {
@@ -130,11 +132,6 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     credentials,
     ssh,
   };
-
-  // If we get the key from the client we'll store it in S3
-  if (files.key) {
-    body.ssh.connectsWithKey = true
-  }
 
   const schema = getSchema(type);
   if (schema) {
@@ -153,6 +150,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const dataSource = await prisma.dataSource.create({
     data: {
       name: body.name,
+      options,
       type,
       encryptedCredentials,
       encryptedSSHCredentials,

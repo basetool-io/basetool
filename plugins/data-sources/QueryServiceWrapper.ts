@@ -42,7 +42,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
     );
 
     // If the datasource has SSH credentials we should use a tunnel to pass the connection through.
-    if (this.dataSource.encryptedSSHCredentials) {
+    if ((this.dataSource.options as any)?.connectsWithSSH) {
       const overrides = await getOverrides();
       // Update the client with the new SSH tunnel credentials
       await this.queryService.updateClient(overrides);
@@ -53,7 +53,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
       SSHCredentials.port = parseInt(SSHCredentials.port);
 
       // Grab the SSH key from S3 if required
-      if (SSHCredentials.connectsWithKey) {
+      if ((this.dataSource?.options as any)?.connectsWithSSHKey) {
         SSHCredentials.privateKey = await getSSHKey(
           this.queryService.dataSource.id.toString()
         );

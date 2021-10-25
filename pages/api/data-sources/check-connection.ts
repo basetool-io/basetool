@@ -48,9 +48,10 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   // Parse and assign the credentials
   const type = fields.type;
   const credentials = JSON.parse(fields.credentials);
+  const options = JSON.parse(fields.options);
   let SSHCredentials = fields.ssh ? JSON.parse(fields.ssh) : {};
 
-  if (SSHCredentials?.host) {
+  if (options.connectsWithSSH) {
     // Get local port number
     const overrides = await getOverrides();
     // Add the overrides to the client credentials

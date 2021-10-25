@@ -9,6 +9,7 @@ const dataSourceFormData = (body: any) => {
 
   // Append common data
   formData.append("name", body.name);
+  formData.append("options", JSON.stringify(body.options));
   formData.append("organizationId", body.organizationId);
   formData.append("type", body.type);
   formData.append("credentials", JSON.stringify(body.credentials));
