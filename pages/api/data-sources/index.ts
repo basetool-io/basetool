@@ -207,12 +207,5 @@ const storeSSHKey = async ({ Key, Body }: { Key: string; Body: Buffer }) => {
     Bucket: s3KeysBucket(),
   };
 
-  console.log('creds->', {
-    Bucket: s3KeysBucket(),
-    accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_S3_DS_KEYS_REGION,
-  })
-
   return await S3Client.putObject(params).promise();
 };
