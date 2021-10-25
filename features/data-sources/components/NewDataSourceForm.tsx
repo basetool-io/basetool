@@ -34,6 +34,10 @@ export type IFormFields = {
   name: string;
   type: SQLDataSourceTypes;
   organizationId: number;
+  options: {
+    connectsWithSSH: boolean;
+    connectsWithSSHKey: boolean;
+  };
   credentials: {
     host: string;
     port: number;
@@ -74,8 +78,8 @@ const NewDataSourceForm = ({
     type?: string;
     organizationId?: string;
     options?: {
-      connectsWithSSH: boolean;
-      connectsWithSSHKey: boolean;
+      connectsWithSSH?: boolean;
+      connectsWithSSHKey?: boolean;
     };
     credentials?: {
       host?: string;
@@ -194,7 +198,7 @@ const NewDataSourceForm = ({
     let body: any = { type, credentials, options };
 
     // Add the SSH credentials
-    if (formData.options.connectsWithSSH)
+    if (formData?.options?.connectsWithSSH)
       body = {
         ...body,
         ssh,
@@ -399,11 +403,14 @@ const NewDataSourceForm = ({
               </FormLabel>
               <Switch
                 id="connect-with-ssh"
-                isChecked={formData.options.connectsWithSSH}
+                isChecked={formData?.options?.connectsWithSSH}
                 onChange={() =>
                   setValue(
-                    "options.connectsWithSSH",
-                    !formData.options.connectsWithSSH,
+                    "options",
+                    {
+                      ...formData?.options,
+                      connectsWithSSH: !formData?.options?.connectsWithSSH,
+                    },
                     {
                       shouldTouch: true,
                     }
@@ -494,11 +501,15 @@ const NewDataSourceForm = ({
                   </FormLabel>
                   <Switch
                     id="connect-with-key"
-                    isChecked={formData.options.connectsWithSSHKey}
+                    isChecked={formData?.options?.connectsWithSSHKey}
                     onChange={() =>
                       setValue(
-                        "options.connectsWithSSHKey",
-                        !formData.options.connectsWithSSHKey,
+                        "options",
+                        {
+                          ...formData?.options,
+                          connectsWithSSHKey:
+                            !formData?.options?.connectsWithSSHKey,
+                        },
                         {
                           shouldTouch: true,
                         }
