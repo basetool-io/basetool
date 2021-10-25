@@ -1,5 +1,7 @@
+import * as fs from "fs";
 import { HeartbeatResult } from "knex-utils/dist/lib/heartbeatUtils";
 import { SSHConnectionError } from "@/lib/errors";
+import { SSHTunnelCredentials } from "@/plugins/data-sources/types";
 import { checkHeartbeat } from "knex-utils";
 import { first } from "lodash";
 import { getKnexClient } from "@/plugins/data-sources/abstract-sql-query-service/getKnexClient";
@@ -36,16 +38,15 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const { fields, files } = await new Promise((resolve, reject) => {
     return form.parse(req, (error: any, fields: any, files: any) => {
       if (error) reject(error);
-      console.log(2, error, fields, files);
 
       resolve({ fields, files });
     });
   });
 
-  const privateKey = files[0];
+  // Parse and assign the credentials
   const type = fields.type;
   const credentials = JSON.parse(fields.credentials);
-  const ssh = fields.ssh ? JSON.parse(fields.ssh) : {};
+  let SSHCredentials = fields.ssh ? JSON.parse(fields.ssh) : {};
 
   // Get local port number
   const overrides = await getOverrides();
@@ -58,33 +59,35 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     ...credentials,
     ...overrides,
   };
-  // Set the SSH creds
-  const SSHCredentials = {
-    ...ssh,
-    privateKey,
-  };
-  delete SSHCredentials.password;
-  // console.log(
-  //   "SSHCredentials->",
-  //   ssh,
-  //   dbCredentials,
-  //   clientCredentials,
-  //   // SSHCredentials
-  // );
-  // return res.send({});
+
   // Get a new client
   const client = getKnexClient(type, clientCredentials);
 
   // Wrap the action in an array
   const actions = [() => checkHeartbeat(client)];
+
+  // If we get the key from the client we try and add it to the configuration
+  if (files.key) {
+    const privateKey = fs.readFileSync(files.key._writeStream.path);
+
+    SSHCredentials = {
+      ...SSHCredentials,
+      privateKey,
+      passphrase: SSHCredentials.passphrase,
+    };
+  }
+
+  // Create the final SSH tunnel configuration
+  const tunnelConfig: SSHTunnelCredentials = {
+    overrides,
+    actions,
+    dbCredentials,
+    SSHCredentials,
+  };
+
   // Check the connection
   try {
-    const results = await runInSSHTunnel({
-      overrides,
-      actions,
-      dbCredentials,
-      SSHCredentials,
-    });
+    const results = await runInSSHTunnel(tunnelConfig);
     const response = first(results) as HeartbeatResult;
 
     if (response.isOk) {

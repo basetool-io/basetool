@@ -1,14 +1,12 @@
-import {
-  ClientOverrides,
-  DataSourceCredentials,
-  ISQLQueryService,
-} from "./abstract-sql-query-service/types";
 import { DataSource } from "@prisma/client";
 import {
   IQueryServiceWrapper,
   QueryServiceWrapperPayload,
-  SSHCredentials,
+  SSHTunnelCredentials,
 } from "./types";
+import {
+  ISQLQueryService,
+} from "./abstract-sql-query-service/types";
 import { LOCALHOST } from "@/lib/constants";
 import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
@@ -82,16 +80,7 @@ export const runInSSHTunnel = async ({
   actions,
   dbCredentials,
   SSHCredentials,
-  privateKey,
-  passphrase,
-}: {
-  overrides: ClientOverrides;
-  actions: Array<() => Promise<unknown>>;
-  dbCredentials: DataSourceCredentials;
-  SSHCredentials: SSHCredentials;
-  privateKey?: Buffer;
-  passphrase?: string;
-}): Promise<Array<unknown>> => {
+}: SSHTunnelCredentials): Promise<Array<unknown>> => {
   let sshTunnel: Server | undefined;
   let response: Array<unknown>;
 
@@ -108,8 +97,8 @@ export const runInSSHTunnel = async ({
     // Credentials for the tunnel we're using to bridge the connection.
     localHost: overrides.host,
     localPort: overrides.port,
-    privateKey,
-    passphrase,
+    privateKey: SSHCredentials.privateKey,
+    passphrase: SSHCredentials.passphrase,
   };
 
   // Because the tunnel uses a callback we're going to wrap it into a promise so we can await for it later.
@@ -131,6 +120,7 @@ export const runInSSHTunnel = async ({
       );
     }
   );
+
 
   try {
     // Await for the response from the DB query

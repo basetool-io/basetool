@@ -85,9 +85,18 @@ export type SSHCredentials = {
   port: number;
   user: string;
   password: string;
+  privateKey?: Buffer;
+  passphrase?: string;
 };
 
 export type QueryServiceWrapperPayload = {
   dataSource: DataSource;
   options?: Record<string, unknown>;
 };
+
+export type SSHTunnelCredentials = {
+  overrides: ClientOverrides;
+  actions: Array<() => Promise<unknown>>;
+  dbCredentials: DataSourceCredentials;
+  SSHCredentials: SSHCredentials;
+}
