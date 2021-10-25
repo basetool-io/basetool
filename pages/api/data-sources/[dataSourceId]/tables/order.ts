@@ -42,7 +42,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Updated data source order",
+    event: "Re-odered tables.",
     properties: {
       id: dataSource.type,
     },
