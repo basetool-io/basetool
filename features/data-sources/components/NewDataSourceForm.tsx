@@ -18,7 +18,6 @@ import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
 } from "@/features/data-sources/api-slice";
-import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -74,6 +73,10 @@ const NewDataSourceForm = ({
     name?: string;
     type?: string;
     organizationId?: string;
+    options: {
+      connectsWithSSH: boolean;
+      connectsWithSSHKey: boolean;
+    };
     credentials?: {
       host?: string;
       port?: number | "";
@@ -100,6 +103,10 @@ const NewDataSourceForm = ({
       name: "",
       type: type,
       organizationId: "",
+      options: {
+        connectsWithSSH: false,
+        connectsWithSSHKey: false,
+      },
       credentials: {
         host: "",
         port: "",
@@ -119,11 +126,15 @@ const NewDataSourceForm = ({
    * Init the form
    */
   const schema = getSchema(type);
-  const { register, handleSubmit, formState, setValue, getValues } = useForm({
-    defaultValues,
-    resolver: joiResolver(schema),
-  });
+  const { register, handleSubmit, formState, setValue, getValues, watch } =
+    useForm({
+      defaultValues,
+      resolver: joiResolver(schema),
+    });
   const errors = useMemo(() => formState.errors, [formState.errors]);
+
+  const watcher = watch();
+  const formData = useMemo(() => getValues(), [watcher]);
 
   /**
    * Submit the form
@@ -179,10 +190,11 @@ const NewDataSourceForm = ({
     const type = getValues("type");
     const credentials = getValues("credentials");
     const ssh = getValues("ssh");
-    let body: any = { type, credentials };
+    const options = getValues("options");
+    let body: any = { type, credentials, options };
 
     // Add the SSH credentials
-    if (connectWithSsh)
+    if (formData.options.connectsWithSSH)
       body = {
         ...body,
         ssh,
@@ -201,14 +213,6 @@ const NewDataSourceForm = ({
       );
     }
   };
-
-  /**
-   * SSH Settings
-   */
-  // Toggle SSH connection
-  const [connectWithSsh, toggleConnectWithSsh] = useBoolean(false);
-  // Toggle SSH with key
-  const [connectWithSshKey, toggleConnectWithSshKey] = useBoolean(false);
 
   return (
     <Layout hideSidebar={true}>
@@ -395,12 +399,20 @@ const NewDataSourceForm = ({
               </FormLabel>
               <Switch
                 id="connect-with-ssh"
-                isChecked={connectWithSsh}
-                onChange={() => toggleConnectWithSsh()}
+                isChecked={formData.options.connectsWithSSH}
+                onChange={() =>
+                  setValue(
+                    "options.connectsWithSSH",
+                    !formData.options.connectsWithSSH,
+                    {
+                      shouldTouch: true,
+                    }
+                  )
+                }
               />
             </FormControl>
 
-            {connectWithSsh && (
+            {formData.options.connectsWithSSH && (
               <>
                 <div className="font-xl font-bold">SSH connection details</div>
 
@@ -465,7 +477,7 @@ const NewDataSourceForm = ({
                       <FormLabel>Password</FormLabel>
                       <Input
                         type="password"
-                        disabled={connectWithSshKey}
+                        disabled={formData.options.connectsWithSSHKey}
                         placeholder={placeholders?.ssh?.password}
                         {...register("ssh.password")}
                       />
@@ -482,12 +494,20 @@ const NewDataSourceForm = ({
                   </FormLabel>
                   <Switch
                     id="connect-with-key"
-                    isChecked={connectWithSshKey}
-                    onChange={() => toggleConnectWithSshKey()}
+                    isChecked={formData.options.connectsWithSSHKey}
+                    onChange={() =>
+                      setValue(
+                        "options.connectsWithSSHKey",
+                        !formData.options.connectsWithSSHKey,
+                        {
+                          shouldTouch: true,
+                        }
+                      )
+                    }
                   />
                 </FormControl>
 
-                {connectWithSshKey && (
+                {formData.options.connectsWithSSHKey && (
                   <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <div className="sm:w-1/2">
                       <FormControl
@@ -495,10 +515,7 @@ const NewDataSourceForm = ({
                         isInvalid={!isUndefined(errors?.ssh?.key?.message)}
                       >
                         <FormLabel>SSH key</FormLabel>
-                        <input
-                          type="file"
-                          {...register("ssh.key")}
-                        />
+                        <input type="file" {...register("ssh.key")} />
                         <FormErrorMessage>
                           {errors?.ssh?.key?.message}
                         </FormErrorMessage>
@@ -517,7 +534,9 @@ const NewDataSourceForm = ({
                           placeholder={placeholders?.ssh?.passphrase}
                           {...register("ssh.passphrase")}
                         />
-                        <FormHelperText>Leave empty if the key is not encrypted.</FormHelperText>
+                        <FormHelperText>
+                          Leave empty if the key is not encrypted.
+                        </FormHelperText>
                         <FormErrorMessage>
                           {errors?.ssh?.passphrase?.message}
                         </FormErrorMessage>
