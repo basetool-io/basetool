@@ -12,5 +12,4 @@ export const DEFAULT_PER_PAGE = 24;
 /**
  * AWS
  */
-export const S3_SSH_KEYS_BUCKET = "basetool-ds-keys-staging";
-export const S3_REGION = "us-east-2";
+export const S3_SSH_KEYS_BUCKET_PREFIX = "basetool-ds-keys-";

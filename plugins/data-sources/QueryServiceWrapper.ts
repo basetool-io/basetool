@@ -7,7 +7,7 @@ import {
 import {
   ISQLQueryService,
 } from "./abstract-sql-query-service/types";
-import { LOCALHOST, S3_REGION, S3_SSH_KEYS_BUCKET } from "@/lib/constants";
+import { LOCALHOST, S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants";
 import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
 import S3 from "aws-sdk/clients/s3"
@@ -56,12 +56,12 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
         const S3Client = new S3({
           accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
           secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
-          region: S3_REGION,
+          region: process.env.AWS_S3_DS_KEYS_REGION,
         });
 
         const params = {
           Key: this.queryService.dataSource.id.toString(),
-          Bucket: S3_SSH_KEYS_BUCKET,
+          Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}-${process.env.NODE_ENV}`,
         };
 
         const response = await S3Client.getObject(params).promise();

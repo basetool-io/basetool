@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { AnyObject } from "immer/dist/internal";
 import { OrganizationUser, User } from "@prisma/client";
-import { S3_REGION, S3_SSH_KEYS_BUCKET } from "@/lib/constants"
+import { S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants"
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
 import { getUserFromRequest } from "@/features/api";
@@ -198,13 +198,13 @@ const storeSSHKey = async ({ Key, Body }: { Key: string; Body: Buffer }) => {
   const S3Client = new S3({
     accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
-    region: S3_REGION,
+    region: process.env.AWS_S3_DS_KEYS_REGION,
   });
 
   const params = {
     Key,
     Body,
-    Bucket: S3_SSH_KEYS_BUCKET,
+    Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}-${process.env.NODE_ENV}`,
   };
 
   return await S3Client.putObject(params).promise();
