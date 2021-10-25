@@ -73,7 +73,7 @@ const NewDataSourceForm = ({
     name?: string;
     type?: string;
     organizationId?: string;
-    options: {
+    options?: {
       connectsWithSSH: boolean;
       connectsWithSSHKey: boolean;
     };
