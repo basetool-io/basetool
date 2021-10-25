@@ -50,7 +50,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
     serverSegment().track({
       userId: user ? user.id : "",
-      event: "Updated data source",
+      event: "Re-odered table columns.",
       properties: {
         id: dataSource.type,
       },
