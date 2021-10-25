@@ -148,7 +148,7 @@ export const {
   useDeleteColumnMutation,
   useCreateColumnMutation,
   useUpdateTableMutation,
-  useUpdateTablesMutation,
+  useUpdateTablesOrderMutation,
   useUpdateColumnsOrderMutation,
   usePrefetch,
 } = tablesApiSlice;
