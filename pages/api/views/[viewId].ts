@@ -40,7 +40,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       dataSourceId: true,
       tableName: true,
       filters: true,
-      orderRule: true,
+      defaultOrder: true,
     },
   });
 

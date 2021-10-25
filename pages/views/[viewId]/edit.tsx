@@ -178,7 +178,7 @@ const Edit = () => {
           isBase: true,
         })),
       },
-      ["name", "public", "dataSourceId", "tableName", "filters", "orderRule"]);
+      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]);
   }, [localView, appliedFilters]);
 
   const handleSubmit = async (e: any) => {
@@ -240,22 +240,22 @@ const Edit = () => {
     }
   };
 
-  const addOrderRule = () => {
-    const newOrderRule = {
+  const adddefaultOrder = () => {
+    const newdefaultOrder = {
       columnName: columns[0].name,
       direction: "asc",
     };
 
     setLocalView({
       ...localView,
-      orderRule: newOrderRule,
+      defaultOrder: newdefaultOrder,
     } as View);
   };
 
-  const removeOrderRule = () => {
+  const removedefaultOrder = () => {
     setLocalView({
       ...localView,
-      orderRule: {},
+      defaultOrder: {},
     } as View);
   };
 
@@ -390,11 +390,11 @@ const Edit = () => {
                 </Collapse>
                 <div className="relative flex w-full h-[30px] justify-between">
                   <div className="my-auto mr-1 font-bold">Default order</div>
-                  {isEmpty(localView?.orderRule) && (
+                  {isEmpty(localView?.defaultOrder) && (
                     <Tooltip label="Add order rule">
                       <div
                         className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                        onClick={() => addOrderRule()}
+                        onClick={() => adddefaultOrder()}
                       >
                         <PlusCircleIcon className="h-4 inline" />
                         Add
@@ -403,22 +403,22 @@ const Edit = () => {
                   )}
                 </div>
                 <div className="space-y-1">
-                  {isEmpty(localView?.orderRule) && (
+                  {isEmpty(localView?.defaultOrder) && (
                     <div className="text-sm text-gray-600">
                       No default order applied to this view
                     </div>
                   )}
-                  {isEmpty(localView?.orderRule) || (
+                  {isEmpty(localView?.defaultOrder) || (
                     <div className="flex w-full space-x-2">
                       <Select
                         size="xs"
                         className="font-mono"
-                        value={(localView?.orderRule as any)?.columnName}
+                        value={(localView?.defaultOrder as any)?.columnName}
                         onChange={(e) =>
                           setLocalView({
                             ...localView,
-                            orderRule: {
-                              ...(localView?.orderRule as any),
+                            defaultOrder: {
+                              ...(localView?.defaultOrder as any),
                               columnName: e.currentTarget.value,
                             },
                           })
@@ -434,12 +434,12 @@ const Edit = () => {
                       <Select
                         size="xs"
                         className="font-mono"
-                        value={(localView?.orderRule as any)?.direction}
+                        value={(localView?.defaultOrder as any)?.direction}
                         onChange={(e) =>
                           setLocalView({
                             ...localView,
-                            orderRule: {
-                              ...(localView?.orderRule as any),
+                            defaultOrder: {
+                              ...(localView?.defaultOrder as any),
                               direction: e.currentTarget.value,
                             },
                           })
@@ -455,7 +455,7 @@ const Edit = () => {
                         <Button
                           size="xs"
                           variant="link"
-                          onClick={() => removeOrderRule()}
+                          onClick={() => removedefaultOrder()}
                         >
                           <XIcon className="h-3 text-gray-700" />
                         </Button>
@@ -469,8 +469,8 @@ const Edit = () => {
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             <RecordsIndex
               displayOnlyTable={true}
-              editViewOrderBy={(localView?.orderRule as any)?.columnName}
-              editViewOrderDirection={(localView?.orderRule as any)?.direction}
+              editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
+              editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
             />
           </div>
         </div>

@@ -151,14 +151,15 @@ const RecordsIndex = ({
         applyFilters(viewResponse.data.filters);
       }
 
+      // We have to check whether there is a default order on the view and the order from the query to be empty.
       if (
-        viewResponse.data.orderRule &&
-        !isEmpty(viewResponse.data.orderRule) &&
+        viewResponse.data.defaultOrder &&
+        !isEmpty(viewResponse.data.defaultOrder) &&
         isUndefined(router.query.orderBy) &&
         isUndefined(router.query.orderDirection)
       ) {
-        setOrderBy(viewResponse.data.orderRule.columnName);
-        setOrderDirection(viewResponse.data.orderRule.direction);
+        setOrderBy(viewResponse.data.defaultOrder.columnName);
+        setOrderDirection(viewResponse.data.defaultOrder.direction);
       }
     }
   }, [tableName, viewId, viewResponse]);
