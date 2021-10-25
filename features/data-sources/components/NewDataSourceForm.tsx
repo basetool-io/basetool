@@ -419,7 +419,7 @@ const NewDataSourceForm = ({
               />
             </FormControl>
 
-            {formData.options.connectsWithSSH && (
+            {formData?.options?.connectsWithSSH && (
               <>
                 <div className="font-xl font-bold">SSH connection details</div>
 
