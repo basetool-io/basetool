@@ -18,6 +18,7 @@ export const schema = Joi.object({
     password: Joi.string().allow(""),
     key: Joi.any(),
     passphrase: Joi.string().allow(""),
+    connectsWithKey: Joi.boolean(),
   }),
   organizationId: Joi.number().required()
 });

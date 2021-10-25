@@ -7,9 +7,10 @@ import {
 import {
   ISQLQueryService,
 } from "./abstract-sql-query-service/types";
-import { LOCALHOST } from "@/lib/constants";
+import { LOCALHOST, S3_REGION, S3_SSH_KEYS_BUCKET } from "@/lib/constants";
 import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
+import S3 from "aws-sdk/clients/s3"
 import getPort from "get-port";
 import tunnel from "tunnel-ssh";
 
@@ -49,6 +50,26 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
       dbCredentials.port = parseInt(dbCredentials.port);
       const SSHCredentials = this.queryService.getSSHCredentials();
       SSHCredentials.port = parseInt(SSHCredentials.port);
+
+      // Grab the SSH key from S3 if required
+      if (SSHCredentials.connectsWithKey) {
+        const S3Client = new S3({
+          accessKeyId: process.env.AWS_S3_DS_KEYS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_S3_DS_KEYS_SECRET_ACCESS_KEY,
+          region: S3_REGION,
+        });
+
+        const params = {
+          Key: this.queryService.dataSource.id.toString(),
+          Bucket: S3_SSH_KEYS_BUCKET,
+        };
+
+        const response = await S3Client.getObject(params).promise();
+
+        if (!response.ETag) throw new Error('Failed to fetch the SSH key.')
+
+        SSHCredentials.privateKey = response.Body
+      }
 
       response = await runInSSHTunnel({
         overrides,
