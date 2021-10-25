@@ -61,6 +61,10 @@ const Sidebar = () => {
   const { isOpen: isViewsOpen, onToggle: toggleViewsOpen } = useDisclosure({
     defaultIsOpen: true,
   });
+  const { isOpen: isFavouritesOpen, onToggle: toggleFavouritesOpen } =
+    useDisclosure({
+      defaultIsOpen: true,
+    });
 
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
@@ -93,6 +97,24 @@ const Sidebar = () => {
           <div className="flex justify-between w-full">
             <div
               className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 w-full cursor-pointer"
+              onClick={toggleFavouritesOpen}
+            >
+              Favourites{" "}
+              {isFavouritesOpen ? (
+                <ChevronDownIcon className="h-3 inline" />
+              ) : (
+                <ChevronLeftIcon className="h-3 inline" />
+              )}
+            </div>
+          </div>
+        </div>
+        <Collapse in={isFavouritesOpen}>HERE PUT FAVS</Collapse>
+
+        <hr className="mt-2 mb-2" />
+        <div className="relative space-y-1 px-2 flex-col">
+          <div className="flex justify-between w-full">
+            <div
+              className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 w-full cursor-pointer"
               onClick={toggleViewsOpen}
             >
               Views{" "}
@@ -110,11 +132,11 @@ const Sidebar = () => {
               ).length > 0 && (
                 <Link href={`/views/new?dataSourceId=${dataSourceId}`}>
                   <a className="flex justify-center items-center mx-2">
-                  <Tooltip label="Add view">
-                    <div>
-                      <PlusCircleIcon className="h-4 inline cursor-pointer" />
-                    </div>
-                  </Tooltip>
+                    <Tooltip label="Add view">
+                      <div>
+                        <PlusCircleIcon className="h-4 inline cursor-pointer" />
+                      </div>
+                    </Tooltip>
                   </a>
                 </Link>
               )}
@@ -161,8 +183,7 @@ const Sidebar = () => {
                 ))}
           </Collapse>
         </div>
-        {tablesResponse?.ok &&
-          ac.hasRole(OWNER_ROLE) && (
+        {tablesResponse?.ok && ac.hasRole(OWNER_ROLE) && (
           <>
             <hr className="mt-2 mb-2" />
             {tablesError && (
