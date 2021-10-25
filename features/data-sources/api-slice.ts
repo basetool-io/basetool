@@ -28,24 +28,24 @@ const dataSourceFormData = (body: any) => {
 /**
  * Using queryFn to build up the FormData object
  */
-const createDataSourceFn = (url: string) => async (
-  { body }: any,
-  _queryApi: any,
-  _extraOptions: any,
-  fetchWithBQ: any
-) => {
-  const formData = dataSourceFormData(body);
+const createDataSourceFn =
+  (url: string) =>
+  async (
+    { body }: any,
+    _queryApi: any,
+    _extraOptions: any,
+    fetchWithBQ: any
+  ) => {
+    const formData = dataSourceFormData(body);
 
-  const response = await fetchWithBQ({
-    url,
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetchWithBQ({
+      url,
+      method: "POST",
+      body: formData,
+    });
 
-  if (response.error) throw response.error;
-
-  return response.data ? { data: response.data } : { error: response.error };
-};
+    return response.data ? { data: response.data } : { error: response.error };
+  };
 
 export const dataSourcesApiSlice = createApi({
   reducerPath: "dataSources",
