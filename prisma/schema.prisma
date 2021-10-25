@@ -146,6 +146,7 @@ model View {
   dataSourceId   Int
   tableName      String       @db.VarChar(255)
   filters        Json         @default("[]")
+  defaultOrder   Json?        @default("{}")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 

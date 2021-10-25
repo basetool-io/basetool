@@ -6,4 +6,5 @@ export const schema = Joi.object({
   dataSourceId: Joi.number().required(),
   tableName: Joi.string().required(),
   filters: Joi.array().items(Joi.object()),
+  defaultOrder: Joi.object(),
 });
