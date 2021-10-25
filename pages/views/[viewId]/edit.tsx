@@ -5,6 +5,7 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
+  Select,
   Tooltip,
   useDisclosure,
   useEditableControls,
@@ -13,7 +14,9 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   PencilAltIcon,
+  PlusCircleIcon,
   TrashIcon,
+  XIcon,
 } from "@heroicons/react/outline";
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { Save } from "react-feather";
@@ -37,6 +40,17 @@ import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import RecordsIndex from "@/features/records/components/RecordsIndex";
+
+export const OrderDirections = [
+  {
+    value: "asc",
+    label: "Ascending A-Z 1-9",
+  },
+  {
+    value: "desc",
+    label: "Descending Z-A 9-1",
+  },
+];
 
 const CompactFiltersView = ({
   filters,
@@ -82,7 +96,9 @@ const CompactFiltersView = ({
           } else {
             return (
               <div className="text-gray-600">
-                <div><span>{idx === 0 ? "" : filter.verb}</span></div>
+                <div>
+                  <span>{idx === 0 ? "" : filter.verb}</span>
+                </div>
                 <span className="font-bold">
                   {(filter as IFilter).column.label}
                 </span>{" "}
@@ -153,23 +169,24 @@ const Edit = () => {
 
   const [updateView, { isLoading: viewIsUpdating }] = useUpdateViewMutation();
 
+  const body = useMemo(() => {
+    return pick(
+      {
+        ...localView,
+        filters: appliedFilters.map((filter: IFilter | IFilterGroup) => ({
+          ...filter,
+          isBase: true,
+        })),
+      },
+      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]);
+  }, [localView, appliedFilters]);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     await updateView({
       viewId,
-      body: pick(
-        {
-          ...localView,
-          filters: appliedFilters.map(
-            (filter: IFilter | IFilterGroup) => ({
-              ...filter,
-              isBase: true,
-            })
-          ),
-        },
-        ["name", "public", "dataSourceId", "tableName", "filters"]
-      ),
+      body,
     }).unwrap();
   };
 
@@ -221,6 +238,25 @@ const Edit = () => {
     } else {
       return <div></div>;
     }
+  };
+
+  const adddefaultOrder = () => {
+    const newdefaultOrder = {
+      columnName: columns[0].name,
+      direction: "asc",
+    };
+
+    setLocalView({
+      ...localView,
+      defaultOrder: newdefaultOrder,
+    } as View);
+  };
+
+  const removedefaultOrder = () => {
+    setLocalView({
+      ...localView,
+      defaultOrder: {},
+    } as View);
   };
 
   return (
@@ -341,18 +377,101 @@ const Edit = () => {
                   </Tooltip>
                   {filtersPanelVisible && (
                     <div className="absolute left-auto right-0 -top-8">
-                      <FiltersPanel ref={filtersPanel} columns={columns} isEditBaseFilters={true} />
+                      <FiltersPanel
+                        ref={filtersPanel}
+                        columns={columns}
+                        isEditBaseFilters={true}
+                      />
                     </div>
                   )}
                 </div>
                 <Collapse in={isFiltersOpen}>
                   <CompactFiltersView filters={appliedFilters} />
                 </Collapse>
+                <div className="relative flex w-full h-[30px] justify-between">
+                  <div className="my-auto mr-1 font-bold">Default order</div>
+                  {isEmpty(localView?.defaultOrder) && (
+                    <Tooltip label="Add order rule">
+                      <div
+                        className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+                        onClick={() => adddefaultOrder()}
+                      >
+                        <PlusCircleIcon className="h-4 inline" />
+                        Add
+                      </div>
+                    </Tooltip>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  {isEmpty(localView?.defaultOrder) && (
+                    <div className="text-sm text-gray-600">
+                      No default order applied to this view
+                    </div>
+                  )}
+                  {isEmpty(localView?.defaultOrder) || (
+                    <div className="flex w-full space-x-2">
+                      <Select
+                        size="xs"
+                        className="font-mono"
+                        value={(localView?.defaultOrder as any)?.columnName}
+                        onChange={(e) =>
+                          setLocalView({
+                            ...localView,
+                            defaultOrder: {
+                              ...(localView?.defaultOrder as any),
+                              columnName: e.currentTarget.value,
+                            },
+                          })
+                        }
+                      >
+                        {columns &&
+                          columns.map((column, idx) => (
+                            <option key={idx} value={column.name}>
+                              {column.label}
+                            </option>
+                          ))}
+                      </Select>
+                      <Select
+                        size="xs"
+                        className="font-mono"
+                        value={(localView?.defaultOrder as any)?.direction}
+                        onChange={(e) =>
+                          setLocalView({
+                            ...localView,
+                            defaultOrder: {
+                              ...(localView?.defaultOrder as any),
+                              direction: e.currentTarget.value,
+                            },
+                          })
+                        }
+                      >
+                        {OrderDirections.map((order, idx) => (
+                          <option key={idx} value={order.value}>
+                            {order.label}
+                          </option>
+                        ))}
+                      </Select>
+                      <Tooltip label="Remove order rule">
+                        <Button
+                          size="xs"
+                          variant="link"
+                          onClick={() => removedefaultOrder()}
+                        >
+                          <XIcon className="h-3 text-gray-700" />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            <RecordsIndex displayOnlyTable={true} />
+            <RecordsIndex
+              displayOnlyTable={true}
+              editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
+              editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
+            />
           </div>
         </div>
       </PageWrapper>

@@ -65,6 +65,7 @@ const Edit = ({
           className="w-full"
           {...register}
           placeholder={placeholder}
+          disabled={readonly}
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (

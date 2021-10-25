@@ -6,7 +6,8 @@ import {
   HashtagIcon,
   KeyIcon,
   SelectorIcon,
-  TrendingUpIcon
+  TrendingUpIcon,
+  PhotographIcon
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums";
@@ -60,6 +61,10 @@ export const getColumnOptions = (
     {
       id: "ProgressBar",
       label: "ProgressBar",
+    },
+    {
+      id: "Gravatar",
+      label: "Gravatar",
     },
   ];
 
@@ -121,8 +126,10 @@ export const iconForField = (field: Column): ElementType => {
       return BracketsCurlyIcon;
     case "Association":
       return ArrowRightIcon;
-      case "ProgressBar":
+    case "ProgressBar":
       return TrendingUpIcon;
+    case "Gravatar":
+      return PhotographIcon;
   }
 };
 

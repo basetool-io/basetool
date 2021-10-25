@@ -31,19 +31,26 @@ const Edit = ({
 
   const placeholder = field.column.fieldOptions.placeholder;
 
-  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
-  ? field.column.baseOptions.defaultValue
-  : null;
+  const defaultValue =
+    field?.column?.baseOptions?.defaultValue && view === Views.new
+      ? field.column.baseOptions.defaultValue
+      : null;
+
+  const readonly = field?.column?.baseOptions?.readonly
+    ? field.column.baseOptions.readonly
+    : false;
 
   let initialValue;
   try {
-    initialValue = isUndefined(field.value) || isNull(field.value)
-      ? (isNull(defaultValue) ? null : JSON.stringify(JSON.parse(defaultValue as string), null, 2))
-      : JSON.stringify(JSON.parse(field.value as string), null, 2);
+    initialValue =
+      isUndefined(field.value) || isNull(field.value)
+        ? isNull(defaultValue)
+          ? null
+          : JSON.stringify(JSON.parse(defaultValue as string), null, 2)
+        : JSON.stringify(JSON.parse(field.value as string), null, 2);
   } catch (e) {
     initialValue = null;
   }
-
 
   const handleOnChange = (value: string) => {
     if (isEmpty(value)) {
@@ -84,6 +91,7 @@ const Edit = ({
       <FormControl
         isInvalid={hasError || !isNull(jsonError)}
         id={fieldId(field)}
+        isDisabled={readonly}
       >
         <Textarea
           rows={10}

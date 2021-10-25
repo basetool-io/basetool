@@ -201,7 +201,14 @@ function ColumnEdit() {
   // make nullable false when required is true (and vice versa) because they cannot be both true in the same time
   useEffect(() => {
     if (localColumn && localColumn.baseOptions.required) {
-      setColumnOptions(localColumn, { "baseOptions.nullable": false });
+      setColumnOptions(localColumn, {
+        "baseOptions.nullable": false,
+        "baseOptions.readOnly": false,
+      });
+    }
+
+    if (localColumn && localColumn.baseOptions.readonly) {
+      setColumnOptions(localColumn, { "baseOptions.required": false });
     }
 
     if (localColumn && localColumn.baseOptions.nullable) {
@@ -211,7 +218,11 @@ function ColumnEdit() {
         setColumnOptions(localColumn, { "baseOptions.nullValues": [""] });
       }
     }
-  }, [localColumn?.baseOptions?.required, localColumn?.baseOptions?.nullable]);
+  }, [
+    localColumn?.baseOptions?.required,
+    localColumn?.baseOptions?.nullable,
+    localColumn?.baseOptions?.readonly,
+  ]);
 
   const diff = useMemo(() => {
     if (!localColumn) return {};
@@ -588,7 +599,10 @@ You can control where the field is visible here.`}
                       <Checkbox
                         id="required"
                         isChecked={localColumn.baseOptions.required === true}
-                        isDisabled={localColumn.baseOptions.nullable === true}
+                        isDisabled={
+                          localColumn.baseOptions.nullable === true ||
+                          localColumn.baseOptions.readonly === true
+                        }
                         onChange={() =>
                           setColumnOptions(localColumn, {
                             "baseOptions.required":
@@ -597,6 +611,27 @@ You can control where the field is visible here.`}
                         }
                       >
                         Required
+                      </Checkbox>
+                    </FormControl>
+                  </OptionWrapper>
+
+                  <OptionWrapper
+                    helpText={`Should this field be readonly in forms?`}
+                  >
+                    <FormControl id="readonly">
+                      <FormLabel>Readonly</FormLabel>
+                      <Checkbox
+                        id="readonly"
+                        isChecked={localColumn.baseOptions.readonly === true}
+                        isDisabled={localColumn.baseOptions.required === true}
+                        onChange={() =>
+                          setColumnOptions(localColumn, {
+                            "baseOptions.readonly":
+                              !localColumn.baseOptions.readonly,
+                          })
+                        }
+                      >
+                        Readonly
                       </Checkbox>
                     </FormControl>
                   </OptionWrapper>
