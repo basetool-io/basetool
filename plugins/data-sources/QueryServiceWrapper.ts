@@ -4,13 +4,12 @@ import {
   QueryServiceWrapperPayload,
   SSHTunnelCredentials,
 } from "./types";
-import {
-  ISQLQueryService,
-} from "./abstract-sql-query-service/types";
-import { LOCALHOST, S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants";
+import { ISQLQueryService } from "./abstract-sql-query-service/types";
+import { LOCALHOST } from "@/lib/constants";
 import { SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
-import S3 from "aws-sdk/clients/s3"
+import { s3KeysBucket } from "@/features/data-sources";
+import S3 from "aws-sdk/clients/s3";
 import getPort from "get-port";
 import tunnel from "tunnel-ssh";
 
@@ -61,14 +60,14 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
         const params = {
           Key: this.queryService.dataSource.id.toString(),
-          Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}${process.env.NODE_ENV}`,
+          Bucket: s3KeysBucket(),
         };
 
         const response = await S3Client.getObject(params).promise();
 
-        if (!response.ETag) throw new Error('Failed to fetch the SSH key.')
+        if (!response.ETag) throw new Error("Failed to fetch the SSH key.");
 
-        SSHCredentials.privateKey = response.Body
+        SSHCredentials.privateKey = response.Body;
       }
 
       response = await runInSSHTunnel({
@@ -133,15 +132,11 @@ export const runInSSHTunnel = async ({
           .then((response: any) => resolve(response))
           .catch((error: any) => reject(error));
       });
-      sshTunnel.on("error", (error) =>
-        {
-          // console.log('error->', error)
-          return reject(new SSHConnectionError(error.message))
-        }
-      );
+      sshTunnel.on("error", (error) => {
+        return reject(new SSHConnectionError(error.message));
+      });
     }
   );
-
 
   try {
     // Await for the response from the DB query

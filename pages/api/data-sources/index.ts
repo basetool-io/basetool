@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import { AnyObject } from "immer/dist/internal";
 import { OrganizationUser, User } from "@prisma/client";
-import { S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants"
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
 import { getUserFromRequest } from "@/features/api";
 import { pick, sum } from "lodash";
+import { s3KeysBucket } from "@/features/data-sources"
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -204,7 +204,7 @@ const storeSSHKey = async ({ Key, Body }: { Key: string; Body: Buffer }) => {
   const params = {
     Key,
     Body,
-    Bucket: `${S3_SSH_KEYS_BUCKET_PREFIX}${process.env.NODE_ENV}`,
+    Bucket: s3KeysBucket(),
   };
 
   return await S3Client.putObject(params).promise();
