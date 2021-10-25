@@ -1,10 +1,16 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { StarIcon } from "@heroicons/react/solid";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import {
+  useAccessControl,
+  useDataSourceContext,
+  useFavourites,
+  useProfile,
+} from "@/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
@@ -86,6 +92,8 @@ const ShowRecord = () => {
     }
   }, [canRead, router]);
 
+  const { addFavourite, removeFavourite, isFavourite } = useFavourites();
+
   // Don't show them the show page if the user can't read
   if (!canRead) return null;
 
@@ -100,7 +108,26 @@ const ShowRecord = () => {
         {!isLoading && data?.ok && columnsResponse?.ok && (
           <>
             <PageWrapper
-              icon={<EyeIcon className="inline h-5 text-gray-500" />}
+              icon={
+                <>
+                  <StarIcon
+                    className={`h-5 inline cursor-pointer mr-1 my-auto ${
+                      isFavourite(router.asPath)
+                        ? "text-yellow-300 hover:text-yellow-400"
+                        : "text-gray-300 hover:text-gray-400"
+                    }`}
+                    onClick={() =>
+                      isFavourite(router.asPath)
+                        ? removeFavourite(router.asPath)
+                        : addFavourite(
+                            `${tableName}-${recordId}`,
+                            router.asPath
+                          )
+                    }
+                  />
+                  <EyeIcon className="inline h-5 text-gray-500" />
+                </>
+              }
               crumbs={[router.query.tableName as string, "View record"]}
               flush={true}
               buttons={<BackButton href={tableIndexPath} />}

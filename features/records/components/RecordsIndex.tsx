@@ -16,6 +16,7 @@ import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OWNER_ROLE } from "@/features/roles";
 import { OrderDirection } from "@/features/tables/types";
 import { Row } from "react-table";
+import { StarIcon } from "@heroicons/react/solid";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, isUndefined } from "lodash";
@@ -23,6 +24,7 @@ import { parseColumns } from "@/features/tables";
 import {
   useAccessControl,
   useDataSourceContext,
+  useFavourites,
   useFilters,
   useSelectRecords,
 } from "@/hooks";
@@ -216,6 +218,8 @@ const RecordsIndex = ({
     });
   };
 
+  const { addFavourite, removeFavourite, isFavourite } = useFavourites();
+
   return (
     <>
       {!displayOnlyTable && (
@@ -228,7 +232,23 @@ const RecordsIndex = ({
           )}
           {error && <ErrorWrapper error={error} />}
           <PageWrapper
-            heading="Browse records"
+            heading={
+              <div>
+                <StarIcon
+                  className={`h-5 inline cursor-pointer mr-1 mb-1 my-auto ${
+                    isFavourite(router.asPath)
+                      ? "text-yellow-300 hover:text-yellow-400"
+                      : "text-gray-300 hover:text-gray-400"
+                  }`}
+                  onClick={() =>
+                    isFavourite(router.asPath)
+                      ? removeFavourite(router.asPath)
+                      : addFavourite(tableName, router.asPath)
+                  }
+                />
+                Browse records
+              </div>
+            }
             flush={true}
             buttons={
               <ButtonGroup size="xs">
@@ -370,7 +390,9 @@ const RecordsIndex = ({
           columns={parsedColumns}
           orderBy={editViewOrderBy || orderBy}
           setOrderBy={setOrderBy}
-          orderDirection={editViewOrderDirection as OrderDirection || orderDirection}
+          orderDirection={
+            (editViewOrderDirection as OrderDirection) || orderDirection
+          }
           setOrderDirection={setOrderDirection}
           tableName={tableName}
           dataSourceId={dataSourceId}

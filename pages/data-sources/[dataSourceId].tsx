@@ -31,7 +31,7 @@ function DataSourcesShow() {
     <Layout>
       {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && (
-        <div>Error: {"data" in error && (error?.data as any)?.messages[0]}</div>
+        <div>Error: {"data" in error && (error?.data as any)?.messages}</div>
       )}
       {!isLoading && data?.ok && (
         <>
