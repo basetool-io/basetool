@@ -165,7 +165,6 @@ export const {
   useGetDataSourcesQuery,
   useAddDataSourceMutation,
   useRemoveDataSourceMutation,
-  useUpdateDataSourceMutation,
   useCheckConnectionMutation,
   usePrefetch,
 } = dataSourcesApiSlice;

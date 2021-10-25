@@ -12,7 +12,7 @@ import { useDrop } from "react-dnd";
 import {
   useGetColumnsQuery,
   useGetTablesQuery,
-  useUpdateTableMutation,
+  useUpdateColumnsOrderMutation,
 } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
@@ -76,7 +76,7 @@ const TableColumnsEditLayout = ({
       didDrop: monitor.getItemType() === ItemTypes.COLUMN ? monitor.didDrop() : false,
     }),
   }));
-  const [updateTable, { isLoading: isUpdating }] = useUpdateTableMutation();
+  const [updateOrder, { isLoading: isUpdating }] = useUpdateColumnsOrderMutation();
 
   const sortColumns = (columns: Column[]) => {
     const newColumns: Column[] = [];
@@ -122,17 +122,14 @@ const TableColumnsEditLayout = ({
 
       const tableColumns = { ...table.columns };
       columns.forEach((column: Column, index: number) => {
-        const tableColumn = tableColumns[column.name];
         tableColumns[column.name] = {
-          ...tableColumn,
           baseOptions: {
-            ...tableColumn?.baseOptions,
             orderIndex: index,
           },
         };
       });
 
-      await updateTable({
+      await updateOrder({
         dataSourceId: dataSourceId,
         tableName: tableName,
         body: { columns: tableColumns },
