@@ -91,23 +91,6 @@ export const dataSourcesApiSlice = createApi({
           { type: "DataSource", id: dataSourceId },
         ],
       }),
-      updateDataSource: builder.mutation<
-        ApiResponse,
-        Partial<{
-          dataSourceId: string;
-          body: unknown;
-        }>
-      >({
-        query: ({ dataSourceId, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}`,
-          method: "PUT",
-          body,
-        }),
-        invalidatesTags: (result, error, { dataSourceId }) => [
-          { type: "DataSource", id: dataSourceId },
-          { type: "DataSource", id: "LIST" },
-        ],
-      }),
       checkConnection: builder.mutation<ApiResponse, Partial<{ body: unknown }>>({
         query: ({ body }) => ({
           url: `${apiUrl}/data-sources/check-connection`,
@@ -127,7 +110,6 @@ export const {
   useGetDataSourcesQuery,
   useAddDataSourceMutation,
   useRemoveDataSourceMutation,
-  useUpdateDataSourceMutation,
   useCheckConnectionMutation,
   usePrefetch,
 } = dataSourcesApiSlice;
