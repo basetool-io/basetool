@@ -1,5 +1,6 @@
 import { apiUrl } from "@/features/api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { first } from "lodash";
 import ApiResponse from "@/features/api/ApiResponse";
 
 export const dataSourcesApiSlice = createApi({
@@ -121,10 +122,12 @@ export const dataSourcesApiSlice = createApi({
           formData.append("credentials", JSON.stringify(body.credentials));
 
           // Append ssh if it meets the requirements.
-          if (body.ssh.host) {
+          if (body?.ssh?.host) {
             formData.append("ssh", JSON.stringify(body.ssh));
             // Append the file
-            formData.append("key", body.ssh.key[0]);
+            if (first(body?.ssh?.key)) {
+              formData.append("key", first(body?.ssh?.key) as any);
+            }
           }
 
           const response = await fetchWithBQ({

@@ -43,68 +43,74 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     });
   });
 
+  let response: HeartbeatResult = { isOk: false };
+
   // Parse and assign the credentials
   const type = fields.type;
   const credentials = JSON.parse(fields.credentials);
   let SSHCredentials = fields.ssh ? JSON.parse(fields.ssh) : {};
 
-  // Get local port number
-  const overrides = await getOverrides();
-  // Set the dbCredentials
-  const dbCredentials = {
-    ...credentials,
-  };
-  // Add the overrides to the client credentials
-  const clientCredentials = {
-    ...credentials,
-    ...overrides,
-  };
-
-  // Get a new client
-  const client = getKnexClient(type, clientCredentials);
-
-  // Wrap the action in an array
-  const actions = [() => checkHeartbeat(client)];
-
-  // If we get the key from the client we try and add it to the configuration
-  if (files.key) {
-    const privateKey = fs.readFileSync(files.key._writeStream.path);
-
-    SSHCredentials = {
-      ...SSHCredentials,
-      privateKey,
-      passphrase: SSHCredentials.passphrase,
+  if (SSHCredentials?.host) {
+    // Get local port number
+    const overrides = await getOverrides();
+    // Add the overrides to the client credentials
+    const clientCredentials = {
+      ...credentials,
+      ...overrides,
     };
+
+    // Get a new client
+    const client = getKnexClient(type, clientCredentials);
+
+    // Wrap the action in an array
+    const actions = [() => checkHeartbeat(client)];
+
+    // If we get the key from the client we try and add it to the configuration
+    if (files.key) {
+      const privateKey = fs.readFileSync(files.key._writeStream.path);
+
+      SSHCredentials = {
+        ...SSHCredentials,
+        privateKey,
+        passphrase: SSHCredentials.passphrase,
+      };
+    }
+
+    // Create the final SSH tunnel configuration
+    const tunnelConfig: SSHTunnelCredentials = {
+      overrides,
+      actions,
+      dbCredentials: credentials,
+      SSHCredentials,
+    };
+
+    try {
+      const results = await runInSSHTunnel(tunnelConfig);
+      response = first(results) as HeartbeatResult;
+    } catch (error) {
+      if (error instanceof SSHConnectionError) {
+        return res.send(ApiResponse.withError(error.message));
+      }
+    }
+  } else {
+    // Get a new client
+    const client = getKnexClient(type, credentials);
+
+    // Check heartbeat
+    response = await checkHeartbeat(client);
   }
-
-  // Create the final SSH tunnel configuration
-  const tunnelConfig: SSHTunnelCredentials = {
-    overrides,
-    actions,
-    dbCredentials,
-    SSHCredentials,
-  };
-
   // Check the connection
-  try {
-    const results = await runInSSHTunnel(tunnelConfig);
-    const response = first(results) as HeartbeatResult;
 
-    if (response.isOk) {
-      return res.json(ApiResponse.withMessage("Connection successful"));
-    } else {
-      return res.json(
-        ApiResponse.withError(
-          response.error
-            ? response.error.toString()
-            : "Something went wrong with the request. The credentials might be invalid."
-        )
-      );
-    }
-  } catch (error) {
-    if (error instanceof SSHConnectionError) {
-      return res.send(ApiResponse.withError(error.message));
-    }
+  if (response.isOk) {
+    return res.json(ApiResponse.withMessage("Connection successful"));
+  } else {
+    return res.json(
+      ApiResponse.withError(
+        response.error
+          ? response.error.toString()
+          : "Something went wrong with the request. The credentials might be invalid."
+      )
+    );
   }
 }
 
