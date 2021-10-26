@@ -36,8 +36,8 @@ function ErrorWrapper({
             <div>
               <div className="font-bold text-sm uppercase">Helpful links:</div>
               <div>
-                {errorData?.meta?.links.map((link: string) => (
-                  <a href={link}>{link}</a>
+                {errorData?.meta?.links.map((link: string, idx: number) => (
+                  <a href={link} key={idx}>{link}</a>
                 ))}
               </div>
             </div>

@@ -1,12 +1,13 @@
 import { Button } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
 import { FilterVerbs } from "./VerbComponent";
 import {
   FolderAddIcon,
   PlusIcon,
   ReceiptRefundIcon,
 } from "@heroicons/react/outline";
-import { useFilters } from "@/hooks";
+import { columnsSelector } from "@/features/records/state-slice";
+import { useAppSelector } from "@/hooks";
+import { useFilters } from "@/features/records/hooks";
 import Filter, {
   IFilter,
   IFilterGroup,
@@ -18,14 +19,13 @@ import isEmpty from "lodash/isEmpty";
 
 const FiltersPanel = (
   {
-    columns,
     isEditBaseFilters = false,
   }: {
-    columns: Column[];
     isEditBaseFilters?: boolean;
   },
   ref: any
 ) => {
+  const columns = useAppSelector(columnsSelector);
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
@@ -90,10 +90,9 @@ const FiltersPanel = (
 
                 return (
                   <div
+                    key={idx}
                     className={
-                      filter?.isBase
-                        ? "opacity-60 pointer-events-none"
-                        : ""
+                      filter?.isBase ? "opacity-60 pointer-events-none" : ""
                     }
                   >
                     <Filter

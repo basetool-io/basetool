@@ -11,7 +11,7 @@ import { IntFilterConditions } from "@/features/tables/components/IntConditionCo
 import { SelectFilterConditions } from "./SelectConditionComponent";
 import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { isArray, isDate, isUndefined } from "lodash";
-import { useFilters } from "@/hooks";
+import { useFilters } from "@/features/records/hooks"
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
 import React, { forwardRef, memo, useMemo } from "react";

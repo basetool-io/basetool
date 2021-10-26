@@ -2,7 +2,7 @@ import { Checkbox } from "@chakra-ui/react";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
 import { usePrefetch } from "@/features/records/api-slice";
-import { useSelectRecords } from "@/hooks";
+import { useSelectRecords } from "@/features/records/hooks"
 import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
@@ -27,15 +27,12 @@ const MobileRow = ({
   row,
   dataSourceId,
   tableName,
-  prepareRow,
 }: {
   row: Row<any>;
   dataSourceId: string;
   tableName: string;
-  prepareRow: (row: Row) => void;
 }) => {
   const prefetchRecord = usePrefetch("getRecord");
-  prepareRow(row);
 
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
