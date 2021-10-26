@@ -1,4 +1,4 @@
-import { Column } from "../fields/types";
+import { Column, FieldType } from "../fields/types";
 import {
   DEFAULT_COLUMN_WIDTH,
   LOCAL_STORAGE_PREFIX,
@@ -59,3 +59,93 @@ export const parseColumns = ({
     };
   });
 };
+
+export const getDefaultFilterCondition = (fieldType: FieldType) => {
+  switch (fieldType) {
+    case "Id":
+    case "Number":
+    case "Association":
+      return IntFilterConditions.is;
+    case "Boolean":
+      return BooleanFilterConditions.is_true;
+    case "DateTime":
+      return DateFilterConditions.is;
+    case "Select":
+      return SelectFilterConditions.is;
+    default:
+    case "Text":
+      return StringFilterConditions.is;
+  }
+};
+
+
+export enum BooleanFilterConditions {
+  is_true = "is_true",
+  is_false = "is_false",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
+}
+
+export enum IntFilterConditions {
+  is = "is",
+  is_not = "is_not",
+  gt = "gt",
+  gte = "gte",
+  lt = "lt",
+  lte = "lte",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
+}
+
+export enum SelectFilterConditions {
+  is = "is",
+  is_not = "is_not",
+  contains = "contains",
+  not_contains = "not_contains",
+  is_empty = "is_empty",
+  is_not_empty = "is_not_empty",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
+}
+
+export enum DateFilterConditions {
+  is = "is",
+  is_not = "is_not",
+  is_before = "is_before",
+  is_after = "is_after",
+  is_on_or_before = "is_on_or_before",
+  is_on_or_after = "is_on_or_after",
+  is_within = "is_within",
+  is_empty = "is_empty",
+  is_not_empty = "is_not_empty",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
+}
+export enum StringFilterConditions {
+  is = "is",
+  is_not = "is_not",
+  contains = "contains",
+  not_contains = "not_contains",
+  starts_with = "starts_with",
+  ends_with = "ends_with",
+  is_empty = "is_empty",
+  is_not_empty = "is_not_empty",
+  is_null = "is_null",
+  is_not_null = "is_not_null",
+}
+
+export enum FilterVerbs {
+  and = "and",
+  or = "or",
+}
+
+export const options = {
+  is: "=",
+  is_not: "!=",
+  gt: ">",
+  gte: ">=",
+  lt: "<",
+  lte: "<=",
+  is_null: "is_null",
+  is_not_null: "is_not_null",
+}

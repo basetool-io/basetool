@@ -1,13 +1,7 @@
-import { IFilter } from "@/features/tables/components/Filter";
+import { BooleanFilterConditions } from "..";
+import { IFilter } from "../types";
 import ConditionSelect from "./ConditionSelect";
 import React from "react";
-
-export enum BooleanFilterConditions {
-  is_true = "is_true",
-  is_false = "is_false",
-  is_null = "is_null",
-  is_not_null = "is_not_null",
-}
 
 function BooleanConditionComponent({
   filter,

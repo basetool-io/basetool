@@ -18,14 +18,15 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "@/features/tables/types"
 import { Save } from "react-feather";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
-import { useDataSourceContext, useFilters } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
+import { useFilters } from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
@@ -35,13 +36,14 @@ import {
 } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import CompactFiltersView from "@/features/views/components/CompactFiltersView";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import RecordsIndex from "@/features/records/components/RecordsIndex";
+import RecordsTable from "@/features/tables/components/RecordsTable";
 
-export const OrderDirections = [
+const OrderDirections = [
   {
     value: "asc",
     label: "Ascending A-Z 1-9",
@@ -51,72 +53,6 @@ export const OrderDirections = [
     label: "Descending Z-A 9-1",
   },
 ];
-
-const CompactFiltersView = ({
-  filters,
-}: {
-  filters: Array<IFilter | IFilterGroup>;
-}) => {
-  return (
-    <div className="space-y-1">
-      {isEmpty(filters) && (
-        <div className="text-sm text-gray-600">
-          No base filters applied to this view
-        </div>
-      )}
-
-      {isEmpty(filters) ||
-        filters.map((filter, idx) => {
-          if ("isGroup" in filter && filter.isGroup) {
-            return (
-              <div className="text-gray-600">
-                <span>{filter.verb}</span>
-                <div className="bg-gray-200 rounded">
-                  {filter.filters.map((f, i) => {
-                    return (
-                      <div className="px-1">
-                        {idx === 0 || i === 0 ? "" : f.verb}{" "}
-                        <div>
-                          <span className="font-bold ">{f.column.label}</span>{" "}
-                          {f.condition.replaceAll("_", " ")}{" "}
-                          <span className="font-bold">
-                            {f.value
-                              ? f.value
-                              : f.option
-                              ? f.option.replaceAll("_", " ")
-                              : ""}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          } else {
-            return (
-              <div className="text-gray-600">
-                <div>
-                  <span>{idx === 0 ? "" : filter.verb}</span>
-                </div>
-                <span className="font-bold">
-                  {(filter as IFilter).column.label}
-                </span>{" "}
-                {(filter as IFilter).condition.replaceAll("_", " ")}{" "}
-                <span className="font-bold">
-                  {(filter as IFilter).value
-                    ? (filter as IFilter).value
-                    : (filter as IFilter)?.option
-                    ? (filter as any).option.replaceAll("_", " ")
-                    : ""}
-                </span>
-              </div>
-            );
-          }
-        })}
-    </div>
-  );
-};
 
 const Edit = () => {
   const router = useRouter();
@@ -178,7 +114,8 @@ const Edit = () => {
           isBase: true,
         })),
       },
-      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]);
+      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]
+    );
   }, [localView, appliedFilters]);
 
   const handleSubmit = async (e: any) => {
@@ -311,7 +248,6 @@ const Edit = () => {
                         });
                       }
                     }}
-                    // isPreviewFocusable={false}
                   >
                     <div className="relative flex justify-between w-full">
                       <div className="w-full">
@@ -377,11 +313,7 @@ const Edit = () => {
                   </Tooltip>
                   {filtersPanelVisible && (
                     <div className="absolute left-auto right-0 -top-8">
-                      <FiltersPanel
-                        ref={filtersPanel}
-                        columns={columns}
-                        isEditBaseFilters={true}
-                      />
+                      <FiltersPanel ref={filtersPanel} />
                     </div>
                   )}
                 </div>
@@ -467,11 +399,12 @@ const Edit = () => {
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            <RecordsIndex
-              displayOnlyTable={true}
-              editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
-              editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
-            />
+            {dataSourceId && <RecordsTable />}
+            {/* <RecordsIndex
+              // displayOnlyTable={true}
+              // editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
+              // editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
+            /> */}
           </div>
         </div>
       </PageWrapper>

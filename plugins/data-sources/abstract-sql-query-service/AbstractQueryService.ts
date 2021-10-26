@@ -1,4 +1,11 @@
-import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
+import {
+  BooleanFilterConditions,
+  DateFilterConditions,
+  FilterVerbs,
+  IntFilterConditions,
+  SelectFilterConditions,
+  StringFilterConditions,
+} from "@/features/tables";
 import {
   ClientOverrides,
   ColumnWithBaseOptions,
@@ -15,15 +22,10 @@ import {
 } from "./types";
 import { Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { DateFilterConditions } from "./../../../features/tables/components/DateConditionComponent";
-import { FilterVerbs } from "@/features/tables/components/VerbComponent";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
-import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
+import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { MysqlCredentials } from "../mysql/types";
 import { PgCredentials } from "../postgresql/types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
-import { SelectFilterConditions } from "@/features/tables/components/SelectConditionComponent";
-import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
 import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions, getFilteredColumns } from "@/features/fields";

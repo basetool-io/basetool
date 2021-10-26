@@ -1,9 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  IconButton,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, IconButton, Tooltip } from "@chakra-ui/react";
 import {
   FilterIcon,
   PencilAltIcon,
@@ -13,20 +8,14 @@ import {
 } from "@heroicons/react/outline";
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OWNER_ROLE } from "@/features/roles";
-import { Views } from "@/features/fields/enums";
-import { getFilteredColumns } from "@/features/fields";
-import { isEmpty } from "lodash";
-import {
-  useAccessControl,
-  useDataSourceContext,
-} from "@/hooks";
+import { isEmpty, isUndefined } from "lodash";
+import { useAccessControl, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
-import { useFilters, useSelectRecords } from "../hooks"
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useFilters, useOrderRecords, useSelectRecords } from "../hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
-import { useRouter } from "next/router";
+import { useRouter } from "next/router"
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -35,138 +24,54 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import pluralize from "pluralize";
 
-// const CheckboxColumnCell = ({ row }: { row: Row<any> }) => {
-//   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
-
-//   return (
-//     <div className="flex items-center justify-center h-full">
-//       <Checkbox
-//         colorScheme="gray"
-//         isChecked={selectedRecords.includes(row?.original?.id)}
-//         onChange={(e) => toggleRecordSelection(row?.original?.id)}
-//       />
-//     </div>
-//   );
-// };
-
-// const SelectorColumnCell = ({ row }: { row: Row<any> }) => (
-//   <div className="flex items-center justify-center h-full">
-//     <ItemControls recordId={row?.original?.id} />
-//   </div>
-// );
-
-const RecordsIndex = ({
-  displayOnlyTable = false,
-  editViewOrderBy,
-  editViewOrderDirection,
-}: {
-  displayOnlyTable?: boolean;
-  editViewOrderBy?: string;
-  editViewOrderDirection?: string;
-}) => {
+const RecordsIndex = () => {
   const router = useRouter();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
       skip: !dataSourceId,
     }
   );
-  const {
-    data: columnsResponse,
-    error,
-    isLoading,
-  } = useGetColumnsQuery(
-    {
-      dataSourceId,
-      tableName,
-    },
-    {
-      skip: !dataSourceId || !tableName,
-    }
-  );
-
-  const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
-    { viewId },
-    { skip: !viewId }
-  );
-
-  const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.index),
-    [columnsResponse?.data]
-  );
-
-  // const checkboxColumn = {
-  //   Header: "selector_column",
-  //   accessor: (row: any, i: number) => `selector_column_${i}`,
-  //   Cell: CheckboxColumnCell,
-  //   width: 70,
-  //   minWidth: 70,
-  //   maxWidth: 70,
-  // };
-
-  // const controlsColumn = {
-  //   Header: "controls_column",
-  //   accessor: (row: any, i: number) => `controls_column_${i}`,
-  //   // eslint-disable-next-line react/display-name
-  //   Cell: (row: any) => <SelectorColumnCell row={row.row} />,
-  //   width: 104,
-  //   minWidth: 104,
-  //   maxWidth: 104,
-  // };
-
-  // const parsedColumns = [
-  //   checkboxColumn,
-  //   ...parseColumns({ dataSourceId, columns, tableName }),
-  //   controlsColumn,
-  // ];
-  // const [orderBy, setOrderBy] = useState(router.query.orderBy as string);
-  // const [orderDirection, setOrderDirection] = useState<OrderDirection>(
-  //   router.query.orderDirection as OrderDirection
-  // );
-
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const { appliedFilters, resetFilters, removeFilter } = useFilters();
+  const {
+    appliedFilters,
+    setFilters,
+    applyFilters,
+    resetFilters,
+    removeFilter,
+  } = useFilters();
   const ac = useAccessControl();
+  const { setOrderBy, setOrderDirection } = useOrderRecords();
 
-  // const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  // const {
-  //   appliedFilters,
-  //   resetFilters,
-  //   setFilters,
-  //   applyFilters,
-  //   removeFilter,
-  // } = useFilters();
-  // const ac = useAccessControl();
-
-
-  useEffect(() => {
-    resetFilters();
-  }, [tableName]);
-
-  // @todo: reset filters on views
   // useEffect(() => {
   //   resetFilters();
-  //   if (viewResponse?.ok) {
-  //     if (viewResponse.data.filters) {
-  //       setFilters(viewResponse.data.filters);
-  //       applyFilters(viewResponse.data.filters);
-  //     }
+  // }, [tableName]);
 
-  //     // We have to check whether there is a default order on the view and the order from the query to be empty.
-  //     if (
-  //       viewResponse.data.defaultOrder &&
-  //       !isEmpty(viewResponse.data.defaultOrder) &&
-  //       isUndefined(router.query.orderBy) &&
-  //       isUndefined(router.query.orderDirection)
-  //     ) {
-  //       setOrderBy(viewResponse.data.defaultOrder.columnName);
-  //       setOrderDirection(viewResponse.data.defaultOrder.direction);
-  //     }
-  //   }
-  // }, [tableName, viewId, viewResponse]);
+  // @todo: reset filters on views
+  useEffect(() => {
+    resetFilters();
+    if (viewResponse?.ok) {
+      if (viewResponse.data.filters) {
+        setFilters(viewResponse.data.filters);
+        applyFilters(viewResponse.data.filters);
+      }
+
+      // We have to check whether there is a default order on the view and the order from the query to be empty.
+      if (
+        viewResponse.data.defaultOrder &&
+        !isEmpty(viewResponse.data.defaultOrder) &&
+        isUndefined(router.query.orderBy) &&
+        isUndefined(router.query.orderDirection)
+      ) {
+        setOrderBy(viewResponse.data.defaultOrder.columnName);
+        setOrderDirection(viewResponse.data.defaultOrder.direction);
+      }
+    }
+  }, [tableName, viewId, viewResponse]);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -221,7 +126,6 @@ const RecordsIndex = ({
     });
   };
 
-
   return (
     <Layout>
       <PageWrapper
@@ -245,17 +149,18 @@ const RecordsIndex = ({
                   </Button>
                 </Link>
               )}
-              {viewId && ac.hasRole(OWNER_ROLE) && (
-                <Link href={`/views/${viewId}/edit`} passHref>
-                  <Button
-                    colorScheme="blue"
-                    variant="ghost"
-                    leftIcon={<PencilAltIcon className="h-4" />}
-                  >
-                    Edit view
-                  </Button>
-                </Link>
-              )}
+            {viewId && ac.hasRole(OWNER_ROLE) && (
+              <Link href={`/views/${viewId}/edit`} passHref>
+                <Button
+                  as="a"
+                  colorScheme="blue"
+                  variant="ghost"
+                  leftIcon={<PencilAltIcon className="h-4" />}
+                >
+                  Edit view
+                </Button>
+              </Link>
+            )}
           </ButtonGroup>
         }
         footer={
@@ -288,10 +193,7 @@ const RecordsIndex = ({
             center={
               ac.createAny("record").granted &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link
-                  href={newRecordPath}
-                  passHref
-                >
+                <Link href={newRecordPath} passHref>
                   <Button
                     as="a"
                     colorScheme="blue"

@@ -1,6 +1,4 @@
 import { Column } from "@/features/fields/types";
-
-
 import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
 import { OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
@@ -38,13 +36,12 @@ import {
 } from "@/features/records/state-slice";
 import { isArray, isEqual, isNull, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
-import { useAppDispatch, useAppSelector } from "@/hooks"
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
 import URI from "urijs";
-
 
 export const useFilters = (initialFilters?: string | undefined) => {
   const dispatch = useAppDispatch();
@@ -86,7 +83,6 @@ export const useFilters = (initialFilters?: string | undefined) => {
     encodedFilters,
   };
 };
-
 
 export const useSelectRecords = () => {
   const dispatch = useAppDispatch();

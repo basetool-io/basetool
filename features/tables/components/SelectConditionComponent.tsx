@@ -1,17 +1,7 @@
-import { IFilter } from "@/features/tables/components/Filter";
+import { IFilter } from "../types";
+import { SelectFilterConditions } from "..";
 import ConditionSelect from "./ConditionSelect";
 import React from "react";
-
-export enum SelectFilterConditions {
-  is = "is",
-  is_not = "is_not",
-  contains = "contains",
-  not_contains = "not_contains",
-  is_empty = "is_empty",
-  is_not_empty = "is_not_empty",
-  is_null = "is_null",
-  is_not_null = "is_not_null",
-}
 
 function SelectConditionComponent({
   filter,

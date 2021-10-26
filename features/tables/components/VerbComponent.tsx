@@ -1,13 +1,9 @@
+import { FilterVerbs } from "..";
 import { FormControl, Select } from "@chakra-ui/react";
 import React, { memo } from "react";
 import classNames from "classnames";
 
 export type FilterVerb = FilterVerbs;
-
-export enum FilterVerbs {
-  and = "and",
-  or = "or",
-}
 
 function VerbComponent({
   idx,
