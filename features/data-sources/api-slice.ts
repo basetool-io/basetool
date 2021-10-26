@@ -53,7 +53,7 @@ export const dataSourcesApiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["DataSource", "Sheets", "Table"],
+  tagTypes: ["DataSource", "Sheets"],
   endpoints(builder) {
     return {
       getAuthUrl: builder.query<

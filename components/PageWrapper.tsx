@@ -1,9 +1,10 @@
 import { Button } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
-import { FooterElements } from "@/types"
+import { FooterElements } from "@/types";
 import { SerializedError } from "@reduxjs/toolkit";
 import { Sidebar } from "react-feather";
+import { first } from "lodash";
 import { useSidebarsVisible } from "@/hooks";
 import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
@@ -72,11 +73,7 @@ const TitleCrumbs = ({ crumbs }: { crumbs: Array<string | undefined> }) => {
   );
 };
 
-const Footer = ({
-  left,
-  center,
-  right,
-}: FooterElements) => (
+const Footer = ({ left, center, right }: FooterElements) => (
   <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
     <div className="flex justify-evenly items-center px-4">
       <div className="flex-1 flex justify-start">{left}</div>
@@ -172,7 +169,7 @@ function PageWrapper({
             {!error && children}
             {error && "data" in error && (
               <div className="p-4">
-                {(error as any)?.data?.messages[0]}
+                {first((error as any)?.data?.messages)}
                 {(error as any)?.data?.meta?.errorMessage && (
                   <>
                     <div className="uppercase font-bold text-sm mt-4">

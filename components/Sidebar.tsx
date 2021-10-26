@@ -9,8 +9,8 @@ import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { OWNER_ROLE } from "@/features/roles";
 import { View } from "@prisma/client";
+import { first, isUndefined } from "lodash";
 import { getLabel } from "@/features/data-sources";
-import { isUndefined } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
@@ -86,7 +86,7 @@ const Sidebar = () => {
         <hr className="-mt-px mb-2" />
         {viewsError && (
           <div>
-            {"data" in viewsError && (viewsError?.data as any)?.messages[0]}
+            {"data" in viewsError && first((viewsError?.data as any)?.messages)}
           </div>
         )}
         <div className="relative space-y-1 px-2 flex-col">
@@ -110,11 +110,11 @@ const Sidebar = () => {
               ).length > 0 && (
                 <Link href={`/views/new?dataSourceId=${dataSourceId}`}>
                   <a className="flex justify-center items-center mx-2">
-                  <Tooltip label="Add view">
-                    <div>
-                      <PlusCircleIcon className="h-4 inline cursor-pointer" />
-                    </div>
-                  </Tooltip>
+                    <Tooltip label="Add view">
+                      <div>
+                        <PlusCircleIcon className="h-4 inline cursor-pointer" />
+                      </div>
+                    </Tooltip>
                   </a>
                 </Link>
               )}
@@ -161,14 +161,13 @@ const Sidebar = () => {
                 ))}
           </Collapse>
         </div>
-        {tablesResponse?.ok &&
-          ac.hasRole(OWNER_ROLE) && (
+        {tablesResponse?.ok && ac.hasRole(OWNER_ROLE) && (
           <>
             <hr className="mt-2 mb-2" />
             {tablesError && (
               <div>
                 {"data" in tablesError &&
-                  (tablesError?.data as any)?.messages[0]}
+                  first((tablesError?.data as any)?.messages)}
               </div>
             )}
             <div className="relative space-y-1 px-2 flex-1">
