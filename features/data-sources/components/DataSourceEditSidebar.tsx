@@ -8,7 +8,7 @@ import { useBoolean } from "react-use";
 import { useDataSourceContext } from "@/hooks";
 import { useDrop } from "react-dnd";
 import { useGetDataSourceQuery } from "../api-slice";
-import { useGetTablesQuery, useUpdateTablesMutation } from "@/features/tables/api-slice";
+import { useGetTablesQuery, useUpdateTablesOrderMutation } from "@/features/tables/api-slice";
 import ColumnListItem from "@/components/ColumnListItem";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useEffect, useState } from "react";
@@ -40,7 +40,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
       didDrop: monitor.getItemType() === ItemTypes.TABLE ? monitor.didDrop() : false,
     }),
   }));
-  const [updateTables, { isLoading: isUpdating }] = useUpdateTablesMutation();
+  const [updateTables, { isLoading: isUpdating }] = useUpdateTablesOrderMutation();
 
   const sortTables = (tables: ListTable[]) => {
     const newTables: ListTable[] = [];

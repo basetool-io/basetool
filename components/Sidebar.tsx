@@ -9,8 +9,8 @@ import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { FavouriteItem, View } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { OWNER_ROLE } from "@/features/roles";
+import { first, isUndefined } from "lodash";
 import { getLabel } from "@/features/data-sources";
-import { isUndefined } from "lodash";
 import {
   useAccessControl,
   useDataSourceContext,
@@ -114,7 +114,7 @@ const Sidebar = () => {
         <hr className="-mt-px mb-2" />
         {viewsError && (
           <div>
-            {"data" in viewsError && (viewsError?.data as any)?.messages[0]}
+            {"data" in viewsError && first((viewsError?.data as any)?.messages)}
           </div>
         )}
         <div className="relative space-y-1 px-2 flex-col">
@@ -216,7 +216,7 @@ const Sidebar = () => {
             {tablesError && (
               <div>
                 {"data" in tablesError &&
-                  (tablesError?.data as any)?.messages[0]}
+                  first((tablesError?.data as any)?.messages)}
               </div>
             )}
             <div className="relative space-y-1 px-2 flex-1">

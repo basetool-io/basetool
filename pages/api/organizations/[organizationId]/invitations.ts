@@ -1,3 +1,4 @@
+import { BasetoolError } from "@/lib/errors";
 import { OWNER_ROLE } from "@/features/roles";
 import { baseUrl } from "@/features/api/urls";
 import { captureMessage } from "@sentry/nextjs";
@@ -9,7 +10,6 @@ import { serverSegment } from "@/lib/track";
 import { v4 as uuidv4 } from "uuid";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import BasetoolError from "@/lib/BasetoolError";
 import Joi from "joi";
 import email from "@/lib/email";
 import logger from "@/lib/logger";

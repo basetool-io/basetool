@@ -1,3 +1,5 @@
+class SSHConnectionError extends Error {}
+
 class BasetoolError extends Error {
   public links?: string[];
 
@@ -7,4 +9,4 @@ class BasetoolError extends Error {
   }
 }
 
-export default BasetoolError;
+export { SSHConnectionError, BasetoolError };

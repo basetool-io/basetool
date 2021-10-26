@@ -19,7 +19,6 @@ export const tablesApiSlice = createApi({
         },
         providesTags: (response, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       updateColumn: builder.mutation<
@@ -46,7 +45,6 @@ export const tablesApiSlice = createApi({
         },
         providesTags: (response, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
         ],
       }),
       updateTable: builder.mutation<
@@ -64,9 +62,7 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { dataSourceId, tableName }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       deleteColumn: builder.mutation<
@@ -79,7 +75,6 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       createColumn: builder.mutation<
@@ -97,10 +92,9 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
-      updateTables: builder.mutation<
+      updateTablesOrder: builder.mutation<
         ApiResponse,
         Partial<{
           dataSourceId: string;
@@ -108,13 +102,29 @@ export const tablesApiSlice = createApi({
         }>
       >({
         query: ({ dataSourceId, body }) => ({
-          url: `${apiUrl}/data-sources/${dataSourceId}`,
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/order`,
           method: "PUT",
           body,
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
+        ],
+      }),
+      updateColumnsOrder: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dataSourceId: string;
+          tableName: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ dataSourceId, tableName, body }) => ({
+          url: `${apiUrl}/data-sources/${dataSourceId}/tables/${tableName}/columns/order`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { dataSourceId, tableName }) => [
+          { type: "TableColumns", id: tableName },
         ],
       }),
     };
@@ -128,6 +138,7 @@ export const {
   useDeleteColumnMutation,
   useCreateColumnMutation,
   useUpdateTableMutation,
-  useUpdateTablesMutation,
+  useUpdateTablesOrderMutation,
+  useUpdateColumnsOrderMutation,
   usePrefetch,
 } = tablesApiSlice;
