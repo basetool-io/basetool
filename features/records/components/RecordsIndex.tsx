@@ -6,7 +6,7 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { OWNER_ROLE } from "@/features/roles";
 import { isEmpty, isUndefined } from "lodash";
 import { useAccessControl, useDataSourceContext } from "@/hooks";
@@ -15,7 +15,7 @@ import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import { useFilters, useOrderRecords, useSelectRecords } from "../hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";

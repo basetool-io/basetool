@@ -1,6 +1,5 @@
 import { Column } from "@/features/fields/types";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
-import { OrderDirection } from "@/features/tables/types";
+import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
 import {
   allColumnsCheckedSelector,

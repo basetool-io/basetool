@@ -1,12 +1,12 @@
 import { Button, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import { FilterVerbs, IntFilterConditions } from "..";
 import { IFilter, IFilterGroup } from "../types";
-import { IntFilterConditions } from "..";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/features/records/hooks";
 import Filter from "./Filter";
 import React, { forwardRef } from "react";
-import VerbComponent, { FilterVerb, FilterVerbs } from "./VerbComponent";
+import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 const GroupFiltersPanel = (
   {
