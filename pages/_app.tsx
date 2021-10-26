@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   // Track Google UA page changes
   useEffect(() => {
-    const handleRouteChangeStart = (url: string) => {
+    const handleRouteChangeStart = () => {
       // We're debouncing the progressbar for the scenarios where the page is loaded into memory and we want the "native" experience.
       timeout = setTimeout(() => {
         NProgress.start();
@@ -50,12 +50,18 @@ function MyApp({ Component, pageProps }: AppProps) {
       clearTimeout(timeout);
       NProgress.done();
     };
-    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+    const handleRouteChangeError = () => {
+      NProgress.done();
+    };
+
     router.events.on("routeChangeStart", handleRouteChangeStart);
+    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+    router.events.on("routeChangeError", handleRouteChangeError);
 
     return () => {
-      router.events.off("routeChangeComplete", handleRouteChangeComplete);
       router.events.off("routeChangeStart", handleRouteChangeStart);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+      router.events.off("routeChangeError", handleRouteChangeError);
     };
   }, [router.events]);
 
