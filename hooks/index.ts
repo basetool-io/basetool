@@ -21,13 +21,17 @@ import {
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
+import {
+  dataSourceIdSelector,
+  setDataSourceId,
+  setSidebarVisibile as setSidebarVisibileToState,
+  setTableName,
+  sidebarsVisibleSelector,
+  tableNameSelector,
+} from "@/features/app/state-slice";
 import { encodeObject } from "@/lib/encoding";
 import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
-import {
-  setSidebarVisibile as setSidebarVisibileToState,
-  sidebarsVisibleSelector,
-} from "@/features/app/state-slice";
 import {
   useAddFavouriteMutation,
   useGetFavouritesQuery,
@@ -253,6 +257,10 @@ export const useProfile = () => {
 
 export const useDataSourceContext = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const dataSourceId = useAppSelector(dataSourceIdSelector);
+  const tableName = useAppSelector(tableNameSelector);
 
   const viewId = useMemo(
     () => router.query.viewId as string,
@@ -260,24 +268,24 @@ export const useDataSourceContext = () => {
   );
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
-  const { dataSourceId, tableName } = useMemo(() => {
-    let dataSourceId = router.query.dataSourceId as string;
-    let tableName = router.query.tableName as string;
+  useEffect(() => {
+    if (viewResponse?.ok) {
+      dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
+      dispatch(setTableName(viewResponse.data.tableName));
+    }
+  }, [viewResponse]);
 
-    if (isUndefined(dataSourceId) || isUndefined(tableName)) {
-      if (!isUndefined(viewId)) {
-        if (viewResponse?.ok) {
-          dataSourceId = viewResponse.data.dataSourceId.toString();
-          tableName = viewResponse.data.tableName;
-        }
+  useEffect(() => {
+    if (router.query.dataSourceId) {
+      dispatch(setDataSourceId(router.query.dataSourceId as string));
+      if (router.query.tableName) {
+        dispatch(setTableName(router.query.tableName as string));
+      } else {
+        // When navigating from a dataSource to another, the dataSourceId updates but tableName doesn't and keeps the table selected, so we have to reset it.
+        dispatch(setTableName(""));
       }
     }
-
-    return {
-      dataSourceId,
-      tableName,
-    };
-  }, [router.query, viewResponse]);
+  }, [router.query]);
 
   const recordId = useMemo(
     () => router.query.recordId as string,

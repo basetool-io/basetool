@@ -21,9 +21,7 @@ export const viewsApiSlice = createApi({
           method: "POST",
           body,
         }),
-        invalidatesTags: [
-          { type: "View", id: "LIST" },
-        ],
+        invalidatesTags: [{ type: "View", id: "LIST" }],
       }),
       getViews: builder.query<ApiResponse, void>({
         query() {
@@ -33,10 +31,7 @@ export const viewsApiSlice = createApi({
           { type: "View", id: "LIST" },
         ],
       }),
-      getView: builder.query<
-        ApiResponse,
-        Partial<{ viewId: string }>
-      >({
+      getView: builder.query<ApiResponse, Partial<{ viewId: string }>>({
         query({ viewId }) {
           return `/views/${viewId}`;
         },
@@ -44,10 +39,7 @@ export const viewsApiSlice = createApi({
           { type: "View", id: viewId },
         ],
       }),
-      removeView: builder.mutation<
-        ApiResponse,
-        Partial<{ viewId: string }>
-      >({
+      removeView: builder.mutation<ApiResponse, Partial<{ viewId: string }>>({
         query: ({ viewId }) => ({
           url: `${apiUrl}/views/${viewId}`,
           method: "DELETE",
@@ -78,4 +70,10 @@ export const viewsApiSlice = createApi({
   },
 });
 
-export const { useAddViewMutation, useGetViewsQuery, useGetViewQuery, useRemoveViewMutation, useUpdateViewMutation } = viewsApiSlice;
+export const {
+  useAddViewMutation,
+  useGetViewsQuery,
+  useGetViewQuery,
+  useRemoveViewMutation,
+  useUpdateViewMutation,
+} = viewsApiSlice;

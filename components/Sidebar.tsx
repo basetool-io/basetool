@@ -22,7 +22,7 @@ import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
 import Link from "next/link";
 import LoadingOverlay from "./LoadingOverlay";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import Shimmer from "./Shimmer";
 import SidebarItem from "./SidebarItem";
 import isEmpty from "lodash/isEmpty";
@@ -72,7 +72,23 @@ const Sidebar = () => {
       defaultIsOpen: true,
     });
 
-  const { favourites, isLoading: favouritesIsLoading, isFavourite } = useFavourites();
+  const {
+    favourites,
+    isLoading: favouritesIsLoading,
+    isFavourite,
+  } = useFavourites();
+
+  const filteredViews = useMemo(() => {
+    if (viewsResponse?.ok) {
+      return viewsResponse.data.filter(
+        (view: View) =>
+          (view.createdBy === user.id || view.public === true) &&
+          view.dataSourceId === parseInt(dataSourceId)
+      );
+    } else {
+      return [];
+    }
+  }, [viewsResponse, dataSourceId]);
 
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
@@ -126,14 +142,14 @@ const Sidebar = () => {
                 />
               ))}
           </Collapse>
-          {(favouritesIsLoading) && (
-              <div className="flex-1 min-h-full">
-                <LoadingOverlay
-                  transparent={isEmpty(viewsResponse?.data)}
-                  subTitle={false}
-                />
-              </div>
-            )}
+          {favouritesIsLoading && (
+            <div className="flex-1 min-h-full">
+              <LoadingOverlay
+                transparent={isEmpty(viewsResponse?.data)}
+                subTitle={false}
+              />
+            </div>
+          )}
         </div>
 
         <hr className="mt-2 mb-2" />
@@ -150,38 +166,28 @@ const Sidebar = () => {
                 <ChevronLeftIcon className="h-3 inline" />
               )}
             </div>
-            {viewsResponse?.ok &&
-              viewsResponse.data.filter(
-                (view: View) =>
-                  (view.createdBy === user.id || view.public === true) &&
-                  view.dataSourceId === parseInt(dataSourceId)
-              ).length > 0 && (
-                <Link href={`/views/new?dataSourceId=${dataSourceId}`}>
-                  <a className="flex justify-center items-center mx-2">
-                    <Tooltip label="Add view">
-                      <div>
-                        <PlusCircleIcon className="h-4 inline cursor-pointer" />
-                      </div>
-                    </Tooltip>
-                  </a>
-                </Link>
-              )}
+            {filteredViews.length > 0 && (
+              <Link href={`/views/new?dataSourceId=${dataSourceId}`}>
+                <a className="flex justify-center items-center mx-2">
+                  <Tooltip label="Add view">
+                    <div>
+                      <PlusCircleIcon className="h-4 inline cursor-pointer" />
+                    </div>
+                  </Tooltip>
+                </a>
+              </Link>
+            )}
           </div>
 
           <Collapse in={isViewsOpen}>
-            {viewsResponse?.ok &&
-              viewsResponse.data.filter(
-                (view: View) =>
-                  (view.createdBy === user.id || view.public === true) &&
-                  view.dataSourceId === parseInt(dataSourceId)
-              ).length === 0 && (
-                <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
-                  <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
-                    <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
-                    Create view
-                  </div>
-                </Link>
-              )}
+            {filteredViews.length === 0 && (
+              <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
+                <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
+                  <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
+                  Create view
+                </div>
+              </Link>
+            )}
 
             {(viewsAreLoading || sessionIsLoading) && (
               <div className="flex-1 min-h-full">
@@ -191,22 +197,17 @@ const Sidebar = () => {
                 />
               </div>
             )}
-            {viewsResponse?.ok &&
-              viewsResponse.data
-                // display only views created by logged in user or public views and having same datasource
-                .filter(
-                  (view: View) =>
-                    (view.createdBy === user.id || view.public === true) &&
-                    view.dataSourceId === parseInt(dataSourceId)
-                )
-                .map((view: View, idx: number) => (
-                  <SidebarItem
-                    key={idx}
-                    active={view.id === parseInt(viewId) && !isFavourite(`/views/${view.id}`)}
-                    label={view.name}
-                    link={`/views/${view.id}`}
-                  />
-                ))}
+            {filteredViews.map((view: View, idx: number) => (
+              <SidebarItem
+                key={idx}
+                active={
+                  view.id === parseInt(viewId) &&
+                  !isFavourite(`/views/${view.id}`)
+                }
+                label={view.name}
+                link={`/views/${view.id}`}
+              />
+            ))}
           </Collapse>
         </div>
         {tablesResponse?.ok && ac.hasRole(OWNER_ROLE) && (
@@ -254,7 +255,13 @@ const Sidebar = () => {
                     .map((table: ListTable, idx: number) => (
                       <SidebarItem
                         key={idx}
-                        active={table.name === tableName && isUndefined(viewId) && !isFavourite(`/data-sources/${dataSourceId}/tables/${table.name}`)}
+                        active={
+                          table.name === tableName &&
+                          isUndefined(viewId) &&
+                          !isFavourite(
+                            `/data-sources/${dataSourceId}/tables/${table.name}`
+                          )
+                        }
                         label={getLabel(table)}
                         link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                         onMouseOver={() => {
