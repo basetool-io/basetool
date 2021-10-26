@@ -18,7 +18,6 @@ import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
 } from "@/features/data-sources/api-slice";
-import { useBoolean } from "react-use";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -35,6 +34,10 @@ export type IFormFields = {
   name: string;
   type: SQLDataSourceTypes;
   organizationId: number;
+  options: {
+    connectsWithSSH: boolean;
+    connectsWithSSHKey: boolean;
+  };
   credentials: {
     host: string;
     port: number;
@@ -67,12 +70,17 @@ const NewDataSourceForm = ({
       port?: string;
       user?: string;
       password?: string;
+      passphrase?: string;
     };
   };
   defaultValues?: {
     name?: string;
     type?: string;
     organizationId?: string;
+    options?: {
+      connectsWithSSH?: boolean;
+      connectsWithSSHKey?: boolean;
+    };
     credentials?: {
       host?: string;
       port?: number | "";
@@ -86,6 +94,8 @@ const NewDataSourceForm = ({
       port?: number | "";
       user?: string;
       password?: string;
+      key?: any;
+      passphrase?: string;
     };
   };
 }) => {
@@ -97,6 +107,10 @@ const NewDataSourceForm = ({
       name: "",
       type: type,
       organizationId: "",
+      options: {
+        connectsWithSSH: false,
+        connectsWithSSHKey: false,
+      },
       credentials: {
         host: "",
         port: "",
@@ -106,8 +120,8 @@ const NewDataSourceForm = ({
         useSsl: true,
       },
       ssh: {
-        port: 22
-      }
+        port: 22,
+      },
     },
     defaultValues
   );
@@ -116,11 +130,15 @@ const NewDataSourceForm = ({
    * Init the form
    */
   const schema = getSchema(type);
-  const { register, handleSubmit, formState, setValue, getValues } = useForm({
-    defaultValues,
-    resolver: joiResolver(schema),
-  });
+  const { register, handleSubmit, formState, setValue, getValues, watch } =
+    useForm({
+      defaultValues,
+      resolver: joiResolver(schema),
+    });
   const errors = useMemo(() => formState.errors, [formState.errors]);
+
+  const watcher = watch();
+  const formData = useMemo(() => getValues(), [watcher]);
 
   /**
    * Submit the form
@@ -176,10 +194,11 @@ const NewDataSourceForm = ({
     const type = getValues("type");
     const credentials = getValues("credentials");
     const ssh = getValues("ssh");
-    let body: any = { type, credentials };
+    const options = getValues("options");
+    let body: any = { type, credentials, options };
 
     // Add the SSH credentials
-    if (connectWithSsh)
+    if (formData?.options?.connectsWithSSH)
       body = {
         ...body,
         ssh,
@@ -198,11 +217,6 @@ const NewDataSourceForm = ({
       );
     }
   };
-
-  /**
-   * Toggle SSH connection
-   */
-  const [connectWithSsh, toggleConnectWithSsh] = useBoolean(false);
 
   return (
     <Layout hideSidebar={true}>
@@ -260,6 +274,23 @@ const NewDataSourceForm = ({
               />
               <FormHelperText>The name of your data source.</FormHelperText>
               <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl
+              id="organization"
+              isInvalid={!isUndefined(errors?.organizationId?.message)}
+            >
+              <FormLabel>Organization</FormLabel>
+              <Select {...register("organizationId")}>
+                {organizations.map(({ id, name }) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>
+                {errors?.organizationId?.message}
+              </FormErrorMessage>
             </FormControl>
 
             <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
@@ -367,17 +398,28 @@ const NewDataSourceForm = ({
             </FormControl>
 
             <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="email-alerts" mb="0">
+              <FormLabel htmlFor="connect-with-ssh" mb="0">
                 Connect with SSH
               </FormLabel>
               <Switch
-                id="email-alerts"
-                isChecked={connectWithSsh}
-                onChange={() => toggleConnectWithSsh()}
+                id="connect-with-ssh"
+                isChecked={formData?.options?.connectsWithSSH}
+                onChange={() =>
+                  setValue(
+                    "options",
+                    {
+                      ...formData?.options,
+                      connectsWithSSH: !formData?.options?.connectsWithSSH,
+                    },
+                    {
+                      shouldTouch: true,
+                    }
+                  )
+                }
               />
             </FormControl>
 
-            {connectWithSsh && (
+            {formData?.options?.connectsWithSSH && (
               <>
                 <div className="font-xl font-bold">SSH connection details</div>
 
@@ -422,7 +464,7 @@ const NewDataSourceForm = ({
                       id="user"
                       isInvalid={!isUndefined(errors?.ssh?.user?.message)}
                     >
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>User</FormLabel>
                       <Input
                         type="text"
                         placeholder={placeholders?.ssh?.user}
@@ -442,6 +484,7 @@ const NewDataSourceForm = ({
                       <FormLabel>Password</FormLabel>
                       <Input
                         type="password"
+                        disabled={formData.options.connectsWithSSHKey}
                         placeholder={placeholders?.ssh?.password}
                         {...register("ssh.password")}
                       />
@@ -451,25 +494,69 @@ const NewDataSourceForm = ({
                     </FormControl>
                   </div>
                 </div>
+
+                <FormControl display="flex" alignItems="center">
+                  <FormLabel htmlFor="connect-with-ssh-key" mb="0">
+                    Connect using SSH key
+                  </FormLabel>
+                  <Switch
+                    id="connect-with-key"
+                    isChecked={formData?.options?.connectsWithSSHKey}
+                    onChange={() =>
+                      setValue(
+                        "options",
+                        {
+                          ...formData?.options,
+                          connectsWithSSHKey:
+                            !formData?.options?.connectsWithSSHKey,
+                        },
+                        {
+                          shouldTouch: true,
+                        }
+                      )
+                    }
+                  />
+                </FormControl>
+
+                {formData.options.connectsWithSSHKey && (
+                  <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div className="sm:w-1/2">
+                      <FormControl
+                        id="ssh-key"
+                        isInvalid={!isUndefined(errors?.ssh?.key?.message)}
+                      >
+                        <FormLabel>SSH key</FormLabel>
+                        <input type="file" {...register("ssh.key")} />
+                        <FormErrorMessage>
+                          {errors?.ssh?.key?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                    <div className="sm:w-1/2">
+                      <FormControl
+                        id="passphrase"
+                        isInvalid={
+                          !isUndefined(errors?.ssh?.passphrase?.message)
+                        }
+                      >
+                        <FormLabel>SSH key passphrase</FormLabel>
+                        <Input
+                          type="text"
+                          placeholder={placeholders?.ssh?.passphrase}
+                          {...register("ssh.passphrase")}
+                        />
+                        <FormHelperText>
+                          Leave empty if the key is not encrypted.
+                        </FormHelperText>
+                        <FormErrorMessage>
+                          {errors?.ssh?.passphrase?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                  </div>
+                )}
               </>
             )}
-
-            <FormControl
-              id="organization"
-              isInvalid={!isUndefined(errors?.organizationId?.message)}
-            >
-              <FormLabel>Organization</FormLabel>
-              <Select {...register("organizationId")}>
-                {organizations.map(({ id, name }) => (
-                  <option key={id} value={id}>
-                    {name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>
-                {errors?.organizationId?.message}
-              </FormErrorMessage>
-            </FormControl>
             <input type="submit" className="hidden invisible" />
           </form>
         </div>

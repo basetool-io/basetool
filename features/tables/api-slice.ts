@@ -19,7 +19,6 @@ export const tablesApiSlice = createApi({
         },
         providesTags: (response, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       updateColumn: builder.mutation<
@@ -46,7 +45,6 @@ export const tablesApiSlice = createApi({
         },
         providesTags: (response, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
         ],
       }),
       updateTable: builder.mutation<
@@ -64,9 +62,7 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { dataSourceId, tableName }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       deleteColumn: builder.mutation<
@@ -79,7 +75,6 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       createColumn: builder.mutation<
@@ -97,7 +92,6 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { tableName }) => [
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
       updateTablesOrder: builder.mutation<
@@ -114,7 +108,6 @@ export const tablesApiSlice = createApi({
         }),
         invalidatesTags: (result, error, { dataSourceId }) => [
           { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
         ],
       }),
       updateColumnsOrder: builder.mutation<
@@ -131,10 +124,7 @@ export const tablesApiSlice = createApi({
           body,
         }),
         invalidatesTags: (result, error, { dataSourceId, tableName }) => [
-          { type: "Table", id: dataSourceId },
-          { type: "Table", id: "LIST" },
           { type: "TableColumns", id: tableName },
-          { type: "TableColumns", id: "LIST" },
         ],
       }),
     };
@@ -148,7 +138,7 @@ export const {
   useDeleteColumnMutation,
   useCreateColumnMutation,
   useUpdateTableMutation,
-  useUpdateTablesMutation,
+  useUpdateTablesOrderMutation,
   useUpdateColumnsOrderMutation,
   usePrefetch,
 } = tablesApiSlice;

@@ -44,7 +44,7 @@ class CacheDriver {
     callback,
   }: {
     key: string;
-    options?: { fresh: boolean; expiresIn?: number };
+    options?: { fresh?: boolean; expiresIn?: number };
     callback: () => any;
     expiryMode?: "EX";
     time?: number;

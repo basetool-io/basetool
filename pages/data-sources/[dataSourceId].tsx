@@ -1,4 +1,4 @@
-import { isNull } from "lodash";
+import { first, isNull } from "lodash";
 import { useDataSourceContext } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -31,7 +31,9 @@ function DataSourcesShow() {
     <Layout>
       {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
       {error && (
-        <div>Error: {"data" in error && (error?.data as any)?.messages[0]}</div>
+        <div>
+          Error: {"data" in error && first((error?.data as any)?.messages)}
+        </div>
       )}
       {!isLoading && data?.ok && (
         <>
