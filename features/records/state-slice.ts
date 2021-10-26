@@ -1,7 +1,6 @@
 import { Column } from "../fields/types";
 import { DEFAULT_PER_PAGE } from "@/lib/constants";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
-import { OrderDirection } from "../tables/types";
+import { IFilter, IFilterGroup, OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { encodeObject } from "@/lib/encoding";
 import { first, isEmpty, last } from "lodash";
