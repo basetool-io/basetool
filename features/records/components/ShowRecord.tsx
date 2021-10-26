@@ -17,6 +17,7 @@ import {
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useGetViewQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Head from "next/head";
@@ -29,14 +30,24 @@ import isEmpty from "lodash/isEmpty";
 
 const ShowRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath } =
-    useDataSourceContext();
+  const {
+    viewId,
+    dataSourceId,
+    tableName,
+    recordId,
+    tableIndexPath,
+    recordsPath,
+  } = useDataSourceContext();
+
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
       skip: !dataSourceId,
     }
   );
+
   const { data, error, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
@@ -120,7 +131,11 @@ const ShowRecord = () => {
                       isFavourite(router.asPath)
                         ? removeFavourite(router.asPath)
                         : addFavourite(
-                            `${tableName}-${recordId}`,
+                            `${
+                              viewId && viewResponse?.data?.name
+                                ? viewResponse.data.name
+                                : tableName
+                            }/${recordId}`,
                             router.asPath
                           )
                     }

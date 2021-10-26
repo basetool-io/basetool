@@ -243,7 +243,12 @@ const RecordsIndex = ({
                   onClick={() =>
                     isFavourite(router.asPath)
                       ? removeFavourite(router.asPath)
-                      : addFavourite(tableName, router.asPath)
+                      : addFavourite(
+                          viewId && viewResponse?.data?.name
+                            ? viewResponse.data.name
+                            : tableName,
+                          router.asPath
+                        )
                   }
                 />
                 Browse records
