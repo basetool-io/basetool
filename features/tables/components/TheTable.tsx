@@ -155,7 +155,7 @@ const TheTable = memo(() => {
                     className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
                   >
                     {isRecordSelectorColumn && (
-                      <div className="flex items-center justify-center h-4 py-4">
+                      <div className="flex items-center justify-center h-4 py-4 bg-white -mx-6">
                         <Checkbox
                           colorScheme="gray"
                           isChecked={allColumnsChecked}
@@ -194,12 +194,10 @@ const TheTable = memo(() => {
                     )}
                     <div
                       {...column.getResizerProps()}
-                      className={classNames(
-                        "resizer group-hover:opacity-100 opacity-10",
-                        {
-                          isResizing: column.isResizing,
-                        }
-                      )}
+                      className={classNames("opacity-10", {
+                        "resizer group-hover:opacity-100": !isRecordSelectorColumn,
+                        isResizing: column.isResizing,
+                      })}
                     >
                       <div className="resizer-bar" />
                     </div>
