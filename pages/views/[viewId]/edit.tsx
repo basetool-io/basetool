@@ -18,15 +18,19 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "@/features/tables/types"
+import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { Save } from "react-feather";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty, pick } from "lodash";
+import { isEmpty, isUndefined, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext } from "@/hooks";
-import { useFilters } from "@/features/records/hooks";
+import {
+  useFilters,
+  useOrderRecords,
+  useResetState,
+} from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
@@ -46,16 +50,17 @@ import RecordsTable from "@/features/tables/components/RecordsTable";
 const OrderDirections = [
   {
     value: "asc",
-    label: "Ascending A-Z 1-9",
+    label: "Ascending A→Z 1→9",
   },
   {
     value: "desc",
-    label: "Descending Z-A 9-1",
+    label: "Descending Z→A 9→1",
   },
 ];
 
 const Edit = () => {
   const router = useRouter();
+  const resetState = useResetState();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
   const [localView, setLocalView] = useState<View>();
 
@@ -77,19 +82,44 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, applyFilters, appliedFilters, resetFilters } =
-    useFilters();
+  const { setFilters, applyFilters, appliedFilters } = useFilters(viewResponse?.data?.filters);
+  const { setOrderBy, setOrderDirection } = useOrderRecords();
 
-  useEffect(() => {
-    resetFilters();
+  const setViewData = () => {
     if (viewResponse?.ok) {
       setLocalView(viewResponse.data);
+
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
         applyFilters(viewResponse.data.filters);
       }
+
+      // We have to check whether there is a default order on the view and the order from the query to be empty.
+      if (
+        viewResponse.data.defaultOrder &&
+        !isEmpty(viewResponse.data.defaultOrder) &&
+        isUndefined(router.query.orderBy) &&
+        isUndefined(router.query.orderDirection)
+      ) {
+        setOrderBy(viewResponse.data.defaultOrder.columnName);
+        setOrderDirection(viewResponse.data.defaultOrder.direction);
+      }
     }
-  }, [viewResponse]);
+  };
+
+  useEffect(() => {
+    resetState();
+
+    setViewData();
+  }, [viewResponse, viewId]);
+
+  useEffect(() => {
+    setViewData();
+
+    return () => {
+      return resetState();
+    };
+  }, []);
 
   const handleRemove = async () => {
     if (viewIsLoading || viewIsRemoving) return;
@@ -400,11 +430,6 @@ const Edit = () => {
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             {dataSourceId && <RecordsTable />}
-            {/* <RecordsIndex
-              // displayOnlyTable={true}
-              // editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
-              // editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
-            /> */}
           </div>
         </div>
       </PageWrapper>

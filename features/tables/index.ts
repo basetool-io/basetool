@@ -138,14 +138,3 @@ export enum FilterVerbs {
   and = "and",
   or = "or",
 }
-
-export const options = {
-  is: "=",
-  is_not: "!=",
-  gt: ">",
-  gte: ">=",
-  lt: "<",
-  lte: "<=",
-  is_null: "is_null",
-  is_not_null: "is_not_null",
-}

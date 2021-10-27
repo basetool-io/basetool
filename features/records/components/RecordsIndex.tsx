@@ -12,7 +12,12 @@ import { isEmpty, isUndefined } from "lodash";
 import { useAccessControl, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
-import { useFilters, useOrderRecords, useSelectRecords } from "../hooks";
+import {
+  useFilters,
+  useOrderRecords,
+  useResetState,
+  useSelectRecords,
+} from "../hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
@@ -26,6 +31,7 @@ import pluralize from "pluralize";
 
 const RecordsIndex = () => {
   const router = useRouter();
+  const resetState = useResetState();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
@@ -36,24 +42,22 @@ const RecordsIndex = () => {
     }
   );
 
+  const filters = useMemo(
+    () => viewResponse?.data?.filters || [],
+    [viewResponse]
+  );
+
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const {
     appliedFilters,
     setFilters,
     applyFilters,
-    resetFilters,
     removeFilter,
-  } = useFilters();
+  } = useFilters(filters);
   const ac = useAccessControl();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
 
-  // useEffect(() => {
-  //   resetFilters();
-  // }, [tableName]);
-
-  // @todo: reset filters on views
-  useEffect(() => {
-    resetFilters();
+  const setViewData = () => {
     if (viewResponse?.ok) {
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
@@ -71,6 +75,12 @@ const RecordsIndex = () => {
         setOrderDirection(viewResponse.data.defaultOrder.direction);
       }
     }
+  };
+
+  // @todo: reset filters on views
+  useEffect(() => {
+    resetState();
+    setViewData();
   }, [tableName, viewId, viewResponse]);
 
   const filtersButton = useRef(null);
@@ -125,6 +135,13 @@ const RecordsIndex = () => {
       }
     });
   };
+
+  useEffect(
+    () => () => {
+      resetState();
+    },
+    []
+  );
 
   return (
     <Layout>

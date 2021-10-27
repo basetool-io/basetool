@@ -12,12 +12,14 @@ import {
   lastRecordIdSelector,
   limitOffsetSelector,
   metaSelector,
-  orderSelector,
+  orderBySelector,
+  orderDirectionSelector,
   pageSelector,
   perPageSelector,
   recordsSelector,
   removeFilter,
   resetRecordsSelection as resetRecordsSelectionInState,
+  resetState as resetReduxState,
   selectedRecordsSelector,
   setAppliedFilters,
   setColumnWidths,
@@ -33,7 +35,7 @@ import {
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
-import { isArray, isEqual, isNull, merge } from "lodash";
+import { isArray, isEmpty, isEqual, isNull, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
@@ -42,7 +44,17 @@ import { useRouter } from "next/router";
 import ApiResponse from "@/features/api/ApiResponse";
 import URI from "urijs";
 
-export const useFilters = (initialFilters?: string | undefined) => {
+export const useResetState = () => {
+  const dispatch = useAppDispatch();
+
+  const resetState = () => {
+    dispatch(resetReduxState());
+  };
+
+  return resetState;
+};
+
+export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
   const dispatch = useAppDispatch();
   const { setPage } = usePagination();
   const filters = useAppSelector(filtersSelector);
@@ -69,6 +81,12 @@ export const useFilters = (initialFilters?: string | undefined) => {
     dispatch(setFilters([]));
     dispatch(setAppliedFilters([]));
   };
+
+  useEffect(() => {
+    if (initialFilters && !isEmpty(initialFilters)) {
+      setTheFilters(initialFilters)
+    }
+  }, [])
 
   return {
     filters,
@@ -118,7 +136,8 @@ export const useOrderRecords = (
 ) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [orderBy, orderDirection] = useAppSelector(orderSelector);
+  const orderBy = useAppSelector(orderBySelector);
+  const orderDirection = useAppSelector(orderDirectionSelector);
 
   const setOrderBy = (value: string) => {
     dispatch(setOrderByInState(value));

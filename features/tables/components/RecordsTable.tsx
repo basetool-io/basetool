@@ -1,39 +1,30 @@
 import { OrderDirection } from "../types";
-
-
 import { isEmpty } from "lodash";
-import {
-  resetState,
-} from "@/features/records/state-slice";
-import {
-  useAppDispatch,
-  useDataSourceContext,
-} from "@/hooks";
 import {
   useColumns,
   useFilters,
   useOrderRecords,
   usePagination,
   useRecords,
+  useResetState,
 } from "@/features/records/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "../api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-
-
 import CursorPagination from "./CursorPagination";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OffsetPagination from "./OffsetPagination";
 import React, { memo, useEffect, useMemo } from "react";
-import TheTable from "./TheTable"
+import TheTable from "./TheTable";
 
 const RecordsTable = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const resetState = useResetState();
   // @todo: Get filters from the URL param
-  const { encodedFilters, removeFilter } = useFilters();
-  const { viewId, dataSourceId, tableName } = useDataSourceContext();
+  const { encodedFilters } = useFilters();
+  const { dataSourceId, tableName } = useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -96,14 +87,14 @@ const RecordsTable = () => {
   // Reset data store on dismount.
   useEffect(() => {
     return () => {
-      dispatch(resetState);
+      resetState();
     };
   }, []);
 
   // Reset data store on table change.
   useEffect(() => {
     return () => {
-      dispatch(resetState);
+      resetState();
     };
   }, [tableName]);
 

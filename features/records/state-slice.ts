@@ -40,6 +40,8 @@ const recordsStateSlice = createSlice({
   initialState,
   reducers: {
     resetState() {
+      console.log("store resetState()->");
+
       return initialState;
     },
 
@@ -147,6 +149,33 @@ const recordsStateSlice = createSlice({
   },
 });
 
+export const {
+  resetState,
+  addFilter,
+  setFilters,
+  setAppliedFilters,
+  removeFilter,
+  updateFilter,
+  toggleRecordSelection,
+  setRecordsSelected,
+  resetRecordsSelection,
+  setColumns,
+
+  setRecords,
+
+  setMeta,
+
+  setPerPage,
+  setPage,
+
+  setOrderBy,
+  setOrderDirection,
+
+  setColumnWidths,
+} = recordsStateSlice.actions;
+
+export default recordsStateSlice.reducer;
+
 export const metaSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.meta;
 export const columnsSelector = ({ recordsState }: { recordsState: AppState }) =>
@@ -156,10 +185,13 @@ export const columnWidthsSelector = ({
 }: {
   recordsState: AppState;
 }) => recordsState.columnWidths;
-export const orderSelector = ({ recordsState }: { recordsState: AppState }) => [
-  recordsState.orderBy,
-  recordsState.orderDirection,
-];
+export const orderBySelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.orderBy;
+export const orderDirectionSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.orderDirection;
 
 /**
  * Records
@@ -230,30 +262,3 @@ export const limitOffsetSelector = createSelector(
     return [limit, offset];
   }
 );
-
-export const {
-  resetState,
-  addFilter,
-  setFilters,
-  setAppliedFilters,
-  removeFilter,
-  updateFilter,
-  toggleRecordSelection,
-  setRecordsSelected,
-  resetRecordsSelection,
-  setColumns,
-
-  setRecords,
-
-  setMeta,
-
-  setPerPage,
-  setPage,
-
-  setOrderBy,
-  setOrderDirection,
-
-  setColumnWidths,
-} = recordsStateSlice.actions;
-
-export default recordsStateSlice.reducer;

@@ -2,7 +2,17 @@ import { IFilter } from "../types";
 import { IntFilterConditions } from "..";
 import ConditionSelect from "./ConditionSelect";
 import React from "react";
-import options from "@/plugins/fields/Number/options";
+
+const options = {
+  is: "=",
+  is_not: "!=",
+  gt: ">",
+  gte: ">=",
+  lt: "<",
+  lte: "<=",
+  is_null: "is_null",
+  is_not_null: "is_not_null",
+};
 
 function IntConditionComponent({
   filter,
