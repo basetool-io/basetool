@@ -195,7 +195,8 @@ const TheTable = memo(() => {
                     <div
                       {...column.getResizerProps()}
                       className={classNames("opacity-10", {
-                        "resizer group-hover:opacity-100": !isRecordSelectorColumn,
+                        "resizer group-hover:opacity-100":
+                          !isRecordSelectorColumn,
                         isResizing: column.isResizing,
                       })}
                     >
@@ -211,13 +212,7 @@ const TheTable = memo(() => {
       {rows.map((row: Row<any>, index) => {
         prepareRow(row);
 
-        const component = (
-          <RowComponent
-            row={row}
-            dataSourceId={dataSourceId}
-            tableName={tableName}
-          />
-        );
+        const component = <RowComponent row={row} />;
 
         return (
           <div key={index}>
