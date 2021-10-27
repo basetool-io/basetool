@@ -7,12 +7,6 @@ import {
 } from "@prisma/client";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { isUndefined } from "lodash";
-import {
-  resetRecordsSelection as resetRecordsSelectionInState,
-  selectedRecordsSelector,
-  setRecordsSelected as setRecordsSelectedInState,
-  toggleRecordSelection as toggleRecordSelectionInState,
-} from "@/features/records/state-slice";
 import { segment } from "@/lib/track";
 import {
   setSidebarVisibile as setSidebarVisibileToState,
@@ -89,30 +83,6 @@ export const useOrganizationFromProfile = ({
 
   return organization;
 };
-
-// export const useSelectRecords = () => {
-//   const dispatch = useAppDispatch();
-//   const selectedRecords = useAppSelector(selectedRecordsSelector);
-
-//   const toggleRecordSelection = (value: number) => {
-//     dispatch(toggleRecordSelectionInState(value));
-//   };
-
-//   const setRecordsSelected = (values: number[]) => {
-//     dispatch(setRecordsSelectedInState(values));
-//   };
-
-//   const resetRecordsSelection = () => {
-//     dispatch(resetRecordsSelectionInState());
-//   };
-
-//   return {
-//     selectedRecords,
-//     toggleRecordSelection,
-//     setRecordsSelected,
-//     resetRecordsSelection,
-//   };
-// };
 
 export const useProfile = () => {
   const [session, sessionIsLoading] = useSession();
