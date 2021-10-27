@@ -29,7 +29,6 @@ import { useDataSourceContext } from "@/hooks";
 import {
   useFilters,
   useOrderRecords,
-  useResetState,
 } from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
@@ -82,7 +81,6 @@ const NameEditButton = () => {
 
 const Edit = () => {
   const router = useRouter();
-  const resetState = useResetState();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
   const [localView, setLocalView] = useState<DecoratedView>();
 

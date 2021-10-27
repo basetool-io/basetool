@@ -21,7 +21,7 @@ import TheTable from "./TheTable";
 
 const RecordsTable = () => {
   const router = useRouter();
-  const resetState = useResetState();
+  const resetRecordsState = useResetState();
   // @todo: Get filters from the URL param
   const { encodedFilters } = useFilters();
   const { dataSourceId, tableName } = useDataSourceContext();
@@ -36,7 +36,7 @@ const RecordsTable = () => {
     router.query.orderBy as string,
     router.query.orderDirection as OrderDirection
   );
-  const { limit, offset } = usePagination(router.query.page as string);
+  const { limit, offset } = usePagination();
 
   const {
     data: recordsResponse,
@@ -87,14 +87,14 @@ const RecordsTable = () => {
   // Reset data store on dismount.
   useEffect(() => {
     return () => {
-      resetState();
+      resetRecordsState();
     };
   }, []);
 
   // Reset data store on table change.
   useEffect(() => {
     return () => {
-      resetState();
+      resetRecordsState();
     };
   }, [tableName]);
 
