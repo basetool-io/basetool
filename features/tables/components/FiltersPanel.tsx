@@ -23,6 +23,8 @@ const FiltersPanel = ({}, ref: any) => {
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
+    if (!columns) return
+
     const filter: IFilter = {
       columnName: columns[0].name,
       column: columns[0],

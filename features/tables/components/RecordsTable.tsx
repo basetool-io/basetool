@@ -36,7 +36,7 @@ const RecordsTable = () => {
     router.query.orderBy as string,
     router.query.orderDirection as OrderDirection
   );
-  const { limit, offset } = usePagination();
+  const { limit, offset } = usePagination(router.query.page as string);
 
   const {
     data: recordsResponse,

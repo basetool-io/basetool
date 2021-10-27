@@ -21,7 +21,7 @@ import {
   resetRecordsSelection as resetRecordsSelectionInState,
   resetState as resetReduxState,
   selectedRecordsSelector,
-  setAppliedFilters,
+  setAppliedFilters as setAppliedFiltersInState,
   setColumnWidths,
   setColumns as setColumnsInState,
   setFilters,
@@ -72,27 +72,43 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
 
   const applyFilters = (filters: Array<IFilter | IFilterGroup>) => {
     if (!isEqual(appliedFilters, filters)) {
-      dispatch(setAppliedFilters(filters));
+      setAppliedFilters(filters);
       setPage(1);
+    }
+  };
+
+  /**
+   * this is used whne the on inital page loads to not trigger a page reset.
+   */
+  const setAppliedFilters = (filters: Array<IFilter | IFilterGroup>) => {
+    if (!isEqual(appliedFilters, filters)) {
+      dispatch(setAppliedFiltersInState(filters));
     }
   };
 
   const resetFilters = () => {
     dispatch(setFilters([]));
-    dispatch(setAppliedFilters([]));
+    dispatch(setAppliedFiltersInState([]));
   };
 
   useEffect(() => {
     if (initialFilters && !isEmpty(initialFilters)) {
-      setTheFilters(initialFilters)
+      setTheFilters(initialFilters);
     }
-  }, [])
+  }, []);
+
+  const appliedNonBaseFilters = useMemo(
+    () => appliedFilters.filter(({ isBase }) => !isBase),
+    [appliedFilters]
+  );
 
   return {
     filters,
     appliedFilters,
+    appliedNonBaseFilters,
     setFilters: setTheFilters,
     applyFilters,
+    setAppliedFilters,
     allFiltersApplied,
     removeFilter: removeTheFilter,
     updateFilter: updateTheFilter,
@@ -409,6 +425,7 @@ export const useOffsetPagination = () => {
     lastRecordId,
   };
 };
+
 export const usePagination = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -428,39 +445,28 @@ export const usePagination = () => {
   const canPreviousPage = useMemo(() => page > 1, [page]);
   const canNextPage = useMemo(() => page < maxPages, [page, maxPages]);
 
-  const setPage = (page: number) => dispatch(setPageInState(page));
+  const setPage = (page: number) => {
+    router.push({
+      pathname: router.pathname,
+      query: {
+        ...router.query,
+        page,
+      },
+    });
+
+    dispatch(setPageInState(page));
+  };
+
   const setPerPage = (page: number) => dispatch(setPerPageInState(page));
 
-  const nextPage = () => {
-    const nextPageNumber = page + 1;
-
-    router.push({
-      pathname: router.pathname,
-      query: {
-        ...router.query,
-        page: nextPageNumber,
-      },
-    });
-    setPage(nextPageNumber);
-  };
+  const nextPage = () => setPage(page + 1);
 
   const previousPage = () => {
-    let nextPageNumber = page - 1;
-    if (nextPageNumber <= 0) nextPageNumber = 1;
+    let prevPageNumber = page - 1;
+    if (prevPageNumber <= 0) prevPageNumber = 1;
 
-    router.push({
-      pathname: router.pathname,
-      query: {
-        ...router.query,
-        page: nextPageNumber,
-      },
-    });
-    setPage(nextPageNumber);
+    setPage(prevPageNumber);
   };
-
-  useEffect(() => {
-    router.query.page && setPage(parseInt(router.query.page as string));
-  }, []);
 
   return {
     page,

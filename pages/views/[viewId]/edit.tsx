@@ -18,7 +18,7 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "@/features/tables/types";
+import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { Save } from "react-feather";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
@@ -58,11 +58,33 @@ const OrderDirections = [
   },
 ];
 
+type DecoratedView = View & {
+  defaultOrder: { columnName?: string; direction?: OrderDirection };
+};
+
+const NameEditButton = () => {
+  const { isEditing, getEditButtonProps } = useEditableControls();
+
+  if (isEditing) return null;
+
+  return (
+    <Tooltip label="Edit name">
+      <div
+        className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+        {...getEditButtonProps()}
+      >
+        <PencilAltIcon className="h-4 inline" />
+        Edit
+      </div>
+    </Tooltip>
+  );
+};
+
 const Edit = () => {
   const router = useRouter();
   const resetState = useResetState();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
-  const [localView, setLocalView] = useState<View>();
+  const [localView, setLocalView] = useState<DecoratedView>();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -82,7 +104,9 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, applyFilters, appliedFilters } = useFilters(viewResponse?.data?.filters);
+  const { setFilters, applyFilters, appliedFilters } = useFilters(
+    viewResponse?.data?.filters
+  );
   const { setOrderBy, setOrderDirection } = useOrderRecords();
 
   const setViewData = () => {
@@ -108,17 +132,11 @@ const Edit = () => {
   };
 
   useEffect(() => {
-    resetState();
-
     setViewData();
   }, [viewResponse, viewId]);
 
   useEffect(() => {
     setViewData();
-
-    return () => {
-      return resetState();
-    };
   }, []);
 
   const handleRemove = async () => {
@@ -187,44 +205,21 @@ const Edit = () => {
     defaultIsOpen: true,
   });
 
-  const EditableControls = () => {
-    const { isEditing, getEditButtonProps } = useEditableControls();
+  const defaultOrder = useMemo(() => {
+    if (isEmpty(columns)) return {};
 
-    if (!isEditing) {
-      return (
-        <Tooltip label="Edit name">
-          <div
-            className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-            {...getEditButtonProps()}
-          >
-            <PencilAltIcon className="h-4 inline" />
-            Edit
-          </div>
-        </Tooltip>
-      );
-    } else {
-      return <div></div>;
-    }
-  };
-
-  const adddefaultOrder = () => {
-    const newdefaultOrder = {
+    return {
       columnName: columns[0].name,
       direction: "asc",
     };
+  }, [columns]);
 
-    setLocalView({
-      ...localView,
-      defaultOrder: newdefaultOrder,
-    } as View);
-  };
-
-  const removedefaultOrder = () => {
-    setLocalView({
-      ...localView,
-      defaultOrder: {},
-    } as View);
-  };
+  useEffect(() => {
+    setOrderBy(localView?.defaultOrder?.columnName || "");
+    setOrderDirection(
+      (localView?.defaultOrder?.direction as OrderDirection) || ""
+    );
+  }, [localView?.defaultOrder]);
 
   return (
     <Layout hideSidebar={true}>
@@ -284,7 +279,7 @@ const Edit = () => {
                         <EditablePreview className="cursor-pointer" />
                         <EditableInput />
                       </div>
-                      <EditableControls />
+                      <NameEditButton />
                     </div>
                   </Editable>
                 </div>
@@ -356,7 +351,12 @@ const Edit = () => {
                     <Tooltip label="Add order rule">
                       <div
                         className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                        onClick={() => adddefaultOrder()}
+                        onClick={() =>
+                          setLocalView({
+                            ...localView,
+                            defaultOrder: defaultOrder as any,
+                          })
+                        }
                       >
                         <PlusCircleIcon className="h-4 inline" />
                         Add
@@ -380,7 +380,7 @@ const Edit = () => {
                           setLocalView({
                             ...localView,
                             defaultOrder: {
-                              ...(localView?.defaultOrder as any),
+                              ...(localView.defaultOrder as any),
                               columnName: e.currentTarget.value,
                             },
                           })
@@ -401,7 +401,7 @@ const Edit = () => {
                           setLocalView({
                             ...localView,
                             defaultOrder: {
-                              ...(localView?.defaultOrder as any),
+                              ...(localView.defaultOrder as any),
                               direction: e.currentTarget.value,
                             },
                           })
@@ -417,7 +417,12 @@ const Edit = () => {
                         <Button
                           size="xs"
                           variant="link"
-                          onClick={() => removedefaultOrder()}
+                          onClick={() =>
+                            setLocalView({
+                              ...localView,
+                              defaultOrder: {},
+                            })
+                          }
                         >
                           <XIcon className="h-3 text-gray-700" />
                         </Button>

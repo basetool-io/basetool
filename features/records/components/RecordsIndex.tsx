@@ -15,7 +15,7 @@ import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import {
   useFilters,
   useOrderRecords,
-  useResetState,
+  usePagination,
   useSelectRecords,
 } from "../hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
@@ -25,13 +25,12 @@ import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import pluralize from "pluralize";
 
 const RecordsIndex = () => {
   const router = useRouter();
-  const resetState = useResetState();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
@@ -48,16 +47,22 @@ const RecordsIndex = () => {
   );
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const { appliedFilters, setFilters, applyFilters, removeFilter } =
-    useFilters(filters);
+  const {
+    appliedFilters,
+    appliedNonBaseFilters,
+    setFilters,
+    setAppliedFilters,
+    removeFilter,
+  } = useFilters(filters);
   const ac = useAccessControl();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
+  const { setPage } = usePagination();
 
   const setViewData = () => {
     if (viewResponse?.ok) {
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
-        applyFilters(viewResponse.data.filters);
+        setAppliedFilters(viewResponse.data.filters);
       }
 
       // We have to check whether there is a default order on the view and the order from the query to be empty.
@@ -72,12 +77,6 @@ const RecordsIndex = () => {
       }
     }
   };
-
-  // @todo: reset filters on views
-  useEffect(() => {
-    resetState();
-    setViewData();
-  }, [tableName, viewId, viewResponse]);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -118,12 +117,6 @@ const RecordsIndex = () => {
     [selectedRecords.length]
   );
 
-  const [appliedNonBaseFilters, setAppliedNonBaseFilters] =
-    useState<Array<IFilter | IFilterGroup>>(appliedFilters);
-  useEffect(() => {
-    setAppliedNonBaseFilters(appliedFilters.filter((filter) => !filter.isBase));
-  }, [appliedFilters]);
-
   const resetNonBaseFilters = () => {
     appliedFilters.forEach((filter: IFilter | IFilterGroup, idx: number) => {
       if (!filter.isBase) {
@@ -132,12 +125,25 @@ const RecordsIndex = () => {
     });
   };
 
-  useEffect(
-    () => () => {
-      resetState();
-    },
-    []
-  );
+  // Set the view data if we have any
+  useEffect(() => {
+    if (viewId) {
+      setViewData();
+    }
+  }, [tableName, viewId, viewResponse]);
+
+  // Set the view data if we have any
+  useEffect(() => {
+    if (viewId) {
+      setViewData();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (router.query.page) {
+      setPage(parseInt(router.query.page as string));
+    }
+  }, [router.query.page]);
 
   return (
     <Layout>
