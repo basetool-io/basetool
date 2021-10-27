@@ -32,7 +32,7 @@ function Layout({ children }: { children: ReactNode }) {
       <div className="flex w-screen h-screen">
         <div
           className={classNames(
-            "flex-1 flex bg-cool-gray-100 rounded-lg shadow w-[calc(100%-1rem)] h-[calc(100%-1rem)] m-2"
+            "flex-1 flex bg-cool-gray-100 dark:bg-cool-gray-800 rounded-lg shadow w-[calc(100%-1rem)] h-[calc(100%-1rem)] m-2"
           )}
         >
           <div className="flex-1 flex flex-col w-full h-full overflow-auto">

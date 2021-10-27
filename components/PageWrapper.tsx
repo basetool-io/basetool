@@ -36,7 +36,7 @@ const Block = ({
 }) => {
   const content = (
     <div
-      className="rounded-md border bg-true-gray-50 hover:bg-true-gray-100 hover:border-true-gray-300 p-4 h-full"
+      className="rounded-md border bg-true-gray-50 dark:text-gray-300 dark:border-gray-800 dark:bg-gray-500 dark:hover:bg-gray-400 hover:bg-true-gray-100 hover:border-true-gray-300 p-4 h-full"
       onMouseOver={onMouseOver}
     >
       {children}
@@ -127,7 +127,7 @@ function PageWrapper({
           {(heading || crumbs || icon) && (
             <div
               className={classNames(
-                "relative flex justify-between border-b p-4 flex-col md:flex-row space-y-2 md:space-y-0"
+                "relative flex justify-between border-b p-4 flex-col md:flex-row space-y-2 md:space-y-0 dark:bg-gray-700 dark:border-gray-800"
               )}
             >
               <div className="flex items-center">
@@ -140,7 +140,7 @@ function PageWrapper({
                 >
                   <Sidebar className="h-4 w-4" />
                 </Button>
-                <div className="text-xl text-gray-800 flex items-center space-x-1">
+                <div className="text-xl text-gray-800 flex items-center space-x-1 dark:text-gray-300">
                   {!error && (
                     <>
                       {icon}
@@ -161,7 +161,7 @@ function PageWrapper({
             </div>
           )}
           <div
-            className={classNames("relative flex-1 flex flex-col", {
+            className={classNames("relative flex-1 flex flex-col dark:bg-gray-600 dark:text-gray-50", {
               "px-4 py-4": !flush,
             })}
           >

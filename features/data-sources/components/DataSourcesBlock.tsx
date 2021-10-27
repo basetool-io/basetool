@@ -29,7 +29,7 @@ const DataSourcesBlock = () => {
         <>
           {isLoading && (
             <PageWrapper.Block href={`#`}>
-              <div className="text-lg font-bold text-gray-800 mb-2">
+              <div className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-2">
                 Loading
               </div>
               <br />
@@ -55,7 +55,7 @@ const DataSourcesBlock = () => {
                   }}
                 >
                   <div className="relative flex flex-col justify-between h-full group">
-                    <div className="text-lg font-bold text-gray-800 mb-2">
+                    <div className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-2">
                       {dataSource.name}
                     </div>
                     <div className="absolute top-0 left-auto right-0">

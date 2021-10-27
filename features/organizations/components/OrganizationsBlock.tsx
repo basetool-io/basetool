@@ -18,7 +18,7 @@ const OrganizationsBlock = () => {
         <>
           {isLoading && (
             <PageWrapper.Block href={`#`}>
-              <div className="text-lg font-bold text-gray-800 mb-2">
+              <div className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-2">
                 Loading
               </div>
               <br />
@@ -33,7 +33,7 @@ const OrganizationsBlock = () => {
                   href={`/organizations/${org.slug}/members`}
                   key={org.id}
                 >
-                  <div className="text-lg font-bold text-gray-800 mb-2">
+                  <div className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-2">
                     {org.name}
                   </div>
                   <br />

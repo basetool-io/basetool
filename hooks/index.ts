@@ -27,7 +27,7 @@ import {
   setSidebarVisibile as setSidebarVisibileToState,
   sidebarsVisibleSelector,
 } from "@/features/app/state-slice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
@@ -330,3 +330,23 @@ export const useSegment = (
   // return the track method to be used at a later time
   return track;
 };
+
+export const useDarkMode = () => {
+  const [theme, setTheme] = useState(
+    typeof window !== "undefined" ? localStorage.theme : "dark"
+  );
+  const colorTheme = theme === "dark" ? "light" : "dark";
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+
+    root.classList.remove(colorTheme);
+    root.classList.add(theme);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", theme);
+    }
+  }, [theme]);
+
+  return {colorTheme, setTheme};
+}
