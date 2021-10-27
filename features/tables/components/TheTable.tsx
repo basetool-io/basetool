@@ -17,11 +17,7 @@ import {
 } from "@/features/records/state-slice";
 import { iconForField, prettifyData } from "@/features/fields";
 import { parseColumns } from "..";
-import {
-  useAppSelector,
-  useDataSourceContext,
-  useResponsive,
-} from "@/hooks";
+import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
 import {
   useOrderRecords,
   useResizableColumns,
