@@ -1,25 +1,38 @@
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
-import { OrderDirection } from "../tables/types";
+import { Column } from "../fields/types";
+import { DEFAULT_PER_PAGE } from "@/lib/constants";
+import { IFilter, IFilterGroup, OrderDirection } from "../tables/types";
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
+import { encodeObject } from "@/lib/encoding";
+import { first, isEmpty, last } from "lodash";
 
 interface AppState {
   records: [];
+  meta: Record<string, string | number | boolean | null>;
+  columns: Column[];
   filters: Array<IFilter | IFilterGroup>;
   appliedFilters: Array<IFilter | IFilterGroup>;
+  page: number;
+  perPage: number;
   orderBy: string;
   orderDirection: OrderDirection;
   filtersPanelVisible: boolean;
   selectedRecords: number[];
+  columnWidths: Record<string, number>;
 }
 
 const initialState: AppState = {
   records: [],
+  meta: {},
+  columns: [],
   filters: [],
   appliedFilters: [],
+  page: 1,
+  perPage: DEFAULT_PER_PAGE,
   orderBy: "",
   orderDirection: "",
   filtersPanelVisible: false,
   selectedRecords: [],
+  columnWidths: {},
 };
 
 const recordsStateSlice = createSlice({
@@ -30,7 +43,9 @@ const recordsStateSlice = createSlice({
       return initialState;
     },
 
-    /* Filters */
+    /**
+     * Filters
+     */
     addFilter(state, action: PayloadAction<IFilter | IFilterGroup>) {
       state.filters.push(action.payload);
     },
@@ -60,6 +75,16 @@ const recordsStateSlice = createSlice({
       }
       state.filters[idx] = filter;
     },
+
+    /**
+     * Records selection
+     */
+    setRecordsSelected(state, action: PayloadAction<number[]>) {
+      state.selectedRecords = action.payload;
+    },
+    resetRecordsSelection(state) {
+      state.selectedRecords = [];
+    },
     toggleRecordSelection(state, action: PayloadAction<number>) {
       const index = state.selectedRecords.indexOf(action.payload);
       if (index >= 0) {
@@ -68,33 +93,59 @@ const recordsStateSlice = createSlice({
         state.selectedRecords.push(action.payload);
       }
     },
-    setRecordsSelected(state, action: PayloadAction<number[]>) {
-      state.selectedRecords = action.payload;
+
+    /**
+     * Records
+     */
+    setRecords(state, action: PayloadAction<[]>) {
+      state.records = action.payload;
     },
-    resetRecordsSelection(state) {
-      state.selectedRecords = [];
+
+    /**
+     * Meta
+     */
+    setMeta(
+      state,
+      action: PayloadAction<Record<string, string | number | boolean | null>>
+    ) {
+      state.meta = action.payload;
+    },
+
+    /**
+     * Pagination
+     */
+    setPage(state, action: PayloadAction<number>) {
+      state.page = action.payload;
+    },
+    setPerPage(state, action: PayloadAction<number>) {
+      state.perPage = action.payload;
+    },
+
+    /**
+     * Columns
+     */
+    setColumns(state, action: PayloadAction<Column[]>) {
+      state.columns = action.payload;
+    },
+
+    /**
+     * Order
+     */
+    setOrderBy(state, action: PayloadAction<string>) {
+      state.orderBy = action.payload;
+    },
+    setOrderDirection(state, action: PayloadAction<OrderDirection>) {
+      state.orderDirection = action.payload;
+    },
+
+    /**
+     * ColumnWidths
+     */
+    setColumnWidths(state, action: PayloadAction<Record<string, number>>) {
+      state.columnWidths = action.payload;
     },
   },
 });
-
-export const filtersSelector = ({ recordsState }: { recordsState: AppState }) =>
-  recordsState.filters;
-export const appliedFiltersSelector = ({
-  recordsState,
-}: {
-  recordsState: AppState;
-}) => recordsState.appliedFilters;
-export const allFiltersAppliedSelector = createSelector(
-  [filtersSelector, appliedFiltersSelector],
-  (filters, appliedFilters) =>
-    JSON.stringify(filters) === JSON.stringify(appliedFilters)
-);
-
-export const selectedRecordsSelector = ({
-  recordsState,
-}: {
-  recordsState: AppState;
-}) => recordsState.selectedRecords;
 
 export const {
   resetState,
@@ -106,6 +157,106 @@ export const {
   toggleRecordSelection,
   setRecordsSelected,
   resetRecordsSelection,
+  setColumns,
+
+  setRecords,
+
+  setMeta,
+
+  setPerPage,
+  setPage,
+
+  setOrderBy,
+  setOrderDirection,
+
+  setColumnWidths,
 } = recordsStateSlice.actions;
 
 export default recordsStateSlice.reducer;
+
+export const metaSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.meta;
+export const columnsSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.columns;
+export const columnWidthsSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.columnWidths;
+export const orderBySelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.orderBy;
+export const orderDirectionSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.orderDirection;
+
+/**
+ * Records
+ */
+export const recordsSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.records;
+export const firstRecordIdSelector = createSelector(
+  [recordsSelector],
+  (records): string | undefined =>
+    records.length > 0 ? (first(records) as any)?.id : undefined
+);
+export const lastRecordIdSelector = createSelector(
+  [recordsSelector],
+  (records): string | undefined =>
+    records.length > 0 ? (last(records) as any)?.id : undefined
+);
+
+/**
+ * Selection
+ */
+export const selectedRecordsSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.selectedRecords;
+
+export const allColumnsCheckedSelector = createSelector(
+  [recordsSelector, selectedRecordsSelector],
+  (records, selectedRecords): boolean =>
+    records.length === selectedRecords.length && records.length > 0
+);
+
+/**
+ * Filters
+ */
+export const filtersSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.filters;
+export const appliedFiltersSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.appliedFilters;
+
+export const encodedFiltersSelector = createSelector(
+  [appliedFiltersSelector],
+  (appliedFilters) =>
+    isEmpty(appliedFilters) ? "" : encodeObject(appliedFilters)
+);
+export const allFiltersAppliedSelector = createSelector(
+  [filtersSelector, appliedFiltersSelector],
+  (filters, appliedFilters) =>
+    JSON.stringify(filters) === JSON.stringify(appliedFilters)
+);
+
+/**
+ * Pagination
+ */
+export const pageSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.page;
+export const perPageSelector = ({ recordsState }: { recordsState: AppState }) =>
+  recordsState.perPage;
+export const limitOffsetSelector = createSelector(
+  [pageSelector, perPageSelector],
+  (page, perPage) => {
+    const limit: number = perPage;
+    const offset = page === 1 ? 0 : (page - 1) * limit;
+
+    return [limit, offset];
+  }
+);

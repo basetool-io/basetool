@@ -1,8 +1,7 @@
 import { Checkbox } from "@chakra-ui/react";
 import { Row } from "react-table";
 import { iconForField } from "@/features/fields";
-import { usePrefetch } from "@/features/records/api-slice";
-import { useSelectRecords } from "@/hooks";
+import { useSelectRecords } from "@/features/records/hooks";
 import ItemControls from "./ItemControls";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
@@ -23,35 +22,11 @@ const MobileIndexFieldWrapper = ({ cell }: { cell: any }) => {
   );
 };
 
-const MobileRow = ({
-  row,
-  dataSourceId,
-  tableName,
-  prepareRow,
-}: {
-  row: Row<any>;
-  dataSourceId: string;
-  tableName: string;
-  prepareRow: (row: Row) => void;
-}) => {
-  const prefetchRecord = usePrefetch("getRecord");
-  prepareRow(row);
-
+const MobileRow = ({ row }: { row: Row<any> }) => {
   const { selectedRecords, toggleRecordSelection } = useSelectRecords();
 
   return (
     <div
-      onMouseOver={() => {
-        const id = row.original?.id?.toString();
-
-        if (id) {
-          prefetchRecord({
-            dataSourceId,
-            tableName,
-            recordId: row.original.id.toString(),
-          });
-        }
-      }}
       className={classNames("flex flex-col w-full hover:bg-gray-100 bg-white")}
     >
       <div className="td px-6 py-2 whitespace-nowrap text-sm truncate flex justify-between">

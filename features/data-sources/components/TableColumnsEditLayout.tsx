@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { FooterElements } from "@/types";
-import { INITIAL_NEW_COLUMN } from "@/pages/data-sources/[dataSourceId]/edit/tables/[tableName]/columns/[columnName]";
+import { INITIAL_NEW_COLUMN } from "..";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { PlusIcon, SelectorIcon } from "@heroicons/react/outline";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
@@ -37,7 +37,8 @@ const TableColumnsEditLayout = ({
   children?: ReactElement;
 }) => {
   const router = useRouter();
-  const { dataSourceId: appRouterDataSourceId, tableName } = useDataSourceContext();
+  const { dataSourceId: appRouterDataSourceId, tableName } =
+    useDataSourceContext();
   dataSourceId ||= appRouterDataSourceId;
 
   const columnName = router.query.columnName as string;
@@ -73,10 +74,12 @@ const TableColumnsEditLayout = ({
   const [{ didDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.COLUMN,
     collect: (monitor) => ({
-      didDrop: monitor.getItemType() === ItemTypes.COLUMN ? monitor.didDrop() : false,
+      didDrop:
+        monitor.getItemType() === ItemTypes.COLUMN ? monitor.didDrop() : false,
     }),
   }));
-  const [updateOrder, { isLoading: isUpdating }] = useUpdateColumnsOrderMutation();
+  const [updateOrder, { isLoading: isUpdating }] =
+    useUpdateColumnsOrderMutation();
 
   const sortColumns = (columns: Column[]) => {
     const newColumns: Column[] = [];
@@ -215,7 +218,7 @@ const TableColumnsEditLayout = ({
                 >
                   Add new field
                 </ColumnListItem>
-                </div>
+              </div>
             </div>
           </div>
           <div className="flex-1 p-4">

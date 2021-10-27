@@ -1,9 +1,9 @@
-import { BasetoolError } from "@/lib/errors"
+import { BasetoolError } from "@/lib/errors";
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
-import { IFilter } from "@/features/tables/components/Filter";
+import { IFilter } from "@/features/tables/types";
 import { IQueryService } from "../types";
 import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";

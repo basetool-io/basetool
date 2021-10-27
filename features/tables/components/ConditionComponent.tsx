@@ -1,4 +1,4 @@
-import { FilterConditions, IFilter } from "@/features/tables/components/Filter";
+import { FilterConditions, IFilter } from "../types";
 import BooleanConditionComponent from "./BooleanConditionComponent";
 import DateConditionComponent from "./DateConditionComponent";
 import IntConditionComponent from "./IntConditionComponent";

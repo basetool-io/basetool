@@ -1,62 +1,40 @@
-import { BooleanFilterConditions } from "@/features/tables/components/BooleanConditionComponent";
+import {
+  BooleanFilterConditions,
+  DateFilterConditions,
+  IntFilterConditions,
+  SelectFilterConditions,
+  StringFilterConditions,
+  getDefaultFilterCondition,
+} from "..";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
 import { CalendarIcon, XIcon } from "@heroicons/react/outline";
-import { Column, FieldType } from "@/features/fields/types";
-import {
-  DateFilterConditions,
-  IS_VALUES,
-  WITHIN_VALUES,
-} from "./DateConditionComponent";
-import { IntFilterConditions } from "@/features/tables/components/IntConditionComponent";
-import { SelectFilterConditions } from "./SelectConditionComponent";
-import { StringFilterConditions } from "@/features/tables/components/StringConditionComponent";
+import { Column } from "@/features/fields/types";
+import { FilterConditions, IFilter, IFilterGroup } from "../types";
 import { isArray, isDate, isUndefined } from "lodash";
-import { useFilters } from "@/hooks";
+import { useFilters } from "@/features/records/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
 import React, { forwardRef, memo, useMemo } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
-export type FilterConditions =
-  | IntFilterConditions
-  | StringFilterConditions
-  | BooleanFilterConditions
-  | DateFilterConditions
-  | SelectFilterConditions;
-
-export type IFilter = {
-  column: Column;
-  columnName: string;
-  condition: FilterConditions;
-  option?: string;
-  value: string;
-  verb: FilterVerb;
-  isBase?: boolean;
+const IS_VALUES = {
+  today: "today",
+  tomorrow: "tomorrow",
+  yesterday: "yesterday",
+  one_week_ago: "one_week_ago",
+  one_week_from_now: "one_week_from_now",
+  one_month_ago: "one_month_ago",
+  one_month_from_now: "one_month_from_now",
+  exact_date: "exact_date",
 };
 
-export type IFilterGroup = {
-  isGroup: boolean;
-  verb: FilterVerb;
-  filters: IFilter[];
-  isBase?: boolean;
-};
-
-export const getDefaultFilterCondition = (fieldType: FieldType) => {
-  switch (fieldType) {
-    case "Id":
-    case "Number":
-    case "Association":
-      return IntFilterConditions.is;
-    case "Boolean":
-      return BooleanFilterConditions.is_true;
-    case "DateTime":
-      return DateFilterConditions.is;
-    case "Select":
-      return SelectFilterConditions.is;
-    default:
-    case "Text":
-      return StringFilterConditions.is;
-  }
+const WITHIN_VALUES = {
+  past_week: "past_week",
+  next_week: "next_week",
+  past_month: "past_month",
+  next_month: "next_month",
+  past_year: "past_year",
+  next_year: "next_year",
 };
 
 const CONDITIONS_WITHOUT_VALUE = [

@@ -18,14 +18,18 @@ import {
   TrashIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { Save } from "react-feather";
 import { View } from "@prisma/client";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty, pick } from "lodash";
+import { isEmpty, isUndefined, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
-import { useDataSourceContext, useFilters } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
+import {
+  useFilters,
+  useOrderRecords,
+} from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
@@ -35,93 +39,50 @@ import {
 } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import CompactFiltersView from "@/features/views/components/CompactFiltersView";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import RecordsIndex from "@/features/records/components/RecordsIndex";
+import RecordsTable from "@/features/tables/components/RecordsTable";
 
-export const OrderDirections = [
+const OrderDirections = [
   {
     value: "asc",
-    label: "Ascending A-Z 1-9",
+    label: "Ascending A→Z 1→9",
   },
   {
     value: "desc",
-    label: "Descending Z-A 9-1",
+    label: "Descending Z→A 9→1",
   },
 ];
 
-const CompactFiltersView = ({
-  filters,
-}: {
-  filters: Array<IFilter | IFilterGroup>;
-}) => {
-  return (
-    <div className="space-y-1">
-      {isEmpty(filters) && (
-        <div className="text-sm text-gray-600">
-          No base filters applied to this view
-        </div>
-      )}
+type DecoratedView = View & {
+  defaultOrder: { columnName?: string; direction?: OrderDirection };
+};
 
-      {isEmpty(filters) ||
-        filters.map((filter, idx) => {
-          if ("isGroup" in filter && filter.isGroup) {
-            return (
-              <div className="text-gray-600">
-                <span>{filter.verb}</span>
-                <div className="bg-gray-200 rounded">
-                  {filter.filters.map((f, i) => {
-                    return (
-                      <div className="px-1">
-                        {idx === 0 || i === 0 ? "" : f.verb}{" "}
-                        <div>
-                          <span className="font-bold ">{f.column.label}</span>{" "}
-                          {f.condition.replaceAll("_", " ")}{" "}
-                          <span className="font-bold">
-                            {f.value
-                              ? f.value
-                              : f.option
-                              ? f.option.replaceAll("_", " ")
-                              : ""}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          } else {
-            return (
-              <div className="text-gray-600">
-                <div>
-                  <span>{idx === 0 ? "" : filter.verb}</span>
-                </div>
-                <span className="font-bold">
-                  {(filter as IFilter).column.label}
-                </span>{" "}
-                {(filter as IFilter).condition.replaceAll("_", " ")}{" "}
-                <span className="font-bold">
-                  {(filter as IFilter).value
-                    ? (filter as IFilter).value
-                    : (filter as IFilter)?.option
-                    ? (filter as any).option.replaceAll("_", " ")
-                    : ""}
-                </span>
-              </div>
-            );
-          }
-        })}
-    </div>
+const NameEditButton = () => {
+  const { isEditing, getEditButtonProps } = useEditableControls();
+
+  if (isEditing) return null;
+
+  return (
+    <Tooltip label="Edit name">
+      <div
+        className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+        {...getEditButtonProps()}
+      >
+        <PencilAltIcon className="h-4 inline" />
+        Edit
+      </div>
+    </Tooltip>
   );
 };
 
 const Edit = () => {
   const router = useRouter();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
-  const [localView, setLocalView] = useState<View>();
+  const [localView, setLocalView] = useState<DecoratedView>();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -141,19 +102,40 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, applyFilters, appliedFilters, resetFilters } =
-    useFilters();
+  const { setFilters, applyFilters, appliedFilters } = useFilters(
+    viewResponse?.data?.filters
+  );
+  const { setOrderBy, setOrderDirection } = useOrderRecords();
 
-  useEffect(() => {
-    resetFilters();
+  const setViewData = () => {
     if (viewResponse?.ok) {
       setLocalView(viewResponse.data);
+
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
         applyFilters(viewResponse.data.filters);
       }
+
+      // We have to check whether there is a default order on the view and the order from the query to be empty.
+      if (
+        viewResponse.data.defaultOrder &&
+        !isEmpty(viewResponse.data.defaultOrder) &&
+        isUndefined(router.query.orderBy) &&
+        isUndefined(router.query.orderDirection)
+      ) {
+        setOrderBy(viewResponse.data.defaultOrder.columnName);
+        setOrderDirection(viewResponse.data.defaultOrder.direction);
+      }
     }
-  }, [viewResponse]);
+  };
+
+  useEffect(() => {
+    setViewData();
+  }, [viewResponse, viewId]);
+
+  useEffect(() => {
+    setViewData();
+  }, []);
 
   const handleRemove = async () => {
     if (viewIsLoading || viewIsRemoving) return;
@@ -178,7 +160,8 @@ const Edit = () => {
           isBase: true,
         })),
       },
-      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]);
+      ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]
+    );
   }, [localView, appliedFilters]);
 
   const handleSubmit = async (e: any) => {
@@ -220,44 +203,21 @@ const Edit = () => {
     defaultIsOpen: true,
   });
 
-  const EditableControls = () => {
-    const { isEditing, getEditButtonProps } = useEditableControls();
+  const defaultOrder = useMemo(() => {
+    if (isEmpty(columns)) return {};
 
-    if (!isEditing) {
-      return (
-        <Tooltip label="Edit name">
-          <div
-            className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-            {...getEditButtonProps()}
-          >
-            <PencilAltIcon className="h-4 inline" />
-            Edit
-          </div>
-        </Tooltip>
-      );
-    } else {
-      return <div></div>;
-    }
-  };
-
-  const adddefaultOrder = () => {
-    const newdefaultOrder = {
+    return {
       columnName: columns[0].name,
       direction: "asc",
     };
+  }, [columns]);
 
-    setLocalView({
-      ...localView,
-      defaultOrder: newdefaultOrder,
-    } as View);
-  };
-
-  const removedefaultOrder = () => {
-    setLocalView({
-      ...localView,
-      defaultOrder: {},
-    } as View);
-  };
+  useEffect(() => {
+    setOrderBy(localView?.defaultOrder?.columnName || "");
+    setOrderDirection(
+      (localView?.defaultOrder?.direction as OrderDirection) || ""
+    );
+  }, [localView?.defaultOrder]);
 
   return (
     <Layout hideSidebar={true}>
@@ -311,14 +271,13 @@ const Edit = () => {
                         });
                       }
                     }}
-                    // isPreviewFocusable={false}
                   >
                     <div className="relative flex justify-between w-full">
                       <div className="w-full">
                         <EditablePreview className="cursor-pointer" />
                         <EditableInput />
                       </div>
-                      <EditableControls />
+                      <NameEditButton />
                     </div>
                   </Editable>
                 </div>
@@ -377,11 +336,7 @@ const Edit = () => {
                   </Tooltip>
                   {filtersPanelVisible && (
                     <div className="absolute left-auto right-0 -top-8">
-                      <FiltersPanel
-                        ref={filtersPanel}
-                        columns={columns}
-                        isEditBaseFilters={true}
-                      />
+                      <FiltersPanel ref={filtersPanel} />
                     </div>
                   )}
                 </div>
@@ -394,7 +349,12 @@ const Edit = () => {
                     <Tooltip label="Add order rule">
                       <div
                         className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                        onClick={() => adddefaultOrder()}
+                        onClick={() =>
+                          setLocalView({
+                            ...localView,
+                            defaultOrder: defaultOrder as any,
+                          })
+                        }
                       >
                         <PlusCircleIcon className="h-4 inline" />
                         Add
@@ -418,7 +378,7 @@ const Edit = () => {
                           setLocalView({
                             ...localView,
                             defaultOrder: {
-                              ...(localView?.defaultOrder as any),
+                              ...(localView.defaultOrder as any),
                               columnName: e.currentTarget.value,
                             },
                           })
@@ -439,7 +399,7 @@ const Edit = () => {
                           setLocalView({
                             ...localView,
                             defaultOrder: {
-                              ...(localView?.defaultOrder as any),
+                              ...(localView.defaultOrder as any),
                               direction: e.currentTarget.value,
                             },
                           })
@@ -455,7 +415,12 @@ const Edit = () => {
                         <Button
                           size="xs"
                           variant="link"
-                          onClick={() => removedefaultOrder()}
+                          onClick={() =>
+                            setLocalView({
+                              ...localView,
+                              defaultOrder: {},
+                            })
+                          }
                         >
                           <XIcon className="h-3 text-gray-700" />
                         </Button>
@@ -467,11 +432,7 @@ const Edit = () => {
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            <RecordsIndex
-              displayOnlyTable={true}
-              editViewOrderBy={(localView?.defaultOrder as any)?.columnName}
-              editViewOrderDirection={(localView?.defaultOrder as any)?.direction}
-            />
+            {dataSourceId && <RecordsTable />}
           </div>
         </div>
       </PageWrapper>

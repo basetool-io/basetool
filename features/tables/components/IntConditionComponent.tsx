@@ -1,19 +1,9 @@
-import { IFilter } from "@/features/tables/components/Filter";
+import { IFilter } from "../types";
+import { IntFilterConditions } from "..";
 import ConditionSelect from "./ConditionSelect";
 import React from "react";
 
-export enum IntFilterConditions {
-  is = "is",
-  is_not = "is_not",
-  gt = "gt",
-  gte = "gte",
-  lt = "lt",
-  lte = "lte",
-  is_null = "is_null",
-  is_not_null = "is_not_null",
-}
-
-export const options = {
+const options = {
   is: "=",
   is_not: "!=",
   gt: ">",
@@ -22,7 +12,7 @@ export const options = {
   lte: "<=",
   is_null: "is_null",
   is_not_null: "is_not_null",
-}
+};
 
 function IntConditionComponent({
   filter,
@@ -31,7 +21,6 @@ function IntConditionComponent({
   filter: IFilter;
   onChange: (condition: IntFilterConditions) => void;
 }) {
-
   return (
     <ConditionSelect
       value={filter.condition}

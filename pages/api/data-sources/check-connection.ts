@@ -103,7 +103,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   // Check the connection
 
   if (response.isOk) {
-    return res.json(ApiResponse.withMessage("Connection successful"));
+    return res.json(ApiResponse.withMessage("🎉 Connection successful"));
   } else {
     return res.json(
       ApiResponse.withError(

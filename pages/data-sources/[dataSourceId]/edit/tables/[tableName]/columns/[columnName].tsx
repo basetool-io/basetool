@@ -11,9 +11,9 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
+import { INITIAL_NEW_COLUMN } from "@/features/data-sources"
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
-import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import {
   first,
@@ -77,29 +77,6 @@ const NULL_VALUES = [
     label: "0",
   },
 ];
-
-export const INITIAL_NEW_COLUMN = {
-  name: "computed_field",
-  label: "Computed field",
-  primaryKey: false,
-  baseOptions: {
-    visibility: [Views.index, Views.show],
-    required: false,
-    nullable: false,
-    nullValues: [],
-    readonly: false,
-    placeholder: "",
-    help: "",
-    label: "",
-    disconnected: false,
-    defaultValue: "",
-    computed: true,
-  },
-  fieldType: "Text" as FieldType,
-  fieldOptions: {
-    value: "",
-  },
-};
 
 function ColumnEdit() {
   const router = useRouter();

@@ -38,7 +38,7 @@ function ItemControls({
 
   return (
     <div className="flex space-x-2 items-center h-full text-gray-500">
-      {ac.updateAny("record").granted &&
+      {ac.readAny("record").granted &&
         !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
           <Link href={`${recordsPath}/${recordId}`}>
             <a>

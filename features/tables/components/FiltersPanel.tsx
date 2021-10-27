@@ -1,34 +1,30 @@
 import { Button } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
-import { FilterVerbs } from "./VerbComponent";
+import { FilterVerbs, getDefaultFilterCondition } from "..";
 import {
   FolderAddIcon,
   PlusIcon,
   ReceiptRefundIcon,
 } from "@heroicons/react/outline";
-import { useFilters } from "@/hooks";
-import Filter, {
-  IFilter,
-  IFilterGroup,
-  getDefaultFilterCondition,
-} from "@/features/tables/components/Filter";
+import { IFilter, IFilterGroup } from "../types";
+import { columnsSelector } from "@/features/records/state-slice";
+import { useAppSelector, useDataSourceContext } from "@/hooks";
+import { useFilters } from "@/features/records/hooks";
+import { useRouter } from "next/router";
+import Filter from "./Filter";
 import GroupFiltersPanel from "./GroupFiltersPanel";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
+import classNames from "classnames";
 import isEmpty from "lodash/isEmpty";
 
-const FiltersPanel = (
-  {
-    columns,
-    isEditBaseFilters = false,
-  }: {
-    columns: Column[];
-    isEditBaseFilters?: boolean;
-  },
-  ref: any
-) => {
+const FiltersPanel = ({}, ref: any) => {
+  const router = useRouter();
+  const { viewId } = useDataSourceContext();
+  const columns = useAppSelector(columnsSelector);
   const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
+    if (!columns) return
+
     const filter: IFilter = {
       columnName: columns[0].name,
       column: columns[0],
@@ -58,6 +54,11 @@ const FiltersPanel = (
     setFilters([...filters, filter]);
   };
 
+  const isEditBaseFilters = useMemo(
+    () => router.asPath.endsWith("/edit") && viewId,
+    [viewId, router]
+  );
+
   return (
     <div
       ref={ref}
@@ -79,7 +80,6 @@ const FiltersPanel = (
                 if ("isGroup" in filter && filter.isGroup) {
                   return (
                     <GroupFiltersPanel
-                      key={idx}
                       idx={idx}
                       columns={columns}
                       verb={(filter as IFilterGroup).verb}
@@ -89,30 +89,22 @@ const FiltersPanel = (
                 }
 
                 return (
-                  <div
-                    className={
-                      filter?.isBase
-                        ? "opacity-60 pointer-events-none"
-                        : ""
-                    }
-                  >
-                    <Filter
-                      key={idx}
-                      idx={idx}
-                      columns={columns}
-                      filter={filter as IFilter}
-                    />
-                  </div>
+                  <Filter
+                    key={idx}
+                    idx={idx}
+                    columns={columns}
+                    filter={filter as IFilter}
+                  />
                 );
               };
 
               return (
                 <div
-                  className={
-                    filter?.isBase && !isEditBaseFilters
-                      ? "opacity-60 pointer-events-none"
-                      : ""
-                  }
+                  key={idx}
+                  className={classNames({
+                    "opacity-60 pointer-events-none":
+                      filter?.isBase && !isEditBaseFilters,
+                  })}
                 >
                   <FilterComponent />
                 </div>

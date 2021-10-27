@@ -1,14 +1,12 @@
 import { Button, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { IntFilterConditions } from "./IntConditionComponent";
+import { FilterVerbs, IntFilterConditions } from "..";
+import { IFilter, IFilterGroup } from "../types";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
-import { useFilters } from "@/hooks";
-import Filter, {
-  IFilter,
-  IFilterGroup,
-} from "@/features/tables/components/Filter";
+import { useFilters } from "@/features/records/hooks";
+import Filter from "./Filter";
 import React, { forwardRef } from "react";
-import VerbComponent, { FilterVerb, FilterVerbs } from "./VerbComponent";
+import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 const GroupFiltersPanel = (
   {
@@ -53,11 +51,11 @@ const GroupFiltersPanel = (
   return (
     <div className="flex">
       <VerbComponent
-          idx={parentIdx}
-          verb={verb}
-          onChange={(value: FilterVerb) => changeFilterGroupVerb(value)}
-          isFilterGroup={true}
-        />
+        idx={parentIdx}
+        verb={verb}
+        onChange={(value: FilterVerb) => changeFilterGroupVerb(value)}
+        isFilterGroup={true}
+      />
       <div
         ref={ref}
         className="border flex flex-1 bg-white min-w-[20rem] min-h-[3rem] p-2"

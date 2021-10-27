@@ -1,37 +1,16 @@
 import { Row } from "react-table";
-import { usePrefetch } from "@/features/records/api-slice";
+import { columnWidthsSelector } from "@/features/records/state-slice";
+import { useAppSelector } from "@/hooks";
 import React, { memo } from "react";
 import classNames from "classnames";
 
-const RecordRow = ({
-  row,
-  dataSourceId,
-  tableName,
-  prepareRow,
-}: {
-  row: Row<any>;
-  dataSourceId: string;
-  tableName: string;
-  prepareRow: (row: Row) => void;
-}) => {
-  const prefetchRecord = usePrefetch("getRecord");
-  prepareRow(row);
+const RecordRow = ({ row }: { row: Row<any> }) => {
+  useAppSelector(columnWidthsSelector); // keep this so the columnWidths will trigger a change
 
   return (
     <div
       {...row.getRowProps()}
-      onMouseOver={() => {
-        const id = row.original?.id?.toString();
-
-        if (id) {
-          prefetchRecord({
-            dataSourceId,
-            tableName,
-            recordId: row.original.id.toString(),
-          });
-        }
-      }}
-      className={classNames("tr relative hover:bg-sky-50 bg-white")}
+      className={classNames("tr relative hover:bg-gray-50 bg-white")}
     >
       {row.cells.map((cell) => (
         <div {...cell.getCellProps()} className="td">
