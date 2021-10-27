@@ -51,7 +51,7 @@ const Sidebar = () => {
 
   const prefetchColumns = usePrefetch("getColumns");
 
-  const ac = useAccessControl();
+  const ac = useAccessControl()
 
   const { user, isLoading: sessionIsLoading } = useProfile();
 
