@@ -26,10 +26,7 @@ import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, isUndefined, pick } from "lodash";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext } from "@/hooks";
-import {
-  useFilters,
-  useOrderRecords,
-} from "@/features/records/hooks";
+import { useFilters, useOrderRecords } from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
@@ -45,6 +42,7 @@ import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
+import TinyLabel from "@/components/TinyLabel";
 
 const OrderDirections = [
   {
@@ -257,9 +255,11 @@ const Edit = () => {
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
             {localView && (
-              <div className="space-y-2 w-full">
-                <div className="relative flex w-full">
-                  <div className="w-1/4 my-auto mr-1 font-bold">Name</div>
+              <div className="flex flex-col space-y-4 w-full">
+                <div>
+                  <div className="w-1/2 mr-1">
+                    <TinyLabel>Name</TinyLabel>
+                  </div>
                   <Editable
                     className="flex-1"
                     value={localView?.name}
@@ -282,24 +282,25 @@ const Edit = () => {
                   </Editable>
                 </div>
                 {dataSourceResponse?.ok && (
-                  <div className="relative flex w-full h-[30px]">
-                    <div className="w-1/4 my-auto mr-1 font-bold">
-                      DataSource
+                  <div>
+                    <div className="w-1/2 mr-1">
+                      <TinyLabel>DataSource</TinyLabel>
                     </div>
-                    <div className="my-auto">
-                      {dataSourceResponse.data.name}
-                    </div>
+                    <div className="flex-1">{dataSourceResponse.data.name}</div>
                   </div>
                 )}
-                <div className="relative flex w-full h-[30px]">
-                  <div className="w-1/4 my-auto mr-1 font-bold">Table name</div>
-                  <div className="my-auto">{localView?.tableName}</div>
+                <div>
+                  <div className="w-1/2">
+                    <TinyLabel>Table name</TinyLabel>
+                  </div>
+                  <div className="flex-1">{localView?.tableName}</div>
                 </div>
-                <div className="relative flex w-full h-[30px]">
-                  <div className="w-1/4 my-auto mr-1 font-bold">Public</div>
-                  <div className="my-auto pt-1">
+                <div>
+                  <div className="w-1/2">
+                    <TinyLabel>Public</TinyLabel>
+                  </div>
+                  <div className="flex-1 pt-1">
                     <Checkbox
-                      size="lg"
                       colorScheme="gray"
                       isChecked={localView?.public}
                       onChange={(e) =>
@@ -308,125 +309,132 @@ const Edit = () => {
                           public: !localView?.public,
                         })
                       }
-                    />
+                    >
+                      View is public
+                    </Checkbox>
                   </div>
                 </div>
 
-                <div className="relative flex justify-between w-full">
-                  <div
-                    className="w-full cursor-pointer font-bold"
-                    onClick={toggleFiltersOpen}
-                  >
-                    Base filters{" "}
-                    {isFiltersOpen ? (
-                      <ChevronDownIcon className="h-3 inline" />
-                    ) : (
-                      <ChevronLeftIcon className="h-3 inline" />
-                    )}
-                  </div>
-                  <Tooltip label="Edit filters">
+                <div>
+                  <div className="relative flex justify-between w-full">
                     <div
-                      className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                      onClick={() => toggleFiltersPanelVisible()}
-                      ref={filtersButton}
+                      className="w-full cursor-pointer "
+                      onClick={toggleFiltersOpen}
                     >
-                      <PencilAltIcon className="h-4 inline" />
-                      Edit
+                      <TinyLabel>Base filters</TinyLabel>{" "}
+                      {isFiltersOpen ? (
+                        <ChevronDownIcon className="h-3 inline" />
+                      ) : (
+                        <ChevronLeftIcon className="h-3 inline" />
+                      )}
                     </div>
-                  </Tooltip>
-                  {filtersPanelVisible && (
-                    <div className="absolute left-auto right-0 -top-8">
-                      <FiltersPanel ref={filtersPanel} />
-                    </div>
-                  )}
-                </div>
-                <Collapse in={isFiltersOpen}>
-                  <CompactFiltersView filters={appliedFilters} />
-                </Collapse>
-                <div className="relative flex w-full h-[30px] justify-between">
-                  <div className="my-auto mr-1 font-bold">Default order</div>
-                  {isEmpty(localView?.defaultOrder) && (
-                    <Tooltip label="Add order rule">
+                    <Tooltip label="Edit filters">
                       <div
                         className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                        onClick={() =>
-                          setLocalView({
-                            ...localView,
-                            defaultOrder: defaultOrder as any,
-                          })
-                        }
+                        onClick={() => toggleFiltersPanelVisible()}
+                        ref={filtersButton}
                       >
-                        <PlusCircleIcon className="h-4 inline" />
-                        Add
+                        <PencilAltIcon className="h-4 inline mr-px" /> Edit
                       </div>
                     </Tooltip>
-                  )}
+                    {filtersPanelVisible && (
+                      <div className="absolute left-auto right-0 -top-8">
+                        <FiltersPanel ref={filtersPanel} />
+                      </div>
+                    )}
+                  </div>
+                  <Collapse in={isFiltersOpen}>
+                    <CompactFiltersView filters={appliedFilters} />
+                  </Collapse>
                 </div>
-                <div className="space-y-1">
-                  {isEmpty(localView?.defaultOrder) && (
-                    <div className="text-sm text-gray-600">
-                      No default order applied to this view
+
+                <div>
+                  <div className="relative flex w-full justify-between items-center">
+                    <TinyLabel>Default order</TinyLabel>
+                    <div>
+                      {isEmpty(localView?.defaultOrder) && (
+                        <Tooltip label="Add order rule">
+                          <div
+                            className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+                            onClick={() =>
+                              setLocalView({
+                                ...localView,
+                                defaultOrder: defaultOrder as any,
+                              })
+                            }
+                          >
+                            <PlusCircleIcon className="h-4 inline mr-px" /> Add
+                          </div>
+                        </Tooltip>
+                      )}
                     </div>
-                  )}
-                  {isEmpty(localView?.defaultOrder) || (
-                    <div className="flex w-full space-x-2">
-                      <Select
-                        size="xs"
-                        className="font-mono"
-                        value={(localView?.defaultOrder as any)?.columnName}
-                        onChange={(e) =>
-                          setLocalView({
-                            ...localView,
-                            defaultOrder: {
-                              ...(localView.defaultOrder as any),
-                              columnName: e.currentTarget.value,
-                            },
-                          })
-                        }
-                      >
-                        {columns &&
-                          columns.map((column, idx) => (
-                            <option key={idx} value={column.name}>
-                              {column.label}
-                            </option>
-                          ))}
-                      </Select>
-                      <Select
-                        size="xs"
-                        className="font-mono"
-                        value={(localView?.defaultOrder as any)?.direction}
-                        onChange={(e) =>
-                          setLocalView({
-                            ...localView,
-                            defaultOrder: {
-                              ...(localView.defaultOrder as any),
-                              direction: e.currentTarget.value,
-                            },
-                          })
-                        }
-                      >
-                        {OrderDirections.map((order, idx) => (
-                          <option key={idx} value={order.value}>
-                            {order.label}
-                          </option>
-                        ))}
-                      </Select>
-                      <Tooltip label="Remove order rule">
-                        <Button
+                  </div>
+                  <div className="mt-2">
+                    {isEmpty(localView?.defaultOrder) && (
+                      <div className="text-sm text-gray-600">
+                        No default order applied to this view
+                      </div>
+                    )}
+                    {isEmpty(localView?.defaultOrder) || (
+                      <div className="flex w-full space-x-2">
+                        <Select
                           size="xs"
-                          variant="link"
-                          onClick={() =>
+                          className="font-mono"
+                          value={(localView?.defaultOrder as any)?.columnName}
+                          onChange={(e) =>
                             setLocalView({
                               ...localView,
-                              defaultOrder: {},
+                              defaultOrder: {
+                                ...(localView.defaultOrder as any),
+                                columnName: e.currentTarget.value,
+                              },
                             })
                           }
                         >
-                          <XIcon className="h-3 text-gray-700" />
-                        </Button>
-                      </Tooltip>
-                    </div>
-                  )}
+                          {columns &&
+                            columns.map((column, idx) => (
+                              <option key={idx} value={column.name}>
+                                {column.label}
+                              </option>
+                            ))}
+                        </Select>
+                        <Select
+                          size="xs"
+                          className="font-mono"
+                          value={(localView?.defaultOrder as any)?.direction}
+                          onChange={(e) =>
+                            setLocalView({
+                              ...localView,
+                              defaultOrder: {
+                                ...(localView.defaultOrder as any),
+                                direction: e.currentTarget.value,
+                              },
+                            })
+                          }
+                        >
+                          {OrderDirections.map((order, idx) => (
+                            <option key={idx} value={order.value}>
+                              {order.label}
+                            </option>
+                          ))}
+                        </Select>
+                        <Tooltip label="Remove order rule">
+                          <Button
+                            size="xs"
+                            variant="link"
+                            onClick={() =>
+                              setLocalView({
+                                ...localView,
+                                defaultOrder: {},
+                              })
+                            }
+                          >
+                            <XIcon className="h-3 text-gray-700" />
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
