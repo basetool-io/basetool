@@ -270,8 +270,8 @@ export const useDataSourceContext = () => {
 
   useEffect(() => {
     if (viewResponse?.ok) {
-      dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
-      dispatch(setTableName(viewResponse.data.tableName));
+      if (viewResponse?.data?.dataSourceId) dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
+      if (viewResponse?.data?.tableName) dispatch(setTableName(viewResponse.data.tableName));
     }
   }, [viewResponse]);
 

@@ -1,3 +1,4 @@
+import { FavouriteItem } from "@prisma/client";
 import { Middleware, configureStore } from "@reduxjs/toolkit";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { favouritesApiSlice } from "@/features/favourites/api-slice";
@@ -35,6 +36,79 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
   return next(action);
 };
 
+/**
+ * Deletes favouriteItem when view/record is deleted, matching by url.
+ */
+export const deleteRelatedFavourites: Middleware = () => (next) => (action) => {
+  const deletePath = (path: string) => {
+    const getFavourites = store.dispatch(
+      favouritesApiSlice.endpoints.getFavourites.initiate()
+    );
+
+    // const init = store.dispatch(viewsApiSlice.endpoints.getViews.initiate())
+    getFavourites.then((finalResult) => {
+      console.log("finalResult->", finalResult);
+      const allFavourites = finalResult?.data?.data;
+      const favouriteIdsMatchingPath = allFavourites
+        .filter((fav: FavouriteItem) => fav.url === path)
+        .map((fav: FavouriteItem) => fav.id);
+      console.log("favouriteIdsMatchingPath->", favouriteIdsMatchingPath);
+      const removeFavourite = store.dispatch(
+        favouritesApiSlice.endpoints.removeFavourite.initiate({
+          favouriteId: favouriteIdsMatchingPath[0],
+        })
+      );
+      removeFavourite.then((finalResult) => {
+        console.log("removeFavouritefinalResult->", finalResult);
+      });
+    });
+  };
+
+  if (action.type.includes("/fulfilled")) {
+    console.log('action', action)
+    // const { isFavourite, removeFavourite } = useFavourites();
+    // const [removeFavourite, { isLoading: remFavIsLoading }] =
+    //   useRemoveFavouriteMutation();
+
+    // const getViews = viewsApiSlice.endpoints.getViews;
+    // console.log("getViews->", getViews);
+    // console.log("getViews.initiate()->", getViews.initiate());
+    // console.log("getViews.initiate(undefined)->", getViews.initiate(undefined));
+
+    // console.log("getViews.select()->", getViews.select());
+    // console.log("getViews.select(undefined)->", getViews.select(undefined));
+
+    // console.log("getViews.useQuery()->", getViews.useQuery());
+    // console.log("getViews.useQuery(undefined)->", getViews.useQuery(undefined));
+
+    const args = action?.meta?.arg;
+    switch (args?.endpointName) {
+      case "deleteRecord":
+        const path = `/data-sources/${args.originalArgs.dataSourceId}/tables/${args.originalArgs.tableName}/${args.originalArgs.recordId}`;
+        console.log("path->", path);
+        deletePath(path);
+        // const getFavourites = createAction('favourites/getFavourites')
+
+        // console.log('getFavourites()->', getFavourites())
+        // const deleteFavourite = createAction('favouritesApiSlice/removeFavourite');
+        // console.log('deleteFavourite->', deleteFavourite)
+        break;
+      // console.log('action?.meta?.arg?.endpointName->', action?.meta?.arg?.endpointName)
+      case "deleteBulkRecords":
+        console.log("action->", action);
+        break;
+      case "removeView":
+        console.log("action->", action);
+        const viewPath = `/views/${args.originalArgs.viewId}`;
+        console.log("path->", viewPath);
+        deletePath(viewPath);
+        break;
+    }
+  }
+
+  return next(action);
+};
+
 const store = configureStore({
   reducer: {
     appState: appReducer,
@@ -58,7 +132,8 @@ const store = configureStore({
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
       favouritesApiSlice.middleware,
-      rtkQueryErrorLogger,
+      deleteRelatedFavourites,
+      rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",
 });
