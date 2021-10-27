@@ -48,12 +48,8 @@ const RecordsIndex = () => {
   );
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-  const {
-    appliedFilters,
-    setFilters,
-    applyFilters,
-    removeFilter,
-  } = useFilters(filters);
+  const { appliedFilters, setFilters, applyFilters, removeFilter } =
+    useFilters(filters);
   const ac = useAccessControl();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
 
@@ -150,7 +146,8 @@ const RecordsIndex = () => {
         flush={true}
         buttons={
           <ButtonGroup size="xs">
-            {ac.hasRole(OWNER_ROLE) &&
+            {!viewId &&
+              ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
                   href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
