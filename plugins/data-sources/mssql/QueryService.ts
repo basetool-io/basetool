@@ -1,4 +1,7 @@
-import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
+import {
+  ColumnWithBaseOptions,
+  QueryServiceFieldOptions,
+} from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { MysqlCredentials } from "../mysql/types";
 import { idColumns } from "@/features/fields";
@@ -40,30 +43,33 @@ class QueryService extends AbstractQueryService {
     return client;
   }
 
-  public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {
-    if (column.foreignKeyInfo) {
-      return "Association";
-    }
+  public getFieldOptionsFromColumnInfo(
+    column: ColumnWithBaseOptions
+  ): QueryServiceFieldOptions {
+    let fieldType: FieldType = "Text";
 
     const { name } = column;
     switch (column.dataSourceInfo.type) {
-      default:
       case "char":
       case "varchar":
       case "binary":
       case "varbinary":
-        return "Text";
+        fieldType = "Text";
+        break;
 
       case "text":
       case "nchar":
       case "nvarchar":
-        return "Textarea";
+        fieldType = "Textarea";
+        break;
 
       case "enum":
-        return "Select";
+        fieldType = "Select";
+        break;
 
       case "bit":
-        return "Boolean";
+        fieldType = "Boolean";
+        break;
 
       case "datetime":
       case "datetime2":
@@ -72,10 +78,12 @@ class QueryService extends AbstractQueryService {
       case "time":
       case "timestamp":
       case "datetimeoffset":
-        return "DateTime";
+        fieldType = "DateTime";
+        break;
 
       case "json":
-        return "Json";
+        fieldType = "Json";
+        break;
 
       case "int":
       case "tinyint":
@@ -88,9 +96,21 @@ class QueryService extends AbstractQueryService {
       case "money":
       case "float":
       case "real":
-        if (idColumns.includes(name)) return "Id";
-        else return "Number";
+        if (idColumns.includes(name)) {
+          fieldType = "Id";
+        } else {
+          fieldType = "Number";
+        }
+        break;
     }
+
+    if (column.foreignKeyInfo) {
+      fieldType = "Association";
+    }
+
+    return {
+      fieldType,
+    };
   }
 }
 

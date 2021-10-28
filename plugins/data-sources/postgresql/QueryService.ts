@@ -1,4 +1,7 @@
-import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
+import {
+  ColumnWithBaseOptions,
+  QueryServiceFieldOptions,
+} from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { PgCredentials, PgLegacyCredentials } from "./types";
 import { idColumns } from "@/features/fields";
@@ -33,10 +36,10 @@ class QueryService extends AbstractQueryService {
     return credentials;
   }
 
-  public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {
-    if (column.foreignKeyInfo) {
-      return "Association";
-    }
+  public getFieldOptionsFromColumnInfo(
+    column: ColumnWithBaseOptions
+  ): QueryServiceFieldOptions {
+    let fieldType: FieldType = "Text";
 
     const { name } = column;
     switch (column.dataSourceInfo.type) {
@@ -45,23 +48,28 @@ class QueryService extends AbstractQueryService {
       case "character varying":
       case "interval":
       case "name":
-        return "Text";
+        fieldType = "Text";
+        break;
       case "boolean":
       case "bit":
-        return "Boolean";
+        fieldType = "Boolean";
+        break;
       case "timestamp without time zone":
       case "timestamp with time zone":
       case "time without time zone":
       case "time with time zone":
       case "date":
-        return "DateTime";
+        fieldType = "DateTime";
+        break;
       case "json":
       case "jsonb":
-        return "Json";
+        fieldType = "Json";
+        break;
       case "text":
       case "xml":
       case "bytea":
-        return "Textarea";
+        fieldType = "Textarea";
+        break;
       case "integer":
       case "bigint":
       case "numeric":
@@ -71,9 +79,19 @@ class QueryService extends AbstractQueryService {
       case "real":
       case "double precision":
       case "money":
-        if (idColumns.includes(name)) return "Id";
-        else return "Number";
+        if (idColumns.includes(name)) {
+          fieldType = "Id";
+        } else {
+          fieldType = "Number";
+        }
+        break;
     }
+
+    if (column.foreignKeyInfo) {
+      fieldType = "Association";
+    }
+
+    return { fieldType };
   }
 }
 

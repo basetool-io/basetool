@@ -17,6 +17,7 @@ import {
   DataSourceCredentials,
   ForeignKeyInfo,
   ISQLQueryService,
+  QueryServiceFieldOptions,
   SQLDataSourceTypes,
   SqlColumnOptions,
 } from "./types";
@@ -691,8 +692,10 @@ abstract class AbstractQueryService implements ISQLQueryService {
           : undefined;
 
         // Try and find if the user defined this type in the DB
+        const baseOptionsFromColumnInfo =
+          this.getFieldOptionsFromColumnInfo(column);
         const fieldType =
-          storedColumn?.fieldType || this.getFieldTypeFromColumnInfo(column);
+          storedColumn?.fieldType || baseOptionsFromColumnInfo.fieldType;
 
         return {
           ...column,
@@ -803,7 +806,9 @@ abstract class AbstractQueryService implements ISQLQueryService {
     return foreignKeys;
   }
 
-  abstract getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType;
+  abstract getFieldOptionsFromColumnInfo(
+    column: ColumnWithBaseOptions
+  ): QueryServiceFieldOptions;
   public abstract getCredentials(): PgCredentials | MysqlCredentials;
 }
 
