@@ -259,9 +259,6 @@ const Edit = () => {
                 <div>
                   <div className="w-1/2 mr-1">
                     <TinyLabel>Name</TinyLabel>
-                    <pre>
-                      {JSON.stringify(appliedFilters, null, 2)}
-                    </pre>
                   </div>
                   <Editable
                     className="flex-1"
