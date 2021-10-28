@@ -1,5 +1,5 @@
 import { IQueryService } from "../types";
-import type { Column } from "@/components/fields/types";
+import type { Column, FieldType } from "@/features/fields/types";
 import type { Knex } from "knex";
 
 export type AxiosErrorWithMessage = {
@@ -106,3 +106,7 @@ export interface ISQLQueryService extends IQueryService {
   public getParsedCredentials(): DataSourceCredentials;
   public getParsedSSHCredentials(): DataSourceCredentials;
 }
+
+export type QueryServiceFieldOptions = {
+  fieldType: FieldType;
+};

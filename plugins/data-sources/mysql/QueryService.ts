@@ -1,4 +1,7 @@
-import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
+import {
+  ColumnWithBaseOptions,
+  QueryServiceFieldOptions,
+} from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { MysqlCredentials } from "./types";
 import { idColumns } from "@/features/fields";
@@ -14,14 +17,13 @@ class QueryService extends AbstractQueryService {
     return credentials;
   }
 
-  public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {
-    if (column.foreignKeyInfo) {
-      return "Association";
-    }
+  public getFieldOptionsFromColumnInfo(
+    column: ColumnWithBaseOptions
+  ): QueryServiceFieldOptions {
+    let fieldType: FieldType = "Text";
 
     const { name } = column;
     switch (column.dataSourceInfo.type) {
-      default:
       case "char":
       case "varchar":
       case "binary":
@@ -30,24 +32,29 @@ class QueryService extends AbstractQueryService {
       case "tinytext":
       case "enum":
       case "set":
-        return "Text";
+        fieldType = "Text";
+        break;
 
       case "enum":
-        return "Select";
+        fieldType = "Select";
+        break;
 
       case "tinyint":
       case "bit":
-        return "Boolean";
+        fieldType = "Boolean";
+        break;
 
       case "date":
       case "datetime":
       case "timestamp":
       case "time":
       case "year":
-        return "DateTime";
+        fieldType = "DateTime";
+        break;
 
       case "json":
-        return "Json";
+        fieldType = "Json";
+        break;
 
       case "blob":
       case "text":
@@ -55,7 +62,8 @@ class QueryService extends AbstractQueryService {
       case "mediumtext":
       case "longblob":
       case "longtext":
-        return "Textarea";
+        fieldType = "Textarea";
+        break;
 
       case "int":
       case "smallint":
@@ -65,9 +73,19 @@ class QueryService extends AbstractQueryService {
       case "double":
       case "decimal":
       case "numeric":
-        if (idColumns.includes(name)) return "Id";
-        else return "Number";
+        if (idColumns.includes(name)) {
+          fieldType = "Id";
+        } else {
+          fieldType = "Number";
+        }
+        break;
     }
+
+    if (column.foreignKeyInfo) {
+      fieldType = "Association";
+    }
+
+    return { fieldType };
   }
 }
 
