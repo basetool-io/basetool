@@ -7,6 +7,9 @@
 const { withSentryConfig } = require("@sentry/nextjs");
 
 const moduleExports = {
+  experimental: {
+    esmExternals: false
+  },
   images: {
     domains: ["www.gravatar.com"],
   },
