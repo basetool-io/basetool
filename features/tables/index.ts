@@ -104,8 +104,6 @@ export enum DateFilterConditions {
   is_on_or_before = "is_on_or_before",
   is_on_or_after = "is_on_or_after",
   is_within = "is_within",
-  is_empty = "is_empty",
-  is_not_empty = "is_not_empty",
   is_null = "is_null",
   is_not_null = "is_not_null",
 }

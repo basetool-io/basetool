@@ -43,12 +43,10 @@ const getCondition = (filter: IFilter) => {
     case StringFilterConditions.starts_with:
     case StringFilterConditions.ends_with:
     case StringFilterConditions.is_empty:
-    case DateFilterConditions.is_empty:
     case SelectFilterConditions.contains:
       return "LIKE";
     case StringFilterConditions.not_contains:
     case StringFilterConditions.is_not_empty:
-    case DateFilterConditions.is_not_empty:
     case SelectFilterConditions.not_contains:
       return "NOT LIKE";
     case IntFilterConditions.gt:
@@ -84,8 +82,6 @@ const getValue = (filter: IFilter) => {
       return `%${filter.value}`;
     case StringFilterConditions.is_not_empty:
     case StringFilterConditions.is_empty:
-    case DateFilterConditions.is_not_empty:
-    case DateFilterConditions.is_empty:
     case SelectFilterConditions.is_not_empty:
     case SelectFilterConditions.is_empty:
       return "";
@@ -104,7 +100,25 @@ const getValue = (filter: IFilter) => {
     case SelectFilterConditions.is:
     case SelectFilterConditions.is_not:
     default:
-      return filter.value;
+      return filter.value || getDefaultFilterValue(filter);
+    }
+};
+
+const getDefaultFilterValue = (filter: IFilter) => {
+  switch (filter.column.fieldType) {
+    case "Id":
+    case "Number":
+    case "Association":
+      return 0;
+    case "Boolean":
+      return "true";
+    case "DateTime":
+      return new Date().toUTCString();
+    case "Select":
+      return "";
+    default:
+    case "Text":
+      return "";
   }
 };
 
@@ -136,7 +150,7 @@ const addFilterGroupToQuery = (
   }
 };
 
-const getDateRange = (filterOption: string, filterValue: string) => {
+const getDateRange = (filterOption: string, filterValue: string | undefined) => {
   let today = new Date();
   let from, to;
   switch (filterOption) {
@@ -244,7 +258,7 @@ const getDateRange = (filterOption: string, filterValue: string) => {
 
       return [from, to];
     case "exact_date":
-      if (filterValue != "") {
+      if (filterValue != "" && filterValue != undefined) {
         today = new Date(filterValue);
       }
       today.setUTCHours(0, 0, 0, 0);
