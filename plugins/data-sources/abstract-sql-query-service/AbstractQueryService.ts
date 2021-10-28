@@ -711,9 +711,16 @@ abstract class AbstractQueryService implements ISQLQueryService {
     // add default field options for each type of field
     const columnsWithFieldOptions: ColumnWithFieldOptions[] =
       columnsWithFieldType.map((column) => {
-        const fieldOptions = fieldOptionsByFieldName[column.name]
+        const defaultFieldOptions = fieldOptionsByFieldName[column.name]
           ? fieldOptionsByFieldName[column.name]
           : {};
+        const baseOptionsFromColumnInfo =
+          this.getFieldOptionsFromColumnInfo(column);
+
+        const fieldOptions = {
+          ...defaultFieldOptions,
+          ...baseOptionsFromColumnInfo?.fieldOptions,
+        };
 
         return {
           ...column,

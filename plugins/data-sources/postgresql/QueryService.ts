@@ -39,6 +39,7 @@ class QueryService extends AbstractQueryService {
   public getFieldOptionsFromColumnInfo(
     column: ColumnWithBaseOptions
   ): QueryServiceFieldOptions {
+    let fieldOptions: Record<string, unknown> = {};
     let fieldType: FieldType = "Text";
 
     const { name } = column;
@@ -53,13 +54,6 @@ class QueryService extends AbstractQueryService {
       case "boolean":
       case "bit":
         fieldType = "Boolean";
-        break;
-      case "timestamp without time zone":
-      case "timestamp with time zone":
-      case "time without time zone":
-      case "time with time zone":
-      case "date":
-        fieldType = "DateTime";
         break;
       case "json":
       case "jsonb":
@@ -87,11 +81,49 @@ class QueryService extends AbstractQueryService {
         break;
     }
 
+    if (
+      [
+        "date",
+        "timestamp without time zone",
+        "timestamp with time zone",
+        "time without time zone",
+        "time with time zone",
+      ].includes(column.dataSourceInfo.type)
+    ) {
+      fieldType = "DateTime";
+
+      switch (column.dataSourceInfo.type) {
+        case "timestamp without time zone":
+        case "timestamp with time zone":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: true,
+            showTime: true,
+          };
+          break;
+        case "time without time zone":
+        case "time with time zone":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: false,
+            showTime: true,
+          };
+          break;
+        case "date":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: true,
+            showTime: false,
+          };
+          break;
+      }
+    }
+
     if (column.foreignKeyInfo) {
       fieldType = "Association";
     }
 
-    return { fieldType };
+    return { fieldType, fieldOptions };
   }
 }
 
