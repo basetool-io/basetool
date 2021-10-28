@@ -55,7 +55,7 @@ const FiltersPanel = ({}, ref: any) => {
   };
 
   const isEditBaseFilters = useMemo(
-    () => router.asPath.endsWith("/edit") && viewId,
+    () => router.pathname.endsWith("/edit") && viewId,
     [viewId, router]
   );
 
