@@ -145,7 +145,7 @@ const Edit = () => {
       await removeView({ viewId }).unwrap();
       await router.push(`/data-sources/${dataSourceId}`);
     }
-  };
+  }
 
   const [updateView, { isLoading: viewIsUpdating }] = useUpdateViewMutation();
 
