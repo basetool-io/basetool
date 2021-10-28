@@ -100,7 +100,7 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, applyFilters, appliedFilters } = useFilters(
+  const { setFilters, appliedFilters, setAppliedFilters } = useFilters(
     viewResponse?.data?.filters
   );
   const { setOrderBy, setOrderDirection } = useOrderRecords();
@@ -111,7 +111,7 @@ const Edit = () => {
 
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
-        applyFilters(viewResponse.data.filters);
+        setAppliedFilters(viewResponse.data.filters)
       }
 
       // We have to check whether there is a default order on the view and the order from the query to be empty.
@@ -145,7 +145,7 @@ const Edit = () => {
       await removeView({ viewId }).unwrap();
       await router.push(`/data-sources/${dataSourceId}`);
     }
-  }
+  };
 
   const [updateView, { isLoading: viewIsUpdating }] = useUpdateViewMutation();
 
@@ -259,6 +259,9 @@ const Edit = () => {
                 <div>
                   <div className="w-1/2 mr-1">
                     <TinyLabel>Name</TinyLabel>
+                    <pre>
+                      {JSON.stringify(appliedFilters, null, 2)}
+                    </pre>
                   </div>
                   <Editable
                     className="flex-1"
