@@ -57,7 +57,7 @@ function Register() {
     setIsLoading(true);
 
     if (response.ok) {
-      router.push("/auth/login");
+      router.push(`/auth/login?email=${getValues('email')}`);
     }
 
     setIsLoading(false);
@@ -65,7 +65,7 @@ function Register() {
 
   const csrfToken = useCsrfToken();
 
-  const { register, handleSubmit, formState, setValue } = useForm<FormFields>({
+  const { register, handleSubmit, formState, setValue, getValues } = useForm<FormFields>({
     defaultValues: {
       email: "",
       password: "",

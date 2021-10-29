@@ -43,6 +43,10 @@ export default function SignIn() {
     setIsDisabled(false);
   }
 
+  useEffect(() => {
+    if(router.query.email) setEmail(router.query.email as string);
+  }, [router])
+
   return (
     <>
       <HeadSection />
