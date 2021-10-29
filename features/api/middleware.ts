@@ -1,10 +1,11 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { captureException } from "@sentry/nextjs";
+import { captureException, flush } from "@sentry/nextjs";
+import { SQLError } from "@/lib/errors";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
-import { isNumber } from "lodash"
+import { isNumber } from "lodash";
 import ApiResponse from "./ApiResponse";
-import VerifyKeepAlive from "./middlewares/VerifyKeepAlive"
+import VerifyKeepAlive from "./middlewares/VerifyKeepAlive";
 
 export type MiddlewareTuple = [
   (
@@ -14,9 +15,7 @@ export type MiddlewareTuple = [
   Record<string, unknown>
 ];
 
-const startMiddlewares: MiddlewareTuple[] = [
-  [VerifyKeepAlive, {}]
-];
+const startMiddlewares: MiddlewareTuple[] = [[VerifyKeepAlive, {}]];
 
 const endMiddlewares: MiddlewareTuple[] = [];
 
@@ -47,16 +46,28 @@ export const withMiddlewares =
     } catch (error: any) {
       captureException(error);
 
-      // Show a prety message in production and throw the error in development
-      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === 'true') {
-        if (!res.headersSent) {
-          const status = error.code && isNumber(error.code) ? error.code : 500
+      // Flushing before returning is necessary if deploying to Vercel, see
+      // https://vercel.com/docs/platform/limits#streaming-responses
+      await flush(2000);
 
-          return res.status(status).send(
-            ApiResponse.withError(errorResponse, {
-              meta: { errorMessage: error.message, error },
-            })
-          );
+      // Show a prety message in production and throw the error in development
+      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === "true") {
+        if (!res.headersSent) {
+          const status = error.code && isNumber(error.code) ? error.code : 500;
+
+          if (error instanceof SQLError) {
+            return res.status(status).send(
+              ApiResponse.withError(error.message, {
+                meta: { error },
+              })
+            );
+          } else {
+            return res.status(status).send(
+              ApiResponse.withError(errorResponse, {
+                meta: { errorMessage: error.message, error },
+              })
+            );
+          }
         }
       } else {
         throw error;
