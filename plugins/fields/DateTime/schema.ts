@@ -3,7 +3,7 @@ import Joi from "joi";
 import type { Record } from "@/features/records/types";
 
 const schema = (record: Record, column: Column) => {
-  let rule = Joi.alternatives(Joi.date().iso(), Joi.date().timestamp());
+  let rule = Joi.any();
 
   if (column.baseOptions.required || !column?.dataSourceInfo?.nullable) {
     rule = rule.required();

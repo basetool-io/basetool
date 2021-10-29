@@ -109,4 +109,5 @@ export interface ISQLQueryService extends IQueryService {
 
 export type QueryServiceFieldOptions = {
   fieldType: FieldType;
+  fieldOptions?: Record<string, unknown>;
 };
