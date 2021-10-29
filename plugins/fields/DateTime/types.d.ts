@@ -1,3 +1,4 @@
 export type DateTimeFieldOptions = {
-  onlyDate: boolean;
+  showDate?: boolean;
+  showTime?: boolean;
 };

@@ -11,7 +11,7 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
-import { INITIAL_NEW_COLUMN } from "@/features/data-sources"
+import { INITIAL_NEW_COLUMN } from "@/features/data-sources";
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
 import { diff as difference } from "deep-object-diff";

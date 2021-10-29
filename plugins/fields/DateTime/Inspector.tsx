@@ -1,8 +1,10 @@
-import { Checkbox, FormLabel } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { isUndefined } from "lodash";
+import { FormLabel, Select } from "@chakra-ui/react";
+import { humanize } from "@/lib/humanize";
+import { isEmpty, merge } from "lodash";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import fieldOptions from "./fieldOptions";
 
 function Inspector({
   column,
@@ -11,29 +13,72 @@ function Inspector({
   column: Column;
   setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
 }) {
-  // We'll check the column type first
-  const initialValue = !isUndefined(column.fieldOptions.onlyDate)
-    ? column.fieldOptions.onlyDate
-    : column?.dataSourceInfo?.type === "date";
+  const selectOptions = ["date_time", "only_date", "only_time"];
+  const [selectValue, setSelectValue] = useState("date_time");
+  const columnFieldOptions = merge(fieldOptions, column.fieldOptions);
 
-  // when changing the field type to this one, the new options are not automatically passed to the column
+  // Respond to select changes
   useEffect(() => {
-    setColumnOptions(column, { "fieldOptions.onlyDate": initialValue });
+    switch (selectValue) {
+      case "date_time":
+        setColumnOptions(column, {
+          "fieldOptions.showDate": true,
+          "fieldOptions.showTime": true,
+        });
+        break;
+      case "only_date":
+        setColumnOptions(column, {
+          "fieldOptions.showDate": true,
+          "fieldOptions.showTime": false,
+        });
+        break;
+      case "only_time":
+        setColumnOptions(column, {
+          "fieldOptions.showDate": false,
+          "fieldOptions.showTime": true,
+        });
+        break;
+    }
+  }, [selectValue]);
+
+  // Setting the defaults
+  useEffect(() => {
+    if (!isEmpty(columnFieldOptions)) {
+      const defaults = Object.fromEntries(
+        Object.entries(columnFieldOptions).map(([key, value]) => [
+          `fieldOptions.${key}`,
+          value,
+        ])
+      );
+      if (columnFieldOptions.showDate) {
+        if (columnFieldOptions.showTime) {
+          setSelectValue("date_time");
+        } else {
+          setSelectValue("only_date");
+        }
+      } else if (columnFieldOptions.showTime) {
+        setSelectValue("only_time");
+      }
+      setColumnOptions(column, defaults);
+    }
   }, []);
 
   return (
-    <OptionWrapper helpText="When you want your users to be able to change only the date and not the time.">
-      <FormLabel>Only date</FormLabel>
-      <Checkbox
-        isChecked={column.fieldOptions.onlyDate as boolean}
-        onChange={() =>
-          setColumnOptions(column, {
-            "fieldOptions.onlyDate": !column.fieldOptions.onlyDate,
-          })
-        }
+    <OptionWrapper helpText="Control what kind of information this field has.">
+      <FormLabel htmlFor={`dateTime-${column.name}`}>
+        Type of picker
+      </FormLabel>
+      <Select
+        id={`dateTime-${column.name}`}
+        value={selectValue}
+        onChange={(e) => setSelectValue(e.currentTarget.value)}
       >
-        Show only date picker
-      </Checkbox>
+        {selectOptions.map((option) => (
+          <option key={option} value={option}>
+            {option === "date_time" ? "Date & time" : humanize(option)}
+          </option>
+        ))}
+      </Select>
     </OptionWrapper>
   );
 }

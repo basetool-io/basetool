@@ -46,6 +46,7 @@ class QueryService extends AbstractQueryService {
   public getFieldOptionsFromColumnInfo(
     column: ColumnWithBaseOptions
   ): QueryServiceFieldOptions {
+    const fieldOptions: Record<string, unknown> = {};
     let fieldType: FieldType = "Text";
 
     const { name } = column;
@@ -108,9 +109,7 @@ class QueryService extends AbstractQueryService {
       fieldType = "Association";
     }
 
-    return {
-      fieldType,
-    };
+    return { fieldType, fieldOptions };
   }
 }
 
