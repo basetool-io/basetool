@@ -121,7 +121,8 @@ const Filter = ({
     }
     let value;
     if (column.fieldType === "Select") {
-      value = (column?.fieldOptions?.options as string).split(",")[0].trim() || "";
+      value =
+        (column?.fieldOptions?.options as string).split(",")[0].trim() || "";
     }
 
     // If the filter is in a group (!isUndefined(parentIdx)), we need to update the filters array of that group.
@@ -409,7 +410,7 @@ const Filter = ({
                     className="font-mono"
                     onChange={(e) => setLocalInputValue(e.currentTarget.value)}
                     // This is a workaround to avoid the input to lose focus when typing.
-                    onBlur={() => changeFilterValue(localInputValue)}
+                    onBlur={() => changeFilterValue(localInputValue || "")}
                   />
                 </FormControl>
               )}
