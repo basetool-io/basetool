@@ -5,9 +5,9 @@ import {
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  PhotographIcon,
   SelectorIcon,
-  TrendingUpIcon,
-  PhotographIcon
+  TrendingUpIcon
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums";

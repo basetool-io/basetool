@@ -1,4 +1,7 @@
-import { ColumnWithBaseOptions } from "../abstract-sql-query-service/types";
+import {
+  ColumnWithBaseOptions,
+  QueryServiceFieldOptions,
+} from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { PgCredentials, PgLegacyCredentials } from "./types";
 import { idColumns } from "@/features/fields";
@@ -33,10 +36,11 @@ class QueryService extends AbstractQueryService {
     return credentials;
   }
 
-  public getFieldTypeFromColumnInfo(column: ColumnWithBaseOptions): FieldType {
-    if (column.foreignKeyInfo) {
-      return "Association";
-    }
+  public getFieldOptionsFromColumnInfo(
+    column: ColumnWithBaseOptions
+  ): QueryServiceFieldOptions {
+    let fieldOptions: Record<string, unknown> = {};
+    let fieldType: FieldType = "Text";
 
     const { name } = column;
     switch (column.dataSourceInfo.type) {
@@ -45,23 +49,21 @@ class QueryService extends AbstractQueryService {
       case "character varying":
       case "interval":
       case "name":
-        return "Text";
+        fieldType = "Text";
+        break;
       case "boolean":
       case "bit":
-        return "Boolean";
-      case "timestamp without time zone":
-      case "timestamp with time zone":
-      case "time without time zone":
-      case "time with time zone":
-      case "date":
-        return "DateTime";
+        fieldType = "Boolean";
+        break;
       case "json":
       case "jsonb":
-        return "Json";
+        fieldType = "Json";
+        break;
       case "text":
       case "xml":
       case "bytea":
-        return "Textarea";
+        fieldType = "Textarea";
+        break;
       case "integer":
       case "bigint":
       case "numeric":
@@ -71,9 +73,57 @@ class QueryService extends AbstractQueryService {
       case "real":
       case "double precision":
       case "money":
-        if (idColumns.includes(name)) return "Id";
-        else return "Number";
+        if (idColumns.includes(name)) {
+          fieldType = "Id";
+        } else {
+          fieldType = "Number";
+        }
+        break;
     }
+
+    if (
+      [
+        "date",
+        "timestamp without time zone",
+        "timestamp with time zone",
+        "time without time zone",
+        "time with time zone",
+      ].includes(column.dataSourceInfo.type)
+    ) {
+      fieldType = "DateTime";
+
+      switch (column.dataSourceInfo.type) {
+        case "timestamp without time zone":
+        case "timestamp with time zone":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: true,
+            showTime: true,
+          };
+          break;
+        case "time without time zone":
+        case "time with time zone":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: false,
+            showTime: true,
+          };
+          break;
+        case "date":
+          fieldOptions = {
+            ...fieldOptions,
+            showDate: true,
+            showTime: false,
+          };
+          break;
+      }
+    }
+
+    if (column.foreignKeyInfo) {
+      fieldType = "Association";
+    }
+
+    return { fieldType, fieldOptions };
   }
 }
 

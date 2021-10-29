@@ -1,5 +1,6 @@
 const fieldOptions = {
-  onlyDate: false,
+  showDate: false,
+  showTime: false,
 };
 
 export default fieldOptions;

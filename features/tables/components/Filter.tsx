@@ -14,7 +14,7 @@ import { isArray, isDate, isUndefined } from "lodash";
 import { useFilters } from "@/features/records/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
-import React, { forwardRef, memo, useMemo } from "react";
+import React, { forwardRef, memo, useMemo, useState } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 const IS_VALUES = {
@@ -48,8 +48,6 @@ const CONDITIONS_WITHOUT_VALUE = [
   BooleanFilterConditions.is_false,
   BooleanFilterConditions.is_null,
   BooleanFilterConditions.is_not_null,
-  DateFilterConditions.is_empty,
-  DateFilterConditions.is_not_empty,
   DateFilterConditions.is_null,
   DateFilterConditions.is_not_null,
   SelectFilterConditions.is_empty,
@@ -94,6 +92,7 @@ const Filter = ({
   parentIdx?: number;
 }) => {
   const { filters, removeFilter, updateFilter } = useFilters();
+  const [localInputValue, setLocalInputValue] = useState(filter.value);
 
   const isDateFilter = useMemo(
     () => filter.column.fieldType === "DateTime",
@@ -113,16 +112,16 @@ const Filter = ({
 
   const changeFilterColumn = (columnName: string) => {
     const column = columns.find((c) => c.name === columnName) as Column;
-    const condition = getDefaultFilterCondition(column.fieldType);
 
+    // Get the default condition and option/value for the new filter.
+    const condition = getDefaultFilterCondition(column.fieldType);
     let option;
-    if (filter.column.fieldType === "DateTime") {
+    if (column.fieldType === "DateTime") {
       option = "today";
     }
-
-    let value = "";
+    let value;
     if (column.fieldType === "Select") {
-      value = (column?.fieldOptions?.options as string).split(",")[0].trim();
+      value = (column?.fieldOptions?.options as string).split(",")[0].trim() || "";
     }
 
     // If the filter is in a group (!isUndefined(parentIdx)), we need to update the filters array of that group.
@@ -156,13 +155,27 @@ const Filter = ({
 
   const changeFilterCondition = (condition: FilterConditions) => {
     let option;
-    if (filter.column.fieldType === "DateTime") {
+    if (isDateFilter) {
       if (condition === DateFilterConditions.is_within) {
         option = "past_week";
-      } else {
+      } else if (
+        condition === DateFilterConditions.is ||
+        condition === DateFilterConditions.is_not ||
+        condition === DateFilterConditions.is_before ||
+        condition === DateFilterConditions.is_after ||
+        condition === DateFilterConditions.is_on_or_before ||
+        condition === DateFilterConditions.is_on_or_after
+      ) {
         option = "today";
       }
     }
+
+    const isSelectFilterWithoutValue =
+      isSelectFilter &&
+      (condition === SelectFilterConditions.is_empty ||
+        condition === SelectFilterConditions.is_not_empty ||
+        condition === SelectFilterConditions.is_null ||
+        condition === SelectFilterConditions.is_not_null);
 
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
@@ -171,6 +184,7 @@ const Filter = ({
         ...groupFilter.filters[idx],
         condition,
         option,
+        value: isSelectFilterWithoutValue ? "" : groupFilter.filters[idx].value,
       };
 
       updateFilter(parentIdx, {
@@ -182,6 +196,7 @@ const Filter = ({
         ...filter,
         condition,
         option,
+        value: isSelectFilterWithoutValue ? "" : filter.value,
       });
     }
   };
@@ -298,11 +313,13 @@ const Filter = ({
             onChange={(e) => changeFilterColumn(e.currentTarget.value)}
           >
             {columns &&
-              columns.map((column, idx) => (
-                <option key={idx} value={column.name}>
-                  {column.label}
-                </option>
-              ))}
+              columns
+                .filter((column) => !column.baseOptions.computed)
+                .map((column, idx) => (
+                  <option key={idx} value={column.name}>
+                    {column.label}
+                  </option>
+                ))}
           </Select>
         </FormControl>
         <ConditionComponent
@@ -388,9 +405,11 @@ const Filter = ({
                 <FormControl id="value">
                   <Input
                     size="xs"
-                    value={filter.value}
+                    value={localInputValue}
                     className="font-mono"
-                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                    onChange={(e) => setLocalInputValue(e.currentTarget.value)}
+                    // This is a workaround to avoid the input to lose focus when typing.
+                    onBlur={() => changeFilterValue(localInputValue)}
                   />
                 </FormControl>
               )}

@@ -22,10 +22,10 @@ export type FilterConditions =
 export type IFilter = {
   column: Column;
   columnName: string;
+  verb: FilterVerb;
   condition: FilterConditions;
   option?: string;
-  value: string;
-  verb: FilterVerb;
+  value?: string;
   isBase?: boolean;
 };
 

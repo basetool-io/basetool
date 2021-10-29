@@ -20,7 +20,7 @@ const FiltersPanel = ({}, ref: any) => {
   const router = useRouter();
   const { viewId } = useDataSourceContext();
   const columns = useAppSelector(columnsSelector);
-  const { filters, setFilters, applyFilters, allFiltersApplied } = useFilters();
+  const { filters, setFilters, setAppliedFilters, allFiltersApplied } = useFilters();
 
   const addFilter = () => {
     if (!columns) return
@@ -55,7 +55,7 @@ const FiltersPanel = ({}, ref: any) => {
   };
 
   const isEditBaseFilters = useMemo(
-    () => router.asPath.endsWith("/edit") && viewId,
+    () => router.pathname.endsWith("/edit") && viewId,
     [viewId, router]
   );
 
@@ -134,7 +134,7 @@ const FiltersPanel = ({}, ref: any) => {
           <Button
             size="xs"
             colorScheme="blue"
-            onClick={() => applyFilters(filters)}
+            onClick={() => setAppliedFilters(filters)}
             disabled={allFiltersApplied}
             leftIcon={<ReceiptRefundIcon className="h-3" />}
           >
