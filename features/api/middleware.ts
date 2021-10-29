@@ -1,5 +1,5 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { captureException, captureMessage } from "@sentry/nextjs";
+import { captureException, captureMessage, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
 import { isNumber } from "lodash"
@@ -48,6 +48,8 @@ export const withMiddlewares =
       console.log('error->', error)
       const t = captureException(error);
       captureMessage(error);
+      await flush(2000);
+
       console.log('t->', t)
 
       // Show a prety message in production and throw the error in development
