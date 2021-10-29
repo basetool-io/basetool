@@ -48,6 +48,15 @@ export type IFormFields = {
   };
 };
 
+export type DefaultValueCredentials = {
+  host?: string;
+  port?: number | "";
+  database?: string;
+  user?: string;
+  password?: string;
+  useSsl?: boolean;
+}
+
 const NewDataSourceForm = ({
   type,
   placeholders = {},
@@ -81,14 +90,7 @@ const NewDataSourceForm = ({
       connectsWithSSH?: boolean;
       connectsWithSSHKey?: boolean;
     };
-    credentials?: {
-      host?: string;
-      port?: number | "";
-      database?: string;
-      user?: string;
-      password?: string;
-      useSsl?: boolean;
-    };
+    credentials?: DefaultValueCredentials;
     ssh?: {
       host?: string;
       port?: number | "";
