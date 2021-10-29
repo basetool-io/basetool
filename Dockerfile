@@ -9,9 +9,12 @@ RUN yarn install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM node:alpine AS builder
+# RUN apk add --no-cache util-linux
+# COPY .env.sample .env
 WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
+# ENV NODE_OPTIONS --openssl-legacy-provider
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
