@@ -48,6 +48,15 @@ export type IFormFields = {
   };
 };
 
+export type DefaultValueCredentials = {
+  host?: string;
+  port?: number | "";
+  database?: string;
+  user?: string;
+  password?: string;
+  useSsl?: boolean;
+}
+
 const NewDataSourceForm = ({
   type,
   placeholders = {},
@@ -81,14 +90,7 @@ const NewDataSourceForm = ({
       connectsWithSSH?: boolean;
       connectsWithSSHKey?: boolean;
     };
-    credentials?: {
-      host?: string;
-      port?: number | "";
-      database?: string;
-      user?: string;
-      password?: string;
-      useSsl?: boolean;
-    };
+    credentials?: DefaultValueCredentials;
     ssh?: {
       host?: string;
       port?: number | "";
@@ -159,6 +161,7 @@ const NewDataSourceForm = ({
    */
   useEffect(() => {
     if (router.query.credentials) {
+      console.log('router.query.credentials->', router.query.credentials)
       // reset the URL if we get the credentials through the params for added security
       router.push(
         {
