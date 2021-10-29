@@ -34,14 +34,20 @@ export default function SignIn() {
       password,
     });
 
-    if (response?.ok) {
-      toast.success("Login Successful");
+    if (!response) return;
+
+    if (response.error) {
+      if (!response || response.error === "CredentialsSignin") {
+        toast.error("Login Failed");
+      } else {
+        toast.error(response.error);
+      }
     } else {
-      toast.error("Login Failed");
+      toast.success("Login Successful");
     }
 
     setIsDisabled(false);
-  }
+  };
 
   return (
     <>
