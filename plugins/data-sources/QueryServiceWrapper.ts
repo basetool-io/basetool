@@ -6,9 +6,10 @@ import {
 } from "./types";
 import { ISQLQueryService } from "./abstract-sql-query-service/types";
 import { LOCALHOST } from "@/lib/constants";
-import { SSHConnectionError } from "@/lib/errors";
+import { SQLError, SSHConnectionError } from "@/lib/errors";
 import { Server } from "net";
 import { decrypt, encrypt } from "@/lib/crypto";
+import { isString } from "lodash";
 import { s3KeysBucket } from "@/features/data-sources";
 import S3 from "aws-sdk/clients/s3";
 import cache from "@/features/cache";
@@ -59,14 +60,27 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
         );
       }
 
-      response = await runInSSHTunnel({
-        overrides,
-        actions,
-        dbCredentials,
-        SSHCredentials,
-      });
+      try {
+        response = await runInSSHTunnel({
+          overrides,
+          actions,
+          dbCredentials,
+          SSHCredentials,
+        });
+      } catch (error: any) {
+        // If it's an SSH Error we just want to bubble it up. if it's an SQL error, mark it as one and bubble it up.
+        if (error instanceof SSHConnectionError) {
+          throw error;
+        } else {
+          throw new SQLError(isString(error) ? error : error.message);
+        }
+      }
     } else {
-      response = await Promise.all(actions.map((a) => a()));
+      try {
+        response = await Promise.all(actions.map((a) => a()));
+      } catch (error: any) {
+        throw new SQLError(isString(error) ? error : error.message);
+      }
     }
 
     await this.queryService.disconnect();
