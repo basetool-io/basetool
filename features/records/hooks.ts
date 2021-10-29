@@ -70,20 +70,9 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
   const updateTheFilter = (idx: number, filter: IFilter | IFilterGroup) =>
     dispatch(updateFilter({ idx, filter }));
 
-  const applyFilters = (filters: Array<IFilter | IFilterGroup>) => {
-    if (!isEqual(appliedFilters, filters)) {
-      setAppliedFilters(filters);
-      setPage(1);
-    }
-  };
-
-  /**
-   * this is used whne the on inital page loads to not trigger a page reset.
-   */
   const setAppliedFilters = (filters: Array<IFilter | IFilterGroup>) => {
-    if (!isEqual(appliedFilters, filters)) {
-      dispatch(setAppliedFiltersInState(filters));
-    }
+    dispatch(setAppliedFiltersInState(filters));
+    setPage(1);
   };
 
   const resetFilters = () => {
@@ -94,6 +83,7 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
   useEffect(() => {
     if (initialFilters && !isEmpty(initialFilters)) {
       setTheFilters(initialFilters);
+      setAppliedFilters(initialFilters);
     }
   }, []);
 
@@ -107,7 +97,6 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
     appliedFilters,
     appliedNonBaseFilters,
     setFilters: setTheFilters,
-    applyFilters,
     setAppliedFilters,
     allFiltersApplied,
     removeFilter: removeTheFilter,

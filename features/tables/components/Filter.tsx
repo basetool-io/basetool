@@ -299,11 +299,13 @@ const Filter = ({
             onChange={(e) => changeFilterColumn(e.currentTarget.value)}
           >
             {columns &&
-              columns.map((column, idx) => (
-                <option key={idx} value={column.name}>
-                  {column.label}
-                </option>
-              ))}
+              columns
+                .filter((column) => !column.baseOptions.computed)
+                .map((column, idx) => (
+                  <option key={idx} value={column.name}>
+                    {column.label}
+                  </option>
+                ))}
           </Select>
         </FormControl>
         <ConditionComponent

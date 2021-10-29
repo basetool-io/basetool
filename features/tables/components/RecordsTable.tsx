@@ -24,7 +24,7 @@ const RecordsTable = () => {
   const resetRecordsState = useResetState();
   // @todo: Get filters from the URL param
   const { encodedFilters } = useFilters();
-  const { dataSourceId, tableName } = useDataSourceContext();
+  const { dataSourceId, tableName, viewId } = useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     {
@@ -91,12 +91,12 @@ const RecordsTable = () => {
     };
   }, []);
 
-  // Reset data store on table change.
+  // Reset data store on table or view change.
   useEffect(() => {
     return () => {
       resetRecordsState();
     };
-  }, [tableName]);
+  }, [tableName, viewId]);
 
   const PaginationComponent = useMemo(() => {
     switch (dataSourceResponse?.meta?.dataSourceInfo?.pagination) {
