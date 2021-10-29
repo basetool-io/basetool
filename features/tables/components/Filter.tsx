@@ -14,7 +14,7 @@ import { isArray, isDate, isUndefined } from "lodash";
 import { useFilters } from "@/features/records/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
-import React, { forwardRef, memo, useMemo } from "react";
+import React, { forwardRef, memo, useMemo, useState } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 const IS_VALUES = {
@@ -94,6 +94,7 @@ const Filter = ({
   parentIdx?: number;
 }) => {
   const { filters, removeFilter, updateFilter } = useFilters();
+  const [localInputValue, setLocalInputValue] = useState(filter.value);
 
   const isDateFilter = useMemo(
     () => filter.column.fieldType === "DateTime",
@@ -388,9 +389,11 @@ const Filter = ({
                 <FormControl id="value">
                   <Input
                     size="xs"
-                    value={filter.value}
+                    value={localInputValue}
                     className="font-mono"
-                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
+                    onChange={(e) => setLocalInputValue(e.currentTarget.value)}
+                    // This is a workaround to avoid the input to lose focus when typing.
+                    onBlur={() => changeFilterValue(localInputValue)}
                   />
                 </FormControl>
               )}
