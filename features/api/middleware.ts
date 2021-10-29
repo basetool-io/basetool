@@ -1,5 +1,5 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { captureException } from "@sentry/nextjs";
+import { captureException, captureMessage } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
 import { isNumber } from "lodash"
@@ -45,7 +45,10 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
-      captureException(error);
+      console.log('error->', error)
+      const t = captureException(error);
+      captureMessage(error);
+      console.log('t->', t)
 
       // Show a prety message in production and throw the error in development
       if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === 'true') {
