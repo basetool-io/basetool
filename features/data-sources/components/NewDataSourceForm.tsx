@@ -161,7 +161,6 @@ const NewDataSourceForm = ({
    */
   useEffect(() => {
     if (router.query.credentials) {
-      console.log('router.query.credentials->', router.query.credentials)
       // reset the URL if we get the credentials through the params for added security
       router.push(
         {
