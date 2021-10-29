@@ -1,4 +1,4 @@
-import { MenuIcon } from "@heroicons/react/outline";
+import { EyeOffIcon, MenuIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
 import { useDrag, useDrop } from "react-dnd";
 import Link from "next/link";
@@ -16,6 +16,7 @@ const ColumnListItem = ({
   id,
   moveMethod,
   findMethod,
+  hidden = false,
 }: {
   active: boolean;
   icon?: ReactNode;
@@ -27,6 +28,7 @@ const ColumnListItem = ({
   id?: number;
   moveMethod?: (id: number, to: number) => void;
   findMethod?: (id: number) => { index: number };
+  hidden?: boolean;
 }) => {
   const originalIndex =
     !isUndefined(findMethod) && !isUndefined(id) ? findMethod(id).index : 0;
@@ -79,9 +81,11 @@ const ColumnListItem = ({
       onClick={() => (onClick ? onClick() : "")}
       ref={preview}
     >
-      <div className="flex justify-between w-full">
-        <span className="flex">
-          {icon} <span>{children}</span>
+      <div className="flex justify-between w-full items-center">
+        <span className={`flex justify-center items-center ${hidden && !active ? "text-gray-600" : ""}`}>
+          {icon} <span>{children}</span> {hidden && (
+            <EyeOffIcon className="h-4 ml-1 inline" />
+        )}
         </span>
         {reordering && (
           <span ref={(node) => drag(drop(node))}>
