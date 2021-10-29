@@ -43,7 +43,7 @@ export default NextAuth({
           },
         });
 
-        if (!user) return null;
+        if (!user) throw new Error('Invalid credentials.');
 
         const passwordIsValid = bcrypt.compareSync(
           credentials.password,
@@ -54,7 +54,7 @@ export default NextAuth({
           return user;
         }
 
-        return null;
+        throw new Error('Invalid credentials.');
       },
       credentials: {
         // domain: {
