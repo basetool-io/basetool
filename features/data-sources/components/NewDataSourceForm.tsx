@@ -55,7 +55,7 @@ export type DefaultValueCredentials = {
   user?: string;
   password?: string;
   useSsl?: boolean;
-}
+};
 
 const NewDataSourceForm = ({
   type,
@@ -148,7 +148,11 @@ const NewDataSourceForm = ({
   const onSubmit = async (formData: IFormFields) => {
     let response;
     try {
-      response = await addDataSource({ body: formData }).unwrap();
+      // Check the connection is successful before saving a data source.
+      const connectionSuccessful = await checkConnectionMethod();
+      if (connectionSuccessful) {
+        response = await addDataSource({ body: formData }).unwrap();
+      }
     } catch (error) {}
 
     if (response && response.ok) {
@@ -210,14 +214,17 @@ const NewDataSourceForm = ({
       !isEmpty(getValues("credentials.database")) &&
       !isEmpty(getValues("credentials.user"))
     ) {
-      await checkConnection({
+      const response = await checkConnection({
         body,
       }).unwrap();
+      if ((response as any).ok) return true;
     } else {
       toast.error(
         "Credentials are not complete. You have to input 'host', 'port', 'database' and 'user' in order to test connection."
       );
     }
+
+    return false;
   };
 
   return (
