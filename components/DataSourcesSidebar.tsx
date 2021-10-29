@@ -99,7 +99,7 @@ const DataSourcesSidebar = () => {
         "w-[4rem]": sidebarsVisible,
       })}
     >
-      <div className="py-2 px-2 flex-1 h-screen bg-cool-gray-700 text-white w-full overflow-y-auto">
+      <div className="py-2 px-2 flex-1 h-screen bg-cool-gray-700 text-white w-full overflow-y-auto no-scrollbar">
         {dataSourcesResponse?.ok && (
           <div className="space-y-x w-full h-full flex flex-col justify-between">
             <div>
