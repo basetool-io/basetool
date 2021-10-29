@@ -35,10 +35,8 @@ if (process.env.ANALYZE) {
 
   module.exports = withBundleAnalyzer(moduleExports);
 } else if (process.env.BASE_URL.includes('localhost')) {
-  console.log(1)
-  module.exports = withSentryConfig(moduleExports, SentryWebpackPluginOptions);
+  module.exports = moduleExports;
 } else {
-  console.log(2)
   // Make sure adding Sentry options is the last code to run before exporting, to
   // ensure that your source maps include changes from all other Webpack plugins
   module.exports = withSentryConfig(moduleExports, SentryWebpackPluginOptions);

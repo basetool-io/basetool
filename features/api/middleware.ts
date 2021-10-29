@@ -1,5 +1,5 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { captureException, captureMessage, flush } from "@sentry/nextjs";
+import { captureException, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { inProduction } from "@/lib/environment";
 import { isNumber } from "lodash"
@@ -45,12 +45,11 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
-      console.log('error->', error)
-      const t = captureException(error);
-      captureMessage(error);
-      await flush(2000);
+      captureException(error);
 
-      console.log('t->', t)
+      // Flushing before returning is necessary if deploying to Vercel, see
+      // https://vercel.com/docs/platform/limits#streaming-responses
+      await flush(2000);
 
       // Show a prety message in production and throw the error in development
       if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === 'true') {
