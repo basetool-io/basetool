@@ -1,3 +1,5 @@
+class SQLError extends Error {}
+
 class SSHConnectionError extends Error {}
 
 class BasetoolError extends Error {
@@ -9,4 +11,4 @@ class BasetoolError extends Error {
   }
 }
 
-export { SSHConnectionError, BasetoolError };
+export { SQLError, SSHConnectionError, BasetoolError };

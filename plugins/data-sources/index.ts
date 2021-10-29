@@ -32,8 +32,8 @@ export const availableDataSources = [
     id: "stripe",
     label: "Stripe",
     enabled: true,
-    comingSoon: false,
-    beta: true,
+    comingSoon: true,
+    beta: false,
   },
   {
     id: "mssql",
