@@ -44,21 +44,27 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
 
     const handleRouteChangeStart = () => {
+      console.log('handleRouteChangeStart->')
       // We're debouncing the progressbar for the scenarios where the page is loaded into memory and we want the "native" experience.
       timeout = setTimeout(() => {
         NProgress.start();
       }, 100);
     };
     const handleRouteChangeComplete = (url: string) => {
+      console.log('handleRouteChangeComplete->')
       gtag.pageview(url);
       segment().page();
 
       stopProgressBar();
     };
     const handleRouteChangeError = () => {
+      console.log('handleRouteChangeError->')
+
       stopProgressBar();
     };
     const handleHashChangeComplete = () => {
+      console.log('handleHashChangeComplete->')
+
       stopProgressBar();
     };
 
@@ -66,6 +72,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     router.events.on("routeChangeComplete", handleRouteChangeComplete);
     router.events.on("hashChangeComplete", handleHashChangeComplete);
     router.events.on("routeChangeError", handleRouteChangeError);
+
+    console.log('router.events->', router.events)
 
     return () => {
       router.events.off("routeChangeStart", handleRouteChangeStart);
