@@ -38,7 +38,7 @@ const Show = ({ field }: { field: Field }) => {
             <a title="Go to record">
               <Tooltip label="Go to record">
                 <span className="inline-flex">
-                  <ArrowRightIcon className="inline-block underline text-blue-600 cursor-pointer h-4" />
+                  <ArrowRightIcon className="inline-block underline text-blue-600 cursor-pointer ml-1 h-4 pt-1" />
                 </span>
               </Tooltip>
             </a>

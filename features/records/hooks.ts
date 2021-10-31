@@ -1,6 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
+import { Views } from "../fields/enums";
 import {
   allColumnsCheckedSelector,
   allFiltersAppliedSelector,
@@ -35,6 +36,7 @@ import {
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
+import { getFilteredColumns } from "../fields";
 import { isArray, isEmpty, isEqual, isNull, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
@@ -250,7 +252,7 @@ export const useColumns = ({
       }
     } else {
       if (columnsResponse?.ok) {
-        columns = columnsResponse?.data;
+        columns = getFilteredColumns(columnsResponse?.data, Views.index);
       }
     }
 

@@ -136,6 +136,7 @@ const DataSourceEditSidebar = ({ dataSourceId }: { dataSourceId?: string }) => {
                 id={table?.orderIndex}
                 moveMethod={moveTable}
                 findMethod={findTable}
+                hidden={table?.hidden}
               >
                 {getLabel(table)}
               </ColumnListItem>
