@@ -9,8 +9,8 @@ export const segment = () => {
 
   return {
     page: () => undefined,
-    identify: (...args: any) => undefined,
-    track: (...args: any) => undefined,
+    identify: () => undefined,
+    track: () => undefined,
   };
 };
 
@@ -23,7 +23,7 @@ export const serverSegment = () => {
     );
   } else {
     segment = {
-      track: (...args: any) => undefined,
+      track: () => undefined,
     };
   }
 
