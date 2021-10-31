@@ -36,12 +36,30 @@ function MyApp({ Component, pageProps }: AppProps) {
   NProgress.configure({ showSpinner: false, minimum: 0.15, trickleSpeed: 150 });
   let timeout: any;
 
+  useEffect(() => {
+    console.log('NProgress.status->', NProgress.status)
+    if(NProgress.status === 0.994){
+      console.log('manually siwtching->')
+      clearTimeout(timeout);
+      NProgress.done(true);
+      NProgress.remove();
+    }
+  }, [NProgress.status]);
+
   // Track Google UA page changes
   useEffect(() => {
     const stopProgressBar = () => {
+      console.log('stopping->', timeout)
       clearTimeout(timeout);
       NProgress.done();
+      NProgress.remove();
     };
+
+    console.log('NProgress.status->', NProgress.status)
+    if(NProgress.status === 0.994){
+      console.log('manually siwtching->')
+      stopProgressBar();
+    }
 
     const handleRouteChangeStart = () => {
       console.log('handleRouteChangeStart->')
