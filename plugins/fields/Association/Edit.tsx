@@ -93,7 +93,7 @@ const Edit = ({
             {humanize(field.column.name)} <Code>name</Code> or{" "}
             <Code>title</Code>{" "}
             <Link
-              href={`/data-sources/${dataSourceId}/tables/${tableName}/edit`}
+              href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns/${field.column.name}`}
             >
               <a className="text-blue-600 cursor-pointer">here</a>
             </Link>
