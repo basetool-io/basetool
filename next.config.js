@@ -7,9 +7,6 @@
 const { withSentryConfig } = require("@sentry/nextjs");
 
 const moduleExports = {
-  experimental: {
-    esmExternals: false
-  },
   images: {
     domains: ["www.gravatar.com"],
   },
@@ -37,7 +34,7 @@ if (process.env.ANALYZE) {
   });
 
   module.exports = withBundleAnalyzer(moduleExports);
-} else if (process.env.BASE_URL.includes('localhost')) {
+} else if (process.env.BASE_URL && process.env.BASE_URL.includes('localhost')) {
   module.exports = moduleExports
 } else {
   // Make sure adding Sentry options is the last code to run before exporting, to
