@@ -1,4 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { intercomSecret } from "@/lib/services"
 import NextAuth, { User } from "next-auth";
 import Providers from "next-auth/providers";
 import bcrypt from "bcrypt";
@@ -8,8 +9,9 @@ import prisma from "@/prisma";
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
 
-  const secret = process.env.INTERCOM_SECRET as string;
-  const hmac = crypto.createHmac("sha256", secret);
+  if (!intercomSecret) return
+
+  const hmac = crypto.createHmac("sha256", intercomSecret);
 
   // passing the data to be hashed
   // We'll use an email & createdAt combination so we update the user if he gets invited to a second org.

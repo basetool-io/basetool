@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { Client } from "intercom-client";
 import { createUser, hashPassword } from "@/features/auth";
+import { intercomAccessToken } from "@/lib/services";
 import { schema } from "@/features/auth/signupSchema";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -53,18 +54,20 @@ const handler = async (
       properties: {},
     });
 
-    const client = new Client({
-      token: process.env.INTERCOM_ACCESS_TOKEN as string,
-    });
+    if (intercomAccessToken) {
+      const intercomClient = new Client({
+        token: intercomAccessToken,
+      });
 
-    await client.contacts.create({
-      email: payload.email,
-      user_id: user?.id?.toString(),
-      name: `${user?.firstName} ${user?.lastName}`,
-      custom_attributes: {
-        Organization: payload?.organization,
-      },
-    });
+      await intercomClient.contacts.create({
+        email: payload.email,
+        user_id: user?.id?.toString(),
+        name: `${user?.firstName} ${user?.lastName}`,
+        custom_attributes: {
+          Organization: payload?.organization,
+        },
+      });
+    }
 
     await email.send({
       to: ["adrian@basetool.io", "david@basetool.io"],
