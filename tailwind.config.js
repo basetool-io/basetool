@@ -22,11 +22,29 @@ module.exports = {
       colors: {
         "blue-gray": colors.blueGray,
         "true-gray": colors.trueGray,
-        "cool-gray": colors.coolGray,
+        // "cool-gray": colors.coolGray,
         "warm-gray": colors.warmGray,
+        "cool-gray": {
+          DEFAULT: "#2776EA",
+          "50": "#108105100",
+          "100": "#f1f6fe",
+          "200": "#bed5f9",
+          "300": "#8bb5f4",
+          "400": "#5894ef",
+          "500": "#2976ea",
+          "600": "#135cc8",
+          "700": "#0e4495",
+          "800": "#092d62",
+          "900": "#05152e"
+        },
         sky: colors.sky,
         teal: colors.teal,
         amber: colors.amber,
+        "blue": {
+          "600": "#2776EA",
+        },
+        'tech-blue': '#2776EA',
+        'palatinate-blue': '#3A1EF6',
       },
       flex: {
         2: "2 1 0",

@@ -1,4 +1,5 @@
 import { inProduction } from "@/lib/environment";
+import { intercomAppId } from "@/lib/services"
 import { useIntercom } from "react-use-intercom";
 import { useSession } from "next-auth/client";
 import HeadSection from "./HeadSection";
@@ -11,12 +12,12 @@ function Layout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Boot up the Intercom widget
-    if (inProduction) boot();
+    if (inProduction && intercomAppId) boot();
   }, []);
 
   useEffect(() => {
     // Update Intercom with the user's info
-    if (inProduction && !sessionIsLoading && session) {
+    if (inProduction && !sessionIsLoading && session && intercomAppId) {
       update({
         name: session?.user?.name,
         email: session?.user?.email,

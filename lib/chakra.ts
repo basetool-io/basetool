@@ -18,6 +18,20 @@ export default function getChakraTheme() {
       heading: "Nunito",
       body: "Nunito",
     },
+    colors: {
+      blue: {
+        "50": "#108105100",
+        "100": "#f1f6fe",
+        "200": "#bed5f9",
+        "300": "#8bb5f4",
+        "400": "#5c97ef",
+        "500": "#2976ea",
+        "600": "#145cc8",
+        "700": "#0f4495",
+        "800": "#0a2d62",
+        "900": "#05152e"
+      },
+    }
   });
 
   return theme;
