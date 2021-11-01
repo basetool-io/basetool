@@ -7,7 +7,7 @@ If you'd like to contribute code, the steps below will help you get up and runni
 
 ## Forking & branches
 
-Please fork Avo and create a descriptive branch for your feature or fix.
+Please fork Basetool and create a descriptive branch for your feature or fix.
 
 ## Getting your local environment set up
 
