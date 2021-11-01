@@ -1,85 +1,73 @@
 <p align="center">
   <a href="https://www.basetool.io/">
-    <img src="https://user-images.githubusercontent.com/23171533/139704386-947777e3-1837-402d-afbf-372e2094a585.png">
+<!-- no white bg https://user-images.githubusercontent.com/23171533/139704386-947777e3-1837-402d-afbf-372e2094a585.png -->
+    <img src="https://user-images.githubusercontent.com/23171533/139741454-27b05893-5cf5-4711-9dfe-60895932b517.jpg">
   </a>
-</p>
-
-# Basetool
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-### Install
-
-```bash
-yarn install
-cp .env.sample .env
-# edit your .env and
-# set your DATABASE_URL
-# generate a SECRET with openssl rand -hex 32
-yarn prisma migrate dev
-# seed
-SEED_PASSWORD=secret yarn prisma db seed
-```
-
-You may now log in with `ted.lasso@apple.com` and password `secret`. The seed script will not seed a datasource. Only the user and it's organization.
-
-There's also a `prisma/sample-seed.sql` file that you can use to create a sample database.
-
-## Run
-
-```bash
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Emails
-
-Your `.env` file uld have the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` variables filled in. For development and staging we can use [mailtrap](https://mailtrap.io/). On production we use AWS SES.
-
-# Development
-
-<p align="center">
-<img width="300" src="https://user-images.githubusercontent.com/23171533/139704318-219f1f2b-84d7-439e-88e8-3a45c2fdb6fd.png"/>
 </p>
 
 ---
 
-# Supabase
+<p align="center">
+  <a aria-label="Open Issues" href="https://github.com/basetool-io/basetool/issues">
+    <img alt="open issues" src="https://img.shields.io/github/issues-raw/basetool-io/basetool?style=for-the-badge">
+  </a>
+  <a aria-label="Code quality" href="https://codeclimate.com/github/basetool-io/basetool">
+    <img alt="code quality" src="https://img.shields.io/codefactor/grade/github/basetool-io/basetool/main?style=for-the-badge">
+  </a>
+  <a aria-label="Maintainability" href="https://codeclimate.com/github/basetool-io/basetool">
+    <img  alt="maintainability" src="https://img.shields.io/codeclimate/maintainability/basetool-io/basetool?style=for-the-badge">
+  </a>
+  <a aria-label="Discord" href="https://discord.gg/3TXQ3JRj">
+    <img alt="chat on Discord" src="https://img.shields.io/discord/874939866612392017?style=for-the-badge&logo=discord">
+  </a>
+  <a aria-label="Checks" href="https://github.com/basetool-io/basetool/actions">
+    <img alt="GH workflow checks" src="https://img.shields.io/github/checks-status/basetool-io/basetool/main?style=for-the-badge">
+  </a>
+  <a aria-label="Contributors" href="https://github.com/basetool-io/basetool/actions">
+    <img alt="contributors" src="https://img.shields.io/github/contributors/basetool-io/basetool?style=for-the-badge">
+  </a>
+</p>
 
-We're using [google/zx](https://github.com/google/zx) to help us run scripts.
+# [Basetool](https://www.basetool.io/)
 
-## Timezones
+Open-source internal tool framework. Empower your team and collaborators to view and manage the data you already own in a nice easy-to-use protected tool.
 
-`.env` holds the `TZ=UTC` entry to simulate server conditions (`TZ=UTC`).
+## What is basetool?
 
-# Testing
+### Philosophy
 
-## Setup
+### Documentation
 
-```bash
-cp .env.test.sample .env.test
-```
+For full documentation, visit [Basetool docs](https://docs.basetool.io/basetool/).
 
-Update `YOUR_USERNAME` to match to your current username. Also make sure you have seeded the `sample-seed.sql` mentioned above.
+### Features
 
-### Setup the database
+Click [here](https://app.basetool.io/) to see the demo app.
 
-Create a testing database `basetool_test`. Add those credentials in your `.env.test` file.
+Complete list of features can be found on our [website](https://www.basetool.io/#features).
 
-Run `yarn test:migrate` for your initial and subsequent migrations.
+## Community
 
-### Testing env
 
-We're going to run a separate server for our testing needs on port `4099`.
+- Basetool community can be found on [GitHub Discussions](https://github.com/basetool-io/basetool/discussions), where you can ask questions, share ideas, and engage with fellow community members.
+- To chat with other community members you can join the Basetool [Discord](https://discord.gg/rPT8aEWATp).
+- For bugs and issues, please report on [Github Issues](https://github.com/basetool-io/basetool/issues).
+- For free stickers or hanging out, drop an email at hi@basetool.io.
 
-### Migrations & Seeding
+We embrace the [Code of Conduct](https://github.com/basetool-io/basetool/blob/main/CODE_OF_CONDUCT.md) on all our channels!
 
-To migrate changes to your test db run `yarn test:migrate`. Cypress will automatically seed the test DB for you on each test start.
+## Contributing
 
-## Run Cypress
+Hope you ❤️ Open Source too! Refer to [Contributing Guide](https://github.com/basetool-io/basetool/blob/main/CONTRIBUTING.md) for instructions.
 
-To run both the test server and cypress locally run `yarn test:start-cypress`.
+### Contributors
 
+<a href="https://github.com/basetool-io/basetool/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=basetool-io/basetool" height="30px"/>
+</a>
+
+## License
+
+© 2021 Basetool Inc and its contributors. All rights reserved.
+
+Licensed under the Apache 2.0 license.
