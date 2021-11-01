@@ -9,13 +9,14 @@ import prisma from "@/prisma";
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
 
+  const timestamp = + (user.createdAt as Date)
   if (!intercomSecret) return
 
   const hmac = crypto.createHmac("sha256", intercomSecret);
 
   // passing the data to be hashed
   // We'll use an email & createdAt combination so we update the user if he gets invited to a second org.
-  const data = hmac.update(`${user.email}-${user.createdAt}`);
+  const data = hmac.update(`${user.email}-${timestamp}`);
 
   // Creating the hmac in the required format
   return data.digest("hex");
