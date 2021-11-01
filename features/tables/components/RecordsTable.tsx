@@ -47,6 +47,7 @@ const RecordsTable = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
       filters: encodedFilters,
       limit: limit.toString(),
       offset: offset.toString(),
@@ -93,12 +94,7 @@ const RecordsTable = () => {
 
   // Reset data store on table or view change.
   useEffect(() => {
-    console.log('view changed->', tableName, viewId)
-
-return () => {
-      console.log('resetRecordsState->')
-      resetRecordsState();
-    };
+    resetRecordsState()
   }, [tableName, viewId]);
 
   const PaginationComponent = useMemo(() => {

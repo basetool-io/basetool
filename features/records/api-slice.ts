@@ -16,6 +16,7 @@ export const recordsApiSlice = createApi({
         {
           dataSourceId: string;
           tableName: string;
+          viewId?: string;
           filters?: string;
           limit?: string;
           offset?: string;
@@ -26,6 +27,8 @@ export const recordsApiSlice = createApi({
         query: ({
           dataSourceId,
           tableName,
+          // we keep the viewId for triggering getRecords when table and ds didn't change, but view is changed
+          viewId,
           filters,
           limit,
           offset,
