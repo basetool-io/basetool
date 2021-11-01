@@ -103,7 +103,7 @@ body,
 
 /* Loader CSS */
 svg.tea {
-  --secondary: #33406f;
+  --secondary: #3a1ef6;
 }
 svg.tea #teabag {
   transform-origin: top center;
@@ -252,9 +252,9 @@ svg.tea #steamR {
   background: #ddd;
   background: linear-gradient(
     to right,
-    var(--chakra-colors-gray-200) 8%,
-    var(--chakra-colors-gray-300) 18%,
-    var(--chakra-colors-gray-200) 33%
+    var(--chakra-colors-blue-200) 8%,
+    var(--chakra-colors-blue-300) 18%,
+    var(--chakra-colors-blue-200) 33%
   );
   background-size: 1200px 100%;
 }
@@ -270,10 +270,14 @@ progress[value]::-webkit-progress-bar {
   @apply bg-white border border-gray-500 rounded shadow-inner;
 }
 progress[value]::-webkit-progress-value {
-  @apply bg-green-600 rounded;
+  @apply bg-cool-gray-600 rounded;
 }
 progress[value]::-moz-progress-bar {
-  @apply bg-green-600 rounded appearance-none;
+  @apply bg-cool-gray-600 rounded appearance-none;
+}
+
+#nprogress .bar {
+  background: #1ee6f6 !important;
 }
 
 @-webkit-keyframes shimmer {
