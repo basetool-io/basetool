@@ -47,6 +47,7 @@ const RecordsTable = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
       filters: encodedFilters,
       limit: limit.toString(),
       offset: offset.toString(),
