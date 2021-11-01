@@ -34,20 +34,32 @@ const theme = getChakraTheme();
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   NProgress.configure({ showSpinner: false, minimum: 0.15, trickleSpeed: 150 });
-  let timeout: any;
+  let progressBarTimeout: any = null;
 
   // Track Google UA page changes
   useEffect(() => {
+    const clearProgressBarTimeout = () => {
+      if (progressBarTimeout) {
+        clearTimeout(progressBarTimeout);
+        progressBarTimeout = null;
+      }
+    };
+
+    const startProgressBar = () => {
+      clearProgressBarTimeout();
+      // We're debouncing the progressbar for the scenarios where the page is loaded into memory and we want the "native" experience.
+      progressBarTimeout = setTimeout(() => {
+        NProgress.start();
+      }, 100);
+    };
+
     const stopProgressBar = () => {
-      clearTimeout(timeout);
+      clearProgressBarTimeout();
       NProgress.done();
     };
 
     const handleRouteChangeStart = () => {
-      // We're debouncing the progressbar for the scenarios where the page is loaded into memory and we want the "native" experience.
-      timeout = setTimeout(() => {
-        NProgress.start();
-      }, 100);
+      startProgressBar();
     };
     const handleRouteChangeComplete = (url: string) => {
       gtag.pageview(url);
