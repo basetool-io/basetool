@@ -1,5 +1,5 @@
 const name = "basetool";
-const description = "All your data under the same roof";
+const description = "View and manage all your data in one place like a pro";
 const separator = "·";
 const title = `${name} ${separator} ${description}`;
 const url = "https://basetool.io";

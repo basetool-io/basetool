@@ -17,8 +17,8 @@ function HeadSection() {
       <meta property="og:type" content="website" />
       <meta property="og:url" content={meta.url} />
       <meta property="og:image" content={meta.imagePath} />
-      <meta property="og:image:width" content="1376" />
-      <meta property="og:image:height" content="604" />
+      <meta property="og:image:width" content="1500" />
+      <meta property="og:image:height" content="500" />
 
       <link
         rel="apple-touch-icon"
@@ -41,12 +41,12 @@ function HeadSection() {
       <link
         rel="mask-icon"
         href="/favicons/safari-pinned-tab.svg"
-        color="#5bbad5"
+        color="#3A1EF6"
       />
       <link rel="shortcut icon" href="/favicons/favicon.ico" />
-      <meta name="msapplication-TileColor" content="#ffc40d" />
+      <meta name="msapplication-TileColor" content="#3A1EF6" />
       <meta name="msapplication-config" content="/favicons/browserconfig.xml" />
-      <meta name="theme-color" content="#ffffff"></meta>
+      <meta name="theme-color" content="#ffffff" />
     </Head>
   );
 }
