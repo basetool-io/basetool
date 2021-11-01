@@ -34,55 +34,43 @@ const theme = getChakraTheme();
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   NProgress.configure({ showSpinner: false, minimum: 0.15, trickleSpeed: 150 });
-  let timeout: any;
-
-  useEffect(() => {
-    console.log('NProgress.status->', NProgress.status)
-    if(NProgress.status === 0.994){
-      console.log('manually siwtching->')
-      clearTimeout(timeout);
-      NProgress.done(true);
-      NProgress.remove();
-    }
-  }, [NProgress.status]);
+  let progressBarTimeout: any = null;
 
   // Track Google UA page changes
   useEffect(() => {
-    const stopProgressBar = () => {
-      console.log('stopping->', timeout)
-      clearTimeout(timeout);
-      NProgress.done();
-      NProgress.remove();
+    const clearProgressBarTimeout = () => {
+      if (progressBarTimeout) {
+        clearTimeout(progressBarTimeout);
+        progressBarTimeout = null;
+      }
     };
 
-    console.log('NProgress.status->', NProgress.status)
-    if(NProgress.status === 0.994){
-      console.log('manually siwtching->')
-      stopProgressBar();
-    }
-
-    const handleRouteChangeStart = () => {
-      console.log('handleRouteChangeStart->')
+    const startProgressBar = () => {
+      clearProgressBarTimeout();
       // We're debouncing the progressbar for the scenarios where the page is loaded into memory and we want the "native" experience.
-      timeout = setTimeout(() => {
+      progressBarTimeout = setTimeout(() => {
         NProgress.start();
       }, 100);
     };
+
+    const stopProgressBar = () => {
+      clearProgressBarTimeout();
+      NProgress.done();
+    };
+
+    const handleRouteChangeStart = () => {
+      startProgressBar();
+    };
     const handleRouteChangeComplete = (url: string) => {
-      console.log('handleRouteChangeComplete->')
       gtag.pageview(url);
       segment().page();
 
       stopProgressBar();
     };
     const handleRouteChangeError = () => {
-      console.log('handleRouteChangeError->')
-
       stopProgressBar();
     };
     const handleHashChangeComplete = () => {
-      console.log('handleHashChangeComplete->')
-
       stopProgressBar();
     };
 
