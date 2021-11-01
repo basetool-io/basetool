@@ -65,7 +65,7 @@ const Sidebar = () => {
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
       <div className="relative space-y-x w-full h-full flex flex-col">
-        <div className="my-2 mt-4 px-4 font-bold uppercase text leading-none">
+        <div className="my-2 mt-4 px-2 font-bold uppercase text leading-none">
           {dataSourceIsLoading ? (
             <>
               <Shimmer width={190} height={17} className="mb-2" />
@@ -89,7 +89,7 @@ const Sidebar = () => {
             {"data" in viewsError && first((viewsError?.data as any)?.messages)}
           </div>
         )}
-        <div className="relative space-y-1 px-2 flex-col">
+        <div className="relative space-y-1 flex-col">
           <div className="flex justify-between w-full">
             <div
               className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 w-full cursor-pointer"
@@ -170,7 +170,7 @@ const Sidebar = () => {
                   first((tablesError?.data as any)?.messages)}
               </div>
             )}
-            <div className="relative space-y-1 px-2 flex-1">
+            <div className="relative space-y-1 flex-1">
               <div
                 className="text-md font-semibold py-2 px-2 rounded-md leading-none m-0 cursor-pointer"
                 onClick={toggleTablesOpen}
@@ -183,46 +183,50 @@ const Sidebar = () => {
                 )}
               </div>
               <Collapse in={isTablesOpen}>
-                {tablesAreLoading && (
-                  <div className="flex-1 min-h-full">
-                    <LoadingOverlay
-                      transparent={isEmpty(tablesResponse?.data)}
-                      subTitle={false}
-                    />
-                  </div>
-                )}
-                {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
-                {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-                {tablesResponse?.ok &&
-                  tablesResponse.data
-                    .filter((table: ListTable) =>
-                      dataSourceResponse?.data.type === "postgresql" &&
-                      table.schema
-                        ? table.schema === "public"
-                        : true
-                    )
-                    .filter((table: ListTable) => ac.canViewTable(table))
-                    .filter((table: ListTable) => !table?.hidden)
-                    .map((table: ListTable, idx: number) => (
-                      <SidebarItem
-                        key={idx}
-                        active={table.name === tableName && isUndefined(viewId)}
-                        label={getLabel(table)}
-                        link={`/data-sources/${dataSourceId}/tables/${table.name}`}
-                        onMouseOver={() => {
-                          // If the datasource supports columns request we'll prefetch it on hover.
-                          if (
-                            dataSourceResponse?.meta?.dataSourceInfo?.supports
-                              ?.columnsRequest
-                          ) {
-                            prefetchColumns({
-                              dataSourceId,
-                              tableName: table.name,
-                            });
-                          }
-                        }}
+                <div className="">
+                  {tablesAreLoading && (
+                    <div className="flex-1 min-h-full">
+                      <LoadingOverlay
+                        transparent={isEmpty(tablesResponse?.data)}
+                        subTitle={false}
                       />
-                    ))}
+                    </div>
+                  )}
+                  {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
+                  {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
+                  {tablesResponse?.ok &&
+                    tablesResponse.data
+                      .filter((table: ListTable) =>
+                        dataSourceResponse?.data.type === "postgresql" &&
+                        table.schema
+                          ? table.schema === "public"
+                          : true
+                      )
+                      .filter((table: ListTable) => ac.canViewTable(table))
+                      .filter((table: ListTable) => !table?.hidden)
+                      .map((table: ListTable, idx: number) => (
+                        <SidebarItem
+                          key={idx}
+                          active={
+                            table.name === tableName && isUndefined(viewId)
+                          }
+                          label={getLabel(table)}
+                          link={`/data-sources/${dataSourceId}/tables/${table.name}`}
+                          onMouseOver={() => {
+                            // If the datasource supports columns request we'll prefetch it on hover.
+                            if (
+                              dataSourceResponse?.meta?.dataSourceInfo?.supports
+                                ?.columnsRequest
+                            ) {
+                              prefetchColumns({
+                                dataSourceId,
+                                tableName: table.name,
+                              });
+                            }
+                          }}
+                        />
+                      ))}
+                </div>
               </Collapse>
             </div>
           </>

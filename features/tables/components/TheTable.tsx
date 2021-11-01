@@ -129,12 +129,12 @@ const TheTable = memo(() => {
   return (
     <div
       className={
-        "table-widget relative divide-y bg-blue-gray-200 divide-blue-gray-200 overflow-auto w-full md:w-auto"
+        "table-widget relative divide-y bg-true-gray-200 divide-true-gray-200 overflow-auto w-full md:w-auto"
       }
       {...getTableProps()}
     >
       {isMd && (
-        <div className="bg-blue-gray-200 rounded-t">
+        <div className="bg-true-gray-200 rounded-t">
           {headerGroups.map((headerGroup) => (
             <div
               {...headerGroup.getHeaderGroupProps()}
