@@ -47,31 +47,3 @@ We're using [google/zx](https://github.com/google/zx) to help us run scripts.
 ### Timezones
 
 `.env` holds the `TZ=UTC` entry to simulate server conditions (`TZ=UTC`).
-
-## Testing
-
-### Setup
-
-```bash
-cp .env.test.sample .env.test
-```
-
-Update `YOUR_USERNAME` to match to your current username. Also make sure you have seeded the `sample-seed.sql` mentioned above.
-
-#### Setup the database
-
-Create a testing database `basetool_test`. Add those credentials in your `.env.test` file.
-
-Run `yarn test:migrate` for your initial and subsequent migrations.
-
-#### Testing env
-
-We're going to run a separate server for our testing needs on port `4099`.
-
-#### Migrations & Seeding
-
-To migrate changes to your test db run `yarn test:migrate`. Cypress will automatically seed the test DB for you on each test start.
-
-### Run Cypress
-
-To run both the test server and cypress locally run `yarn test:start-cypress`.
