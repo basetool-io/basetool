@@ -4,7 +4,7 @@ services:
   app:
     build: .
     env_file: .env
-    image: basetool
+    image: docker.io/library/basetool
     environment:
       - PORT=7654
     ports:
