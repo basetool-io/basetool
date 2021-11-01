@@ -12,6 +12,8 @@ import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
 import { inProduction } from "@/lib/environment";
+import { intercomAppId } from "@/lib/services"
+import { isString } from "lodash";
 import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
 import NProgress from "nprogress";
@@ -21,8 +23,6 @@ import ShowErrorMessages from "@/components/ShowErrorMessages";
 import getChakraTheme from "@/lib/chakra";
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
-
-const INTERCOM_APP_ID = "u5el90h1";
 
 Tooltip.defaultProps = {
   hasArrow: true,
@@ -99,11 +99,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       <DndProvider backend={HTML5Backend}>
         <ReduxProvider store={store}>
           <ChakraProvider resetCSS={false} theme={theme}>
-            <IntercomProvider appId={INTERCOM_APP_ID}>
-              <ShowErrorMessages>
-                <Component {...pageProps} />
-              </ShowErrorMessages>
-            </IntercomProvider>
+            <ShowErrorMessages>
+              {/* Conditionally enable Intercom */}
+              {isString(intercomAppId) && (
+                <IntercomProvider appId={intercomAppId}>
+                  <Component {...pageProps} />;
+                </IntercomProvider>
+              )}
+
+              {!isString(intercomAppId) && <Component {...pageProps} />}
+            </ShowErrorMessages>
             <ToastContainer
               position="bottom-right"
               transition={Zoom}

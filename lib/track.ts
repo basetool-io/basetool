@@ -1,4 +1,5 @@
 import { inProduction } from "./environment";
+import { segmentPublicKey } from "./services";
 import Analytics from "analytics-node";
 import isUndefined from "lodash/isUndefined";
 
@@ -9,8 +10,8 @@ export const segment = () => {
 
   return {
     page: () => undefined,
-    identify: (...args: any) => undefined,
-    track: (...args: any) => undefined,
+    identify: () => undefined,
+    track: () => undefined,
   };
 };
 
@@ -18,19 +19,17 @@ export const serverSegment = () => {
   let segment: any;
 
   if (inProduction) {
-    segment = new Analytics(
-      process.env.NEXT_PUBLIC_SEGMENT_PUBLIC_KEY as string
-    );
+    segment = new Analytics(segmentPublicKey as string);
   } else {
     segment = {
-      track: (...args: any) => undefined,
+      track: () => undefined,
     };
   }
 
   return {
     track: (...args: any) => {
       try {
-        segment.track(...args as any);
+        segment.track(...(args as any));
       } catch (error) {}
     },
   };

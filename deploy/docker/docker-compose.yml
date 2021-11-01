@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    env_file: .env
+    image: docker.io/library/basetool
+    environment:
+      - PORT=7654
+    ports:
+      - "7654:7654"
+    links:
+      - redis
+  redis:
+    image: redis

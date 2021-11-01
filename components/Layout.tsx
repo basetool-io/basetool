@@ -1,4 +1,5 @@
 import { inProduction } from "@/lib/environment";
+import { intercomAppId, segmentPublicKey } from "@/lib/services";
 import { segment } from "@/lib/track";
 import { useIntercom } from "react-use-intercom";
 import { useProfile, useSidebarsVisible } from "@/hooks";
@@ -39,25 +40,29 @@ function Layout({
 
   useEffect(() => {
     // Boot up the Intercom widget
-    if (inProduction) boot();
+    if (inProduction && intercomAppId) boot();
   }, []);
 
   useEffect(() => {
     // Update Intercom with the user's info
     if (inProduction && !profileIsLoading && session) {
-      // Update Intercom identification
-      update({
-        name: session?.user?.name,
-        email: session?.user?.email,
-        createdAt: session?.user?.createdAt?.toString(),
-        userHash: session?.user?.intercomUserHash,
-      });
+      if (intercomAppId) {
+        // Update Intercom identification
+        update({
+          name: session?.user?.name,
+          email: session?.user?.email,
+          createdAt: session?.user?.createdAt?.toString(),
+          userHash: session?.user?.intercomUserHash,
+        });
+      }
 
-      // Update Segment identification
-      segment().identify(undefined, {
-        name: session?.user?.name,
-        email: session?.user?.email,
-      });
+      if (segmentPublicKey) {
+        // Update Segment identification
+        segment().identify(undefined, {
+          name: session?.user?.name,
+          email: session?.user?.email,
+        });
+      }
     }
   }, [profileIsLoading, session]);
 
