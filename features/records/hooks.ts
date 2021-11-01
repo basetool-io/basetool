@@ -50,6 +50,7 @@ export const useResetState = () => {
   const dispatch = useAppDispatch();
 
   const resetState = () => {
+    console.log('dispatch(resetstate)->',)
     dispatch(resetReduxState());
   };
 

@@ -93,7 +93,10 @@ const RecordsTable = () => {
 
   // Reset data store on table or view change.
   useEffect(() => {
-    return () => {
+    console.log('view changed->', tableName, viewId)
+
+return () => {
+      console.log('resetRecordsState->')
       resetRecordsState();
     };
   }, [tableName, viewId]);
@@ -115,6 +118,9 @@ const RecordsTable = () => {
       )}
       {recordsError && <div>Error: {JSON.stringify(recordsError)}</div>}
       {tableIsVisible && <TheTable />}
+      <pre>
+        {JSON.stringify([tableIsVisible, isFetching, hasRecords, records], null, 2)}
+      </pre>
       {tableIsVisible || (
         <>
           {!isFetching && !hasRecords && (
