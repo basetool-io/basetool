@@ -149,6 +149,8 @@ export const useDataSourceContext = () => {
         // When navigating from a dataSource to another, the dataSourceId updates but tableName doesn't and keeps the table selected, so we have to reset it.
         dispatch(setTableName(""));
       }
+    } else if(router.pathname === "/") {
+      dispatch(setDataSourceId(""));
     }
   }, [router.query]);
 
