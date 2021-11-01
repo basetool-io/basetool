@@ -155,9 +155,10 @@ const TheTable = memo(() => {
                     className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
                   >
                     {isRecordSelectorColumn && (
-                      <div className="flex items-center justify-center h-4 py-4 bg-white -mx-6">
+                      <div className="flex items-center justify-center h-4 py-4">
                         <Checkbox
                           colorScheme="gray"
+                          className="border-gray-400"
                           isChecked={allColumnsChecked}
                           isIndeterminate={selectAllIsIndeterminate}
                           onChange={(e: any) =>
