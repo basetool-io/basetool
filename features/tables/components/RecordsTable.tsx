@@ -94,7 +94,9 @@ const RecordsTable = () => {
 
   // Reset data store on table or view change.
   useEffect(() => {
-    resetRecordsState()
+    return () => {
+      resetRecordsState();
+    };
   }, [tableName, viewId]);
 
   const PaginationComponent = useMemo(() => {
@@ -114,9 +116,6 @@ const RecordsTable = () => {
       )}
       {recordsError && <div>Error: {JSON.stringify(recordsError)}</div>}
       {tableIsVisible && <TheTable />}
-      <pre>
-        {JSON.stringify([tableIsVisible, isFetching, hasRecords, records], null, 2)}
-      </pre>
       {tableIsVisible || (
         <>
           {!isFetching && !hasRecords && (
