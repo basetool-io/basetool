@@ -17,7 +17,7 @@
   <a aria-label="Maintainability" href="https://codeclimate.com/github/basetool-io/basetool">
     <img  alt="maintainability" src="https://img.shields.io/codeclimate/maintainability/basetool-io/basetool?style=for-the-badge">
   </a>
-  <a aria-label="Discord" href="https://discord.gg/3TXQ3JRj">
+  <a aria-label="Discord" href="https://discord.gg/rPT8aEWATp">
     <img alt="chat on Discord" src="https://img.shields.io/discord/874939866612392017?style=for-the-badge&logo=discord">
   </a>
   <a aria-label="Checks" href="https://github.com/basetool-io/basetool/actions">
