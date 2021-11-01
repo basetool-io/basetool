@@ -196,6 +196,7 @@ const TableColumnsEditLayout = ({
                         id={col.baseOptions.orderIndex}
                         moveMethod={moveColumn}
                         findMethod={findColumn}
+                        hidden={col?.baseOptions?.disconnected}
                       >
                         {getColumnNameLabel(
                           col.baseOptions.label,

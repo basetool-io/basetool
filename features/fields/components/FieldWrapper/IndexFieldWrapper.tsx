@@ -12,14 +12,14 @@ const IndexFieldWrapper = ({
 }) => (
   <div
     className={classNames(
-      "leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis px-6 whitespace-nowrap text-sm text-gray-500 truncate h-full",
+      "leading-tight whitespace-no-wrap overflow-hidden overflow-ellipsis px-6 whitespace-nowrap text-sm text-gray-500 truncate h-full flex items-center",
       {
         "py-0": flush,
         "py-4": !flush,
       }
     )}
   >
-    {children}
+    <div className="flex-1">{children}</div>
   </div>
 );
 

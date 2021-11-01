@@ -35,7 +35,7 @@ const EditRecord = () => {
   );
 
   const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.index),
+    () => getFilteredColumns(columnsResponse?.data, Views.edit),
     [columnsResponse?.data]
   );
 
