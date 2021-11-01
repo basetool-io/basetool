@@ -116,9 +116,9 @@ const Edit = ({
       let dbValue;
       // If it's only time we're updating, parse it to time format
       if (columnFieldOptions.showTime && !columnFieldOptions.showDate) {
-        dbValue = parsedValue.toFormat(format);
+        dbValue = parsedValue.toUTC().toFormat(format);
       } else {
-        dbValue = parsedValue;
+        dbValue = parsedValue.toUTC();
       }
 
       setValue(name, dbValue, {
