@@ -42,7 +42,9 @@ module.exports = {
         amber: colors.amber,
         "blue": {
           "600": "#2776EA",
-        }
+        },
+        'tech-blue': '#2776EA',
+        'palatinate-blue': '#3A1EF6',
       },
       flex: {
         2: "2 1 0",

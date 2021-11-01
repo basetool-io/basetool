@@ -252,9 +252,9 @@ svg.tea #steamR {
   background: #ddd;
   background: linear-gradient(
     to right,
-    var(--chakra-gray-200) 8%,
-    var(--chakra-gray-300) 18%,
-    var(--chakra-gray-200) 33%
+    var(--chakra-colors-gray-200) 8%,
+    var(--chakra-colors-gray-300) 18%,
+    var(--chakra-colors-gray-200) 33%
   );
   background-size: 1200px 100%;
 }
@@ -270,10 +270,10 @@ progress[value]::-webkit-progress-bar {
   @apply bg-white border border-gray-500 rounded shadow-inner;
 }
 progress[value]::-webkit-progress-value {
-  @apply bg-cool-gray-600 rounded;
+  @apply bg-tech-blue rounded;
 }
 progress[value]::-moz-progress-bar {
-  @apply bg-cool-gray-600 rounded appearance-none;
+  @apply bg-tech-blue rounded appearance-none;
 }
 
 @-webkit-keyframes shimmer {
