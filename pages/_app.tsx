@@ -79,8 +79,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     router.events.on("hashChangeComplete", handleHashChangeComplete);
     router.events.on("routeChangeError", handleRouteChangeError);
 
-    console.log('router.events->', router.events)
-
     return () => {
       router.events.off("routeChangeStart", handleRouteChangeStart);
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
