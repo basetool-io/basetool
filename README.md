@@ -1,4 +1,10 @@
-# Basetool.io
+<p align="center">
+  <a href="https://www.basetool.io/">
+    <img src="https://user-images.githubusercontent.com/23171533/139704386-947777e3-1837-402d-afbf-372e2094a585.png">
+  </a>
+</p>
+
+# Basetool
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
@@ -34,6 +40,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Your `.env` file uld have the `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` variables filled in. For development and staging we can use [mailtrap](https://mailtrap.io/). On production we use AWS SES.
 
 # Development
+
+<p align="center">
+<img width="300" src="https://user-images.githubusercontent.com/23171533/139704318-219f1f2b-84d7-439e-88e8-3a45c2fdb6fd.png"/>
+</p>
+
+---
+
+# Supabase
 
 We're using [google/zx](https://github.com/google/zx) to help us run scripts.
 
