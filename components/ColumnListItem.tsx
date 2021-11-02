@@ -74,7 +74,7 @@ const ColumnListItem = ({
       className={classNames(
         "w-full cursor-pointer uppercase text-sm font-semibold rounded flex items-center p-1 overflow-hidden",
         {
-          "bg-blue-500 text-white": active,
+          "bg-blue-600 text-white": active,
         },
         { "bg-gray-800 opacity-25": isDragging }
       )}

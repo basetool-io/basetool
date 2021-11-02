@@ -20,6 +20,7 @@ function ConditionComponent({
     case "Id":
     case "Number":
     case "Association":
+    case "ProgressBar":
       Component = IntConditionComponent;
       break;
     case "Boolean":
