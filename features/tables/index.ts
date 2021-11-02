@@ -53,6 +53,7 @@ export const getDefaultFilterCondition = (fieldType: FieldType) => {
     case "Id":
     case "Number":
     case "Association":
+    case "ProgressBar":
       return IntFilterConditions.is;
     case "Boolean":
       return BooleanFilterConditions.is_true;

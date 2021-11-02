@@ -9,6 +9,8 @@ import BooleanShowField from "@/plugins/fields/Boolean/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
+import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
+import GravatarShowField from "@/plugins/fields/Gravatar/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
 import IdIndexField from "@/plugins/fields/Id/Index";
 import IdShowField from "@/plugins/fields/Id/Show";
@@ -30,8 +32,6 @@ import TextShowField from "@/plugins/fields/Text/Show";
 import TextareaEditField from "@/plugins/fields/Textarea/Edit";
 import TextareaIndexField from "@/plugins/fields/Textarea/Index";
 import TextareaShowField from "@/plugins/fields/Textarea/Show";
-import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
-import GravatarShowField from "@/plugins/fields/Gravatar/Show";
 import type { Column } from "./types";
 
 export const getFieldForEdit = (column: Column) => {
