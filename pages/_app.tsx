@@ -103,7 +103,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               {/* Conditionally enable Intercom */}
               {isString(intercomAppId) && (
                 <IntercomProvider appId={intercomAppId}>
-                  <Component {...pageProps} />;
+                  <Component {...pageProps} />
                 </IntercomProvider>
               )}
 
