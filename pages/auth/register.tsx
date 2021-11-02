@@ -14,6 +14,7 @@ import { useApi } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import HeadSection from "@/components/HeadSection";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -88,6 +89,9 @@ function Register() {
       <HeadSection />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div  className="relative mx-auto w-[200px] h-[54px] my-2">
+            <Image src="/img/logo_text_black.png" layout="fill" width="200" height="54" alt="Basetool Logo" />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign up for an account
           </h2>
