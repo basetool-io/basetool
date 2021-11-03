@@ -532,7 +532,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
     if (filters) {
       addFiltersToQuery(query, filters);
     }
-    const [{ count }] = await query.count("id", { as: "count" });
+    const [{ count }] = await query.count("*", { as: "count" });
 
     return parseInt(count as string, 10);
   }
