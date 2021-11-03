@@ -1,7 +1,8 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { captureException, flush } from "@sentry/nextjs";
 import { SQLError } from "@/lib/errors";
+import { addBreadcrumb, captureException, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
+import { getUserFromRequest } from ".";
 import { inProduction } from "@/lib/environment";
 import { isNumber } from "lodash";
 import ApiResponse from "./ApiResponse";
@@ -44,6 +45,17 @@ export const withMiddlewares =
     try {
       return await handler(req, res);
     } catch (error: any) {
+      const user = await getUserFromRequest(req, {
+        select: { id: true },
+      });
+
+      addBreadcrumb({
+        message: "User info",
+        data: {
+          id: user?.id,
+          dataSourceId: req.query.dataSourceId || req.body.dataSourceId,
+        },
+      });
       captureException(error);
 
       // Flushing before returning is necessary if deploying to Vercel, see
