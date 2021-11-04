@@ -244,13 +244,12 @@ const NewDataSourceForm = ({
   const fillCredentialsFromUrl = () => {
     const uri = URI(credentialsUrl);
 
-    const credentials = {
-      host: uri.hostname(),
-      port: uri.port() ? parseInt(uri.port()) : undefined,
-      database: uri.path().replace("/", ""),
-      user: uri.username(),
-      password: uri.password(),
-    };
+    const credentials = getValues("credentials") || {};
+    if (uri.hostname()) credentials.host = uri.hostname();
+    if (uri.port()) credentials.port = parseInt(uri.port());
+    if (uri.path()) credentials.database = uri.path().replace("/", "");
+    if (uri.username()) credentials.user = uri.username();
+    if (uri.password()) credentials.password = uri.password();
 
     setValue("credentials", credentials);
 
@@ -318,6 +317,9 @@ const NewDataSourceForm = ({
                   placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]"
                   value={credentialsUrl}
                   onChange={(e) => setCredentialsUrl(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && !isEmpty(credentialsUrl)) fillCredentialsFromUrl()
+                  }}
                   autoFocus
                 />
               </ModalBody>
