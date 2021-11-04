@@ -244,16 +244,15 @@ const NewDataSourceForm = ({
   const fillCredentialsFromUrl = () => {
     const uri = URI(credentialsUrl);
 
-    if (!isEmpty(uri.hostname()))
-      setValue("credentials.host", uri.hostname() as never);
-    if (!isEmpty(uri.port()))
-      setValue("credentials.port", parseInt(uri.port()) as never);
-    if (!isEmpty(uri.path()))
-      setValue("credentials.database", uri.path().replace("/", "") as never);
-    if (!isEmpty(uri.username()))
-      setValue("credentials.user", uri.username() as never);
-    if (!isEmpty(uri.password()))
-      setValue("credentials.password", uri.password() as never);
+    const credentials = {
+      host: uri.hostname(),
+      port: uri.port() ? parseInt(uri.port()) : undefined,
+      database: uri.path().replace("/", ""),
+      user: uri.username(),
+      password: uri.password(),
+    };
+
+    setValue("credentials", credentials);
 
     onClose();
   };
