@@ -12,7 +12,18 @@ const moduleExports = {
   },
   reactStrictMode: true,
   async redirects() {
-    return [];
+    return [
+      {
+        source: "/login",
+        destination: "/auth/login",
+        permanent: true,
+      },
+      {
+        source: "/register",
+        destination: "/auth/register",
+        permanent: true,
+      },
+    ];
   },
 };
 
