@@ -13,3 +13,5 @@ node_modules
 npm-debug.log
 README.md
 .next
+
+pages/api/lol.ts
