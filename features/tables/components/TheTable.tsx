@@ -42,6 +42,8 @@ const TheTable = memo(() => {
   const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
+  const hasIdColumn = useMemo(() => rawColumns.find((col) => col.name === "id"), [rawColumns])
+
   const checkboxColumn = {
     Header: "selector_column",
     accessor: (row: any, i: number) => `selector_column_${i}`,
@@ -67,14 +69,17 @@ const TheTable = memo(() => {
   const records = useMemo(() => prettifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
   const columns = useMemo(
-    () => [
+    () => hasIdColumn ? [
       checkboxColumn,
       ...parseColumns({
         columns: rawColumns,
         columnWidths,
       }),
       controlsColumn,
-    ],
+    ] : [...parseColumns({
+      columns: rawColumns,
+      columnWidths,
+    })],
     [rawColumns]
   );
 

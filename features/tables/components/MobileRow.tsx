@@ -30,13 +30,17 @@ const MobileRow = ({ row }: { row: Row<any> }) => {
       className={classNames("flex flex-col w-full hover:bg-gray-100 bg-white")}
     >
       <div className="td px-6 py-2 whitespace-nowrap text-sm truncate flex justify-between">
-        <Checkbox
-          size="lg"
-          colorScheme="gray"
-          isChecked={selectedRecords.includes(row?.original?.id)}
-          onChange={(e) => toggleRecordSelection(row?.original?.id)}
-        />
-        <ItemControls recordId={row?.original?.id} />
+        {row?.original?.id && (
+          <>
+            <Checkbox
+              size="lg"
+              colorScheme="gray"
+              isChecked={selectedRecords.includes(row?.original?.id)}
+              onChange={(e) => toggleRecordSelection(row?.original?.id)}
+            />
+            <ItemControls recordId={row?.original?.id} />
+          </>
+        )}
       </div>
 
       {row.cells
