@@ -27,7 +27,7 @@ jobs:
           context: .
           push: true
           tags: basetool/basetool:latest
-          cache-from: type=registry,ref=user/app:latest
+          cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
 
 
