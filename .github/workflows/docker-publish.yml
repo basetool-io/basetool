@@ -1,12 +1,10 @@
 name: Docker publish
 
 on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
+  push
+  # push:
+  #   branches:
+  #     - master
 
 jobs:
   Build docker:
