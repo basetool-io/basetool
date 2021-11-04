@@ -1,4 +1,4 @@
-name: Docker publish
+name: Docker image
 
 on:
   [push]
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: runner / eslint
+    name: "Build & publish"
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
