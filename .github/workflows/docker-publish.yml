@@ -7,7 +7,7 @@ on:
   #     - master
 
 jobs:
-  Build:
+  build:
     name: runner / eslint
     runs-on: ubuntu-latest
     steps:
