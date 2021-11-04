@@ -8,8 +8,9 @@ import {
 } from "@heroicons/react/outline";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { OWNER_ROLE } from "@/features/roles";
+import { columnsSelector } from "../state-slice";
 import { isEmpty, isUndefined } from "lodash";
-import { useAccessControl, useDataSourceContext } from "@/hooks";
+import { useAccessControl, useAppSelector, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import {
@@ -145,6 +146,10 @@ const RecordsIndex = () => {
     }
   }, [router.query.page]);
 
+  // We need to find out if it has Id column for the visibility of delete bulk and create buttons (footer).
+  const rawColumns = useAppSelector(columnsSelector);
+  const hasIdColumn = useMemo(() => rawColumns.find((col) => col.name === "id"), [rawColumns]);
+
   return (
     <Layout>
       <PageWrapper
@@ -184,6 +189,7 @@ const RecordsIndex = () => {
           </ButtonGroup>
         }
         footer={
+          hasIdColumn &&
           <PageWrapper.Footer
             left={
               ac.deleteAny("record").granted && (
