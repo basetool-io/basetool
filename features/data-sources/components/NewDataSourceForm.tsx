@@ -8,8 +8,18 @@ import {
   Input,
   Select,
   Switch,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import { LinkIcon, PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
 import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { merge } from "lodash";
@@ -24,7 +34,8 @@ import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { memo, useEffect, useMemo } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
+import URI from "urijs";
 import getSchema from "@/plugins/data-sources/getSchema";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
@@ -227,6 +238,26 @@ const NewDataSourceForm = ({
     return false;
   };
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [credentialsUrl, setCredentialsUrl] = useState<string | undefined>();
+
+  const fillCredentialsFromUrl = () => {
+    const uri = URI(credentialsUrl);
+
+    if (!isEmpty(uri.hostname()))
+      setValue("credentials.host", uri.hostname() as never);
+    if (!isEmpty(uri.port()))
+      setValue("credentials.port", parseInt(uri.port()) as never);
+    if (!isEmpty(uri.path()))
+      setValue("credentials.database", uri.path().replace("/", "") as never);
+    if (!isEmpty(uri.username()))
+      setValue("credentials.user", uri.username() as never);
+    if (!isEmpty(uri.password()))
+      setValue("credentials.password", uri.password() as never);
+
+    onClose();
+  };
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -262,10 +293,57 @@ const NewDataSourceForm = ({
                 Create
               </Button>
             }
+            right={
+              <Button
+                colorScheme="blue"
+                size="sm"
+                variant="outline"
+                onClick={onOpen}
+                leftIcon={<LinkIcon className="h-4" />}
+              >
+                Paste from URL
+              </Button>
+            }
           />
         }
       >
         <div className="relative flex flex-1 w-full h-full items center justify-center">
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Paste from URL</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Input
+                  type="text"
+                  placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]"
+                  value={credentialsUrl}
+                  onChange={(e) => setCredentialsUrl(e.target.value)}
+                  autoFocus
+                />
+              </ModalBody>
+
+              <ModalFooter>
+                <Button
+                  colorScheme="gray"
+                  size="sm"
+                  variant="outline"
+                  mr={3}
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  size="sm"
+                  onClick={fillCredentialsFromUrl}
+                  isDisabled={isEmpty(credentialsUrl)}
+                >
+                  Apply
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 max-w-2xl"
