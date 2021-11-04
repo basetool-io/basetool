@@ -6,7 +6,7 @@ on: [push]
   #     - master
 
 jobs:
-  Build docker:
+  'Build docker':
     name: runner / eslint
     runs-on: ubuntu-latest
     steps:
