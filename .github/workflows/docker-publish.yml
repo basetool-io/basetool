@@ -1,12 +1,13 @@
 name: Docker publish
 
-on: [push]
+on:
+  [push]
   # push:
   #   branches:
   #     - master
 
 jobs:
-  'Build docker':
+  Build:
     name: runner / eslint
     runs-on: ubuntu-latest
     steps:
