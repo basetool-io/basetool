@@ -29,17 +29,17 @@ export const availableDataSources = [
     beta: true,
   },
   {
+    id: "mssql",
+    label: "MSSQL",
+    enabled: false,
+    beta: true,
+  },
+  {
     id: "stripe",
     label: "Stripe",
     enabled: true,
     comingSoon: true,
     beta: false,
-  },
-  {
-    id: "mssql",
-    label: "MSSQL",
-    comingSoon: true,
-    enabled: false,
   },
   {
     id: "amazon_redshift",
