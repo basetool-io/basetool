@@ -1,7 +1,6 @@
 name: Docker publish
 
-on:
-  [push]
+on: [push]
   # push:
   #   branches:
   #     - master
