@@ -1,7 +1,7 @@
 name: Docker publish
 
 on:
-  push
+  [push]
   # push:
   #   branches:
   #     - master
