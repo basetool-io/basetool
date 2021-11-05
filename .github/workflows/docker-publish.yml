@@ -1,16 +1,17 @@
-name: Docker publish
+name: Docker image
 
 on:
-  [push]
-  # push:
-  #   branches:
-  #     - master
+  push:
+    branches:
+      - master
 
 jobs:
-  Build docker:
-    name: runner / eslint
+  build:
+    name: "Build & publish"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -24,6 +25,8 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
+          context: .
           push: true
           tags: basetool/basetool:latest
-
+          cache-from: type=registry,ref=basetool/basetool:latest
+          cache-to: type=inline
