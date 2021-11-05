@@ -40,6 +40,7 @@ export type BaseOptions = {
   orderIndex?: number;
   computed: boolean;
   computedSource: string;
+  backgroundColor: string;
 };
 
 export type Column<
