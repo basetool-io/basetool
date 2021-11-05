@@ -42,7 +42,10 @@ const TheTable = memo(() => {
   const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
-  const hasIdColumn = useMemo(() => rawColumns.find((col) => col.name === "id"), [rawColumns])
+  const hasIdColumn = useMemo(
+    () => rawColumns.find((col) => col.name === "id"),
+    [rawColumns]
+  );
 
   const checkboxColumn = {
     Header: "selector_column",
@@ -69,17 +72,22 @@ const TheTable = memo(() => {
   const records = useMemo(() => prettifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
   const columns = useMemo(
-    () => hasIdColumn ? [
-      checkboxColumn,
-      ...parseColumns({
-        columns: rawColumns,
-        columnWidths,
-      }),
-      controlsColumn,
-    ] : [...parseColumns({
-      columns: rawColumns,
-      columnWidths,
-    })],
+    () =>
+      hasIdColumn
+        ? [
+            checkboxColumn,
+            ...parseColumns({
+              columns: rawColumns,
+              columnWidths,
+            }),
+            controlsColumn,
+          ]
+        : [
+            ...parseColumns({
+              columns: rawColumns,
+              columnWidths,
+            }),
+          ],
     [rawColumns]
   );
 
@@ -157,7 +165,12 @@ const TheTable = memo(() => {
                 return (
                   <div
                     {...column.getHeaderProps()}
-                    className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
+                    className={classNames(
+                      "relative flex h-full thtext-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none",
+                      {
+                        "pl-4": !isRecordSelectorColumn,
+                      }
+                    )}
                   >
                     {isRecordSelectorColumn && (
                       <div className="flex items-center justify-center h-4 py-4">

@@ -23,7 +23,7 @@ import {
   snakeCase,
   without,
 } from "lodash";
-import { getColumnNameLabel, getColumnOptions } from "@/features/fields";
+import { getColumnOptions } from "@/features/fields";
 import {
   useCreateColumnMutation,
   useDeleteColumnMutation,
@@ -33,6 +33,7 @@ import {
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
+import BackgroundColorOption from "@/features/fields/components/BackgroundColorOption";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import TableColumnsEditLayout from "@/features/data-sources/components/TableColumnsEditLayout";
@@ -360,13 +361,7 @@ function ColumnEdit() {
         {!isCreateField && localColumn && (
           <div className="w-full">
             <div className="flex justify-between">
-              <h3 className="uppercase text-md font-semibold">
-                {getColumnNameLabel(
-                  column?.baseOptions?.label,
-                  column?.label,
-                  column?.name
-                )}
-              </h3>
+              <h3 className="uppercase text-md font-semibold">Field options</h3>
               {isComputed && (
                 <Button
                   colorScheme="red"
@@ -413,6 +408,11 @@ function ColumnEdit() {
 
               <InspectorComponent
                 column={localColumn}
+                setColumnOptions={setColumnOptions}
+              />
+
+              <BackgroundColorOption
+                localColumn={localColumn}
                 setColumnOptions={setColumnOptions}
               />
 
