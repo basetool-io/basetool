@@ -23,6 +23,31 @@ const moduleExports = {
         destination: "/auth/register",
         permanent: true,
       },
+      {
+        source: "/chat",
+        destination: "https://discord.gg/rPT8aEWATp",
+        permanent: true,
+      },
+      {
+        source: "/community",
+        destination: "https://discord.gg/rPT8aEWATp",
+        permanent: true,
+      },
+      {
+        source: "/repo",
+        destination: "https://github.com/basetool-io/basetool",
+        permanent: true,
+      },
+      {
+        source: "/forum",
+        destination: "https://github.com/basetool-io/basetool/discussions",
+        permanent: true,
+      },
+      {
+        source: "/ideas",
+        destination: "https://github.com/basetool-io/basetool/discussions",
+        permanent: true,
+      },
     ];
   },
 };
