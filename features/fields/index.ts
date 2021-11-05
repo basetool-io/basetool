@@ -105,6 +105,7 @@ export const makeField = ({
 };
 
 export const iconForField = (field: Column): ElementType => {
+  // console.log('field->', field)
   if (field.primaryKey) return KeyIcon;
 
   switch (field.fieldType) {
@@ -179,7 +180,11 @@ export const getFilteredColumns = (
 ): Column[] => {
   if (isArray(columns)) {
     return (
-      columns
+      columns.filter((column:Column) => {
+        // console.log('column->', column)
+
+        return column;
+      })
         // Remove fields that should be hidden on index
         .filter((column: Column) =>
           column.baseOptions.visibility.includes(view)

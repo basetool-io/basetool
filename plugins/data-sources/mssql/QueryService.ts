@@ -46,7 +46,7 @@ class QueryService extends AbstractQueryService {
   public getFieldOptionsFromColumnInfo(
     column: ColumnWithBaseOptions
   ): QueryServiceFieldOptions {
-    const fieldOptions: Record<string, unknown> = {};
+    let fieldOptions: Record<string, unknown> = {};
     let fieldType: FieldType = "Text";
 
     const { name } = column;
@@ -80,6 +80,33 @@ class QueryService extends AbstractQueryService {
       case "timestamp":
       case "datetimeoffset":
         fieldType = "DateTime";
+
+        switch (column.dataSourceInfo.type) {
+          case "datetime":
+          case "timestamp":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: true,
+              showTime: true,
+            };
+            break;
+          case "time":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: false,
+              showTime: true,
+            };
+            break;
+          // case "year":
+          case "date":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: true,
+              showTime: false,
+            };
+            break;
+        }
+
         break;
 
       case "json":
