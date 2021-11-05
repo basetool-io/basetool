@@ -13,8 +13,8 @@ const IndexFieldWrapper = ({
   children: ReactNode;
   flush?: boolean;
 }) => {
-  const styles: any = {};
-  const classes: any = [];
+  const styles: Record<string, string> = {};
+  const classes: string[] = [];
 
   // Apply the background color if set
   if (field.column.baseOptions.backgroundColor) {
