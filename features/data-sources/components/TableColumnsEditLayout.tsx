@@ -5,7 +5,7 @@ import { INITIAL_NEW_COLUMN } from "..";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { PlusIcon, SelectorIcon } from "@heroicons/react/outline";
 import { getColumnNameLabel, iconForField } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, sortBy } from "lodash";
 import { useBoolean } from "react-use";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDrop } from "react-dnd";
@@ -81,18 +81,7 @@ const TableColumnsEditLayout = ({
   const [updateOrder, { isLoading: isUpdating }] =
     useUpdateColumnsOrderMutation();
 
-  const sortColumns = (columns: Column[]) => {
-    const newColumns: Column[] = [];
-    if (!isEmpty(columns))
-      columns.forEach((column: Column, index: number) => {
-        newColumns.push({
-          ...column,
-          baseOptions: { ...column.baseOptions, orderIndex: index },
-        });
-      });
-
-    return newColumns;
-  };
+  const sortColumns = (columns: Column[]) => sortBy(columns, [(column) => column.baseOptions?.orderIndex]);
 
   const findColumn = (id: number) => {
     const column = columns.filter(

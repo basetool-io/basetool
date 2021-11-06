@@ -17,6 +17,7 @@ import {
 } from "@/features/records/state-slice";
 import { iconForField, prettifyData } from "@/features/fields";
 import { parseColumns } from "..";
+import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
 import {
   useOrderRecords,
@@ -30,6 +31,26 @@ import MobileRow from "./MobileRow";
 import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
+
+const checkboxColumn = {
+  Header: "selector_column",
+  accessor: (row: any, i: number) => `selector_column_${i}`,
+  // eslint-disable-next-line react/display-name
+  Cell: (row: any) => <CheckboxColumnCell id={row?.row?.original?.id} />,
+  width: 50,
+  minWidth: 50,
+  maxWidth: 50,
+};
+
+const controlsColumn = {
+  Header: "controls_column",
+  accessor: (row: any, i: number) => `controls_column_${i}`,
+  // eslint-disable-next-line react/display-name
+  Cell: (row: any) => <ItemControlsCell row={row.row} />,
+  width: 104,
+  minWidth: 104,
+  maxWidth: 104,
+};
 
 const TheTable = memo(() => {
   const { isMd } = useResponsive();
@@ -47,49 +68,30 @@ const TheTable = memo(() => {
     [rawColumns]
   );
 
-  const checkboxColumn = {
-    Header: "selector_column",
-    accessor: (row: any, i: number) => `selector_column_${i}`,
-    // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <CheckboxColumnCell id={row?.row?.original?.id} />,
-    width: 50,
-    minWidth: 50,
-    maxWidth: 50,
-  };
-
-  const controlsColumn = {
-    Header: "controls_column",
-    accessor: (row: any, i: number) => `controls_column_${i}`,
-    // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <ItemControlsCell row={row.row} />,
-    width: 104,
-    minWidth: 104,
-    maxWidth: 104,
-  };
-
   const columnWidths = useAppSelector(columnWidthsSelector);
   // Process the records and columns to their final form.
   const records = useMemo(() => prettifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
-  const columns = useMemo(
-    () =>
-      hasIdColumn
-        ? [
-            checkboxColumn,
-            ...parseColumns({
-              columns: rawColumns,
-              columnWidths,
-            }),
-            controlsColumn,
-          ]
-        : [
-            ...parseColumns({
-              columns: rawColumns,
-              columnWidths,
-            }),
-          ],
-    [rawColumns]
-  );
+
+  const orderedColumns = useMemo(() => {
+    const result = parseColumns({
+      columns: rawColumns,
+      columnWidths,
+    });
+
+    return sortBy(result, [
+      (reactTableColumn: any) =>
+        reactTableColumn?.meta?.baseOptions?.orderIndex,
+    ]);
+  }, [rawColumns, columnWidths]);
+
+  const columns = useMemo(() => {
+    if (hasIdColumn) {
+      return [checkboxColumn, ...orderedColumns, controlsColumn];
+    } else {
+      return [...orderedColumns];
+    }
+  }, [rawColumns]);
 
   // Init table
   const {

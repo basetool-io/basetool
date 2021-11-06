@@ -37,6 +37,8 @@ export const recordsApiSlice = createApi({
         }) => {
           const queryParams = URI()
             .query({
+              dataSourceId,
+              tableName,
               filters,
               limit,
               offset,
@@ -46,7 +48,7 @@ export const recordsApiSlice = createApi({
             .query()
             .toString();
 
-          return `/data-sources/${dataSourceId}/tables/${tableName}/records?${queryParams}`;
+          return `/records?${queryParams}`;
         },
         providesTags: (response) => {
           // is result available?
