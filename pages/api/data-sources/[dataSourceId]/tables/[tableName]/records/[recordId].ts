@@ -2,6 +2,7 @@ import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import { getColumns } from "../columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { hydrateRecord } from "@/features/records"
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -61,11 +62,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   // Get columns and filter them based on visibility
   const columns = await getColumns({ dataSource, tableName });
 
-  const record = await service.runQuery("getRecord", {
+  let record = await service.runQuery("getRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
-    columns: columns,
   });
+
+  record = hydrateRecord(record, columns)
 
   res.json(ApiResponse.withData(record));
 }
