@@ -7,6 +7,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
+import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -88,6 +89,26 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     event: "Created record",
     properties: {
       id: dataSource.type,
+    },
+  });
+
+  // todo - find a way to pass viewId in the request
+  const activityData = {
+      recordId: data as string,
+      userId: user ? user.id : 0,
+      organizationId: dataSource ? dataSource.organizationId as number : 0,
+      tableName: req.query.tableName ? req.query.tableName as string : undefined,
+      dataSourceId: dataSource ? dataSource.id as number : undefined,
+      viewId: req.query.view ? parseInt(req.query.view as string) : undefined,
+      changes: {
+        action: 'createRecord',
+      }
+    }
+
+  const activity = await prisma.activity.create({
+    data: activityData,
+    select: {
+      id: true,
     },
   });
 
