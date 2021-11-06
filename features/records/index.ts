@@ -1,6 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
+import Handlebars from "handlebars"
 
 /**
  * This method will hydrate the record with the computed fields and remove the columns that were filtered out
