@@ -32,7 +32,6 @@ import { getBaseOptions } from "@/features/fields";
 import { getKnexClient } from "./getKnexClient";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
-import Handlebars from "handlebars";
 import logger from "@/lib/logger";
 import schemaInspector from "knex-schema-inspector";
 import type { Knex } from "knex";
