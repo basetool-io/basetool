@@ -1,6 +1,7 @@
 import { decodeObject } from "@/lib/encoding";
 import { getColumns } from "./columns";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { hydrateRecord } from "@/features/records"
 import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -38,7 +39,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName: req.query.tableName as string,
   });
 
-  const [records, count] = await service.runQueries([
+  const [records, count]: [unknown[], number] = await service.runQueries([
     {
       name: "getRecords",
       payload: {
@@ -62,7 +63,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   ]);
 
-  res.json(ApiResponse.withData(records, { meta: { count } }));
+  const newRecords = records.map((record) => hydrateRecord(record, columns));
+
+  res.json(ApiResponse.withData(newRecords, { meta: { count } }));
 }
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
