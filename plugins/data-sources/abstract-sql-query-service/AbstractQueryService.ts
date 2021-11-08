@@ -777,10 +777,15 @@ abstract class AbstractQueryService implements ISQLQueryService {
       })
     );
 
-    // todo - filter out fields that are unsupported
+    // Filter out fields that are unsupported.
+    const filteredColumns = this.filterOutColumns(columns);
 
     // @todo: fetch foreign keys before responding
-    return columns as [];
+    return filteredColumns as [];
+  }
+
+  filterOutColumns(columns: Column<SqlColumnOptions>[]) {
+    return columns;
   }
 
   private async computeValue(

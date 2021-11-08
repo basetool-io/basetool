@@ -1,6 +1,8 @@
+import { Column } from './../../../features/fields/types.d';
 import {
   ColumnWithBaseOptions,
   QueryServiceFieldOptions,
+  SqlColumnOptions,
 } from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { MysqlCredentials } from "../mysql/types";
@@ -41,6 +43,10 @@ class QueryService extends AbstractQueryService {
     });
 
     return client;
+  }
+
+  public filterOutColumns(columns: Column<SqlColumnOptions>[]) {
+    return columns.filter((column) => column?.dataSourceInfo?.type !== "timestamp");
   }
 
   public getFieldOptionsFromColumnInfo(
