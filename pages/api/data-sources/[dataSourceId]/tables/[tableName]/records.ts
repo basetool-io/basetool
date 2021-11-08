@@ -105,11 +105,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       }
     }
 
-  const activity = await prisma.activity.create({
-    data: activityData,
-    select: {
-      id: true,
-    },
+  await prisma.activity.create({
+    data: activityData
   });
 
   res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));
