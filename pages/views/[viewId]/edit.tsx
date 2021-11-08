@@ -59,7 +59,6 @@ const Edit = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
-  console.log("viewId->", viewId);
   const [localView, setLocalView] = useState<DecoratedView>();
   const activeColumn = useAppSelector(activeColumnSelector);
 

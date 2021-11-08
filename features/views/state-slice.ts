@@ -41,7 +41,6 @@ const viewsState = createSlice({
         (column) => column.name === columnName
         );
 
-      console.log('columnName, payload->', index, columnName, payload, ({...state.columns[index]}))
       if (index) {
         state.columns[index] = merge({...state.columns[index]}, payload);
       }
