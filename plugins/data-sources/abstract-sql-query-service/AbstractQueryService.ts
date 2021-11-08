@@ -777,6 +777,8 @@ abstract class AbstractQueryService implements ISQLQueryService {
       })
     );
 
+    // todo - filter out fields that are unsupported
+
     // @todo: fetch foreign keys before responding
     return columns as [];
   }
