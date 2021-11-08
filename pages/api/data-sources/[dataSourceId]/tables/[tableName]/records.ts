@@ -92,14 +92,14 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  // todo - find a way to pass viewId in the request
+  // todo - find a way to pass viewId in the request (Add action)
   const activityData = {
       recordId: data as string,
       userId: user ? user.id : 0,
       organizationId: dataSource ? dataSource.organizationId as number : 0,
       tableName: req.query.tableName ? req.query.tableName as string : undefined,
       dataSourceId: dataSource ? dataSource.id as number : undefined,
-      viewId: req.query.view ? parseInt(req.query.view as string) : undefined,
+      viewId: req.query.viewId ? parseInt(req.query.viewId as string) : undefined,
       changes: {
         action: 'createRecord',
       }
