@@ -6,7 +6,7 @@ import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
 import {
