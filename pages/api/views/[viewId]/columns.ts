@@ -1,7 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
 import { getViewFromRequest } from "@/features/api";
-import { isEmpty, isNull, isUndefined } from "lodash";
+import { get, isEmpty, isNull, isUndefined } from "lodash";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -9,6 +9,7 @@ import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { hydrateColumns } from "@/features/records"
 
 const handler = async (
   req: NextApiRequest,
@@ -49,7 +50,7 @@ export const getColumns = async ({
   dataSource: DataSource;
 }): Promise<Column[]> => {
   // If the data source has columns stored, send those in.
-  const storedColumns = view.columns;
+  const storedColumns = view.columns as Column[];
   // console.log("dataSource->", dataSource);
 
   const service = await getQueryService({
@@ -62,30 +63,7 @@ export const getColumns = async ({
     storedColumns,
   });
 
-  // Computed columns are bypassed in the database "getColumns", so we need to add them here.
-  if (!isEmpty(storedColumns) && !isNull(storedColumns)) {
-    const computedColumns = Object.values(storedColumns).filter(
-      (column: any) => column?.baseOptions?.computed === true
-    );
-    if (!isEmpty(computedColumns)) {
-      columns = columns.concat(computedColumns);
-    }
-  }
-
-  // Sort the columns by their orderIndex if columns has more than 1 element. If orderIndex has not been set, set it to 9999.
-  if (columns.length > 1)
-    columns.sort((a: Column, b: Column) => {
-      if (isUndefined(a.baseOptions.orderIndex))
-        a.baseOptions.orderIndex = 9999;
-      if (isUndefined(b.baseOptions.orderIndex))
-        b.baseOptions.orderIndex = 9999;
-
-      return a.baseOptions.orderIndex > b.baseOptions.orderIndex
-        ? 1
-        : b.baseOptions.orderIndex > a.baseOptions.orderIndex
-        ? -1
-        : 0;
-    });
+  columns = hydrateColumns(columns, storedColumns);
 
   return columns;
 };

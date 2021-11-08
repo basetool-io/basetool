@@ -7,7 +7,7 @@ import {
   Tooltip,
   useEditableControls,
 } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types"
+import { Column } from "@/features/fields/types";
 import { DecoratedView } from "@/features/views/types";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
