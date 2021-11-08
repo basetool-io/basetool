@@ -1,8 +1,9 @@
 import { Role as ACRole } from "@/features/roles/AccessControlService";
+import { Column } from "@/features/fields/types";
 import { OrganizationUser, Role, User } from "@prisma/client";
-import { getColumns } from "../columns";
+import { get } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { hydrateRecord } from "@/features/records"
+import { hydrateColumns, hydrateRecord } from "@/features/records";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -56,20 +57,39 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   if (!dataSource) return res.status(404).send("");
 
   const tableName = req.query.tableName as string;
+  const recordId = req.query.recordId as string;
 
   const service = await getQueryService({ dataSource });
 
-  // Get columns and filter them based on visibility
-  const columns = await getColumns({ dataSource, tableName });
+  // If the data source has columns stored, send those in.
+  const storedColumns = get(dataSource, [
+    "options",
+    "tables",
+    tableName,
+    "columns",
+  ]);
 
-  let record = await service.runQuery("getRecord", {
-    tableName: req.query.tableName as string,
-    recordId: req.query.recordId as string,
-  });
+  const [record, columns]: [any[], Column[]] = await service.runQueries([
+    {
+      name: "getRecord",
+      payload: {
+        tableName,
+        recordId,
+      },
+    },
+    {
+      name: "getColumns",
+      payload: {
+        tableName,
+        storedColumns,
+      },
+    },
+  ]);
 
-  record = hydrateRecord(record, columns)
+  const hydratedColumns = hydrateColumns(columns, storedColumns);
+  const newRecord = hydrateRecord(record, hydratedColumns);
 
-  res.json(ApiResponse.withData(record));
+  res.json(ApiResponse.withData(newRecord));
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {

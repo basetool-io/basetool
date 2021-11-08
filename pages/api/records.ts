@@ -1,8 +1,9 @@
+import { Column } from "@/features/fields/types";
 import { decodeObject } from "@/lib/encoding";
-import { getColumns } from "./columns";
+import { get } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { hydrateRecord } from "@/features/records"
-import { serverSegment } from "@/lib/track"
+import { hydrateColumns, hydrateRecord } from "@/features/records";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -29,41 +30,57 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
+  const tableName = req.query.tableName as string;
+
+  // If the data source has columns stored, send those in.
+  const storedColumns = get(dataSource, [
+    "options",
+    "tables",
+    tableName,
+    "columns",
+  ]);
+
   const service = await getQueryService({ dataSource });
 
   const filters = decodeObject(req.query.filters as string);
 
-  // Get columns and filter them based on visibility
-  const columns = await getColumns({
-    dataSource,
-    tableName: req.query.tableName as string,
-  });
-
-  const [records, count]: [unknown[], number] = await service.runQueries([
-    {
-      name: "getRecords",
-      payload: {
-        tableName: req.query.tableName as string,
-        filters,
-        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : null,
-        offset: req.query.offset
-          ? parseInt(req.query.offset as string, 10)
-          : null,
-        orderBy: req.query.orderBy as string,
-        orderDirection: req.query.orderDirection as string,
-        columns: columns,
+  const [records, columns, count]: [any[], Column[], number] =
+    await service.runQueries([
+      {
+        name: "getRecords",
+        payload: {
+          tableName: req.query.tableName as string,
+          filters,
+          limit: req.query.limit
+            ? parseInt(req.query.limit as string, 10)
+            : null,
+          offset: req.query.offset
+            ? parseInt(req.query.offset as string, 10)
+            : null,
+          orderBy: req.query.orderBy as string,
+          orderDirection: req.query.orderDirection as string,
+        },
       },
-    },
-    {
-      name: "getRecordsCount",
-      payload: {
-        tableName: req.query.tableName as string,
-        filters,
+      {
+        name: "getColumns",
+        payload: {
+          tableName,
+          storedColumns,
+        },
       },
-    },
-  ]);
+      {
+        name: "getRecordsCount",
+        payload: {
+          tableName: req.query.tableName as string,
+          filters,
+        },
+      },
+    ]);
 
-  const newRecords = records.map((record) => hydrateRecord(record, columns));
+  const hydratedColumns = hydrateColumns(columns, storedColumns);
+  const newRecords = records.map((record) =>
+    hydrateRecord(record, hydratedColumns)
+  );
 
   res.json(ApiResponse.withData(newRecords, { meta: { count } }));
 }
@@ -75,7 +92,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const user = await getUserFromRequest(req)
+  const user = await getUserFromRequest(req);
 
   const service = await getQueryService({ dataSource });
 

@@ -4,6 +4,7 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
+import { sortBy } from "lodash"
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -49,7 +50,10 @@ const ShowRecord = () => {
   );
 
   const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.show),
+    () =>
+      sortBy(getFilteredColumns(columnsResponse?.data, Views.show), [
+        (column: Column) => column?.baseOptions?.orderIndex,
+      ]),
     [columnsResponse?.data]
   );
 

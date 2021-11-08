@@ -1,6 +1,7 @@
+import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty } from "lodash";
+import { isEmpty, sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
@@ -12,7 +13,8 @@ import React, { memo, useEffect, useMemo } from "react";
 
 const EditRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, recordsPath } = useDataSourceContext();
+  const { dataSourceId, tableName, recordId, recordsPath } =
+    useDataSourceContext();
 
   const {
     data: recordResponse,
@@ -35,7 +37,10 @@ const EditRecord = () => {
   );
 
   const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.edit),
+    () =>
+      sortBy(getFilteredColumns(columnsResponse?.data, Views.edit), [
+        (column: Column) => column?.baseOptions?.orderIndex,
+      ]),
     [columnsResponse?.data]
   );
 

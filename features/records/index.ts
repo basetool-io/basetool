@@ -1,7 +1,8 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import Handlebars from "handlebars"
+import { isEmpty } from "lodash";
+import Handlebars from "handlebars";
 
 /**
  * This method will hydrate the record with the computed fields and remove the columns that were filtered out
@@ -48,4 +49,21 @@ const addComputedField = async (
       console.error("Couldn't parse value.", error);
     }
   }
+};
+
+export const hydrateColumns = (
+  columns: Column[],
+  storedColumns: Column[]
+): Column[] => {
+  // Computed columns are bypassed in the database "getColumns", so we need to add them here.
+  if (!isEmpty(storedColumns)) {
+    const computedColumns = Object.values(storedColumns).filter(
+      (column: any) => column?.baseOptions?.computed === true
+    );
+    if (!isEmpty(computedColumns)) {
+      columns = [...columns, ...(computedColumns as Column[])];
+    }
+  }
+
+  return columns;
 };
