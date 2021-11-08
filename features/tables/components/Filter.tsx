@@ -7,7 +7,7 @@ import {
   getDefaultFilterCondition,
 } from "..";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
-import { CalendarIcon, XIcon } from "@heroicons/react/outline";
+import { CalendarIcon, TrashIcon } from "@heroicons/react/outline";
 import { Column } from "@/features/fields/types";
 import { FilterConditions, IFilter, IFilterGroup } from "../types";
 import { isArray, isDate, isUndefined } from "lodash";
@@ -419,7 +419,7 @@ const Filter = ({
         </div>
         <Tooltip label="Remove filter">
           <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
-            <XIcon className="h-3 text-gray-700" />
+            <TrashIcon className="h-3 text-gray-700" />
           </Button>
         </Tooltip>
       </div>

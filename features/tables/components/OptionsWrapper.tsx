@@ -1,27 +1,40 @@
-import { ReactNode } from "react";
-import classNames from "classnames";
+import { FormControl, Tooltip } from "@chakra-ui/react";
+import { InformationCircleIcon } from "@heroicons/react/outline";
+import React, { ReactNode } from "react";
 
 const OptionWrapper = ({
   helpText,
+  label,
+  id,
   children,
   fullWidth = false,
 }: {
   helpText?: string | ReactNode;
+  label?: string;
+  id?: string;
   children: ReactNode;
   fullWidth?: boolean;
 }) => {
   return (
-    <div className="flex-1 flex space-x-8 py-4">
-      <div className={classNames({ "w-1/2": !fullWidth, "w-full": fullWidth })}>
-        {children}
-      </div>
-      {!fullWidth &&<div className="w-1/2 mt-6">
-        {helpText && (
-          <div className="text-sm text-blue-gray-500 whitespace-pre-line">
-            {helpText}
+    <div className="relative flex-1 flex flex-col space-y-4 px-4">
+      <FormControl id={id}>
+        <div className="relative flex justify-between">
+          <label
+            className="text-sm font-semibold text-true-gray-500 mb-2"
+            htmlFor={id}
+          >
+            {label}
+          </label>
+          <div className="block">
+            <Tooltip placement="top" label={helpText}>
+              <div>
+                <InformationCircleIcon className="block h-4" />
+              </div>
+            </Tooltip>
           </div>
-        )}
-      </div>}
+        </div>
+        <div>{children}</div>
+      </FormControl>
     </div>
   );
 };

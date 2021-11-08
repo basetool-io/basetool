@@ -65,6 +65,7 @@ module.exports = {
         "nw-resize": "nw-resize",
         "sw-resize": "sw-resize",
         "se-resize": "se-resize",
+        grab: "grab",
       },
       outline: {
         green: ["2px solid green", "1px"],

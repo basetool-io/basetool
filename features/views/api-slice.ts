@@ -7,7 +7,7 @@ export const viewsApiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["View"],
+  tagTypes: ["View", "ViewColumns"],
   endpoints(builder) {
     return {
       addView: builder.mutation<
@@ -21,22 +21,15 @@ export const viewsApiSlice = createApi({
           method: "POST",
           body,
         }),
-        invalidatesTags: [
-          { type: "View", id: "LIST" },
-        ],
+        invalidatesTags: [{ type: "View", id: "LIST" }],
       }),
       getViews: builder.query<ApiResponse, void>({
         query() {
           return `/views`;
         },
-        providesTags: [
-          { type: "View", id: "LIST" },
-        ],
+        providesTags: [{ type: "View", id: "LIST" }],
       }),
-      getView: builder.query<
-        ApiResponse,
-        Partial<{ viewId: string }>
-      >({
+      getView: builder.query<ApiResponse, Partial<{ viewId: string }>>({
         query({ viewId }) {
           return `/views/${viewId}`;
         },
@@ -44,10 +37,7 @@ export const viewsApiSlice = createApi({
           { type: "View", id: viewId },
         ],
       }),
-      removeView: builder.mutation<
-        ApiResponse,
-        Partial<{ viewId: string }>
-      >({
+      removeView: builder.mutation<ApiResponse, Partial<{ viewId: string }>>({
         query: ({ viewId }) => ({
           url: `${apiUrl}/views/${viewId}`,
           method: "DELETE",
@@ -74,8 +64,49 @@ export const viewsApiSlice = createApi({
           { type: "View", id: viewId },
         ],
       }),
+
+      /**
+       * Columns
+       */
+      getColumns: builder.query<
+        ApiResponse,
+        { viewId: string; }
+      >({
+        query({ viewId }) {
+          return `/views/${viewId}/columns`;
+        },
+        providesTags: (response, error, { viewId }) => [
+          { type: "ViewColumns", id: viewId },
+        ],
+      }),
+      updateColumn: builder.mutation<
+        ApiResponse,
+        Partial<{
+          viewId: string;
+          columnName: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ viewId, columnName, body }) => ({
+          url: `${apiUrl}/views/${viewId}/columns/${columnName}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "ViewColumns", id: viewId },
+        ],
+      }),
     };
   },
 });
 
-export const { useAddViewMutation, useGetViewsQuery, useGetViewQuery, useRemoveViewMutation, useUpdateViewMutation } = viewsApiSlice;
+export const {
+  useAddViewMutation,
+  useGetViewsQuery,
+  useGetViewQuery,
+  useRemoveViewMutation,
+  useUpdateViewMutation,
+
+  useGetColumnsQuery,
+  useUpdateColumnMutation,
+} = viewsApiSlice;

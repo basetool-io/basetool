@@ -10,6 +10,7 @@ import { tablesApiSlice } from "@/features/tables/api-slice";
 import { viewsApiSlice } from "@/features/views/api-slice";
 import appReducer from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
+import viewsReducer from "@/features/views/state-slice";
 
 /**
  * Show a toast.
@@ -34,10 +35,35 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
   return next(action);
 };
 
+/**
+ * Update
+ */
+export const viewsEditMiddleware: Middleware = () => (next) => (action) => {
+  // console.log('action->', action)
+  // Added for when fetching the data fails with 500
+  // if (action.type.includes("/rejected") && action?.payload?.status === 500) {
+  //   reactToError(action.payload.data);
+  // }
+
+  // if (action.type.includes("/fulfilled")) {
+  //   const requiredKeys = ["error", "messages", "ok", "status"];
+  //   const hasRequiredKeys = requiredKeys.every((key) =>
+  //     keys(action.payload).includes(key)
+  //   );
+
+  //   if (action.payload && hasRequiredKeys) {
+  //     reactToResponse(action.payload);
+  //   }
+  // }
+
+  return next(action);
+};
+
 const store = configureStore({
   reducer: {
     appState: appReducer,
     recordsState: recordsReducer,
+    viewsState: viewsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [organizationsApiSlice.reducerPath]: organizationsApiSlice.reducer,
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,
@@ -55,7 +81,8 @@ const store = configureStore({
       tablesApiSlice.middleware,
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
-      rtkQueryErrorLogger
+      rtkQueryErrorLogger,
+      viewsEditMiddleware
     ),
   devTools: process.env.NODE_ENV !== "production",
 });
