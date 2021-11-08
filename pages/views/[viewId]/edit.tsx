@@ -7,6 +7,7 @@ import {
   Tooltip,
   useEditableControls,
 } from "@chakra-ui/react";
+import { Column } from "@/features/fields/types"
 import { DecoratedView } from "@/features/views/types";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
@@ -91,12 +92,10 @@ const Edit = () => {
     },
     { skip: !viewId }
   );
-  console.log("columnsResponse->", columnsResponse);
 
   useEffect(() => {
-    console.log("columnsResponse?.data->", columnsResponse?.data);
     if (isArray(columnsResponse?.data)) {
-      dispatch(setColumns(columnsResponse?.data));
+      dispatch(setColumns(columnsResponse?.data as Column[]));
     }
   }, [columnsResponse?.data]);
 

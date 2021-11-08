@@ -8,6 +8,8 @@ import React from "react";
 function VisibilityOption() {
   const { column, columnOptions, setColumnOptions } = useUpdateColumn();
 
+  if (!column) return null;
+
   return (
     <OptionWrapper
       helpText="We try to infer the type of field from your data source.

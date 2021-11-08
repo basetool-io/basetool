@@ -24,10 +24,8 @@ export const useUpdateColumn = () => {
   const setColumnOptions = (
     columnName: string,
     payload: Record<string, unknown>
-    ) => {
-    const patch = dispatch(updateColumn({ columnName, payload }));
-    console.log('patch->', patch)
-    const result = updateColumnOnServer({
+  ) => {
+    updateColumnOnServer({
       viewId,
       columnName,
       body: payload,

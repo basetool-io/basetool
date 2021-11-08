@@ -1,5 +1,7 @@
+import { Column } from "../fields/types";
 import { apiUrl } from "@/features/api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { merge } from "lodash";
 import ApiResponse from "@/features/api/ApiResponse";
 
 export const viewsApiSlice = createApi({
@@ -68,10 +70,7 @@ export const viewsApiSlice = createApi({
       /**
        * Columns
        */
-      getColumns: builder.query<
-        ApiResponse,
-        { viewId: string; }
-      >({
+      getColumns: builder.query<ApiResponse, { viewId: string }>({
         query({ viewId }) {
           return `/views/${viewId}/columns`;
         },
@@ -95,6 +94,42 @@ export const viewsApiSlice = createApi({
         invalidatesTags: (result, error, { viewId }) => [
           { type: "ViewColumns", id: viewId },
         ],
+        /**
+         * Optimistic updates.
+         */
+        async onQueryStarted(
+          { viewId, columnName, ...patch },
+          { dispatch, queryFulfilled }
+        ) {
+          if (!viewId) return;
+
+          // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
+          const patchResult = dispatch(
+            viewsApiSlice.util.updateQueryData(
+              "getColumns",
+              { viewId },
+              (draft) => {
+                const index = draft.data.findIndex(
+                  (column: Column) => column.name === columnName
+                );
+                const newData = {
+                  ...draft,
+                };
+                // re-create the data to be updated
+                newData.data[index] = merge(draft.data[index], patch.body);
+
+                // Update the response from `getColumns` with the mock data
+                Object.assign(draft, newData);
+              }
+            )
+          );
+
+          try {
+            await queryFulfilled;
+          } catch {
+            patchResult.undo();
+          }
+        },
       }),
     };
   },

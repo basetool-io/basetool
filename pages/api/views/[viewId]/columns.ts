@@ -34,7 +34,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  if (!view) return res.status(404).send("");
+  if (!view || !dataSource) return res.status(404).send("");
 
   const columns = await getColumns({ view, dataSource });
 
@@ -61,7 +61,6 @@ export const getColumns = async ({
     tableName: view.tableName,
     storedColumns,
   });
-  console.log('storedColumns->', columns, storedColumns)
 
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns) && !isNull(storedColumns)) {
