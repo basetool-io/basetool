@@ -378,7 +378,7 @@ function ColumnEdit() {
             <div className="divide-y">
               <OptionWrapper
                 helpText="We try to infer the type of field from your data source.
-                Sometimes we might not get it right the first time. Choose the appropiate type of field
+                Sometimes we make mistakes. Choose the appropiate type of field
                 from these options"
               >
                 <FormControl id="fieldType">

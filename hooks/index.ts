@@ -127,7 +127,10 @@ export const useDataSourceContext = () => {
   const dataSourceId = useAppSelector(dataSourceIdSelector);
   const tableName = useAppSelector(tableNameSelector);
 
-  const viewId = router.query.viewId as string
+  const viewId = useMemo(
+    () => router.query.viewId as string,
+    [router.query.viewId]
+  );
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   useEffect(() => {

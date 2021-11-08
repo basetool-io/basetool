@@ -1,22 +1,33 @@
 import {
   Button,
   Checkbox,
+  Collapse,
   Editable,
   EditableInput,
   EditablePreview,
+  Select,
   Tooltip,
+  useDisclosure,
   useEditableControls,
 } from "@chakra-ui/react";
-import { DecoratedView } from "@/features/views/types";
-import { IFilter, IFilterGroup } from "@/features/tables/types";
-import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  PencilAltIcon,
+  PlusCircleIcon,
+  TrashIcon,
+  XIcon,
+} from "@heroicons/react/outline";
+import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { Save } from "react-feather";
-import { activeColumnSelector } from "@/features/views/state-slice";
-import { isArray, isEmpty, isUndefined, pick } from "lodash";
-import { setColumns } from "@/features/views/state-slice";
-import { useAppDispatch, useAppSelector, useDataSourceContext } from "@/hooks";
+import { View } from "@prisma/client";
+import { Views } from "@/features/fields/enums";
+import { getFilteredColumns } from "@/features/fields";
+import { isEmpty, isUndefined, pick } from "lodash";
+import { useBoolean, useClickAway } from "react-use";
+import { useDataSourceContext } from "@/hooks";
 import { useFilters, useOrderRecords } from "@/features/records/hooks";
-import { useGetColumnsQuery } from "@/features/views/api-slice";
+import { useGetColumnsQuery } from "@/features/tables/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,
@@ -25,16 +36,28 @@ import {
 } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
-import ColumnsConfigurator from "@/features/views/components/ColumnsConfigurator";
-import DefaultOrderConfigurator from "@/features/views/components/DefaultOrderConfigurator";
-import FieldTypeOption from "@/features/views/components/FieldTypeOption";
-import FiltersConfigurator from "@/features/views/components/FiltersConfigurator";
+import CompactFiltersView from "@/features/views/components/CompactFiltersView";
+import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import TinyLabel from "@/components/TinyLabel";
-import VisibilityOption from "@/features/views/components/VisibilityOption";
+
+const OrderDirections = [
+  {
+    value: "asc",
+    label: "Ascending A→Z 1→9",
+  },
+  {
+    value: "desc",
+    label: "Descending Z→A 9→1",
+  },
+];
+
+type DecoratedView = View & {
+  defaultOrder: { columnName?: string; direction?: OrderDirection };
+};
 
 const NameEditButton = () => {
   const { isEditing, getEditButtonProps } = useEditableControls();
@@ -56,11 +79,8 @@ const NameEditButton = () => {
 
 const Edit = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const { viewId, dataSourceId, tableName } = useDataSourceContext();
-  console.log("viewId->", viewId);
   const [localView, setLocalView] = useState<DecoratedView>();
-  const activeColumn = useAppSelector(activeColumnSelector);
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -85,28 +105,13 @@ const Edit = () => {
   );
   const { setOrderBy, setOrderDirection } = useOrderRecords();
 
-  const { data: columnsResponse } = useGetColumnsQuery(
-    {
-      viewId,
-    },
-    { skip: !viewId }
-  );
-  console.log("columnsResponse->", columnsResponse);
-
-  useEffect(() => {
-    console.log("columnsResponse?.data->", columnsResponse?.data);
-    if (isArray(columnsResponse?.data)) {
-      dispatch(setColumns(columnsResponse?.data));
-    }
-  }, [columnsResponse?.data]);
-
   const setViewData = () => {
     if (viewResponse?.ok) {
       setLocalView(viewResponse.data);
 
       if (viewResponse.data.filters) {
         setFilters(viewResponse.data.filters);
-        setAppliedFilters(viewResponse.data.filters);
+        setAppliedFilters(viewResponse.data.filters)
       }
 
       // We have to check whether there is a default order on the view and the order from the query to be empty.
@@ -166,6 +171,52 @@ const Edit = () => {
     }).unwrap();
   };
 
+  const { data: columnsResponse } = useGetColumnsQuery(
+    {
+      dataSourceId,
+      tableName,
+    },
+    {
+      skip: !dataSourceId || !tableName,
+    }
+  );
+
+  const columns = useMemo(
+    () => getFilteredColumns(columnsResponse?.data, Views.index),
+    [columnsResponse?.data]
+  );
+
+  const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
+  const filtersButton = useRef(null);
+  const filtersPanel = useRef(null);
+  useClickAway(filtersPanel, (e) => {
+    // When a user click the filters button to close the filters panel, the button is still outside,
+    // so the action triggers twice closing and opening the filters panel.
+    if (e.target !== filtersButton.current) {
+      toggleFiltersPanelVisible(false);
+    }
+  });
+
+  const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
+    defaultIsOpen: true,
+  });
+
+  const defaultOrder = useMemo(() => {
+    if (isEmpty(columns)) return {};
+
+    return {
+      columnName: columns[0].name,
+      direction: "asc",
+    };
+  }, [columns]);
+
+  useEffect(() => {
+    setOrderBy(localView?.defaultOrder?.columnName || "");
+    setOrderDirection(
+      (localView?.defaultOrder?.direction as OrderDirection) || ""
+    );
+  }, [localView?.defaultOrder]);
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -198,7 +249,7 @@ const Edit = () => {
             </Button>
           ),
         }}
-        buttons={viewId && <BackButton href={backLink}>Back</BackButton>}
+        buttons={<BackButton href={backLink}>Back</BackButton>}
         flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
@@ -264,25 +315,132 @@ const Edit = () => {
                   </div>
                 </div>
 
-                <FiltersConfigurator view={localView} setView={setLocalView} />
-                <DefaultOrderConfigurator
-                  view={localView}
-                  setView={setLocalView}
-                />
-                <ColumnsConfigurator view={localView} setView={setLocalView} />
+                <div>
+                  <div className="relative flex justify-between w-full">
+                    <div
+                      className="w-full cursor-pointer "
+                      onClick={toggleFiltersOpen}
+                    >
+                      <TinyLabel>Base filters</TinyLabel>{" "}
+                      {isFiltersOpen ? (
+                        <ChevronDownIcon className="h-3 inline" />
+                      ) : (
+                        <ChevronLeftIcon className="h-3 inline" />
+                      )}
+                    </div>
+                    <Tooltip label="Edit filters">
+                      <div
+                        className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+                        onClick={() => toggleFiltersPanelVisible()}
+                        ref={filtersButton}
+                      >
+                        <PencilAltIcon className="h-4 inline mr-px" /> Edit
+                      </div>
+                    </Tooltip>
+                    {filtersPanelVisible && (
+                      <div className="absolute left-auto right-0 -top-8">
+                        <FiltersPanel ref={filtersPanel} />
+                      </div>
+                    )}
+                  </div>
+                  <Collapse in={isFiltersOpen}>
+                    <CompactFiltersView filters={appliedFilters} />
+                  </Collapse>
+                </div>
+
+                <div>
+                  <div className="relative flex w-full justify-between items-center">
+                    <TinyLabel>Default order</TinyLabel>
+                    <div>
+                      {isEmpty(localView?.defaultOrder) && (
+                        <Tooltip label="Add order rule">
+                          <div
+                            className="flex justify-center items-center mx-1 text-xs cursor-pointer"
+                            onClick={() =>
+                              setLocalView({
+                                ...localView,
+                                defaultOrder: defaultOrder as any,
+                              })
+                            }
+                          >
+                            <PlusCircleIcon className="h-4 inline mr-px" /> Add
+                          </div>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    {isEmpty(localView?.defaultOrder) && (
+                      <div className="text-sm text-gray-600">
+                        No default order applied to this view
+                      </div>
+                    )}
+                    {isEmpty(localView?.defaultOrder) || (
+                      <div className="flex w-full space-x-2">
+                        <Select
+                          size="xs"
+                          className="font-mono"
+                          value={(localView?.defaultOrder as any)?.columnName}
+                          onChange={(e) =>
+                            setLocalView({
+                              ...localView,
+                              defaultOrder: {
+                                ...(localView.defaultOrder as any),
+                                columnName: e.currentTarget.value,
+                              },
+                            })
+                          }
+                        >
+                          {columns &&
+                            columns.map((column, idx) => (
+                              <option key={idx} value={column.name}>
+                                {column.label}
+                              </option>
+                            ))}
+                        </Select>
+                        <Select
+                          size="xs"
+                          className="font-mono"
+                          value={(localView?.defaultOrder as any)?.direction}
+                          onChange={(e) =>
+                            setLocalView({
+                              ...localView,
+                              defaultOrder: {
+                                ...(localView.defaultOrder as any),
+                                direction: e.currentTarget.value,
+                              },
+                            })
+                          }
+                        >
+                          {OrderDirections.map((order, idx) => (
+                            <option key={idx} value={order.value}>
+                              {order.label}
+                            </option>
+                          ))}
+                        </Select>
+                        <Tooltip label="Remove order rule">
+                          <Button
+                            size="xs"
+                            variant="link"
+                            onClick={() =>
+                              setLocalView({
+                                ...localView,
+                                defaultOrder: {},
+                              })
+                            }
+                          >
+                            <XIcon className="h-3 text-gray-700" />
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            {activeColumn && (
-              <div className="block space-y-4 py-4 w-1/3">
-                <FieldTypeOption />
-                <VisibilityOption />
-              </div>
-            )}
-            <div className="flex-1 flex overflow-auto">
-              {dataSourceId && <RecordsTable />}
-            </div>
+            {dataSourceId && <RecordsTable />}
           </div>
         </div>
       </PageWrapper>

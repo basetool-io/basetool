@@ -9,7 +9,7 @@ import {
   useResetState,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/views/api-slice";
+import { useGetColumnsQuery } from "../api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
@@ -61,11 +61,13 @@ const RecordsTable = () => {
 
   const { data: columnsResponse } = useGetColumnsQuery(
     {
-      viewId,
+      dataSourceId,
+      tableName,
     },
     {
       skip:
-        !viewId ||
+        !dataSourceId ||
+        !tableName ||
         !dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest,
     }
   );

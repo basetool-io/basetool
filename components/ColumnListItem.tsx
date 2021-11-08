@@ -1,7 +1,6 @@
-import { EyeOffIcon } from "@heroicons/react/outline";
+import { EyeOffIcon, MenuIcon } from "@heroicons/react/outline";
 import { isUndefined } from "lodash";
 import { useDrag, useDrop } from "react-dnd";
-import DragIcon from "./DragIcon"
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
@@ -90,7 +89,7 @@ const ColumnListItem = ({
         </span>
         {reordering && (
           <span ref={(node) => drag(drop(node))}>
-            <DragIcon />
+            <MenuIcon className="h-4 text-gray-300 hover:text-gray-500 cursor-move" />
           </span>
         )}
       </div>
