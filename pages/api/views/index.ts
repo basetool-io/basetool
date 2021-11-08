@@ -73,42 +73,45 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       id: true,
       organizations: {
         include: {
-          organization: true,
+          organization: {
+            include: {
+              views: {
+                select: {
+                  id: true,
+                  name: true,
+                  public: true,
+                  createdBy: true,
+                  organizationId: true,
+                  dataSourceId: true,
+                  tableName: true,
+                  filters: true,
+                },
+                orderBy: [
+                  {
+                    createdAt: "desc",
+                  },
+                ],
+              },
+            },
+          },
         },
       },
     },
   })) as User & {
-    organizations: OrganizationUser[];
+    organizations: Array<
+      OrganizationUser & {
+        organization: Organization & {
+          views: View[];
+        };
+      }
+    >;
   };
 
-  const organizationIds = user.organizations.map(
-    ({ organizationId }) => organizationId
+  const views = flatten(
+    get(user, ["organizations"])
+      .map((orgUser) => orgUser?.organization)
+      .map((org) => org?.views)
   );
-
-  if (!user) return res.status(404).send("");
-
-  const views = await prisma.view.findMany({
-    where: {
-      organizationId: {
-        in: organizationIds,
-      },
-    },
-    orderBy: [
-      {
-        createdAt: "asc",
-      },
-    ],
-    select: {
-      id: true,
-      name: true,
-      public: true,
-      createdBy: true,
-      organizationId: true,
-      dataSourceId: true,
-      tableName: true,
-      filters: true,
-    },
-  });
 
   res.json(ApiResponse.withData(views));
 }
