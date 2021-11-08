@@ -56,7 +56,7 @@ const RecordsTable = () => {
       // startingAfter: router.query.startingAfter as string,
       // endingBefore: router.query.endingBefore as string,
     },
-    { skip: !dataSourceId }
+    { skip: !dataSourceId || !tableName }
   );
 
   const { data: columnsResponse } = useGetColumnsQuery(
