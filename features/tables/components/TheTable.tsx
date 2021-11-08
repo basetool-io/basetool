@@ -17,6 +17,7 @@ import {
 } from "@/features/records/state-slice";
 import { iconForField, prettifyData } from "@/features/fields";
 import { parseColumns } from "..";
+import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
 import {
   useOrderRecords,
@@ -31,6 +32,26 @@ import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
 
+const checkboxColumn = {
+  Header: "selector_column",
+  accessor: (row: any, i: number) => `selector_column_${i}`,
+  // eslint-disable-next-line react/display-name
+  Cell: (row: any) => <CheckboxColumnCell id={row?.row?.original?.id} />,
+  width: 50,
+  minWidth: 50,
+  maxWidth: 50,
+};
+
+const controlsColumn = {
+  Header: "controls_column",
+  accessor: (row: any, i: number) => `controls_column_${i}`,
+  // eslint-disable-next-line react/display-name
+  Cell: (row: any) => <ItemControlsCell row={row.row} />,
+  width: 104,
+  minWidth: 104,
+  maxWidth: 104,
+};
+
 const TheTable = memo(() => {
   const { isMd } = useResponsive();
   const { dataSourceId, tableName } = useDataSourceContext();
@@ -42,46 +63,35 @@ const TheTable = memo(() => {
   const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
-  const hasIdColumn = useMemo(() => rawColumns.find((col) => col.name === "id"), [rawColumns])
-
-  const checkboxColumn = {
-    Header: "selector_column",
-    accessor: (row: any, i: number) => `selector_column_${i}`,
-    // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <CheckboxColumnCell id={row?.row?.original?.id} />,
-    width: 50,
-    minWidth: 50,
-    maxWidth: 50,
-  };
-
-  const controlsColumn = {
-    Header: "controls_column",
-    accessor: (row: any, i: number) => `controls_column_${i}`,
-    // eslint-disable-next-line react/display-name
-    Cell: (row: any) => <ItemControlsCell row={row.row} />,
-    width: 104,
-    minWidth: 104,
-    maxWidth: 104,
-  };
+  const hasIdColumn = useMemo(
+    () => rawColumns.find((col) => col.name === "id"),
+    [rawColumns]
+  );
 
   const columnWidths = useAppSelector(columnWidthsSelector);
   // Process the records and columns to their final form.
   const records = useMemo(() => prettifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
-  const columns = useMemo(
-    () => hasIdColumn ? [
-      checkboxColumn,
-      ...parseColumns({
-        columns: rawColumns,
-        columnWidths,
-      }),
-      controlsColumn,
-    ] : [...parseColumns({
+
+  const orderedColumns = useMemo(() => {
+    const result = parseColumns({
       columns: rawColumns,
       columnWidths,
-    })],
-    [rawColumns]
-  );
+    });
+
+    return sortBy(result, [
+      (reactTableColumn: any) =>
+        reactTableColumn?.meta?.baseOptions?.orderIndex,
+    ]);
+  }, [rawColumns, columnWidths]);
+
+  const columns = useMemo(() => {
+    if (hasIdColumn) {
+      return [checkboxColumn, ...orderedColumns, controlsColumn];
+    } else {
+      return [...orderedColumns];
+    }
+  }, [rawColumns]);
 
   // Init table
   const {
@@ -157,7 +167,12 @@ const TheTable = memo(() => {
                 return (
                   <div
                     {...column.getHeaderProps()}
-                    className="relative flex h-full th px-6 text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none"
+                    className={classNames(
+                      "relative flex h-full thtext-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none",
+                      {
+                        "pl-4": !isRecordSelectorColumn,
+                      }
+                    )}
                   >
                     {isRecordSelectorColumn && (
                       <div className="flex items-center justify-center h-4 py-4">

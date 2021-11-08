@@ -27,13 +27,11 @@ import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { MysqlCredentials } from "../mysql/types";
 import { PgCredentials } from "../postgresql/types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
-import { Views } from "@/features/fields/enums";
 import { decrypt } from "@/lib/crypto";
-import { getBaseOptions, getFilteredColumns } from "@/features/fields";
+import { getBaseOptions } from "@/features/fields";
 import { getKnexClient } from "./getKnexClient";
 import { humanize } from "@/lib/humanize";
 import { isNumber, isUndefined } from "lodash";
-import Handlebars from "handlebars";
 import logger from "@/lib/logger";
 import schemaInspector from "knex-schema-inspector";
 import type { Knex } from "knex";
@@ -102,7 +100,7 @@ const getValue = (filter: IFilter) => {
     case SelectFilterConditions.is_not:
     default:
       return filter.value || getDefaultFilterValue(filter);
-    }
+  }
 };
 
 const getDefaultFilterValue = (filter: IFilter) => {
@@ -151,7 +149,10 @@ const addFilterGroupToQuery = (
   }
 };
 
-const getDateRange = (filterOption: string, filterValue: string | undefined) => {
+const getDateRange = (
+  filterOption: string,
+  filterValue: string | undefined
+) => {
   let today = new Date();
   let from, to;
   switch (filterOption) {
@@ -464,6 +465,26 @@ abstract class AbstractQueryService implements ISQLQueryService {
     return this;
   }
 
+  public async getRecord({
+    tableName,
+    recordId,
+  }: {
+    tableName: string;
+    recordId: string;
+  }): Promise<Record<string, unknown> | undefined> {
+    const pk = await this.getPrimaryKeyColumn({ tableName });
+
+    if (!pk)
+      throw new Error(`Can't find a primary key for table ${tableName}.`);
+
+    const rows = await this.client
+      .select()
+      .where(pk, recordId)
+      .table(tableName);
+
+    return rows[0]
+  }
+
   public async getRecords({
     tableName,
     limit,
@@ -471,7 +492,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
     filters,
     orderBy,
     orderDirection,
-    columns,
   }: {
     tableName: string;
     filters: Array<IFilter | IFilterGroup>;
@@ -479,7 +499,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-    columns: Column[];
   }): Promise<[]> {
     const query = this.client.table(tableName);
 
@@ -495,30 +514,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    const records = await query;
-
-    const computedColumns = columns.filter(
-      (column: Column) => column?.baseOptions?.computed === true
-    );
-
-    computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn?.baseOptions?.computedSource;
-      records.forEach((record: any) => {
-        this.computeValue(record, editorData, computedColumn.name);
-      });
-    });
-
-    const filteredColumns = getFilteredColumns(columns, Views.show).map(
-      ({ name }) => name
-    );
-
-    records.forEach((record, index, array) => {
-      array[index] = Object.fromEntries(
-        Object.entries(record).filter(([key]) => filteredColumns.includes(key))
-      );
-    });
-
-    return records as unknown as [];
+    return await query as [];
   }
 
   public async getRecordsCount({
@@ -535,43 +531,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
     const [{ count }] = await query.count("*", { as: "count" });
 
     return parseInt(count as string, 10);
-  }
-
-  public async getRecord({
-    tableName,
-    recordId,
-    columns,
-  }: {
-    tableName: string;
-    recordId: string;
-    columns: Column[];
-  }): Promise<Record<string, unknown> | undefined> {
-    const pk = await this.getPrimaryKeyColumn({ tableName });
-
-    if (!pk)
-      throw new Error(`Can't find a primary key for table ${tableName}.`);
-
-    const rows = await this.client
-      .select()
-      .where(pk, recordId)
-      .table(tableName);
-
-    const computedColumns = columns.filter(
-      (column: Column) => column?.baseOptions?.computed === true
-    );
-
-    computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn?.baseOptions?.computedSource;
-      this.computeValue(rows[0], editorData, computedColumn.name);
-    });
-
-    const filteredColumns = getFilteredColumns(columns, Views.show).map(
-      ({ name }) => name
-    );
-
-    return Object.fromEntries(
-      Object.entries(rows[0]).filter(([key]) => filteredColumns.includes(key))
-    );
   }
 
   public async createRecord({
@@ -779,24 +738,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
 
     // @todo: fetch foreign keys before responding
     return columns as [];
-  }
-
-  private async computeValue(
-    record: any,
-    editorData: string,
-    computedName: string
-  ) {
-    const queryableData = { record };
-    if (editorData) {
-      try {
-        const template = Handlebars.compile(editorData);
-        const value = template(queryableData);
-
-        record[computedName] = value;
-      } catch (error) {
-        console.error("Couldn't parse value.", error);
-      }
-    }
   }
 
   private async getPrimaryKeyColumn({

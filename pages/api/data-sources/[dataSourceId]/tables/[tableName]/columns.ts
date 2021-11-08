@@ -1,7 +1,8 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { get, isEmpty, isUndefined, merge } from "lodash";
+import { get, merge } from "lodash";
 import { getDataSourceFromRequest } from "@/features/api";
+import { hydrateColumns } from "@/features/records"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -44,6 +45,11 @@ export const getColumns = async ({
   dataSource: DataSource;
   tableName: string;
 }): Promise<Column[]> => {
+  const service = await getQueryService({
+    dataSource,
+    options: { cache: false },
+  });
+
   // If the data source has columns stored, send those in.
   const storedColumns = get(dataSource, [
     "options",
@@ -52,40 +58,12 @@ export const getColumns = async ({
     "columns",
   ]);
 
-  const service = await getQueryService({
-    dataSource,
-    options: { cache: false },
-  });
-
   let columns = await service.runQuery("getColumns", {
     tableName: tableName as string,
     storedColumns,
   });
 
-  // Computed columns are bypassed in the database "getColumns", so we need to add them here.
-  if (!isEmpty(storedColumns)) {
-    const computedColumns = Object.values(storedColumns).filter(
-      (column: any) => column?.baseOptions?.computed === true
-    );
-    if (!isEmpty(computedColumns)) {
-      columns = columns.concat(computedColumns);
-    }
-  }
-
-  // Sort the columns by their orderIndex if columns has more than 1 element. If orderIndex has not been set, set it to 9999.
-  if (columns.length > 1)
-    columns.sort((a: Column, b: Column) => {
-      if (isUndefined(a.baseOptions.orderIndex))
-        a.baseOptions.orderIndex = 9999;
-      if (isUndefined(b.baseOptions.orderIndex))
-        b.baseOptions.orderIndex = 9999;
-
-      return a.baseOptions.orderIndex > b.baseOptions.orderIndex
-        ? 1
-        : b.baseOptions.orderIndex > a.baseOptions.orderIndex
-        ? -1
-        : 0;
-    });
+  columns = hydrateColumns(columns, storedColumns);
 
   return columns;
 };

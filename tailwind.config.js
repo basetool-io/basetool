@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable global-require */
 const colors = require("tailwindcss/colors");
+const { bgColors } = require("./lib/colors");
+
+const whitelistedBgColors = bgColors.map((c) => `bg-${c}-200`);
 
 module.exports = {
-  purge: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./features/**/components/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    // './src/widgets/**/*.{js,ts,jsx,tsx}',
-    "./plugins/data-sources/**/*.{js,ts,jsx,tsx}",
-    "./plugins/fields/**/*.{js,ts,jsx,tsx}",
-    "./lib/**/*.css",
-  ],
+  purge: {
+    enabled: true,
+    safelist: [...whitelistedBgColors],
+    content: [
+      "./pages/**/*.{js,ts,jsx,tsx}",
+      "./features/**/components/**/*.{js,ts,jsx,tsx}",
+      "./components/**/*.{js,ts,jsx,tsx}",
+      // './src/widgets/**/*.{js,ts,jsx,tsx}',
+      "./plugins/data-sources/**/*.{js,ts,jsx,tsx}",
+      "./plugins/fields/**/*.{js,ts,jsx,tsx}",
+      "./lib/**/*.css",
+    ],
+  },
   mode: "jit",
   darkMode: false, // or 'media' or 'class'
   theme: {
@@ -22,29 +29,30 @@ module.exports = {
       colors: {
         "blue-gray": colors.blueGray,
         "true-gray": colors.trueGray,
+        orange: colors.orange,
         // "cool-gray": colors.coolGray,
         "warm-gray": colors.warmGray,
         "cool-gray": {
           DEFAULT: "#2776EA",
-          "50": "#108105100",
-          "100": "#f1f6fe",
-          "200": "#bed5f9",
-          "300": "#8bb5f4",
-          "400": "#5894ef",
-          "500": "#2976ea",
-          "600": "#135cc8",
-          "700": "#0e4495",
-          "800": "#092d62",
-          "900": "#05152e"
+          50: "#108105100",
+          100: "#f1f6fe",
+          200: "#bed5f9",
+          300: "#8bb5f4",
+          400: "#5894ef",
+          500: "#2976ea",
+          600: "#135cc8",
+          700: "#0e4495",
+          800: "#092d62",
+          900: "#05152e",
         },
         sky: colors.sky,
         teal: colors.teal,
         amber: colors.amber,
-        "blue": {
-          "600": "#2776EA",
+        blue: {
+          600: "#2776EA",
         },
-        'tech-blue': '#2776EA',
-        'palatinate-blue': '#3A1EF6',
+        "tech-blue": "#2776EA",
+        "palatinate-blue": "#3A1EF6",
       },
       flex: {
         2: "2 1 0",

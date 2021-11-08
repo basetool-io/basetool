@@ -166,6 +166,7 @@ export const getBaseOptions = () => ({
   defaultValue: "",
   computed: false,
   computedSource: "",
+  backgroundColor: "",
 });
 
 export const getColumnNameLabel = (...args: any[]) => {
