@@ -56,6 +56,7 @@ class QueryService extends AbstractQueryService {
     let fieldType: FieldType = "Text";
 
     const { name } = column;
+
     switch (column.dataSourceInfo.type) {
       case "char":
       case "varchar":
@@ -67,6 +68,7 @@ class QueryService extends AbstractQueryService {
       case "text":
       case "nchar":
       case "nvarchar":
+      case "xml":
         fieldType = "Textarea";
         break;
 
