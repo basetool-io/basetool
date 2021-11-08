@@ -112,7 +112,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  // todo - find a way to pass viewId in the request (Add action)
+  // todo - find a way to pass viewId in the request
   const activityData = {
       recordId: data as string,
       userId: user ? user.id : 0,
@@ -120,9 +120,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       tableName: req.query.tableName ? req.query.tableName as string : undefined,
       dataSourceId: dataSource ? dataSource.id as number : undefined,
       viewId: req.query.viewId ? parseInt(req.query.viewId as string) : undefined,
-      changes: {
-        action: 'createRecord',
-      }
+      action: 'create',
+      changes: {}
     }
 
   await prisma.activity.create({
