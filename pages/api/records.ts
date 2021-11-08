@@ -1,9 +1,8 @@
 import { Column } from "@/features/fields/types";
 import { decodeObject } from "@/lib/encoding";
 import { get } from "lodash";
-import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { getDataSourceFromRequest } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
-import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -18,8 +17,6 @@ const handler = async (
   switch (req.method) {
     case "GET":
       return handleGET(req, res);
-    case "POST":
-      return handlePOST(req, res);
     default:
       return res.status(404).send("");
   }
@@ -83,35 +80,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   );
 
   res.json(ApiResponse.withData(newRecords, { meta: { count } }));
-}
-
-async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  if (!req?.body?.record || Object.keys(req.body.record).length === 0)
-    return res.send(ApiResponse.withError("No record sent."));
-  const dataSource = await getDataSourceFromRequest(req);
-
-  if (!dataSource) return res.status(404).send("");
-
-  const user = await getUserFromRequest(req);
-
-  const service = await getQueryService({ dataSource });
-
-  const { record } = req.body;
-
-  const data = await service.runQuery("createRecord", {
-    tableName: req.query.tableName as string,
-    data: record,
-  });
-
-  serverSegment().track({
-    userId: user ? user.id : "",
-    event: "Created record",
-    properties: {
-      id: dataSource.type,
-    },
-  });
-
-  res.json(ApiResponse.withData({ id: data }, { message: "Record added" }));
 }
 
 export default withMiddlewares(handler, {
