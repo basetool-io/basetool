@@ -20,6 +20,7 @@ model Organization {
   dataSources DataSource[]
   roles       Role[]
   views       View[]
+  activities  Activity[]
 
   @@index([slug])
 }
@@ -62,6 +63,7 @@ model DataSource {
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   views                   View[]
+  activities              Activity[]
 
   @@index([organizationId])
 }
@@ -108,6 +110,7 @@ model User {
   accounts       Account[]
   sessions       Session[]
   views          View[]
+  activities     Activity[]
 }
 
 model VerificationRequest {
@@ -149,8 +152,31 @@ model View {
   defaultOrder   Json?        @default("{}")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  activities     Activity[]
 
   @@index([createdBy])
   @@index([organizationId])
   @@index([dataSourceId])
+}
+
+model Activity {
+  id             Int          @id @default(autoincrement())
+  recordId       String?      @db.VarChar(255)
+  tableName      String?      @db.VarChar(255)
+  dataSource     DataSource?  @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  dataSourceId   Int?
+  view           View?        @relation(references: [id], fields: [viewId], onDelete: Cascade)
+  viewId         Int?
+  user           User         @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId         Int
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+  organizationId Int
+  action         String       @db.VarChar(255)
+  changes        Json?        @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([dataSourceId])
+  @@index([viewId])
+  @@index([userId])
+  @@index([organizationId])
 }
