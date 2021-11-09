@@ -177,5 +177,6 @@ model Activity {
 
   @@index([dataSourceId])
   @@index([viewId])
+  @@index([userId])
   @@index([organizationId])
 }
