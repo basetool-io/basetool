@@ -35,30 +35,6 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
   return next(action);
 };
 
-/**
- * Update
- */
-export const viewsEditMiddleware: Middleware = () => (next) => (action) => {
-  // console.log('action->', action)
-  // Added for when fetching the data fails with 500
-  // if (action.type.includes("/rejected") && action?.payload?.status === 500) {
-  //   reactToError(action.payload.data);
-  // }
-
-  // if (action.type.includes("/fulfilled")) {
-  //   const requiredKeys = ["error", "messages", "ok", "status"];
-  //   const hasRequiredKeys = requiredKeys.every((key) =>
-  //     keys(action.payload).includes(key)
-  //   );
-
-  //   if (action.payload && hasRequiredKeys) {
-  //     reactToResponse(action.payload);
-  //   }
-  // }
-
-  return next(action);
-};
-
 const store = configureStore({
   reducer: {
     appState: appReducer,
@@ -81,8 +57,7 @@ const store = configureStore({
       tablesApiSlice.middleware,
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
-      rtkQueryErrorLogger,
-      viewsEditMiddleware
+      rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",
 });
