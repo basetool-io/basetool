@@ -25,6 +25,7 @@ import { useCreateColumnMutation } from "@/features/views/api-slice";
 import { useDataSourceContext } from "@/hooks";
 import DragIcon from "@/components/DragIcon";
 import React, { forwardRef, useRef, useState } from "react";
+import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 import classNames from "classnames";
 
@@ -80,7 +81,7 @@ const Form = ({
   const [name, setName] = useState("");
   const [createColumn, { isLoading }] = useCreateColumnMutation();
   const { viewId } = useDataSourceContext();
-  const columns = useColumnsForView();
+  const { columns } = useColumnsForView();
 
   const columnExists = () =>
     columns.some((column: Column) => column.name === snakeCase(name));
@@ -98,13 +99,13 @@ const Form = ({
       },
     };
 
+    // close popover
+    onClose();
+
     const response = await createColumn({
       viewId,
       body: newColumn,
     }).unwrap();
-
-    // close popover
-    onClose();
 
     if (response?.ok) {
       // select the newly created column
@@ -147,7 +148,7 @@ const Form = ({
 };
 
 const ColumnsConfigurator = () => {
-  const columns = useColumnsForView();
+  const { columns, columnsAreLoading } = useColumnsForView();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const firstFieldRef = useRef(null);
 
@@ -180,7 +181,20 @@ const ColumnsConfigurator = () => {
         </div>
       </div>
       <div className="mt-2">
-        {columns &&
+        {columnsAreLoading && (
+          <div className="space-y-1">
+            <Shimmer height="15px" width="60px" />
+            <Shimmer height="15px" width="160px" />
+            <Shimmer height="15px" width="120px" />
+            <Shimmer height="15px" width="80px" />
+            <Shimmer height="15px" width="140px" />
+            <Shimmer height="15px" width="210px" />
+            <Shimmer height="15px" width="90px" />
+            <Shimmer height="15px" width="110px" />
+          </div>
+        )}
+        {!columnsAreLoading &&
+          columns &&
           columns.map((column: Column) => <ColumnItem column={column} />)}
       </div>
     </div>

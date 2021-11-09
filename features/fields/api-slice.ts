@@ -8,7 +8,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["Table", "TableColumns"],
+  tagTypes: ["ViewColumns", "TableColumns"],
   endpoints(builder) {
     return {
       getColumns: builder.query<
@@ -27,9 +27,13 @@ export const api = createApi({
 
           return `/columns?${queryParams}`;
         },
-        providesTags: (response, error, { tableName }) => [
-          { type: "TableColumns", id: tableName },
-        ],
+        providesTags: (response, error, { tableName, viewId }) => {
+          if (viewId) return [{ type: "ViewColumns", id: tableName }];
+
+          if (tableName) return [{ type: "TableColumns", id: tableName }];
+
+          return [];
+        },
       }),
     };
   },

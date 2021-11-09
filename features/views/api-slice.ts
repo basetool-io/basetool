@@ -1,7 +1,7 @@
 import { Column } from "../fields/types";
 import { apiUrl } from "@/features/api/urls";
-import { api as columnsApiSlice } from "@/features/fields/api-slice";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { api as fieldsApiSlice } from "@/features/fields/api-slice";
 import { merge } from "lodash";
 import ApiResponse from "@/features/api/ApiResponse";
 
@@ -91,7 +91,7 @@ export const api = createApi({
 
           // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
           const patchResult = dispatch(
-            columnsApiSlice.util.updateQueryData(
+            fieldsApiSlice.util.updateQueryData(
               "getColumns",
               { viewId },
               (draft) => {
@@ -108,7 +108,13 @@ export const api = createApi({
             )
           );
 
-          queryFulfilled.catch(() => patchResult.undo());
+          // if the mutation succeeds we'll invalidate the columns tags
+          // if it fails we'll undo the patch
+          queryFulfilled
+            .then(() =>
+              dispatch(fieldsApiSlice.util.invalidateTags(["ViewColumns"]))
+            )
+            .catch(() => patchResult.undo());
         },
       }),
       updateColumn: builder.mutation<
@@ -138,7 +144,7 @@ export const api = createApi({
 
           // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
           const patchResult = dispatch(
-            columnsApiSlice.util.updateQueryData(
+            fieldsApiSlice.util.updateQueryData(
               "getColumns",
               { viewId },
               (draft) => {
@@ -157,7 +163,11 @@ export const api = createApi({
             )
           );
 
-          queryFulfilled.catch(() => patchResult.undo());
+          queryFulfilled
+            .then(() =>
+              dispatch(fieldsApiSlice.util.invalidateTags(["ViewColumns"]))
+            )
+            .catch(() => patchResult.undo());
         },
       }),
       deleteColumn: builder.mutation<
@@ -179,7 +189,7 @@ export const api = createApi({
 
           // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
           const patchResult = dispatch(
-            columnsApiSlice.util.updateQueryData(
+            fieldsApiSlice.util.updateQueryData(
               "getColumns",
               { viewId },
               (draft) => {
@@ -200,7 +210,11 @@ export const api = createApi({
             )
           );
 
-          queryFulfilled.catch(() => patchResult.undo());
+          queryFulfilled
+            .then(() => {
+              dispatch(fieldsApiSlice.util.invalidateTags(["ViewColumns"]));
+            })
+            .catch(() => patchResult.undo());
         },
       }),
     };

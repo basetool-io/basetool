@@ -43,13 +43,14 @@ export const useUpdateColumn = () => {
 
 export const useColumnsForView = () => {
   const { viewId } = useDataSourceContext();
-  const { data: columnsResponse } = useGetColumnsQuery(
-    {
-      viewId,
-    },
-    { skip: !viewId }
-  );
+  const { data: columnsResponse, isLoading: columnsAreLoading } =
+    useGetColumnsQuery(
+      {
+        viewId,
+      },
+      { skip: !viewId }
+    );
   const columns = useMemo(() => columnsResponse?.data, [columnsResponse?.data]);
 
-  return columns;
+  return { columns, columnsAreLoading };
 };
