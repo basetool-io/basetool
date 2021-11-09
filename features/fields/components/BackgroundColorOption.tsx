@@ -16,7 +16,7 @@ type Props = {
 
 const BackgroundColorOption = ({ localColumn, setColumnOptions }: Props) => {
   return (
-    <OptionWrapper fullWidth>
+    <OptionWrapper>
       <FormControl id="backgroundColor">
         <FormLabel>Background color</FormLabel>
         <Input
