@@ -7,9 +7,9 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { Code } from "@chakra-ui/layout";
-import { Column } from "@/features/fields/types";
+import { InspectorProps } from "@/features/fields/types";
 import { debounce, isString } from "lodash";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionsWrapper";
 import React, { useCallback, useEffect, useState } from "react";
 
 type DisplayAsOptions = "link" | "image" | "email" | "text";
@@ -17,13 +17,7 @@ type DisplayAsOptions = "link" | "image" | "email" | "text";
 function Inspector({
   column,
   setColumnOptions,
-}: {
-  column: Column;
-  setColumnOptions: (
-    name: Column["name"],
-    options: Record<string, unknown>
-  ) => void;
-}) {
+}: InspectorProps) {
   const setDisplayAs = (value: DisplayAsOptions) => {
     setColumnOptions(column.name, {
       "fieldOptions.displayAs": value,
@@ -64,7 +58,7 @@ function Inspector({
           value={(column.fieldOptions.displayAs as DisplayAsOptions) || "text"}
           size="sm"
         >
-          <option value="text">Text</option>
+          <option value="text">Regular text</option>
           <option value="link">Link</option>
           <option value="image">Image</option>
           <option value="email">Email</option>
@@ -76,7 +70,7 @@ function Inspector({
         </FormHelperText>
 
         {column.fieldOptions.displayAs === "link" && (
-          <div className="bg-gray-50 border rounded mt-2 pb-2 px-2">
+          <div>
             <FormControl id="openNewTab" className="mt-2">
               <FormLabel>Open new tab</FormLabel>
               <Checkbox

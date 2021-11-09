@@ -24,7 +24,7 @@ import {
 } from "@/features/tables/api-slice";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
 import Link from "next/link";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionsWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 

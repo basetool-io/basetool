@@ -26,6 +26,7 @@ import {
   useUpdateViewMutation,
 } from "@/features/views/api-slice";
 import { useRouter } from "next/router";
+import { useUpdateColumn } from "@/features/views/hooks";
 import BackButton from "@/features/records/components/BackButton";
 import ColumnsConfigurator from "@/features/views/components/ColumnsConfigurator";
 import DefaultOrderConfigurator from "@/features/views/components/DefaultOrderConfigurator";
@@ -36,13 +37,11 @@ import GenericTextOption from "@/features/views/components/GenericTextOption";
 import Layout from "@/components/Layout";
 import NullableOption from "@/features/views/components/NullableOption";
 import PageWrapper from "@/components/PageWrapper";
-import PlaceholderOption from "@/features/views/components/PlaceholderOption";
 import React, { useEffect, useMemo, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import TinyLabel from "@/components/TinyLabel";
 import VisibilityOption from "@/features/views/components/VisibilityOption";
 import dynamic from "next/dynamic";
-import { useUpdateColumn } from "@/features/views/hooks"
 
 const getDynamicInspector = (fieldType: string) => {
   try {
@@ -53,13 +52,13 @@ const getDynamicInspector = (fieldType: string) => {
           return import(`@/plugins/fields/${fieldType}/Inspector.tsx`);
         } catch (error) {
           // return empty component
-          return Promise.resolve(() => "");
+          return Promise.resolve(() => null);
         }
       },
       {
         // eslint-disable-next-line react/display-name
         loading: ({ isLoading }: { isLoading?: boolean }) =>
-          isLoading ? <p>Loading...</p> : null,
+          isLoading ? <div className="px-4">Loading...</div> : null,
       }
     );
   } catch (error) {
@@ -88,7 +87,7 @@ const NameEditButton = () => {
 const Edit = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { viewId, dataSourceId, tableName } = useDataSourceContext();
+  const { viewId, dataSourceId } = useDataSourceContext();
   const [localView, setLocalView] = useState<DecoratedView>();
   const activeColumn = useAppSelector(activeColumnSelector);
 
@@ -199,7 +198,6 @@ const Edit = () => {
 
     return getDynamicInspector(activeColumn?.fieldType);
   }, [activeColumn?.fieldType]);
-
 
   const { column, setColumnOptions } = useUpdateColumn();
 
@@ -317,7 +315,7 @@ const Edit = () => {
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             {activeColumn && (
-              <div className="block space-y-6 py-4 w-1/3">
+              <div className="block space-y-6 py-4 w-1/3 border-r">
                 <FieldTypeOption />
 
                 {/* @todo: make sure this works ok */}
@@ -327,20 +325,22 @@ const Edit = () => {
                 />
                 {!isComputed && (
                   <GenericBooleanOption
-                    helpText={<>
-                      Some fields you don't want to show at all. By
-                      disconnecting the field it will be hidden from all views
-                      and <strong>all responses</strong>.
-                    </>}
                     label="Disconnect field"
+                    helpText={
+                      <>
+                        Some fields you don't want to show at all. By
+                        disconnecting the field it will be hidden from all views
+                        and <strong>all responses</strong>.
+                      </>
+                    }
                     optionKey="baseOptions.disconnected"
                     checkboxLabel="Disconnect field"
                     isChecked={activeColumn.baseOptions.disconnected === true}
                   />
                 )}
                 <GenericTextOption
-                  helpText="We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views."
                   label="Label"
+                  helpText="We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views."
                   optionKey="baseOptions.label"
                   placeholder="Label value"
                   defaultValue={activeColumn?.baseOptions?.label}
@@ -373,70 +373,61 @@ const Edit = () => {
                   }
                 />
 
-                <GenericTextOption
-                  helpText="Does this field need to display some help text to your users? Write it here and they will see it."
-                  label="Help text"
-                  optionKey="baseOptions.help"
-                  placeholder="Help text value"
-                  defaultValue={activeColumn?.baseOptions?.help}
-                />
-
-                {activeColumn.fieldType === "DateTime" ||
-                  activeColumn.fieldType === "Id" || (
-                    <GenericTextOption
-                      helpText="Default value for create view."
-                      label="Default value"
-                      optionKey="baseOptions.defaultValue"
-                      placeholder="Default value"
-                      defaultValue={activeColumn?.baseOptions?.defaultValue}
-                    />
-                  )}
-
-                {/* <OptionWrapper
-      helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
-      id="label"
-      label="Label"
-    >
-      <Input
-        type="text"
-        name="label value"
-        placeholder="Label value"
-        required={false}
-        value={value}
-        onChange={updateValue}
-      />
-      <FormHelperText>
-        Original name for this field is <Code>{column.name}</Code>.
-      </FormHelperText>
-
-       */}
-                {/* @todo: one toggle for all visibility */}
                 <VisibilityOption />
-                <div>
-                  Edit view
-                  <hr />
-                  <PlaceholderOption />
-                  <GenericBooleanOption
-                    helpText="Should this field be required in forms?"
-                    label="Required"
-                    optionKey="baseOptions.required"
-                    checkboxLabel="Required"
-                    isChecked={activeColumn.baseOptions.required === true}
-                    isDisabled={
-                      activeColumn.baseOptions.nullable === true ||
-                      activeColumn.baseOptions.readonly === true
-                    }
-                  />
-                  <GenericBooleanOption
-                    helpText="Should this field be readonly in forms?"
-                    label="Readonly"
-                    optionKey="baseOptions.readonly"
-                    checkboxLabel="Readonly"
-                    isChecked={activeColumn.baseOptions.readonly === true}
-                    isDisabled={activeColumn.baseOptions.required === true}
-                  />
-                  <NullableOption />
+                <div className="!-mb-2">
+                  <div className="uppercase text-sm font-bold px-2 mt-4 mb-1">
+                    Form options
+                  </div>
+                  <hr className="mt-0 mb-2" />
                 </div>
+                {!isComputed && (
+                  <>
+                    {" "}
+                    {!["Id", "DateTime"].includes(activeColumn.fieldType) && (
+                      <GenericTextOption
+                        helpText="Default value for create view."
+                        label="Default value"
+                        optionKey="baseOptions.defaultValue"
+                        placeholder="Default value"
+                        defaultValue={activeColumn?.baseOptions?.defaultValue}
+                      />
+                    )}
+                    <GenericTextOption
+                      label="Placeholder"
+                      helpText="Whatever you pass in here will be a short hint that describes the expected value of this field."
+                      optionKey="baseOptions.placeholder"
+                      placeholder="Placeholder value"
+                      defaultValue={activeColumn?.baseOptions?.placeholder}
+                    />
+                    <GenericTextOption
+                      helpText="Does this field need to display some help text to your users? Write it here and they will see it."
+                      label="Help text"
+                      optionKey="baseOptions.help"
+                      placeholder="Help text value"
+                      defaultValue={activeColumn?.baseOptions?.help}
+                    />
+                    <GenericBooleanOption
+                      helpText="Should this field be required in forms?"
+                      label="Required"
+                      optionKey="baseOptions.required"
+                      checkboxLabel="Required"
+                      isChecked={activeColumn.baseOptions.required === true}
+                      isDisabled={
+                        activeColumn.baseOptions.nullable === true ||
+                        activeColumn.baseOptions.readonly === true
+                      }
+                    />
+                    <GenericBooleanOption
+                      label="Readonly"
+                      helpText="Should this field be readonly in forms?"
+                      optionKey="baseOptions.readonly"
+                      checkboxLabel="Readonly"
+                      isChecked={activeColumn.baseOptions.readonly === true}
+                      isDisabled={activeColumn.baseOptions.required === true}
+                    />
+                    <NullableOption />
+                  </>
+                )}
               </div>
             )}
             <div className="flex-1 flex overflow-auto">

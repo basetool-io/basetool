@@ -6,7 +6,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionsWrapper";
 import React from "react";
 
 type Props = {

@@ -2,7 +2,7 @@ import { Checkbox, FormHelperText } from "@chakra-ui/react";
 import { snakeCase } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateColumn } from "../hooks";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionsWrapper";
 import React, { ReactNode } from "react";
 
 type Props = {

@@ -2,7 +2,7 @@ import { FormHelperText, Input } from "@chakra-ui/react";
 import { debounce, isString, snakeCase } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateColumn } from "../hooks";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionsWrapper";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 
 type Props = {
@@ -14,7 +14,8 @@ type Props = {
   formHelperText?: string | ReactNode;
   children?: ReactNode;
   defaultValue?: string;
-  className?: string
+  className?: string;
+  size?: "sm" | "md";
 };
 
 const GenericTextOption = ({
@@ -27,6 +28,7 @@ const GenericTextOption = ({
   children,
   defaultValue,
   className,
+  size = "sm",
 }: Props) => {
   id ||= snakeCase(label.toLowerCase());
   const track = useSegment();
@@ -59,6 +61,7 @@ const GenericTextOption = ({
         type="text"
         className={className}
         name={id}
+        size={size}
         placeholder={placeholder}
         required={false}
         value={value}
