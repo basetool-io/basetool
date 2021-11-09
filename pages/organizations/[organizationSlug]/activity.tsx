@@ -29,7 +29,13 @@ export type ActivityType = ActivityTypePrisma & {
   user: User;
 };
 
-const ActivityItem = ({ activity }: { activity: ActivityType }) => {
+const ActivityItem = ({
+  activity,
+  lastItem = false,
+}: {
+  activity: ActivityType;
+  lastItem?: boolean;
+}) => {
   const avatarIcon = useMemo(() => {
     switch (activity.action) {
       case "create":
@@ -83,11 +89,11 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
       case "create":
         return (
           <p>
-            Record{" "}
+            Created record{" "}
             <Code>
               <a href={urlToRecord}>{activity.recordId}</a>
             </Code>{" "}
-            created in{" "}
+            in{" "}
             <Code>
               <a href={urlToSource}>{sourceName}</a>
             </Code>
@@ -96,10 +102,11 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
       case "bulkDelete":
         return (
           <p>
+            Deleted{" "}
             <Tooltip label={activity.recordId} placement="auto">
-              <u>Multiple records</u>
+              <u>multiple records</u>
             </Tooltip>{" "}
-            deleted from{" "}
+            from{" "}
             <Code>
               <a href={urlToSource}>{sourceName}</a>
             </Code>
@@ -108,7 +115,7 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
       case "delete":
         return (
           <p>
-            Record <Code>{activity.recordId}</Code> deleted from{" "}
+            Deleted record <Code>{activity.recordId}</Code> from{" "}
             <Code>
               <a href={urlToSource}>{sourceName}</a>
             </Code>
@@ -117,11 +124,11 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
       case "update":
         return (
           <p>
-            Record{" "}
+            Updated record{" "}
             <Code>
               <a href={urlToRecord}>{activity.recordId}</a>
             </Code>{" "}
-            updated in{" "}
+            in{" "}
             <Code>
               <a href={urlToSource}>{sourceName}</a>
             </Code>
@@ -142,16 +149,20 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
     return change;
   };
 
+  const activityChanges: Record<string, any>[] = useMemo(() => {
+    return activity.changes as Record<string, any>[];
+  }, [activity.changes]);
+
   const changes = useMemo(() => {
-    if (activity?.changes?.length > 0) {
+    if (activityChanges.length > 0) {
       return (
         <>
           <span className="text-xs font-bold uppercase text-gray-800 leading-none">
             Changes
           </span>
           <ul className="space-y-1">
-            {activity?.changes &&
-              activity.changes.map(
+            {activityChanges &&
+              activityChanges.map(
                 (change: Record<string, any>, idx: number) => {
                   return (
                     <li key={idx}>
@@ -179,11 +190,13 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
   }, [activity.changes]);
 
   return (
-    <li
-      key={activity.id}
-      className="relative py-4 my-2 rounded-md max-w-xl"
-    >
-      <span className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
+    <li key={activity.id} className="relative py-4 my-2 rounded-md max-w-xl">
+      {!lastItem && (
+        <span
+          className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200"
+          aria-hidden="true"
+        />
+      )}
       <div className="flex space-x-3 mx-2">
         <div className="h-12 w-12">
           <Avatar
@@ -240,11 +253,16 @@ function Activity() {
             <ul role="list" className="">
               {activitiesResponse &&
                 activitiesResponse?.data?.length > 0 &&
-                activitiesResponse?.data.map((activityItem: ActivityType) => (
-                  <ActivityItem activity={activityItem} />
-                ))}
-                {activitiesResponse && activitiesResponse?.data?.length === 0 && (
-                <li className="py-4 my-2 bg-true-gray-100 shadow-md rounded-md px-10">
+                activitiesResponse?.data.map(
+                  (activityItem: ActivityType, idx: number) => (
+                    <ActivityItem
+                      activity={activityItem}
+                      lastItem={idx === activitiesResponse?.data?.length - 1}
+                    />
+                  )
+                )}
+              {activitiesResponse && activitiesResponse?.data?.length === 0 && (
+                <li className="py-4 my-2">
                   No activity logged yet!
                 </li>
               )}
