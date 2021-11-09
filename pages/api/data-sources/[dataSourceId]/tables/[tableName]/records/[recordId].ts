@@ -104,30 +104,30 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  const [record, data]: [Record<string, any>, Promise<unknown>] = await service.runQueries([
-    {
-      name: "getRecord",
-      payload: {
-        tableName: req.query.tableName as string,
-        recordId: req.query.recordId as string,
+  const [record, data]: [Record<string, any>, Promise<unknown>] =
+    await service.runQueries([
+      {
+        name: "getRecord",
+        payload: {
+          tableName: req.query.tableName as string,
+          recordId: req.query.recordId as string,
+        },
       },
-    },
-    {
-      name: "updateRecord",
-      payload: {
-        tableName: req.query.tableName as string,
-        recordId: req.query.recordId as string,
-        data: req.body.changes,
+      {
+        name: "updateRecord",
+        payload: {
+          tableName: req.query.tableName as string,
+          recordId: req.query.recordId as string,
+          data: req.body.changes,
+        },
       },
-    },
-  ]);
+    ]);
 
-  const changes = Object.keys(req?.body?.changes).map((change: string) => (
-    {
-      column: change,
-      before: record[change],
-      after: req?.body?.changes[change],
-    }));
+  const changes = Object.keys(req?.body?.changes).map((change: string) => ({
+    column: change,
+    before: record[change],
+    after: req?.body?.changes[change],
+  }));
 
   // todo - find a way to pass viewId in the request
   const activityData = {
@@ -155,31 +155,12 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  // todo - find a way to pass viewId in the request
-  const activityData = {
-    recordId: req.query.recordId as string,
-    userId: user ? user.id : 0,
-    organizationId: dataSource ? (dataSource.organizationId as number) : 0,
-    tableName: req.query.tableName
-      ? (req.query.tableName as string)
-      : undefined,
-    dataSourceId: dataSource ? (dataSource.id as number) : undefined,
-    viewId: req.query.viewId ? parseInt(req.query.viewId as string) : undefined,
-    action: "update",
-    changes: req?.body?.changes,
-  };
-
-  await prisma.activity.create({
-    data: activityData,
-  });
-
   res.json(
     ApiResponse.withData(data, {
       message: `Updated -> ${JSON.stringify(req?.body?.changes)}`,
     })
   );
 }
-
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const user = await getUserFromRequest(req);
