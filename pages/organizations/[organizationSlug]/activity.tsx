@@ -18,9 +18,10 @@ import { useOrganizationFromProfile } from "@/hooks";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import OffsetPaginationComponent from "@/features/tables/components/OffsetPaginationComponent";
 import OrganizationSidebar from "@/components/OrganizationSidebar";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import md5 from "md5";
 
 export type ActivityType = ActivityTypePrisma & {
@@ -190,7 +191,7 @@ const ActivityItem = ({
   }, [activity.changes]);
 
   return (
-    <li key={activity.id} className="relative py-4 my-2 rounded-md max-w-xl">
+    <li key={activity.id} className="relative py-4 my-2 rounded-md sm:w-[28rem] lg:w-[36rem]">
       {!lastItem && (
         <span
           className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200"
@@ -233,6 +234,20 @@ function Activity() {
     slug: router.query.organizationSlug as string,
   });
 
+  const page = useMemo(() => {
+    if (router.query.page) return parseInt(router.query.page as string);
+
+    return 1;
+  }, [router.query.page]);
+
+  const perPage = useMemo(() => {
+    if (router.query.perPage) return parseInt(router.query.perPage as string);
+
+    return 24;
+  }, [router.query.perPage]);
+
+  const [count, setCount] = useState();
+
   const {
     data: activitiesResponse,
     isLoading,
@@ -240,35 +255,71 @@ function Activity() {
   } = useGetActivitiesQuery(
     {
       organizationId: organization?.id?.toString(),
+      page: page.toString(),
+      perPage: perPage.toString(),
     },
     { skip: !organization?.id }
   );
 
+  const maxPages = useMemo(() => {
+    if (activitiesResponse?.meta?.count) {
+      setCount(activitiesResponse.meta.count);
+
+      return Math.ceil(activitiesResponse.meta.count / perPage);
+    }
+
+    return 1;
+  }, [activitiesResponse]);
+
   return (
     <Layout sidebar={<OrganizationSidebar organization={organization} />}>
       <PageWrapper crumbs={[organization?.name, "Activity"]} flush={true}>
-        <div className="relative flex-1 max-w-full w-full flex">
-          {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
-          <div className="mx-auto px-1">
-            <ul role="list" className="">
-              {activitiesResponse &&
-                activitiesResponse?.data?.length > 0 &&
-                activitiesResponse?.data.map(
-                  (activityItem: ActivityType, idx: number) => (
-                    <ActivityItem
-                      activity={activityItem}
-                      lastItem={idx === activitiesResponse?.data?.length - 1}
-                    />
-                  )
-                )}
-              {activitiesResponse && activitiesResponse?.data?.length === 0 && (
-                <li className="py-4 my-2">
-                  No activity logged yet!
-                </li>
-              )}
-            </ul>
+        <>
+          <div className="relative flex-1 max-w-full w-full flex">
+            {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
+            <div className="mx-auto px-1">
+              <ul role="list" className="">
+                {activitiesResponse &&
+                  activitiesResponse?.data?.length > 0 &&
+                  activitiesResponse?.data.map(
+                    (activityItem: ActivityType, idx: number) => (
+                      <ActivityItem
+                        activity={activityItem}
+                        lastItem={idx === activitiesResponse?.data?.length - 1}
+                      />
+                    )
+                  )}
+                {activitiesResponse &&
+                  activitiesResponse?.data?.length === 0 && (
+                    <li className="py-4 my-2">No activity logged yet!</li>
+                  )}
+              </ul>
+            </div>
           </div>
-        </div>
+          <OffsetPaginationComponent
+            page={page}
+            perPage={perPage}
+            offset={page === 1 ? 0 : (page - 1) * perPage}
+            nextPage={() =>
+              router.push(
+                `/organizations/${
+                  router.query.organizationSlug as string
+                }/activity?page=${page + 1}&perPage=${perPage}`
+              )
+            }
+            previousPage={() =>
+              router.push(
+                `/organizations/${
+                  router.query.organizationSlug as string
+                }/activity?page=${page - 1}&perPage=${perPage}`
+              )
+            }
+            maxPages={maxPages}
+            canPreviousPage={page > 1}
+            canNextPage={page < maxPages}
+            recordsCount={count ? count : 0}
+          />
+        </>
       </PageWrapper>
     </Layout>
   );

@@ -19,7 +19,7 @@ const handler = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const response = await prisma.organization.findFirst({
+  const response = (await prisma.organization.findFirst({
     where: {
       id: parseInt(
         (req.query.organizationId || req.body.organizationId) as string,
@@ -36,14 +36,14 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
             select: {
               id: true,
               name: true,
-            }
+            },
           },
           view: {
             select: {
               id: true,
               tableName: true,
               dataSourceId: true,
-            }
+            },
           },
           user: {
             select: {
@@ -51,7 +51,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
               email: true,
               firstName: true,
               lastName: true,
-            }
+            },
           },
           organizationId: true,
           action: true,
@@ -59,17 +59,36 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           createdAt: true,
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
+        skip:
+          req.query.page && req.query.perPage
+            ? (parseInt(req.query.page as string, 10) - 1) *
+              parseInt(req.query.perPage as string, 10)
+            : 0,
+        take: req.query.perPage
+          ? parseInt(req.query.perPage as string, 10)
+          : 10,
       },
     },
-  }) as Organization & {
+  })) as Organization & {
     activities: Array<
       Activity & { dataSource?: DataSource; view?: View; user: User }
     >;
   };
 
-  res.json(ApiResponse.withData(response?.activities || []));
+  const activitiesCount = await prisma.activity.count({
+    where: {
+      organizationId: parseInt(
+        (req.query.organizationId || req.body.organizationId) as string,
+        10
+      ),
+    },
+  });
+
+  res.json(
+    ApiResponse.withData(response?.activities || [], { meta: { count: activitiesCount } })
+  );
 }
 
 export default withMiddlewares(handler, {
