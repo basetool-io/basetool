@@ -2,7 +2,7 @@ import { Checkbox, FormHelperText } from "@chakra-ui/react";
 import { snakeCase } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateColumn } from "../hooks";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode } from "react";
 
 type Props = {
@@ -26,7 +26,7 @@ const GenericBooleanOption = ({
   isChecked,
   isDisabled,
   formHelperText,
-  children
+  children,
 }: Props) => {
   const track = useSegment();
   id ||= snakeCase(label.toLowerCase());

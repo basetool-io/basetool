@@ -10,7 +10,7 @@ const moduleExports = {
   images: {
     domains: ["www.gravatar.com"],
   },
-  outputFileTracing: false,
+  // outputFileTracing: false,
   reactStrictMode: true,
   async redirects() {
     return [
@@ -41,7 +41,7 @@ const SentryWebpackPluginOptions = {
 
   // Workaround for next 12
   // https://github.com/getsentry/sentry-javascript/issues/4103
-  outputFileTracing: false,
+  // outputFileTracing: false,
 };
 
 if (process.env.ANALYZE) {

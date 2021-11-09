@@ -1,19 +1,12 @@
-import {
-  Button,
-  Select,
-  Tooltip,
-} from "@chakra-ui/react";
-import { DecoratedView } from "@/features/views/types"
+import { Button, Select, Tooltip } from "@chakra-ui/react";
 import { OrderDirection } from "@/features/tables/types";
-import {
-  PlusCircleIcon,
-  TrashIcon,
-} from "@heroicons/react/outline";
+import { PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetColumnsQuery } from "@/features/views/api-slice";
+import { useGetViewQuery } from "../api-slice";
 import { useOrderRecords } from "@/features/records/hooks";
 import React, { useEffect, useMemo } from "react";
 import TinyLabel from "@/components/TinyLabel";
@@ -29,24 +22,20 @@ const OrderDirections = [
   },
 ];
 
-const DefaultOrderConfigurator = ({
-  view,
-  setView,
-}: {
-  view: DecoratedView;
-  setView: (view: DecoratedView) => void;
-}) => {
-  const { viewId, dataSourceId, tableName } = useDataSourceContext();
+const DefaultOrderConfigurator = () => {
+  const { viewId } = useDataSourceContext();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
   const { data: columnsResponse } = useGetColumnsQuery(
     {
-      dataSourceId,
-      tableName,
+      viewId,
     },
     {
-      skip: !dataSourceId || !tableName,
+      skip: !viewId,
     }
   );
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+
+  const view = useMemo(() => viewResponse?.data, [viewResponse]);
 
   const columns = useMemo(
     () => getFilteredColumns(columnsResponse?.data, Views.index),
@@ -159,4 +148,4 @@ const DefaultOrderConfigurator = ({
   );
 };
 
-export default DefaultOrderConfigurator
+export default DefaultOrderConfigurator;

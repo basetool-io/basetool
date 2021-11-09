@@ -7,7 +7,7 @@ import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
 import { tablesApiSlice } from "@/features/tables/api-slice";
-import { viewsApiSlice } from "@/features/views/api-slice";
+import { api as viewsApiSlice } from "@/features/views/api-slice";
 import appReducer from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
 import viewsReducer from "@/features/views/state-slice";

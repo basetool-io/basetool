@@ -39,14 +39,14 @@ export interface IFormFields {
 
 function New() {
   const router = useRouter();
-  const { dataSourceId } = useDataSourceContext();
+  const { dataSourceId, tableName } = useDataSourceContext();
 
   const { register, handleSubmit, formState, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       public: true,
       dataSourceId: parseInt(dataSourceId),
-      tableName: "",
+      tableName: tableName,
     },
     resolver: joiResolver(schema),
   });
@@ -57,7 +57,13 @@ function New() {
         shouldDirty: true,
         shouldTouch: true,
       });
-  }, [dataSourceId]);
+
+    if (tableName)
+      setValue("tableName", tableName, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+  }, [dataSourceId, tableName]);
 
   const watchDataSourceId = watch("dataSourceId");
 

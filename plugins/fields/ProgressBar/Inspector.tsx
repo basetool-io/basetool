@@ -1,7 +1,7 @@
 import { Checkbox, Input } from "@chakra-ui/react";
 import { InspectorProps } from "@/features/fields/types";
 import { debounce, merge } from "lodash";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useCallback } from "react";
 import fieldOptions from "./fieldOptions";
 

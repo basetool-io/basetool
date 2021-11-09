@@ -2,7 +2,7 @@ import { InspectorProps } from "@/features/fields/types";
 import { Select } from "@chakra-ui/react";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, merge } from "lodash";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useEffect, useState } from "react";
 import fieldOptions from "./fieldOptions";
 

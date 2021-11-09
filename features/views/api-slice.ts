@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { merge } from "lodash";
 import ApiResponse from "@/features/api/ApiResponse";
 
-export const viewsApiSlice = createApi({
+export const api = createApi({
   reducerPath: "views",
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
@@ -78,6 +78,42 @@ export const viewsApiSlice = createApi({
           { type: "ViewColumns", id: viewId },
         ],
       }),
+      createColumn: builder.mutation<
+        ApiResponse,
+        Partial<{
+          viewId: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ viewId, body }) => ({
+          url: `${apiUrl}/views/${viewId}/columns`,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "ViewColumns", id: viewId },
+        ],
+        onQueryStarted({ viewId, ...patch }, { dispatch, queryFulfilled }) {
+          if (!viewId) return;
+
+          // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
+          const patchResult = dispatch(
+            api.util.updateQueryData("getColumns", { viewId }, (draft) => {
+              const newData = {
+                data: [...draft.data],
+              };
+
+              // add the field
+              newData.data.push(patch.body);
+
+              // Update the response from `getColumns` with the mock data
+              Object.assign(draft, newData);
+            })
+          );
+
+          queryFulfilled.catch(() => patchResult.undo());
+        },
+      }),
       updateColumn: builder.mutation<
         ApiResponse,
         Partial<{
@@ -105,23 +141,58 @@ export const viewsApiSlice = createApi({
 
           // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
           const patchResult = dispatch(
-            viewsApiSlice.util.updateQueryData(
-              "getColumns",
-              { viewId },
-              (draft) => {
-                const index = draft.data.findIndex(
-                  (column: Column) => column.name === columnName
-                );
-                const newData = {
-                  ...draft,
-                };
-                // re-create the data to be updated
-                newData.data[index] = merge(draft.data[index], patch.body);
+            api.util.updateQueryData("getColumns", { viewId }, (draft) => {
+              const index = draft.data.findIndex(
+                (column: Column) => column.name === columnName
+              );
+              const newData = {
+                ...draft,
+              };
+              // re-create the data to be updated
+              newData.data[index] = merge(draft.data[index], patch.body);
 
-                // Update the response from `getColumns` with the mock data
-                Object.assign(draft, newData);
-              }
-            )
+              // Update the response from `getColumns` with the mock data
+              Object.assign(draft, newData);
+            })
+          );
+
+          queryFulfilled.catch(() => patchResult.undo());
+        },
+      }),
+      deleteColumn: builder.mutation<
+        ApiResponse,
+        Partial<{ viewId: string; columnName: string }>
+      >({
+        query: ({ viewId, columnName }) => ({
+          url: `${apiUrl}/views/${viewId}/columns/${columnName}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "ViewColumns", id: viewId },
+        ],
+        onQueryStarted(
+          { viewId, columnName, ...patch },
+          { dispatch, queryFulfilled }
+        ) {
+          if (!viewId || !columnName) return;
+
+          // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
+          const patchResult = dispatch(
+            api.util.updateQueryData("getColumns", { viewId }, (draft) => {
+              const index = draft.data.findIndex(
+                (column: Column) => column.name === columnName
+              );
+              const newData = {
+                data: [...draft.data],
+              };
+
+              // remove the field
+              delete newData.data[index];
+              newData.data = newData.data.filter(Boolean);
+
+              // Update the response from `getColumns` with the mock data
+              Object.assign(draft, newData);
+            })
           );
 
           queryFulfilled.catch(() => patchResult.undo());
@@ -139,5 +210,7 @@ export const {
   useUpdateViewMutation,
 
   useGetColumnsQuery,
+  useCreateColumnMutation,
   useUpdateColumnMutation,
-} = viewsApiSlice;
+  useDeleteColumnMutation,
+} = api;

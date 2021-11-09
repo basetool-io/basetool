@@ -9,15 +9,12 @@ import {
 import { Code } from "@chakra-ui/layout";
 import { InspectorProps } from "@/features/fields/types";
 import { debounce, isString } from "lodash";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useCallback, useEffect, useState } from "react";
 
 type DisplayAsOptions = "link" | "image" | "email" | "text";
 
-function Inspector({
-  column,
-  setColumnOptions,
-}: InspectorProps) {
+function Inspector({ column, setColumnOptions }: InspectorProps) {
   const setDisplayAs = (value: DisplayAsOptions) => {
     setColumnOptions(column.name, {
       "fieldOptions.displayAs": value,
@@ -66,7 +63,8 @@ function Inspector({
         <div className="flex flex-col space-y-2"></div>
 
         <FormHelperText>
-          Default is <Code>text</Code> but you can change it to <Code>link</Code>, <Code>email</Code> or <Code>image</Code>.
+          Default is <Code>text</Code> but you can change it to{" "}
+          <Code>link</Code>, <Code>email</Code> or <Code>image</Code>.
         </FormHelperText>
 
         {column.fieldOptions.displayAs === "link" && (

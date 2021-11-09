@@ -1,7 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
 import { getViewFromRequest } from "@/features/api";
-import { hydrateColumns } from "@/features/records"
+import { hydrateColumns } from "@/features/records";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -17,10 +17,8 @@ const handler = async (
   switch (req.method) {
     case "GET":
       return handleGET(req, res);
-    // case "PUT":
-    //   return handlePUT(req, res);
-    // case "POST":
-    //   return handlePOST(req, res);
+    case "POST":
+      return handlePOST(req, res);
     default:
       return res.status(404).send("");
   }
@@ -50,7 +48,6 @@ export const getColumns = async ({
 }): Promise<Column[]> => {
   // If the data source has columns stored, send those in.
   const storedColumns = view.columns as Column[];
-  // console.log("dataSource->", dataSource);
 
   const service = await getQueryService({
     dataSource,
@@ -97,34 +94,33 @@ export const getColumns = async ({
 //   return res.json(ApiResponse.withData(result, { message: "Updated" }));
 // }
 
-// async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-//   const dataSource = await getDataSourceFromRequest(req);
+async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
+  const view = await getViewFromRequest(req);
+  // const dataSource = await getDataSourceFromRequest(req);
 
-//   if (!dataSource || !req?.query?.tableName) return res.status(404).send("");
+  const columnName = req?.body?.name as string;
+  console.log('view->', view, columnName)
 
-//   const options = merge(dataSource.options, {
-//     tables: {
-//       [req.query.tableName as string]: {
-//         columns: {
-//           [req.body.name]: req.body,
-//         },
-//       },
-//     },
-//   });
+  if (!view || !columnName) return res.status(404).send("");
 
-//   const result = await prisma.dataSource.update({
-//     where: {
-//       id: parseInt(req.query.dataSourceId as string, 10),
-//     },
-//     data: {
-//       options,
-//     },
-//   });
+  const columns = view.columns
+  // const columns = merge(view.columns, {
+  //   [columnName]: req.body,
+  // });
 
-//   return res.json(
-//     ApiResponse.withData(result, { message: `Added field ${req.body.name}` })
-//   );
-// }
+  const result = await prisma.view.update({
+    where: {
+      id: parseInt(req.query.viewId as string, 10),
+    },
+    data: {
+      columns,
+    },
+  });
+
+  return res.json(
+    ApiResponse.withData(result, { message: `Added field ${req.body.name}` })
+  );
+}
 
 export default withMiddlewares(handler, {
   middlewares: [

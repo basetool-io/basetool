@@ -3,8 +3,8 @@ import { Views } from "@/features/fields/enums";
 import { humanize } from "@/lib/humanize";
 import { isArray, uniq, without } from "lodash";
 import { useUpdateColumn } from "../hooks";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
-import React, { useEffect, useState } from "react";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
+import React, { useEffect, useMemo, useState } from "react";
 
 function VisibilityOption() {
   const { column, setColumnOptions } = useUpdateColumn();
@@ -21,6 +21,16 @@ function VisibilityOption() {
     if (column && column?.name && isArray(visibility)) {
     }
   }, [visibility]);
+
+  const isComputed = useMemo(
+    () => column?.baseOptions?.computed === true,
+    [column]
+  );
+
+  const filteredColumns = useMemo(
+    () => (isComputed ? ["index", "show"] : Object.keys(Views)),
+    [isComputed, Views]
+  );
 
   if (!column) return null;
 
@@ -53,7 +63,7 @@ function VisibilityOption() {
       label="Visibility"
       id="visibility"
     >
-      {Object.keys(Views).map((view) => (
+      {filteredColumns.map((view) => (
         <div className="flex justify-between items-center">
           <div>{humanize(view)}</div>
           <Switch

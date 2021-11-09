@@ -1,5 +1,5 @@
 import { getViewFromRequest } from "@/features/api";
-import { isObjectLike } from "lodash";
+import { isObjectLike, omit } from "lodash";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -11,12 +11,38 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   switch (req.method) {
+    case "DELETE":
+      return handleDELETE(req, res);
     case "PUT":
       return handlePUT(req, res);
     default:
       return res.status(404).send("");
   }
 };
+
+async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const view = await getViewFromRequest(req);
+
+  const columnName = req?.query?.columnName as string;
+  // console.log('view, columnName->', view, columnName)
+
+  if (!view || !columnName) return res.status(404).send("");
+
+  const columns = omit(view.columns as Record<string, unknown>, [columnName]);
+
+  const result = await prisma.view.update({
+    where: {
+      id: parseInt(req.query.viewId as string, 10),
+    },
+    data: {
+      columns,
+    },
+  });
+
+  return res.json(
+    ApiResponse.withData(result, { message: `Removed field ${columnName}` })
+  );
+}
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   // const user = await getUserFromRequest(req);
@@ -31,12 +57,9 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const columns: any = {
     ...(view?.columns as Record<string, unknown>),
-    // [req.query.columnName as string]: req.body,
   };
-  // console.log('initial columns->', (columns))
-  // console.log('req.body->', req.body)
+
   Object.entries(req.body).map(([key, value]) => {
-    // console.log('value->', key, value)
     columns[columnName] ||= {};
 
     if (key === "fieldType") {
@@ -62,8 +85,6 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       };
     }
   });
-
-  // console.log('columns->', (columns))
 
   await prisma.view.update({
     where: {

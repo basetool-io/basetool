@@ -161,16 +161,19 @@ const RecordsIndex = () => {
               ac.hasRole(OWNER_ROLE) &&
               !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
                 <Link
-                  href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
+                  href={`/views/new?dataSourceId=${dataSourceId}&tableName=${tableName}`}
                   passHref
                 >
                   <Button
                     as="a"
                     colorScheme="blue"
                     variant="ghost"
-                    leftIcon={<PencilAltIcon className="h-4" />}
+                    leftIcon={<PlusIcon className="h-4" />}
+                    // onClick={(e) => {
+
+                    // }}
                   >
-                    Edit columns
+                    Create view from this table
                   </Button>
                 </Link>
               )}

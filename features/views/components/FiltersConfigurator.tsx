@@ -3,40 +3,23 @@ import {
   ChevronLeftIcon,
   PencilAltIcon,
 } from "@heroicons/react/outline";
-import {
-  Collapse,
-  Tooltip,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { DecoratedView } from "@/features/views/types"
+import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext } from "@/hooks";
 import { useFilters } from "@/features/records/hooks";
-import {
-  useGetViewQuery,
-} from "@/features/views/api-slice";
+import { useGetViewQuery } from "@/features/views/api-slice";
 import CompactFiltersView from "@/features/views/components/CompactFiltersView";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import React, { useRef } from "react";
 import TinyLabel from "@/components/TinyLabel";
 
-const FiltersConfigurator = ({
-  view,
-  setView,
-}: {
-  view: DecoratedView;
-  setView: (view: DecoratedView) => void;
-}) => {
+const FiltersConfigurator = () => {
   const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
     defaultIsOpen: true,
   });
-  const { viewId, dataSourceId, tableName } = useDataSourceContext();
+  const { viewId } = useDataSourceContext();
 
-  const {
-    data: viewResponse,
-    isLoading: viewIsLoading,
-    error: viewError,
-  } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const filtersButton = useRef(null);
@@ -48,9 +31,7 @@ const FiltersConfigurator = ({
       toggleFiltersPanelVisible(false);
     }
   });
-  const { appliedFilters } = useFilters(
-    viewResponse?.data?.filters
-  );
+  const { appliedFilters } = useFilters(viewResponse?.data?.filters);
 
   return (
     <div>
@@ -85,4 +66,4 @@ const FiltersConfigurator = ({
   );
 };
 
-export default FiltersConfigurator
+export default FiltersConfigurator;

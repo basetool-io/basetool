@@ -2,7 +2,7 @@ import { FormHelperText, Input } from "@chakra-ui/react";
 import { debounce, isString, snakeCase } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateColumn } from "../hooks";
-import OptionWrapper from "@/features/views/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 
 type Props = {

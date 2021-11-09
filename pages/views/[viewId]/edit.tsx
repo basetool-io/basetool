@@ -13,12 +13,14 @@ import { DecoratedView } from "@/features/views/types";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
-import { activeColumnSelector } from "@/features/views/state-slice";
 import { isArray, isEmpty, isUndefined, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
-import { useAppDispatch, useAppSelector, useDataSourceContext } from "@/hooks";
+import { useAppDispatch, useDataSourceContext } from "@/hooks";
+import {
+  useDeleteColumnMutation,
+  useGetColumnsQuery,
+} from "@/features/views/api-slice";
 import { useFilters, useOrderRecords } from "@/features/records/hooks";
-import { useGetColumnsQuery } from "@/features/views/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,
@@ -89,7 +91,7 @@ const Edit = () => {
   const dispatch = useAppDispatch();
   const { viewId, dataSourceId } = useDataSourceContext();
   const [localView, setLocalView] = useState<DecoratedView>();
-  const activeColumn = useAppSelector(activeColumnSelector);
+  const { column, setColumnOptions } = useUpdateColumn();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -193,17 +195,27 @@ const Edit = () => {
     }).unwrap();
   };
 
+  const [deleteColumn] = useDeleteColumnMutation();
+  // const [createColumn, { isLoading: isCreating }] = useCreateColumnMutation();
+
+  const deleteField = async (columnName: string) => {
+    if (confirm("Are you sure you want to remove this virtual field?")) {
+      await deleteColumn({
+        viewId,
+        columnName,
+      });
+    }
+  };
+
   const InspectorComponent: any = useMemo(() => {
-    if (!activeColumn) return (...rest: any) => "";
+    if (!column) return (...rest: any) => "";
 
-    return getDynamicInspector(activeColumn?.fieldType);
-  }, [activeColumn?.fieldType]);
-
-  const { column, setColumnOptions } = useUpdateColumn();
+    return getDynamicInspector(column?.fieldType);
+  }, [column?.fieldType]);
 
   const isComputed = useMemo(
-    () => activeColumn?.baseOptions?.computed === true,
-    [activeColumn]
+    () => column?.baseOptions?.computed === true,
+    [column]
   );
 
   return (
@@ -304,23 +316,35 @@ const Edit = () => {
                   </div>
                 </div>
 
-                <FiltersConfigurator view={localView} setView={setLocalView} />
-                <DefaultOrderConfigurator
-                  view={localView}
-                  setView={setLocalView}
-                />
-                <ColumnsConfigurator view={localView} setView={setLocalView} />
+                <FiltersConfigurator />
+                <DefaultOrderConfigurator />
+                <ColumnsConfigurator />
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            {activeColumn && (
+            {column && (
               <div className="block space-y-6 py-4 w-1/3 border-r">
                 <FieldTypeOption />
 
+                {isComputed && (
+                  <GenericTextOption
+                    label="Computed value"
+                    helpText="Value that has to be computed. You have to refresh the page after changing this value."
+                    optionKey="baseOptions.computedSource"
+                    placeholder="Label value"
+                    defaultValue={column?.baseOptions?.computedSource}
+                    formHelperText={
+                      <>
+                        You can use <Code size="sm">record</Code> in your query.
+                      </>
+                    }
+                  />
+                )}
+
                 {/* @todo: make sure this works ok */}
                 <InspectorComponent
-                  column={activeColumn}
+                  column={column}
                   setColumnOptions={setColumnOptions}
                 />
                 {!isComputed && (
@@ -335,7 +359,7 @@ const Edit = () => {
                     }
                     optionKey="baseOptions.disconnected"
                     checkboxLabel="Disconnect field"
-                    isChecked={activeColumn.baseOptions.disconnected === true}
+                    isChecked={column.baseOptions.disconnected === true}
                   />
                 )}
                 <GenericTextOption
@@ -343,11 +367,11 @@ const Edit = () => {
                   helpText="We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views."
                   optionKey="baseOptions.label"
                   placeholder="Label value"
-                  defaultValue={activeColumn?.baseOptions?.label}
+                  defaultValue={column?.baseOptions?.label}
                   formHelperText={
                     <>
-                      Original name for this field is{" "}
-                      <Code>{activeColumn.name}</Code>.
+                      Original name for this field is <Code>{column.name}</Code>
+                      .
                     </>
                   }
                 />
@@ -365,7 +389,7 @@ const Edit = () => {
                   optionKey="baseOptions.backgroundColor"
                   placeholder="{{ value.toLowerCase().includes('ok') ? 'green' : 'yellow'}}"
                   className="font-mono w-full"
-                  defaultValue={activeColumn?.baseOptions?.backgroundColor}
+                  defaultValue={column?.baseOptions?.backgroundColor}
                   formHelperText={
                     <>
                       You can use the <Code>value</Code> variable.
@@ -374,22 +398,36 @@ const Edit = () => {
                 />
 
                 <VisibilityOption />
-                <div className="!-mb-2">
-                  <div className="uppercase text-sm font-bold px-2 mt-4 mb-1">
-                    Form options
+
+                {isComputed && (
+                  <div className="flex justify-end px-2">
+                    <Button
+                      colorScheme="red"
+                      size="xs"
+                      variant="outline"
+                      onClick={() => deleteField(column.name)}
+                      leftIcon={<TrashIcon className="h-4" />}
+                    >
+                      Remove field
+                    </Button>
                   </div>
-                  <hr className="mt-0 mb-2" />
-                </div>
+                )}
+
                 {!isComputed && (
                   <>
-                    {" "}
-                    {!["Id", "DateTime"].includes(activeColumn.fieldType) && (
+                    <div className="!-mb-2">
+                      <div className="uppercase text-sm font-bold px-2 mt-4 mb-1">
+                        Form options
+                      </div>
+                      <hr className="mt-0 mb-2" />
+                    </div>{" "}
+                    {!["Id", "DateTime"].includes(column.fieldType) && (
                       <GenericTextOption
                         helpText="Default value for create view."
                         label="Default value"
                         optionKey="baseOptions.defaultValue"
                         placeholder="Default value"
-                        defaultValue={activeColumn?.baseOptions?.defaultValue}
+                        defaultValue={column?.baseOptions?.defaultValue}
                       />
                     )}
                     <GenericTextOption
@@ -397,24 +435,24 @@ const Edit = () => {
                       helpText="Whatever you pass in here will be a short hint that describes the expected value of this field."
                       optionKey="baseOptions.placeholder"
                       placeholder="Placeholder value"
-                      defaultValue={activeColumn?.baseOptions?.placeholder}
+                      defaultValue={column?.baseOptions?.placeholder}
                     />
                     <GenericTextOption
                       helpText="Does this field need to display some help text to your users? Write it here and they will see it."
                       label="Help text"
                       optionKey="baseOptions.help"
                       placeholder="Help text value"
-                      defaultValue={activeColumn?.baseOptions?.help}
+                      defaultValue={column?.baseOptions?.help}
                     />
                     <GenericBooleanOption
                       helpText="Should this field be required in forms?"
                       label="Required"
                       optionKey="baseOptions.required"
                       checkboxLabel="Required"
-                      isChecked={activeColumn.baseOptions.required === true}
+                      isChecked={column.baseOptions.required === true}
                       isDisabled={
-                        activeColumn.baseOptions.nullable === true ||
-                        activeColumn.baseOptions.readonly === true
+                        column.baseOptions.nullable === true ||
+                        column.baseOptions.readonly === true
                       }
                     />
                     <GenericBooleanOption
@@ -422,8 +460,8 @@ const Edit = () => {
                       helpText="Should this field be readonly in forms?"
                       optionKey="baseOptions.readonly"
                       checkboxLabel="Readonly"
-                      isChecked={activeColumn.baseOptions.readonly === true}
-                      isDisabled={activeColumn.baseOptions.required === true}
+                      isChecked={column.baseOptions.readonly === true}
+                      isDisabled={column.baseOptions.required === true}
                     />
                     <NullableOption />
                   </>
