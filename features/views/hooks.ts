@@ -3,6 +3,7 @@ import { dotNotationToObject } from "@/lib/helpers";
 import { getColumnOptions } from "@/features/fields";
 import { useAppSelector } from "@/hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useGetColumnsQuery } from "../fields/api-slice";
 import { useMemo } from "react";
 import { useUpdateColumnMutation } from "@/features/views/api-slice";
 
@@ -38,4 +39,17 @@ export const useUpdateColumn = () => {
     columnOptions,
     setColumnOptions,
   };
+};
+
+export const useColumnsForView = () => {
+  const { viewId } = useDataSourceContext();
+  const { data: columnsResponse } = useGetColumnsQuery(
+    {
+      viewId,
+    },
+    { skip: !viewId }
+  );
+  const columns = useMemo(() => columnsResponse?.data, [columnsResponse?.data]);
+
+  return columns;
 };

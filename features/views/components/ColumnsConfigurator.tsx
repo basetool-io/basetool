@@ -18,14 +18,13 @@ import { PlusCircleIcon } from "@heroicons/react/outline";
 import { iconForField } from "@/features/fields";
 import { selectColumnName, selectedColumnNameSelector } from "../state-slice";
 import { snakeCase } from "lodash";
+import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import {
-  useCreateColumnMutation,
-  useGetColumnsQuery,
-} from "@/features/views/api-slice";
+import { useColumnsForView } from "../hooks";
+import { useCreateColumnMutation } from "@/features/views/api-slice";
 import { useDataSourceContext } from "@/hooks";
 import DragIcon from "@/components/DragIcon";
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useRef, useState } from "react";
 import TinyLabel from "@/components/TinyLabel";
 import classNames from "classnames";
 
@@ -70,40 +69,66 @@ const NameInput = forwardRef((props: any, ref: any) => {
 NameInput.displayName = "NameInput";
 
 // 2. Create the form
-const Form = ({ firstFieldRef }: { firstFieldRef: any }) => {
-  const [value, setValue] = useState("");
-  const [createColumn] = useCreateColumnMutation();
+const Form = ({
+  firstFieldRef,
+  onClose,
+}: {
+  firstFieldRef: any;
+  onClose: () => void;
+}) => {
+  const dispatch = useAppDispatch();
+  const [name, setName] = useState("");
+  const [createColumn, { isLoading }] = useCreateColumnMutation();
   const { viewId } = useDataSourceContext();
+  const columns = useColumnsForView();
+
+  const columnExists = () =>
+    columns.some((column: Column) => column.name === snakeCase(name));
 
   const createField = async () => {
-    if (value.length < MINIMUM_VIEW_NAME_LENGTH) return;
+    if (name.length < MINIMUM_VIEW_NAME_LENGTH) return;
 
     const newColumn = {
       ...INITIAL_NEW_COLUMN,
-      name: snakeCase(value),
-      label: value,
+      name: snakeCase(name),
+      label: name,
       baseOptions: {
         ...INITIAL_NEW_COLUMN.baseOptions,
-        label: value,
+        label: name,
       },
     };
 
-    await createColumn({
+    const response = await createColumn({
       viewId,
       body: newColumn,
     }).unwrap();
+
+    // close popover
+    onClose();
+
+    if (response?.ok) {
+      // select the newly created column
+      dispatch(selectColumnName(name));
+    }
   };
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
+
+        if (columnExists()) {
+          toast.error("A column with that name already exists.");
+
+          return;
+        }
+
         createField();
       }}
     >
       <NameInput
         ref={firstFieldRef}
-        onChange={(e: any) => setValue(e.currentTarget.value)}
+        onChange={(e: any) => setName(e.currentTarget.value)}
       />
       <div className="mt-2">
         <Button
@@ -111,7 +136,8 @@ const Form = ({ firstFieldRef }: { firstFieldRef: any }) => {
           size="sm"
           colorScheme="blue"
           width="100%"
-          isDisabled={value.length < MINIMUM_VIEW_NAME_LENGTH}
+          isDisabled={name.length < MINIMUM_VIEW_NAME_LENGTH}
+          isLoading={isLoading}
         >
           Add virtual column
         </Button>
@@ -121,20 +147,7 @@ const Form = ({ firstFieldRef }: { firstFieldRef: any }) => {
 };
 
 const ColumnsConfigurator = () => {
-  const { viewId } = useDataSourceContext();
-
-  const { data: columnsResponse } = useGetColumnsQuery(
-    {
-      viewId,
-    },
-    { skip: !viewId }
-  );
-
-  const [columns, setColumns] = useState<Column[]>();
-  useEffect(() => {
-    setColumns(columnsResponse?.data);
-  }, [columnsResponse?.data]);
-
+  const columns = useColumnsForView();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const firstFieldRef = useRef(null);
 
@@ -170,7 +183,6 @@ const ColumnsConfigurator = () => {
         {columns &&
           columns.map((column: Column) => <ColumnItem column={column} />)}
       </div>
-      {/* <pre>{JSON.stringify([columns, view], null, 2)}</pre> */}
     </div>
   );
 };

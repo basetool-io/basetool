@@ -12,12 +12,9 @@ import {
 } from "@heroicons/react/outline";
 import {
   columnWidthsSelector,
-  // columnsSelector,
+  columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import {
-  columnsSelector,
-} from "@/features/views/state-slice";
 import { iconForField, prettifyData } from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";

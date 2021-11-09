@@ -3,7 +3,7 @@ import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";

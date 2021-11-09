@@ -2,7 +2,7 @@ import { Code, Select } from "@chakra-ui/react";
 import { Column, InspectorProps } from "@/features/fields/types";
 import { merge } from "lodash";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React from "react";
 import fieldOptions from "./fieldOptions";

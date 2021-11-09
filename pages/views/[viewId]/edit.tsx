@@ -16,11 +16,9 @@ import { Save } from "react-feather";
 import { isArray, isEmpty, isUndefined, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
-import {
-  useDeleteColumnMutation,
-  useGetColumnsQuery,
-} from "@/features/views/api-slice";
+import { useDeleteColumnMutation } from "@/features/views/api-slice";
 import { useFilters, useOrderRecords } from "@/features/records/hooks";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,

@@ -5,7 +5,7 @@ import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/views/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetViewQuery } from "../api-slice";
 import { useOrderRecords } from "@/features/records/hooks";
 import React, { useEffect, useMemo } from "react";

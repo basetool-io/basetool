@@ -9,7 +9,7 @@ import {
   useResetState,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/views/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
@@ -59,16 +59,17 @@ const RecordsTable = () => {
     { skip: !dataSourceId || !tableName }
   );
 
-  const { data: columnsResponse } = useGetColumnsQuery(
-    {
-      viewId,
-    },
-    {
-      skip:
-        !viewId ||
-        !dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest,
-    }
-  );
+  // set the payload and skip condition for the getColumns query
+  let skip = true;
+  if (dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest)
+    skip = false;
+  if (viewId) skip = false;
+  if (dataSourceId && tableName) skip = false;
+  const queryPayload = viewId ? { viewId } : { dataSourceId, tableName };
+
+  const { data: columnsResponse } = useGetColumnsQuery(queryPayload, {
+    skip,
+  });
 
   const { records } = useRecords(recordsResponse?.data, recordsResponse?.meta);
   useColumns({

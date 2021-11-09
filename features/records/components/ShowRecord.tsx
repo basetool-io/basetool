@@ -10,7 +10,7 @@ import {
   useDeleteRecordMutation,
   useGetRecordQuery,
 } from "@/features/records/api-slice";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
