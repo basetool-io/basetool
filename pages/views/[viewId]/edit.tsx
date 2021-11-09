@@ -26,10 +26,10 @@ import {
 import { useRouter } from "next/router";
 import { useUpdateColumn } from "@/features/views/hooks";
 import BackButton from "@/features/records/components/BackButton";
-import ColumnsConfigurator from "@/features/views/components/ColumnsConfigurator";
-import DefaultOrderConfigurator from "@/features/views/components/DefaultOrderConfigurator";
-import FieldEditor from "@/features/views/components/FieldEditor"
-import FiltersConfigurator from "@/features/views/components/FiltersConfigurator";
+import ViewEditColumns from "@/features/views/components/ViewEditColumns";
+import ViewEditOrder from "@/features/views/components/ViewEditOrder";
+import FieldEditor from "@/features/views/components/FieldEditor";
+import ViewEditFilters from "@/features/views/components/ViewEditFilters";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
@@ -261,16 +261,14 @@ const Edit = () => {
                   </div>
                 </div>
 
-                <FiltersConfigurator />
-                <DefaultOrderConfigurator />
-                <ColumnsConfigurator />
+                <ViewEditFilters />
+                <ViewEditOrder />
+                <ViewEditColumns />
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            {column && (
-              <FieldEditor />
-            )}
+            {column && <FieldEditor />}
             <div className="flex-1 flex overflow-auto">
               {dataSourceId && <RecordsTable />}
             </div>
