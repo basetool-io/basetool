@@ -22,7 +22,7 @@ const OrderDirections = [
   },
 ];
 
-const DefaultOrderConfigurator = () => {
+const ViewEditOrder = () => {
   const { viewId } = useDataSourceContext();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
   const { data: columnsResponse } = useGetColumnsQuery(
@@ -148,4 +148,4 @@ const DefaultOrderConfigurator = () => {
   );
 };
 
-export default DefaultOrderConfigurator;
+export default ViewEditOrder;

@@ -147,7 +147,7 @@ const Form = ({
   );
 };
 
-const ColumnsConfigurator = () => {
+const ViewEditColumns = () => {
   const { columns, columnsAreLoading } = useColumnsForView();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const firstFieldRef = useRef(null);
@@ -201,4 +201,4 @@ const ColumnsConfigurator = () => {
   );
 };
 
-export default ColumnsConfigurator;
+export default ViewEditColumns;

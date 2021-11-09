@@ -13,7 +13,7 @@ import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import React, { useRef } from "react";
 import TinyLabel from "@/components/TinyLabel";
 
-const FiltersConfigurator = () => {
+const ViewEditFilters = () => {
   const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
     defaultIsOpen: true,
   });
@@ -66,4 +66,4 @@ const FiltersConfigurator = () => {
   );
 };
 
-export default FiltersConfigurator;
+export default ViewEditFilters;
