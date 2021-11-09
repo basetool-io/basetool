@@ -246,7 +246,7 @@ function Activity() {
     return 24;
   }, [router.query.perPage]);
 
-  const [count, setCount] = useState();
+  const [count, setCount] = useState<number | null>(null);
 
   const {
     data: activitiesResponse,
