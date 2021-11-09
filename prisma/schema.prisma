@@ -173,10 +173,9 @@ model Activity {
   organizationId Int
   action         String       @db.VarChar(255)
   changes        Json?        @default("{}")
-  createdAt DateTime @default(now())
+  createdAt      DateTime     @default(now())
 
   @@index([dataSourceId])
   @@index([viewId])
-  @@index([userId])
   @@index([organizationId])
 }

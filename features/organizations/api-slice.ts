@@ -105,6 +105,17 @@ export const organizationsApiSlice = createApi({
           { type: "Organization", id: organizationId },
         ],
       }),
+      getActivities: builder.query<
+        ApiResponse,
+        Partial<{ organizationId: string }>
+      >({
+        query({ organizationId }) {
+          return `/organizations/${organizationId}/activities`;
+        },
+        providesTags: (result, error, { organizationId }) => [
+          { type: "Organization", id: organizationId },
+        ],
+      }),
     };
   },
 });
@@ -117,4 +128,5 @@ export const {
   useUpdateMemberRoleMutation,
   useUpdateOrganizationMutation,
   usePrefetch,
+  useGetActivitiesQuery,
 } = organizationsApiSlice;
