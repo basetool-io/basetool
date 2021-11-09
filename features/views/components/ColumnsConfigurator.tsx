@@ -92,7 +92,7 @@ const ColumnsConfigurator = ({
             <ColumnItem column={column} setColumn={setColumn} />
           ))}
       </div>
-      <pre>{JSON.stringify([columns, view], null, 2)}</pre>
+      {/* <pre>{JSON.stringify([columns, view], null, 2)}</pre> */}
     </div>
   );
 };

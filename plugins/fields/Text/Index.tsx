@@ -15,7 +15,7 @@ const Index = ({ field }: { field: Field }) => {
       </IndexFieldWrapper>
     );
 
-  if (field.column.fieldOptions.displayAsLink === true)
+  if (field.column.fieldOptions.displayAs === "link")
     return (
       <IndexFieldWrapper field={field}>
         <Link href={field.value as string}>
@@ -25,10 +25,10 @@ const Index = ({ field }: { field: Field }) => {
               (field.column.fieldOptions.openNewTab as boolean) ? "_blank" : ""
             }
           >
-			{isEmpty(field.column.fieldOptions.linkText) && field.value}
+            {isEmpty(field.column.fieldOptions.linkText) && field.value}
             {isEmpty(field.column.fieldOptions.linkText) ||
               field.column.fieldOptions.linkText}
-            
+
             {field.column.fieldOptions.openNewTab === true && (
               <ExternalLinkIcon className="h-3 w-3 ml-1 inline-block" />
             )}
@@ -37,7 +37,7 @@ const Index = ({ field }: { field: Field }) => {
       </IndexFieldWrapper>
     );
 
-  if (field.column.fieldOptions.displayAsImage === true)
+  if (field.column.fieldOptions.displayAs === "image")
     return (
       <IndexFieldWrapper field={field} flush={true}>
         <Image
@@ -49,7 +49,7 @@ const Index = ({ field }: { field: Field }) => {
       </IndexFieldWrapper>
     );
 
-  if (field.column.fieldOptions.displayAsEmail === true)
+  if (field.column.fieldOptions.displayAs === "email")
     return (
       <IndexFieldWrapper field={field}>
         <Link href={("mailto: " + field.value) as string}>

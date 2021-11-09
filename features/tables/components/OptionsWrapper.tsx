@@ -18,17 +18,17 @@ const OptionWrapper = ({
   return (
     <div className="relative flex-1 flex flex-col space-y-4 px-4">
       <FormControl id={id}>
-        <div className="relative flex justify-between">
+        <div className="relative flex justify-between mb-2">
           <label
-            className="text-sm font-semibold text-true-gray-500 mb-2"
+            className="text-sm font-semibold text-true-gray-600 flex"
             htmlFor={id}
           >
             {label}
           </label>
-          <div className="block">
+          <div className="">
             <Tooltip placement="top" label={helpText}>
               <div>
-                <InformationCircleIcon className="block h-4" />
+                <InformationCircleIcon className="block h-4 text-gray-600" />
               </div>
             </Tooltip>
           </div>

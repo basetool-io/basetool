@@ -1,6 +1,7 @@
 import {
   Button,
   Checkbox,
+  Code,
   Editable,
   EditableInput,
   EditablePreview,
@@ -30,12 +31,41 @@ import ColumnsConfigurator from "@/features/views/components/ColumnsConfigurator
 import DefaultOrderConfigurator from "@/features/views/components/DefaultOrderConfigurator";
 import FieldTypeOption from "@/features/views/components/FieldTypeOption";
 import FiltersConfigurator from "@/features/views/components/FiltersConfigurator";
+import GenericBooleanOption from "@/features/views/components/GenericBooleanOption";
+import GenericTextOption from "@/features/views/components/GenericTextOption";
 import Layout from "@/components/Layout";
+import NullableOption from "@/features/views/components/NullableOption";
 import PageWrapper from "@/components/PageWrapper";
+import PlaceholderOption from "@/features/views/components/PlaceholderOption";
 import React, { useEffect, useMemo, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import TinyLabel from "@/components/TinyLabel";
 import VisibilityOption from "@/features/views/components/VisibilityOption";
+import dynamic from "next/dynamic";
+import { useUpdateColumn } from "@/features/views/hooks"
+
+const getDynamicInspector = (fieldType: string) => {
+  try {
+    return dynamic(
+      () => {
+        try {
+          // return the Inspector component if found
+          return import(`@/plugins/fields/${fieldType}/Inspector.tsx`);
+        } catch (error) {
+          // return empty component
+          return Promise.resolve(() => "");
+        }
+      },
+      {
+        // eslint-disable-next-line react/display-name
+        loading: ({ isLoading }: { isLoading?: boolean }) =>
+          isLoading ? <p>Loading...</p> : null,
+      }
+    );
+  } catch (error) {
+    return () => "";
+  }
+};
 
 const NameEditButton = () => {
   const { isEditing, getEditButtonProps } = useEditableControls();
@@ -164,6 +194,20 @@ const Edit = () => {
     }).unwrap();
   };
 
+  const InspectorComponent: any = useMemo(() => {
+    if (!activeColumn) return (...rest: any) => "";
+
+    return getDynamicInspector(activeColumn?.fieldType);
+  }, [activeColumn?.fieldType]);
+
+
+  const { column, setColumnOptions } = useUpdateColumn();
+
+  const isComputed = useMemo(
+    () => activeColumn?.baseOptions?.computed === true,
+    [activeColumn]
+  );
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -273,9 +317,126 @@ const Edit = () => {
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             {activeColumn && (
-              <div className="block space-y-4 py-4 w-1/3">
+              <div className="block space-y-6 py-4 w-1/3">
                 <FieldTypeOption />
+
+                {/* @todo: make sure this works ok */}
+                <InspectorComponent
+                  column={activeColumn}
+                  setColumnOptions={setColumnOptions}
+                />
+                {!isComputed && (
+                  <GenericBooleanOption
+                    helpText={<>
+                      Some fields you don't want to show at all. By
+                      disconnecting the field it will be hidden from all views
+                      and <strong>all responses</strong>.
+                    </>}
+                    label="Disconnect field"
+                    optionKey="baseOptions.disconnected"
+                    checkboxLabel="Disconnect field"
+                    isChecked={activeColumn.baseOptions.disconnected === true}
+                  />
+                )}
+                <GenericTextOption
+                  helpText="We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views."
+                  label="Label"
+                  optionKey="baseOptions.label"
+                  placeholder="Label value"
+                  defaultValue={activeColumn?.baseOptions?.label}
+                  formHelperText={
+                    <>
+                      Original name for this field is{" "}
+                      <Code>{activeColumn.name}</Code>.
+                    </>
+                  }
+                />
+                <GenericTextOption
+                  helpText={
+                    <>
+                      You may use any html and hex color. <br /> We provide very
+                      good defaults for the following colors <Code>blue</Code>,{" "}
+                      <Code>red</Code>, <Code>green</Code>, <Code>yellow</Code>,{" "}
+                      <Code>orange</Code>, <Code>pink</Code>,{" "}
+                      <Code>purple</Code> and <Code>gray</Code>.
+                    </>
+                  }
+                  label="Background color"
+                  optionKey="baseOptions.backgroundColor"
+                  placeholder="{{ value.toLowerCase().includes('ok') ? 'green' : 'yellow'}}"
+                  className="font-mono w-full"
+                  defaultValue={activeColumn?.baseOptions?.backgroundColor}
+                  formHelperText={
+                    <>
+                      You can use the <Code>value</Code> variable.
+                    </>
+                  }
+                />
+
+                <GenericTextOption
+                  helpText="Does this field need to display some help text to your users? Write it here and they will see it."
+                  label="Help text"
+                  optionKey="baseOptions.help"
+                  placeholder="Help text value"
+                  defaultValue={activeColumn?.baseOptions?.help}
+                />
+
+                {activeColumn.fieldType === "DateTime" ||
+                  activeColumn.fieldType === "Id" || (
+                    <GenericTextOption
+                      helpText="Default value for create view."
+                      label="Default value"
+                      optionKey="baseOptions.defaultValue"
+                      placeholder="Default value"
+                      defaultValue={activeColumn?.baseOptions?.defaultValue}
+                    />
+                  )}
+
+                {/* <OptionWrapper
+      helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
+      id="label"
+      label="Label"
+    >
+      <Input
+        type="text"
+        name="label value"
+        placeholder="Label value"
+        required={false}
+        value={value}
+        onChange={updateValue}
+      />
+      <FormHelperText>
+        Original name for this field is <Code>{column.name}</Code>.
+      </FormHelperText>
+
+       */}
+                {/* @todo: one toggle for all visibility */}
                 <VisibilityOption />
+                <div>
+                  Edit view
+                  <hr />
+                  <PlaceholderOption />
+                  <GenericBooleanOption
+                    helpText="Should this field be required in forms?"
+                    label="Required"
+                    optionKey="baseOptions.required"
+                    checkboxLabel="Required"
+                    isChecked={activeColumn.baseOptions.required === true}
+                    isDisabled={
+                      activeColumn.baseOptions.nullable === true ||
+                      activeColumn.baseOptions.readonly === true
+                    }
+                  />
+                  <GenericBooleanOption
+                    helpText="Should this field be readonly in forms?"
+                    label="Readonly"
+                    optionKey="baseOptions.readonly"
+                    checkboxLabel="Readonly"
+                    isChecked={activeColumn.baseOptions.readonly === true}
+                    isDisabled={activeColumn.baseOptions.required === true}
+                  />
+                  <NullableOption />
+                </div>
               </div>
             )}
             <div className="flex-1 flex overflow-auto">

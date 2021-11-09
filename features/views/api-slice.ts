@@ -128,6 +128,7 @@ export const viewsApiSlice = createApi({
             await queryFulfilled;
           } catch {
             patchResult.undo();
+            // dispatch(viewsApiSlice.util.invalidateTags([{ type: "ViewColumns", id: viewId }]))
           }
         },
       }),

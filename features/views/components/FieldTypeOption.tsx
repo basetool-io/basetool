@@ -1,7 +1,7 @@
 import { FieldType } from "@/features/fields/types";
 import { Select } from "@chakra-ui/react";
 import { useSegment } from "@/hooks";
-import { useUpdateColumn } from "../hooks"
+import { useUpdateColumn } from "../hooks";
 import OptionWrapper from "@/features/tables/components/OptionsWrapper";
 import React from "react";
 

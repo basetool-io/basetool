@@ -12,18 +12,16 @@ function VisibilityOption() {
   const [visibility, setVisibility] = useState<Views[]>([]);
 
   useEffect(() => {
+    console.log(1, column?.baseOptions?.visibility)
     if (column && isArray(column?.baseOptions?.visibility)) {
       setVisibility(uniq(column.baseOptions.visibility.filter(Boolean)));
     }
-  }, [column]);
+  }, [column?.baseOptions?.visibility]);
 
   useEffect(() => {
-    if (isArray(visibility)) {
-      setColumnOptions(column.name, {
-        baseOptions: {
-          visibility,
-        },
-      });
+    console.log('visibility->', visibility)
+    if (column && column?.name && isArray(visibility)) {
+
     }
   }, [visibility]);
 
@@ -31,18 +29,22 @@ function VisibilityOption() {
 
   const changeVisibilityOption = (view: Views, checked: boolean) => {
     console.log(1, view, checked);
+    let newVisibility
+
     if (checked) {
-      setVisibility(uniq([...visibility, view].filter(Boolean)));
+      newVisibility = [...visibility, view]
     } else {
       const index = visibility.indexOf(view);
-      const newVisibility = [...visibility];
+      newVisibility = [...visibility];
       delete newVisibility[index];
-      console.log("newVisibility->", newVisibility);
-      setVisibility(uniq(newVisibility.filter(Boolean)));
     }
-  };
 
-  console.log("column->", column);
+    setColumnOptions(column.name, {
+      baseOptions: {
+        visibility: uniq(newVisibility.filter(Boolean)),
+      },
+    });
+  };
 
   return (
     <OptionWrapper
@@ -57,9 +59,9 @@ function VisibilityOption() {
           <div>{humanize(view)}</div>
           <Switch
             size="sm"
-            isChecked={column.baseOptions.visibility.includes(view as Views)}
+            isChecked={visibility.includes(view as Views)}
             onChange={(e) => {
-              changeVisibilityOption(view, e.target.checked);
+              changeVisibilityOption(view as Views, e.target.checked);
               // return setColumnOptions(column.name, {
               //   baseOptions: {
               //     visibility: { [view]: e.target.checked },
@@ -69,7 +71,7 @@ function VisibilityOption() {
           />
         </div>
       ))}
-      <pre>{JSON.stringify(visibility, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(visibility, null, 2)}</pre> */}
     </OptionWrapper>
   );
 }

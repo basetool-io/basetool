@@ -1,6 +1,6 @@
 import { activeColumnSelector } from "@/features/views/state-slice";
+import { dotNotationToObject } from "@/lib/helpers"
 import { getColumnOptions } from "@/features/fields";
-import { updateColumn } from "@/features/views/state-slice";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useAppSelector } from "@/hooks";
 import { useMemo } from "react";
@@ -25,10 +25,13 @@ export const useUpdateColumn = () => {
     columnName: string,
     payload: Record<string, unknown>
   ) => {
+    const body = dotNotationToObject(payload);
+    console.log('body->', body, payload)
+
     updateColumnOnServer({
       viewId,
       columnName,
-      body: payload,
+      body,
     }).unwrap();
   };
 

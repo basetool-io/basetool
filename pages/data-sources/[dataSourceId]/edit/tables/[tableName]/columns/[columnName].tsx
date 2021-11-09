@@ -376,7 +376,7 @@ function ColumnEdit() {
               )}
             </div>
             <div className="divide-y">
-              <OptionWrapper
+              {/* <OptionWrapper
                 helpText="We try to infer the type of field from your data source.
                 Sometimes we might not get it right the first time. Choose the appropiate type of field
                 from these options"
@@ -404,19 +404,19 @@ function ColumnEdit() {
                       ))}
                   </Select>
                 </FormControl>
-              </OptionWrapper>
+              </OptionWrapper> */}
 
-              <InspectorComponent
+              {/* <InspectorComponent
                 column={localColumn}
                 setColumnOptions={setColumnOptions}
-              />
+              /> */}
 
-              <BackgroundColorOption
+              {/* <BackgroundColorOption
                 localColumn={localColumn}
                 setColumnOptions={setColumnOptions}
-              />
+              /> */}
 
-              {!isComputed && (
+              {/* {!isComputed && (
                 <OptionWrapper
                   helpText={
                     <>
@@ -441,9 +441,9 @@ function ColumnEdit() {
                     Disconnected
                   </Checkbox>
                 </OptionWrapper>
-              )}
+              )} */}
 
-              <OptionWrapper
+              {/* <OptionWrapper
                 helpText={`By default, all fields are visible in all views.
 But maybe some shouldn't be? 🤔
 You can control where the field is visible here.`}
@@ -487,9 +487,9 @@ You can control where the field is visible here.`}
                     )}
                   </Stack>
                 </CheckboxGroup>
-              </OptionWrapper>
+              </OptionWrapper> */}
 
-              <OptionWrapper
+              {/* <OptionWrapper
                 helpText={`We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views.`}
               >
                 <FormControl id="label">
@@ -511,7 +511,7 @@ You can control where the field is visible here.`}
                     <Code>{localColumn.name}</Code>.
                   </FormHelperText>
                 </FormControl>
-              </OptionWrapper>
+              </OptionWrapper> */}
 
               {isComputed && (
                 <OptionWrapper helpText="Value that has to be computed. You have to refresh the page after changing this value.">
@@ -548,7 +548,7 @@ You can control where the field is visible here.`}
 
               {!isComputed && (
                 <>
-                  <OptionWrapper
+                  {/* <OptionWrapper
                     helpText={`Whatever you pass in here will be a short hint that describes the expected value of this field.`}
                   >
                     <FormControl id="placeholder">
@@ -566,8 +566,8 @@ You can control where the field is visible here.`}
                         }
                       />
                     </FormControl>
-                  </OptionWrapper>
-
+                  </OptionWrapper> */}
+{/*
                   <OptionWrapper
                     helpText={`Should this field be required in forms?`}
                   >
@@ -590,9 +590,9 @@ You can control where the field is visible here.`}
                         Required
                       </Checkbox>
                     </FormControl>
-                  </OptionWrapper>
+                  </OptionWrapper> */}
 
-                  <OptionWrapper
+                  {/* <OptionWrapper
                     helpText={`Should this field be readonly in forms?`}
                   >
                     <FormControl id="readonly">
@@ -611,9 +611,9 @@ You can control where the field is visible here.`}
                         Readonly
                       </Checkbox>
                     </FormControl>
-                  </OptionWrapper>
+                  </OptionWrapper> */}
 
-                  <OptionWrapper
+                  {/* <OptionWrapper
                     helpText={`There are cases where you may prefer to explicitly instruct Basetool to store a NULL value in the database row when the field is empty.`}
                   >
                     <FormControl id="nullable">
@@ -637,8 +637,8 @@ You can control where the field is visible here.`}
                           option.
                         </FormHelperText>
                       )}
-                    </FormControl>
-                    {localColumn.baseOptions.nullable === true && (
+                    </FormControl> */}
+                    {/* {localColumn.baseOptions.nullable === true && (
                       <Stack pl={6} mt={1} spacing={1}>
                         {NULL_VALUES &&
                           NULL_VALUES.map(({ value, label }) => (
@@ -671,10 +671,10 @@ You can control where the field is visible here.`}
                             </div>
                           ))}
                       </Stack>
-                    )}
-                  </OptionWrapper>
+                    )} */}
+                  {/* </OptionWrapper> */}
 
-                  <OptionWrapper
+                  {/* <OptionWrapper
                     helpText={`Does this field need to display some help text to your users? Write it here and they will see it.`}
                   >
                     <FormControl id="help">
@@ -692,9 +692,9 @@ You can control where the field is visible here.`}
                         }
                       />
                     </FormControl>
-                  </OptionWrapper>
+                  </OptionWrapper> */}
 
-                  {localColumn.fieldType === "DateTime" ||
+                  {/* {localColumn.fieldType === "DateTime" ||
                     localColumn.fieldType === "Id" || (
                       <OptionWrapper
                         helpText={`Default value for create view.`}
@@ -716,7 +716,7 @@ You can control where the field is visible here.`}
                           />
                         </FormControl>
                       </OptionWrapper>
-                    )}
+                    )} */}
                 </>
               )}
             </div>
