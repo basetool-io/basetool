@@ -155,6 +155,24 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  // todo - find a way to pass viewId in the request
+  const activityData = {
+    recordId: req.query.recordId as string,
+    userId: user ? user.id : 0,
+    organizationId: dataSource ? (dataSource.organizationId as number) : 0,
+    tableName: req.query.tableName
+      ? (req.query.tableName as string)
+      : undefined,
+    dataSourceId: dataSource ? (dataSource.id as number) : undefined,
+    viewId: req.query.viewId ? parseInt(req.query.viewId as string) : undefined,
+    action: "update",
+    changes: req?.body?.changes,
+  };
+
+  await prisma.activity.create({
+    data: activityData,
+  });
+
   res.json(
     ApiResponse.withData(data, {
       message: `Updated -> ${JSON.stringify(req?.body?.changes)}`,
