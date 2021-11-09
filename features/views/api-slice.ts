@@ -97,7 +97,7 @@ export const viewsApiSlice = createApi({
         /**
          * Optimistic updates.
          */
-        async onQueryStarted(
+        onQueryStarted(
           { viewId, columnName, ...patch },
           { dispatch, queryFulfilled }
         ) {
@@ -124,12 +124,7 @@ export const viewsApiSlice = createApi({
             )
           );
 
-          try {
-            await queryFulfilled;
-          } catch {
-            patchResult.undo();
-            // dispatch(viewsApiSlice.util.invalidateTags([{ type: "ViewColumns", id: viewId }]))
-          }
+          queryFulfilled.catch(() => patchResult.undo());
         },
       }),
     };
