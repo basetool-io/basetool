@@ -4,9 +4,15 @@ import {
   User,
   View,
 } from "@prisma/client";
+import {
+  ArrowRightIcon,
+  PlusIcon,
+  RefreshIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
 import { Avatar, AvatarBadge, Code, Tooltip } from "@chakra-ui/react";
 import { DateTime } from "luxon";
-import { PlusIcon, RefreshIcon, TrashIcon } from "@heroicons/react/outline";
+import { isEmpty, isNull, isUndefined } from "lodash";
 import { useGetActivitiesQuery } from "@/features/organizations/api-slice";
 import { useOrganizationFromProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -124,25 +130,75 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
     }
   }, [activity.action]);
 
+  const getChangeValue = (change: any) => {
+    if (isUndefined(change))
+      return <span className="text-xs uppercase">Undefined</span>;
+    if (isNull(change)) return <span className="text-xs uppercase">Null</span>;
+    if (isEmpty(change))
+      return <span className="text-xs uppercase">Empty</span>;
+
+    if (typeof change === "object") return JSON.stringify(change, null, 2);
+
+    return change;
+  };
+
+  const changes = useMemo(() => {
+    if (activity?.changes?.length > 0) {
+      return (
+        <>
+          <span className="text-xs font-bold uppercase text-gray-800 leading-none">
+            Changes
+          </span>
+          <ul className="space-y-1">
+            {activity?.changes &&
+              activity.changes.map(
+                (change: Record<string, any>, idx: number) => {
+                  return (
+                    <li key={idx}>
+                      <span className="text-xs mr-1 font-semibold">
+                        {change.column}
+                      </span>{" "}
+                      <br />
+                      <span className="text-gray-700">
+                        {getChangeValue(change.before)}
+                      </span>{" "}
+                      <ArrowRightIcon className="h-3 w-3 inline mb-1 mx-1" />{" "}
+                      <span className="text-gray-900">
+                        {getChangeValue(change.after)}
+                      </span>
+                    </li>
+                  );
+                }
+              )}
+          </ul>
+        </>
+      );
+    }
+
+    return null;
+  }, [activity.changes]);
+
   return (
     <li
       key={activity.id}
-      className="py-4 my-2 bg-true-gray-100 shadow-md rounded-md"
+      className="relative py-4 my-2 rounded-md max-w-xl"
     >
+      <span className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
       <div className="flex space-x-3 mx-2">
-        <div className="h-8 w-8">
+        <div className="h-12 w-12">
           <Avatar
-            size="sm"
+            size="md"
             name={activity.user.email}
             src={`https://www.gravatar.com/avatar/${md5(activity.user.email)}`}
+            className="border-4 border-white"
           >
-            <AvatarBadge bg={avatarBadgeColor} boxSize="1.75em">
+            <AvatarBadge bg={avatarBadgeColor} boxSize="1.25em">
               {avatarIcon}
             </AvatarBadge>
           </Avatar>
         </div>
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium">
               {activity.user.firstName + " " + activity.user.lastName}
             </h3>
@@ -151,6 +207,7 @@ const ActivityItem = ({ activity }: { activity: ActivityType }) => {
             </p>
           </div>
           <p className="text-sm text-gray-500">{message}</p>
+          {changes && <p className="text-sm mt-4">{changes}</p>}
         </div>
       </div>
     </li>
@@ -179,21 +236,20 @@ function Activity() {
       <PageWrapper crumbs={[organization?.name, "Activity"]} flush={true}>
         <div className="relative flex-1 max-w-full w-full flex">
           {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
-          <div className="mx-auto px-6">
-            <ul role="list">
+          <div className="mx-auto px-1">
+            <ul role="list" className="">
               {activitiesResponse &&
                 activitiesResponse?.data?.length > 0 &&
                 activitiesResponse?.data.map((activityItem: ActivityType) => (
                   <ActivityItem activity={activityItem} />
                 ))}
-              {activitiesResponse && activitiesResponse?.data?.length === 0 && (
-                <li className="py-4 my-2 bg-true-gray-100 shadow-md rounded-md">
-                  No activity yet
+                {activitiesResponse && activitiesResponse?.data?.length === 0 && (
+                <li className="py-4 my-2 bg-true-gray-100 shadow-md rounded-md px-10">
+                  No activity logged yet!
                 </li>
               )}
             </ul>
           </div>
-          {/* <pre>{JSON.stringify(activitiesResponse?.data, null, 2)}</pre> */}
         </div>
       </PageWrapper>
     </Layout>

@@ -69,8 +69,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     >;
   };
 
-  console.log('response.activities->', typeof response?.activities)
-
   res.json(ApiResponse.withData(response?.activities || []));
 }
 
