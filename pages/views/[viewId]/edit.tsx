@@ -8,10 +8,9 @@ import {
   useEditableControls,
 } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { DecoratedView } from "@/features/views/types";
+import { DecoratedView, OrderParams } from "@/features/views/types";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
-import { Save } from "react-feather";
 import { isArray, isEmpty, isUndefined, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
@@ -26,15 +25,15 @@ import {
 import { useRouter } from "next/router";
 import { useUpdateColumn } from "@/features/views/hooks";
 import BackButton from "@/features/records/components/BackButton";
-import ViewEditColumns from "@/features/views/components/ViewEditColumns";
-import ViewEditOrder from "@/features/views/components/ViewEditOrder";
 import FieldEditor from "@/features/views/components/FieldEditor";
-import ViewEditFilters from "@/features/views/components/ViewEditFilters";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import TinyLabel from "@/components/TinyLabel";
+import ViewEditColumns from "@/features/views/components/ViewEditColumns";
+import ViewEditFilters from "@/features/views/components/ViewEditFilters";
+import ViewEditOrder from "@/features/views/components/ViewEditOrder";
 
 const NameEditButton = () => {
   const { isEditing, getEditButtonProps } = useEditableControls();
@@ -139,7 +138,7 @@ const Edit = () => {
     }
   };
 
-  const [updateView, { isLoading: viewIsUpdating }] = useUpdateViewMutation();
+  const [updateView] = useUpdateViewMutation();
 
   const body = useMemo(() => {
     return pick(
@@ -154,12 +153,42 @@ const Edit = () => {
     );
   }, [localView, appliedFilters]);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const updateName = async (name: string) => {
+    if (name !== localView.name)
+      await updateView({
+        viewId,
+        body: {
+          ...body,
+          name,
+        },
+      }).unwrap();
+  };
 
+  const updatePublic = async (publicView: boolean) => {
+    setLocalView({
+      ...localView,
+      public: publicView,
+    });
     await updateView({
       viewId,
-      body,
+      body: {
+        ...body,
+        public: publicView,
+      },
+    }).unwrap();
+  };
+
+  const updateOrder = async (defaultOrder: OrderParams) => {
+    setLocalView({
+      ...localView,
+      defaultOrder,
+    });
+    await updateView({
+      viewId,
+      body: {
+        ...body,
+        defaultOrder,
+      },
     }).unwrap();
   };
 
@@ -179,19 +208,7 @@ const Edit = () => {
               isLoading={viewIsRemoving}
               leftIcon={<TrashIcon className="h-4" />}
             >
-              Remove view
-            </Button>
-          ),
-          center: (
-            <Button
-              colorScheme="blue"
-              size="sm"
-              width="300px"
-              onClick={handleSubmit}
-              isLoading={viewIsUpdating}
-              leftIcon={<Save className="h-4" />}
-            >
-              Save
+              Delete view
             </Button>
           ),
         }}
@@ -208,15 +225,9 @@ const Edit = () => {
                   </div>
                   <Editable
                     className="flex-1"
-                    value={localView?.name}
-                    onChange={(value: string) => {
-                      if (value && !isEmpty(value)) {
-                        setLocalView({
-                          ...localView,
-                          name: value,
-                        });
-                      }
-                    }}
+                    defaultValue={localView?.name}
+                    onSubmit={updateName}
+                    submitOnBlur={true}
                   >
                     <div className="relative flex justify-between w-full">
                       <div className="w-full">
@@ -227,42 +238,39 @@ const Edit = () => {
                     </div>
                   </Editable>
                 </div>
-                {dataSourceResponse?.ok && (
+                <div className="grid space-y-4 lg:space-y-0 lg:grid-cols-2">
                   <div>
-                    <div className="w-1/2 mr-1">
+                    <div className=" mr-1">
                       <TinyLabel>DataSource</TinyLabel>
                     </div>
-                    <div className="flex-1">{dataSourceResponse.data.name}</div>
+                    <div className="text-sm flex-1">
+                      {dataSourceResponse?.ok && dataSourceResponse.data.name}
+                    </div>
                   </div>
-                )}
-                <div>
-                  <div className="w-1/2">
-                    <TinyLabel>Table name</TinyLabel>
+                  <div>
+                    <div className="">
+                      <TinyLabel>Table name</TinyLabel>
+                    </div>
+                    <div className="text-sm flex-1">{localView?.tableName}</div>
                   </div>
-                  <div className="flex-1">{localView?.tableName}</div>
                 </div>
                 <div>
-                  <div className="w-1/2">
-                    <TinyLabel>Public</TinyLabel>
+                  <div className="">
+                    <TinyLabel>Visibility</TinyLabel>
                   </div>
                   <div className="flex-1 pt-1">
                     <Checkbox
                       colorScheme="gray"
                       isChecked={localView?.public}
-                      onChange={(e) =>
-                        setLocalView({
-                          ...localView,
-                          public: !localView?.public,
-                        })
-                      }
+                      onChange={(e) => updatePublic(e.currentTarget.checked)}
                     >
-                      View is public
+                      Anyone can see this view
                     </Checkbox>
                   </div>
                 </div>
 
                 <ViewEditFilters />
-                <ViewEditOrder />
+                <ViewEditOrder view={localView} updateOrder={updateOrder} />
                 <ViewEditColumns />
               </div>
             )}

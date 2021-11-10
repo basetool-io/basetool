@@ -95,6 +95,7 @@ export const api = createApi({
               "getColumns",
               { viewId },
               (draft) => {
+                // Copy the present data
                 const newData = {
                   data: [...draft.data],
                 };
