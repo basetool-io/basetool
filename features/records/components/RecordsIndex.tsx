@@ -9,8 +9,13 @@ import {
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { OWNER_ROLE } from "@/features/roles";
 import { columnsSelector } from "../state-slice";
+import { humanize } from "@/lib/humanize";
 import { isEmpty, isUndefined } from "lodash";
-import { useAccessControl, useAppSelector, useDataSourceContext } from "@/hooks";
+import {
+  useAccessControl,
+  useAppSelector,
+  useDataSourceContext,
+} from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import {
@@ -148,12 +153,25 @@ const RecordsIndex = () => {
 
   // We need to find out if it has Id column for the visibility of delete bulk and create buttons (footer).
   const rawColumns = useAppSelector(columnsSelector);
-  const hasIdColumn = useMemo(() => rawColumns.find((col) => col.name === "id"), [rawColumns]);
+  const hasIdColumn = useMemo(
+    () => rawColumns.find((col) => col.name === "id"),
+    [rawColumns]
+  );
+
+  const heading = useMemo(() => {
+    if (viewId && viewResponse?.ok) {
+      return viewResponse?.data.name;
+    } else if (tableName) {
+      return humanize(tableName);
+    } else {
+      return "Browse records";
+    }
+  }, [viewId, viewResponse, tableName]);
 
   return (
     <Layout>
       <PageWrapper
-        heading="Browse records"
+        heading={heading}
         flush={true}
         buttons={
           <ButtonGroup size="xs">
@@ -192,50 +210,51 @@ const RecordsIndex = () => {
           </ButtonGroup>
         }
         footer={
-          hasIdColumn &&
-          <PageWrapper.Footer
-            left={
-              ac.deleteAny("record").granted && (
-                <Tooltip label={deleteMessage} placement="bottom" gutter={10}>
-                  <Button
-                    className="text-red-600 text-sm cursor-pointer"
-                    variant="link"
-                    colorScheme="red"
-                    leftIcon={<TrashIcon className="h-4" />}
-                    isLoading={isDeleting}
-                    isDisabled={selectedRecords.length === 0}
-                    onClick={handleDeleteMultiple}
-                  >
-                    {selectedRecords.length > 0 &&
-                      `Delete ${selectedRecords.length} ${pluralize(
-                        "record",
-                        selectedRecords.length
-                      )}`}
-                    {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
-                    {selectedRecords.length === 0 && (
-                      <>&nbsp;&nbsp;&nbsp;&nbsp;</>
-                    )}
-                  </Button>
-                </Tooltip>
-              )
-            }
-            center={
-              ac.createAny("record").granted &&
-              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link href={newRecordPath} passHref>
-                  <Button
-                    as="a"
-                    colorScheme="blue"
-                    size="sm"
-                    width="300px"
-                    leftIcon={<PlusIcon className="h-4" />}
-                  >
-                    Create record
-                  </Button>
-                </Link>
-              )
-            }
-          />
+          hasIdColumn && (
+            <PageWrapper.Footer
+              left={
+                ac.deleteAny("record").granted && (
+                  <Tooltip label={deleteMessage} placement="bottom" gutter={10}>
+                    <Button
+                      className="text-red-600 text-sm cursor-pointer"
+                      variant="link"
+                      colorScheme="red"
+                      leftIcon={<TrashIcon className="h-4" />}
+                      isLoading={isDeleting}
+                      isDisabled={selectedRecords.length === 0}
+                      onClick={handleDeleteMultiple}
+                    >
+                      {selectedRecords.length > 0 &&
+                        `Delete ${selectedRecords.length} ${pluralize(
+                          "record",
+                          selectedRecords.length
+                        )}`}
+                      {/* Add empty space 👇 so the icon doesn't get offset to the left when "Delete records" label is displayed */}
+                      {selectedRecords.length === 0 && (
+                        <>&nbsp;&nbsp;&nbsp;&nbsp;</>
+                      )}
+                    </Button>
+                  </Tooltip>
+                )
+              }
+              center={
+                ac.createAny("record").granted &&
+                !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
+                  <Link href={newRecordPath} passHref>
+                    <Button
+                      as="a"
+                      colorScheme="blue"
+                      size="sm"
+                      width="300px"
+                      leftIcon={<PlusIcon className="h-4" />}
+                    >
+                      Create record
+                    </Button>
+                  </Link>
+                )
+              }
+            />
+          )
         }
       >
         <div className="relative flex flex-col flex-1 w-full h-full">
