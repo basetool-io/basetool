@@ -222,7 +222,7 @@ export const api = createApi({
         ApiResponse,
         Partial<{
           viewId: string;
-          body: string[];
+          body: { order: string[] };
         }>
       >({
         query: ({ viewId, body }) => ({
@@ -233,6 +233,37 @@ export const api = createApi({
         invalidatesTags: (result, error, { viewId }) => [
           { type: "ViewColumns", id: viewId },
         ],
+        onQueryStarted({ viewId, ...patch }, { dispatch, queryFulfilled }) {
+          if (!viewId) return;
+
+          // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
+          const patchResult = dispatch(
+            fieldsApiSlice.util.updateQueryData(
+              "getColumns",
+              { viewId },
+              (draft) => {
+                // Copy the data
+                const newData = { ...draft.data };
+
+                // Assign the new order indexes
+                draft.data.forEach((column: Column, index: number) => {
+                  if (patch?.body?.order.includes(column.name)) {
+                    draft.data[index].baseOptions.orderIndex =
+                      patch?.body?.order?.indexOf(column.name);
+                  }
+                });
+                // Update the response from `getColumns` with the mock data
+                Object.assign(draft, newData);
+              }
+            )
+          );
+
+          queryFulfilled
+            .then(() => {
+              dispatch(fieldsApiSlice.util.invalidateTags(["ViewColumns"]));
+            })
+            .catch(() => patchResult.undo());
+        },
       }),
     };
   },

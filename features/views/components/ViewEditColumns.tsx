@@ -12,10 +12,10 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
+import { EyeOffIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import { INITIAL_NEW_COLUMN } from "@/features/data-sources";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_VIEW_NAME_LENGTH } from "@/lib/constants";
-import { PlusCircleIcon } from "@heroicons/react/outline";
 import { iconForField } from "@/features/fields";
 import { isArray, isEqual, snakeCase, sortBy } from "lodash";
 import { selectColumnName, selectedColumnNameSelector } from "../state-slice";
@@ -85,6 +85,8 @@ const ColumnItem = ({
     [moveColumn, id]
   );
 
+  const hidden = useMemo(() => column.baseOptions.disconnected, [column]);
+
   return (
     <div
       className={classNames(
@@ -92,23 +94,29 @@ const ColumnItem = ({
         {
           "bg-blue-600 text-white": selectedColumnName === column.name,
           "hover:bg-gray-100":
-            selectedColumnName !== column.name && item?.id === column?.name,
+            selectedColumnName !== column.name ||
+            (!isDragging && item?.id === column?.name),
           "!bg-gray-800 opacity-25":
             isOver || (isDragging && item?.id === column?.name),
         }
       )}
       ref={preview}
     >
-      <div className="flex items-center flex-1">
-        <span ref={(node: any) => drag(drop(node))} className="h-full">
+      <div className="flex items-center flex-1 hover:cursor-pointer">
+        <span ref={(node: any) => drag(drop(node))} className="h-full ml-1">
           <DragIcon />{" "}
         </span>
         <div
-          className="flex-1 flex items-center"
+          className="flex-1 flex items-center justify-between"
           onClick={toggleColumnSelection}
         >
-          <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
-          <span className="text-sm">{column.name}</span>{" "}
+          <span className="flex items-center">
+            <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
+            <span className="text-">{column.name}</span>{" "}
+          </span>
+          <span className="flex items-center">
+            {hidden && <EyeOffIcon className="h-4 mr-1 inline" />}
+          </span>
         </div>
       </div>
     </div>
@@ -181,6 +189,10 @@ const Form = ({
           return;
         }
 
+        // Clear the input value
+        setName("");
+        firstFieldRef.current.value = "";
+
         createField();
       }}
     >
@@ -196,6 +208,7 @@ const Form = ({
           width="100%"
           isDisabled={name.length < MINIMUM_VIEW_NAME_LENGTH}
           isLoading={isLoading}
+          leftIcon={<PlusIcon className="text-white h-4" />}
         >
           Add virtual column
         </Button>

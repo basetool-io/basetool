@@ -62,7 +62,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-  return res.json(ApiResponse.withMessage("Updated order"));
+  return res.json(ApiResponse.ok());
 }
 
 export default withMiddlewares(handler, {

@@ -6,7 +6,7 @@ function DragIcon({ className }: { className?: string }) {
   return (
     <div
       className={classNames(
-        "flex h-4 text-gray-300 hover:text-gray-500 cursor-grab",
+        "flex h-4 cursor-grab",
         className
       )}
     >
