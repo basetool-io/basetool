@@ -108,7 +108,7 @@ const DataSourcesSidebar = () => {
                   <a className="block">
                     <Tooltip label="Home" placement="right" gutter={15}>
                       <span
-                        id="home-button"
+                        id="sidebar-home-button"
                         className={classNames(
                           "flex items-center justify-center text-white font-normal cursor-pointer text-sm rounded-md leading-none h-12",
                           { "hover:bg-cool-gray-600": router.asPath === "/" },
