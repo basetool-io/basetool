@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { DecoratedView, OrderParams } from "@/features/views/types";
-import { IFilter, IFilterGroup } from "@/features/tables/types";
+import { FilterOrFilterGroup } from "@/features/tables/types";
 import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { isArray, isEmpty, isUndefined, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
@@ -58,7 +58,7 @@ const Edit = () => {
   const dispatch = useAppDispatch();
   const { viewId, dataSourceId } = useDataSourceContext();
   const [localView, setLocalView] = useState<DecoratedView>();
-  const { column, setColumnOptions } = useUpdateColumn();
+  const { column } = useUpdateColumn();
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -144,7 +144,7 @@ const Edit = () => {
     return pick(
       {
         ...localView,
-        filters: appliedFilters.map((filter: IFilter | IFilterGroup) => ({
+        filters: appliedFilters.map((filter: FilterOrFilterGroup) => ({
           ...filter,
           isBase: true,
         })),
@@ -191,15 +191,17 @@ const Edit = () => {
       },
     }).unwrap();
   };
+
+  const updateFilters = async (filters: FilterOrFilterGroup[]) => {
     setLocalView({
       ...localView,
-      defaultOrder,
+      filters,
     });
     await updateView({
       viewId,
       body: {
         ...body,
-        defaultOrder,
+        filters,
       },
     }).unwrap();
   };
@@ -281,7 +283,7 @@ const Edit = () => {
                   </div>
                 </div>
 
-                <ViewEditFilters />
+                <ViewEditFilters updateFilters={updateFilters} />
                 <ViewEditOrder view={localView} updateOrder={updateOrder} />
                 <ViewEditColumns />
               </div>

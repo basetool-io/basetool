@@ -270,10 +270,11 @@ const Filter = ({
     }
   };
 
-  const removeFilterMethod = () => {
+  const handleRemoveFilter = () => {
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
+
       if (newFilters.length > 1) {
         newFilters.splice(idx, 1);
 
@@ -418,7 +419,7 @@ const Filter = ({
           )}
         </div>
         <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
+          <Button size="xs" variant="link" onClick={handleRemoveFilter}>
             <TrashIcon className="h-3 text-gray-700" />
           </Button>
         </Tooltip>

@@ -60,7 +60,6 @@ const recordsStateSlice = createSlice({
     },
     removeFilter(state, action: PayloadAction<number>) {
       state.filters.splice(action.payload, 1);
-      state.appliedFilters.splice(action.payload, 1);
     },
     updateFilter(
       state,

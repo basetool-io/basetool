@@ -203,7 +203,9 @@ const ViewEditColumns = () => {
         )}
         {!columnsAreLoading &&
           columns &&
-          columns.map((column: Column) => <ColumnItem column={column} />)}
+          columns.map((column: Column, idx: number) => (
+            <ColumnItem key={idx} column={column} />
+          ))}
       </div>
     </div>
   );

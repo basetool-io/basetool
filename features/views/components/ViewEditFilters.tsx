@@ -4,6 +4,9 @@ import {
   PencilAltIcon,
 } from "@heroicons/react/outline";
 import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
+import {
+  FilterOrFilterGroup,
+} from "@/features/tables/types";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext } from "@/hooks";
 import { useFilters } from "@/features/records/hooks";
@@ -13,7 +16,11 @@ import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import React, { useRef } from "react";
 import TinyLabel from "@/components/TinyLabel";
 
-const ViewEditFilters = () => {
+const ViewEditFilters = ({
+  updateFilters,
+}: {
+  updateFilters: (filters: (FilterOrFilterGroup)[]) => void;
+}) => {
   const { isOpen: isFiltersOpen, onToggle: toggleFiltersOpen } = useDisclosure({
     defaultIsOpen: true,
   });
@@ -32,6 +39,10 @@ const ViewEditFilters = () => {
     }
   });
   const { appliedFilters } = useFilters(viewResponse?.data?.filters);
+
+  const onApplyFilters = (filters: FilterOrFilterGroup[]) => {
+    if (updateFilters) updateFilters(filters);
+  };
 
   return (
     <div>
@@ -55,7 +66,7 @@ const ViewEditFilters = () => {
         </Tooltip>
         {filtersPanelVisible && (
           <div className="absolute left-auto right-0 -top-8">
-            <FiltersPanel ref={filtersPanel} />
+            <FiltersPanel onApplyFilters={onApplyFilters} ref={filtersPanel} />
           </div>
         )}
       </div>
