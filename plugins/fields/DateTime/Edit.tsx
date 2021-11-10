@@ -121,7 +121,7 @@ const Edit = ({
         dbValue = parsedValue.toUTC();
       }
 
-      setValue(name, dbValue, {
+      setValue(name, dbValue.toString(), {
         shouldValidate: true,
         shouldDirty: true,
         shouldTouch: true,
