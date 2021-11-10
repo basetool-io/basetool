@@ -41,8 +41,7 @@ const RecordsTable = () => {
   const {
     data: recordsResponse,
     error: recordsError,
-    isLoading,
-    isFetching,
+    isFetching: recordsAreFetching,
   } = useGetRecordsQuery(
     {
       dataSourceId,
@@ -67,9 +66,15 @@ const RecordsTable = () => {
   if (dataSourceId && tableName) skip = false;
   const queryPayload = viewId ? { viewId } : { dataSourceId, tableName };
 
-  const { data: columnsResponse } = useGetColumnsQuery(queryPayload, {
-    skip,
-  });
+  const { data: columnsResponse, isFetching: columnsAreFetching } =
+    useGetColumnsQuery(queryPayload, {
+      skip,
+    });
+
+  const isLoading = useMemo(
+    () => recordsAreFetching,
+    [recordsAreFetching, columnsAreFetching]
+  );
 
   const { records } = useRecords(recordsResponse?.data, recordsResponse?.meta);
   useColumns({
@@ -80,9 +85,6 @@ const RecordsTable = () => {
   });
 
   const hasRecords = useMemo(() => records.length > 0, [records]);
-  const tableIsVisible = useMemo(() => {
-    return !isLoading && hasRecords;
-  }, [isLoading, hasRecords]);
 
   // Reset data store on dismount.
   useEffect(() => {
@@ -110,14 +112,14 @@ const RecordsTable = () => {
 
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
-      {isFetching && (
+      {recordsError && <div>Error: {JSON.stringify(recordsError)}</div>}
+      {isLoading && (
         <LoadingOverlay transparent={isEmpty(recordsResponse?.data)} />
       )}
-      {recordsError && <div>Error: {JSON.stringify(recordsError)}</div>}
-      {tableIsVisible && <TheTable />}
-      {tableIsVisible || (
+      {!isLoading && (
         <>
-          {!isFetching && !hasRecords && (
+          {hasRecords && <TheTable />}
+          {!hasRecords && (
             <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600">
               No records found
             </div>
