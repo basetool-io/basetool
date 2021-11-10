@@ -9,12 +9,12 @@ import { isEmpty, sortBy } from "lodash";
 import { useBoolean } from "react-use";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDrop } from "react-dnd";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
-  useGetColumnsQuery,
   useGetTablesQuery,
   useUpdateColumnsOrderMutation,
 } from "@/features/tables/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import ColumnListItem from "@/components/ColumnListItem";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
@@ -53,7 +53,7 @@ const TableColumnsEditLayout = ({
   const { data: columnsResponse } = useGetColumnsQuery(
     {
       dataSourceId,
-      tableName: tableName,
+      tableName,
     },
     { skip: !dataSourceId || !tableName }
   );
@@ -81,7 +81,8 @@ const TableColumnsEditLayout = ({
   const [updateOrder, { isLoading: isUpdating }] =
     useUpdateColumnsOrderMutation();
 
-  const sortColumns = (columns: Column[]) => sortBy(columns, [(column) => column.baseOptions?.orderIndex]);
+  const sortColumns = (columns: Column[]) =>
+    sortBy(columns, [(column) => column.baseOptions?.orderIndex]);
 
   const findColumn = (id: number) => {
     const column = columns.filter(
