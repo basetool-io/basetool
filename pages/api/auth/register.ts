@@ -43,6 +43,7 @@ const handler = async (
     firstName: payload.firstName,
     lastName: payload.lastName,
     organization: payload.organization,
+    lastKnownTimezone: payload.lastKnownTimezone,
   };
 
   const user = await createUser(data);
