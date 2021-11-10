@@ -24,7 +24,6 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const view = await getViewFromRequest(req);
 
   const columnName = req?.query?.columnName as string;
-  // console.log('view, columnName->', view, columnName)
 
   if (!view || !columnName) return res.status(404).send("");
 

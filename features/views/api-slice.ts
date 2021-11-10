@@ -218,6 +218,22 @@ export const api = createApi({
             .catch(() => patchResult.undo());
         },
       }),
+      reorderColumns: builder.mutation<
+        ApiResponse,
+        Partial<{
+          viewId: string;
+          body: string[];
+        }>
+      >({
+        query: ({ viewId, body }) => ({
+          url: `${apiUrl}/views/${viewId}/columns/order`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { viewId }) => [
+          { type: "ViewColumns", id: viewId },
+        ],
+      }),
     };
   },
 });
@@ -232,4 +248,5 @@ export const {
   useCreateColumnMutation,
   useUpdateColumnMutation,
   useDeleteColumnMutation,
+  useReorderColumnsMutation,
 } = api;
