@@ -178,7 +178,19 @@ const Edit = () => {
     }).unwrap();
   };
 
-  const updateOrder = async (defaultOrder: OrderParams) => {
+  const updateOrder = async (defaultOrder: OrderParams[]) => {
+    setLocalView({
+      ...localView,
+      defaultOrder,
+    });
+    await updateView({
+      viewId,
+      body: {
+        ...body,
+        defaultOrder,
+      },
+    }).unwrap();
+  };
     setLocalView({
       ...localView,
       defaultOrder,

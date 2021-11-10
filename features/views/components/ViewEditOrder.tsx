@@ -27,7 +27,7 @@ const ViewEditOrder = ({
   updateOrder,
 }: {
   view: DecoratedView;
-  updateOrder: (order: OrderParams) => void;
+  updateOrder: (order: OrderParams[]) => void;
 }) => {
   const { viewId } = useDataSourceContext();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
@@ -68,7 +68,7 @@ const ViewEditOrder = ({
             <Tooltip label="Add order rule">
               <div
                 className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                onClick={() => updateOrder(defaultOrder)}
+                onClick={() => updateOrder([defaultOrder])}
               >
                 <PlusCircleIcon className="h-4 inline mr-px" /> Add
               </div>
@@ -89,10 +89,10 @@ const ViewEditOrder = ({
               className="font-mono"
               value={view?.defaultOrder?.columnName}
               onChange={(e) =>
-                updateOrder({
-                  ...view.defaultOrder,
+                updateOrder([{
+                  ...view.defaultOrder[0],
                   columnName: e.currentTarget.value,
-                })
+                }])
               }
             >
               {columns &&
@@ -107,10 +107,10 @@ const ViewEditOrder = ({
               className="font-mono"
               value={view?.defaultOrder?.direction}
               onChange={(e) =>
-                updateOrder({
-                  ...view.defaultOrder,
+                updateOrder([{
+                  ...view.defaultOrder[0],
                   direction: e.currentTarget.value,
-                })
+                }])
               }
             >
               {OrderDirections.map((order, idx) => (
@@ -120,7 +120,7 @@ const ViewEditOrder = ({
               ))}
             </Select>
             <Tooltip label="Remove order rule">
-              <Button size="xs" variant="link" onClick={() => updateOrder({})}>
+              <Button size="xs" variant="link" onClick={() => updateOrder([])}>
                 <TrashIcon className="h-3 text-gray-700" />
               </Button>
             </Tooltip>
