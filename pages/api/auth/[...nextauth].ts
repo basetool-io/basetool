@@ -22,6 +22,20 @@ function createIntercomUserHash(user: User | undefined): string | undefined {
   return data.digest("hex");
 }
 
+// Update the user's last known timezone on each login.
+async function updateUserLastKnownTimezone(user: User, lastKnownTimezone: string | undefined) {
+  if (user?.email && lastKnownTimezone) {
+    await prisma.user.updateMany({
+      where: {
+        email: user.email,
+      },
+      data: {
+        lastKnownTimezone,
+      },
+    });
+  }
+}
+
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default NextAuth({
@@ -39,6 +53,7 @@ export default NextAuth({
         email: string;
         username: string;
         password: string;
+        lastKnownTimezone?: string;
       }) {
         const user = await prisma.user.findUnique({
           where: {
@@ -54,6 +69,8 @@ export default NextAuth({
         );
 
         if (passwordIsValid) {
+          updateUserLastKnownTimezone(user, credentials?.lastKnownTimezone);
+
           return user;
         }
 

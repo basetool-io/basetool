@@ -164,6 +164,7 @@ class ApiService {
     password: string;
     firstName?: string;
     lastName?: string;
+    lastKnownTimezone?: string;
   }): Promise<ApiResponse> {
     const { data } = await Api.post(`${this.apiUrl}/auth/register`, payload);
 

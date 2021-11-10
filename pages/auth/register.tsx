@@ -6,6 +6,7 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import { getBrowserTimezone } from "@/lib/time";
 import { getCsrfToken, useSession } from "next-auth/client";
 import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi";
@@ -54,7 +55,7 @@ function Register() {
   }, [session]);
 
   const onSubmit = async (formData: FormFields) => {
-    const response = await api.createUser(formData);
+    const response = await api.createUser({...formData, lastKnownTimezone: getBrowserTimezone()});
     setIsLoading(true);
 
     if (response.ok) {
@@ -90,7 +91,7 @@ function Register() {
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div  className="relative mx-auto w-[200px] h-[54px] my-2">
-            <Image src="/img/logo_text_black.png" layout="fill" width="200" height="54" alt="Basetool Logo" />
+            <Image src="/img/logo_text_black.png" layout="fill" alt="Basetool Logo" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign up for an account

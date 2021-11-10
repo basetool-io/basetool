@@ -11,13 +11,14 @@ export const createUser = async (data: {
   firstName?: string;
   lastName?: string;
   organization: string;
+  lastKnownTimezone?: string;
 }): Promise<
   | (User & {
       organizations: OrganizationUser[];
     })
   | undefined
 > => {
-  const { email, firstName, lastName, password, organization } = data;
+  const { email, firstName, lastName, password, organization, lastKnownTimezone } = data;
 
   if (!email) return;
 
@@ -39,6 +40,7 @@ export const createUser = async (data: {
         password,
         firstName,
         lastName,
+        lastKnownTimezone,
       },
       include: {
         organizations: true,
