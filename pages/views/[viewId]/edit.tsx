@@ -264,7 +264,7 @@ const Edit = () => {
                       isChecked={localView?.public}
                       onChange={(e) => updatePublic(e.currentTarget.checked)}
                     >
-                      Anyone can see this view
+                      Visible to all members
                     </Checkbox>
                   </div>
                 </div>
