@@ -18,7 +18,7 @@ const Item = ({
   description: string;
 }) => {
   const router = useRouter()
-  const isActive = useMemo(() => link === router.asPath, [router.asPath, link])
+  const isActive = useMemo(() => router.asPath.includes(link), [router.asPath, link])
 
   return (
     <Link href={link}>
