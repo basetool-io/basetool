@@ -180,10 +180,12 @@ const Edit = ({
         {columnBaseOptions?.help && (
           <FormHelperText>{parse(columnBaseOptions.help || "")}</FormHelperText>
         )}
-        <FormHelperText>
-          The date is presented in your local timezone based on your browser's
-          locale information.
-        </FormHelperText>
+        {columnFieldOptions.showTime && (
+          <FormHelperText>
+            The time is presented in your local timezone based on your browser's
+            locale information.
+          </FormHelperText>
+        )}
         <FormErrorMessage>{errors[name]?.message}</FormErrorMessage>
         <FormErrorMessage>{invalidReason}</FormErrorMessage>
       </FormControl>
