@@ -34,6 +34,14 @@ const ColumnItem = ({ column }: { column: Column }) => {
   const dispatch = useAppDispatch();
   const selectedColumnName = useAppSelector(selectedColumnNameSelector);
 
+  const toggleColumnSelection = () => {
+    if (selectedColumnName === column?.name) {
+      dispatch(selectColumnName(""));
+    } else {
+      dispatch(selectColumnName(column.name));
+    }
+  };
+
   return (
     <div
       className={classNames(
@@ -48,7 +56,7 @@ const ColumnItem = ({ column }: { column: Column }) => {
         <DragIcon className="" />{" "}
         <div
           className="flex-1 flex items-center"
-          onClick={() => dispatch(selectColumnName(column.name))}
+          onClick={toggleColumnSelection}
         >
           <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
           <span className="text-sm">{column.name}</span>
