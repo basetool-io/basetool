@@ -32,8 +32,6 @@ const makeSchema = async (record: Record, columns: Column[]) => {
   for (const column of columns) {
     let fieldSchema;
 
-    console.log("column->", column.fieldType, column.baseOptions.computed);
-
     try {
       // eslint-disable-next-line no-await-in-loop
       fieldSchema = (
@@ -83,8 +81,6 @@ const Form = ({
       defaultValues: record,
       resolver: joiResolver(schema),
     });
-
-  const { errors, dirtyFields } = formState;
 
   const formData = watch();
 
@@ -202,8 +198,6 @@ const Form = ({
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full h-full flex-1 flex flex-col justify-between">
-            {/* <pre>{JSON.stringify(filteredColumns, null, 2)}</pre> */}
-            <pre>{JSON.stringify([errors, dirtyFields], null, 2)}</pre>
             <div>
               {filteredColumns &&
                 filteredColumns.map((column: Column) => {

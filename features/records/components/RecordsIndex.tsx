@@ -187,9 +187,6 @@ const RecordsIndex = () => {
                     colorScheme="blue"
                     variant="ghost"
                     leftIcon={<PlusIcon className="h-4" />}
-                    // onClick={(e) => {
-
-                    // }}
                   >
                     Create view from this table
                   </Button>
