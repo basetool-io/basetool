@@ -39,6 +39,6 @@ export const evaluateBinding = ({
   try {
     return evalFn(...contextValues);
   } catch (error) {
-    console.error('Evaluation error:', error)
+    console.error("Evaluation error:", error);
   }
 };
