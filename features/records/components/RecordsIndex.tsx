@@ -158,7 +158,7 @@ const RecordsIndex = () => {
     [rawColumns]
   );
 
-  const heading = useMemo(() => {
+  const headingText = useMemo(() => {
     if (viewId && viewResponse?.ok) {
       return viewResponse?.data.name;
     } else if (tableName) {
@@ -171,7 +171,7 @@ const RecordsIndex = () => {
   return (
     <Layout>
       <PageWrapper
-        heading={heading}
+        heading={headingText}
         flush={true}
         buttons={
           <ButtonGroup size="xs">
