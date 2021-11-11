@@ -38,10 +38,6 @@ const SentryWebpackPluginOptions = {
   silent: true, // Suppresses all logs
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options.
-
-  // Workaround for next 12
-  // https://github.com/getsentry/sentry-javascript/issues/4103
-  // outputFileTracing: false,
 };
 
 if (process.env.ANALYZE) {
