@@ -94,6 +94,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       }
     }
   } else {
+    // Cast port as int
+    credentials.port = parseInt(credentials.port);
     // Get a new client
     const client = getKnexClient(type, credentials);
 
