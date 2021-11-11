@@ -1,5 +1,6 @@
-import { getViewFromRequest } from "@/features/api";
+import { getUserFromRequest, getViewFromRequest } from "@/features/api";
 import { isObjectLike, omit } from "lodash";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -21,6 +22,7 @@ const handler = async (
 };
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
+  const user = await getUserFromRequest(req);
   const view = await getViewFromRequest(req);
 
   const columnName = req?.query?.columnName as string;
@@ -38,14 +40,18 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  serverSegment().track({
+    userId: user ? user?.id : "",
+    event: "Removed computed field",
+  });
+
   return res.json(
     ApiResponse.withData(result, { message: `Removed field ${columnName}` })
   );
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  // const user = await getUserFromRequest(req);
-  // @todo: track this update
+  const user = await getUserFromRequest(req);
   const view = await getViewFromRequest(req, {
     select: {
       columns: true,
@@ -94,13 +100,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  // serverSegment().track({
-  //   userId: user ? user.id : "",
-  //   event: "Updated view",
-  //   properties: {
-  //     id: req.query.viewId,
-  //   },
-  // });
+  serverSegment().track({
+    userId: user ? user?.id : "",
+    event: "Updated computed field",
+  });
 
   return res.json(ApiResponse.ok());
 }

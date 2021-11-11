@@ -56,9 +56,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   if (dataSource)
     serverSegment().track({
       userId: user ? user.id : "",
-      event: "Re-odered tables.",
+      event: "Re-odered fields in a view",
       properties: {
         id: dataSource.type,
+        fieldsCount: order.length
       },
     });
 

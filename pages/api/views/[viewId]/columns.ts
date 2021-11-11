@@ -1,5 +1,6 @@
-import { getViewFromRequest } from "@/features/api";
+import { getUserFromRequest, getViewFromRequest } from "@/features/api";
 import { merge } from "lodash"
+import { serverSegment } from "@/lib/track"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -21,6 +22,7 @@ const handler = async (
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const view = await getViewFromRequest(req);
+  const user = await getUserFromRequest(req);
 
   const columnName = req?.body?.name as string;
 
@@ -37,6 +39,11 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     data: {
       columns,
     },
+  });
+
+  serverSegment().track({
+    userId: user ? user?.id : "",
+    event: "Added computed field",
   });
 
   return res.json(

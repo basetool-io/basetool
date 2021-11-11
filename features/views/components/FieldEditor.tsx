@@ -101,11 +101,12 @@ function FieldEditor() {
           />
         )}
 
-        {/* @todo: make sure this works ok */}
+        {/* Some fields have their own configurations. */}
         <InspectorComponent
           column={column}
           setColumnOptions={handleColumnOptionsChange}
         />
+
         {!isComputed && (
           <GenericBooleanOption
             label="Disconnect field"

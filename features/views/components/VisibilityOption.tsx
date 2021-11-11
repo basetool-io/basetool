@@ -2,11 +2,13 @@ import { Switch } from "@chakra-ui/react";
 import { Views } from "@/features/fields/enums";
 import { humanize } from "@/lib/humanize";
 import { isArray, uniq, without } from "lodash";
+import { useSegment } from "@/hooks"
 import { useUpdateColumn } from "../hooks";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 
 function VisibilityOption() {
+  const track = useSegment();
   const { column, setColumnOptions } = useUpdateColumn();
 
   const [visibility, setVisibility] = useState<Views[]>([]);
@@ -36,6 +38,7 @@ function VisibilityOption() {
 
   const changeVisibilityOption = (view: Views, checked: boolean) => {
     let newVisibility;
+    track("Updated visibility column option.");
 
     if (checked) {
       newVisibility = [...visibility, view];
