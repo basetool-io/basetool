@@ -19,5 +19,5 @@ export const getFormatFormFieldOptions = (
   }
 };
 export const timeFormat = "HH:mm:ss";
-export const dateFormat = "dd/LL/yyyy";
-export const dateTimeFormat = "dd/LL/yyyy HH:mm:ss";
+export const dateFormat = "yyyy/LL/dd";
+export const dateTimeFormat = "yyyy/LL/dd HH:mm:ss";

@@ -12,4 +12,5 @@ export const schema = Joi.object({
   organization: Joi.string().label("Organization").required(),
   firstName: Joi.string().label("First name").allow(""),
   lastName: Joi.string().label("Last name").allow(""),
+  lastKnownTimezone: Joi.string().label("Last known timezone").allow(""),
 });
