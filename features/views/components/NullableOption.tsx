@@ -1,9 +1,9 @@
 import { Checkbox, Code } from "@chakra-ui/react";
-import { debounce, isString, without } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateColumn } from "../hooks";
+import { without } from "lodash";
 import GenericBooleanOption from "./GenericBooleanOption";
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 
 const NULL_VALUES = [
   {
@@ -38,26 +38,7 @@ const NULL_VALUES = [
 const NullableOption = () => {
   const track = useSegment();
 
-  const { column, columnOptions, setColumnOptions } = useUpdateColumn();
-  const [value, setValue] = useState<string>();
-
-  const debouncedSetColumnOptions = useCallback(
-    debounce(setColumnOptions, 1000),
-    []
-  );
-
-  const updateValue = (event: any) => {
-    setValue(event.currentTarget.value);
-    if (column)
-      debouncedSetColumnOptions(column.name, {
-        "baseOptions.placeholder": event.currentTarget.value,
-      });
-  };
-
-  useEffect(() => {
-    if (isString(column?.baseOptions?.placeholder))
-      setValue(column?.baseOptions?.placeholder);
-  }, [column?.baseOptions?.placeholder]);
+  const { column, setColumnOptions } = useUpdateColumn();
 
   if (!column) return null;
 
@@ -82,16 +63,19 @@ const NullableOption = () => {
                     column.baseOptions.nullValues
                   ).includes(value)}
                   onChange={(e) => {
+                    // Get the null values
                     let newNullValues = Object.values({
                       ...column.baseOptions.nullValues,
                     });
 
+                    // Add or remove the clicked item
                     if (e.currentTarget.checked) {
                       newNullValues.push(value);
                     } else {
                       newNullValues = without(newNullValues, value);
                     }
 
+                    // Set the options
                     setColumnOptions(column.name, {
                       "baseOptions.nullValues": newNullValues,
                     });
