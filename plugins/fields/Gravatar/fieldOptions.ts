@@ -1,6 +1,6 @@
 const fieldOptions = {
   indexDimensions: 40,
   showDimensions: 340,
-  rounded: false,
+  rounded: true,
 };
 export default fieldOptions;

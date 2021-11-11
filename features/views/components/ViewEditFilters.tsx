@@ -25,7 +25,7 @@ const ViewEditFilters = ({
   });
   const { viewId } = useDataSourceContext();
 
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+  // const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const filtersButton = useRef(null);
@@ -37,7 +37,7 @@ const ViewEditFilters = ({
       toggleFiltersPanelVisible(false);
     }
   });
-  const { appliedFilters } = useFilters(viewResponse?.data?.filters);
+  const { appliedFilters } = useFilters();
 
   const onApplyFilters = (filters: FilterOrFilterGroup[]) => {
     if (updateFilters) updateFilters(filters);
@@ -83,6 +83,7 @@ const ViewEditFilters = ({
         )}
       </div>
       <Collapse in={isFiltersOpen}>
+        <pre>{JSON.stringify(appliedFilters, null, 2)}</pre>
         <CompactFiltersView filters={appliedFilters} />
       </Collapse>
     </div>

@@ -31,6 +31,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     const column = (columns as any)[columnName];
 
     if (column) {
+      column.baseOptions ||= {}
       column.baseOptions.orderIndex = orderIndex;
     } else {
       (columns as any)[columnName] = { baseOptions: { orderIndex } };

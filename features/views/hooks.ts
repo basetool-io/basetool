@@ -1,4 +1,4 @@
-import { activeColumnSelector } from "@/features/views/state-slice";
+import { activeColumnSelector } from "@/features/records/state-slice";
 import { dotNotationToObject } from "@/lib/helpers";
 import { getColumnOptions } from "@/features/fields";
 import { useAppSelector } from "@/hooks";

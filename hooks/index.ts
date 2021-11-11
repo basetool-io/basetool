@@ -168,7 +168,7 @@ export const useDataSourceContext = () => {
     () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
     [tableIndexPath, viewId]
   );
-  const newRecordPath = useMemo(() => `${recordsPath}/new`, [recordsPath]);
+  const newRecordPath = useMemo(() => recordsPath ? `${recordsPath}/new` : null, [recordsPath]);
 
   return {
     dataSourceId,

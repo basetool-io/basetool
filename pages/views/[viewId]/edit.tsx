@@ -1,12 +1,12 @@
 import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
-import { DecoratedView, OrderParams } from "@/features/views/types";
 import { FilterOrFilterGroup } from "@/features/tables/types";
+import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
 import { isArray, pick } from "lodash";
-import { setColumns } from "@/features/views/state-slice";
+import { setColumns } from "@/features/records/state-slice";
 import { useAppDispatch, useDataSourceContext, useSegment } from "@/hooks";
-import { useFilters, useOrderRecords } from "@/features/records/hooks";
+import { useFilters } from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import {
   useGetViewQuery,
@@ -19,7 +19,7 @@ import BackButton from "@/features/records/components/BackButton";
 import FieldEditor from "@/features/views/components/FieldEditor";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import ViewEditColumns from "@/features/views/components/ViewEditColumns";
 import ViewEditDataSourceInfo from "@/features/views/components/ViewEditDataSourceInfo";
@@ -32,7 +32,7 @@ const Edit = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { viewId, dataSourceId } = useDataSourceContext();
-  const [localView, setLocalView] = useState<DecoratedView>();
+  // const [localView, setLocalView] = useState<DecoratedView>();
   const { column } = useUpdateColumn();
   useSegment("Tried to edit a view.", {
     viewId,
@@ -43,8 +43,9 @@ const Edit = () => {
     isLoading: viewIsLoading,
     error: viewError,
   } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const view = useMemo(() => viewResponse?.data, [viewResponse?.data]);
 
-  const backLink = `/views/${viewId}/`;
+  const backLink = `/views/${viewId}`;
   const crumbs = useMemo(
     () => ["Edit view", viewResponse?.data?.name],
     [viewResponse?.data?.name]
@@ -52,10 +53,7 @@ const Edit = () => {
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
-  const { setFilters, appliedFilters, setAppliedFilters } = useFilters(
-    viewResponse?.data?.filters
-  );
-  const { setOrderBy, setOrderDirection } = useOrderRecords();
+  const { setFilters, appliedFilters, setAppliedFilters } = useFilters();
 
   const { data: columnsResponse } = useGetColumnsQuery(
     {
@@ -69,37 +67,6 @@ const Edit = () => {
       dispatch(setColumns(columnsResponse?.data as Column[]));
     }
   }, [columnsResponse?.data]);
-
-  const setViewData = () => {
-    if (viewResponse?.ok) {
-      setLocalView(viewResponse.data);
-
-      if (viewResponse.data.filters) {
-        setFilters(viewResponse.data.filters);
-        setAppliedFilters(viewResponse.data.filters);
-      }
-
-      // Set the records order (state -> query -> '')
-      setOrderBy(
-        viewResponse.data.defaultOrder[0]?.columnName ||
-          router?.query?.orderBy ||
-          ""
-      );
-      setOrderDirection(
-        viewResponse.data.defaultOrder[0]?.direction ||
-          router?.query?.orderDirection ||
-          ""
-      );
-    }
-  };
-
-  useEffect(() => {
-    setViewData();
-  }, [viewResponse, viewId]);
-
-  useEffect(() => {
-    setViewData();
-  }, []);
 
   const handleRemove = async () => {
     if (viewIsLoading || viewIsRemoving) return;
@@ -118,7 +85,7 @@ const Edit = () => {
   const body = useMemo(() => {
     return pick(
       {
-        ...localView,
+        ...view,
         filters: appliedFilters.map((filter: FilterOrFilterGroup) => ({
           ...filter,
           isBase: true,
@@ -126,16 +93,12 @@ const Edit = () => {
       },
       ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]
     );
-  }, [localView, appliedFilters]);
+  }, [view, appliedFilters]);
 
   const commitViewUpdate = async (
     key: string,
     value: string | boolean | OrderParams[] | FilterOrFilterGroup[]
   ) => {
-    setLocalView({
-      ...localView,
-      [key]: value,
-    });
     await updateView({
       viewId,
       body: {
@@ -146,7 +109,7 @@ const Edit = () => {
   };
 
   const updateName = async (name: string) => {
-    if (name !== localView.name) commitViewUpdate("name", name);
+    if (name !== view.name) commitViewUpdate("name", name);
   };
 
   const updateVisibility = async (publicView: boolean) => {
@@ -181,17 +144,19 @@ const Edit = () => {
             </Button>
           ),
         }}
-        buttons={viewId && <BackButton href={backLink}>Back</BackButton>}
+        buttons={
+          viewId && <BackButton href={backLink}>Back to view</BackButton>
+        }
         flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
-            {localView && (
+            {view && (
               <div className="flex flex-col space-y-4 w-full">
                 <ViewEditName updateName={updateName} />
                 <ViewEditVisibility updateVisibility={updateVisibility} />
                 <ViewEditFilters updateFilters={updateFilters} />
-                <ViewEditOrder view={localView} updateOrder={updateOrder} />
+                <ViewEditOrder view={view} updateOrder={updateOrder} />
                 <ViewEditColumns />
                 <ViewEditDataSourceInfo />
               </div>

@@ -11,7 +11,6 @@ import { tablesApiSlice } from "@/features/tables/api-slice";
 import { api as viewsApiSlice } from "@/features/views/api-slice";
 import appReducer from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
-import viewsReducer from "@/features/views/state-slice";
 
 /**
  * Show a toast.
@@ -40,7 +39,6 @@ const store = configureStore({
   reducer: {
     appState: appReducer,
     recordsState: recordsReducer,
-    viewsState: viewsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [organizationsApiSlice.reducerPath]: organizationsApiSlice.reducer,
     [recordsApiSlice.reducerPath]: recordsApiSlice.reducer,

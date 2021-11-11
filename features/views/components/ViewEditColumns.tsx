@@ -16,9 +16,12 @@ import { EyeOffIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import { INITIAL_NEW_COLUMN } from "@/features/data-sources";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_VIEW_NAME_LENGTH } from "@/lib/constants";
+import {
+  activeColumnNameSelector,
+  setActiveColumnName,
+} from "@/features/records/state-slice";
 import { iconForField } from "@/features/fields";
 import { isArray, isEqual, snakeCase, sortBy } from "lodash";
-import { selectColumnName, selectedColumnNameSelector } from "../state-slice";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useColumnsForView } from "../hooks";
@@ -44,13 +47,13 @@ const ColumnItem = ({
 }) => {
   const IconElement = iconForField(column);
   const dispatch = useAppDispatch();
-  const selectedColumnName = useAppSelector(selectedColumnNameSelector);
+  const activeColumnName = useAppSelector(activeColumnNameSelector);
 
   const toggleColumnSelection = () => {
-    if (selectedColumnName === column?.name) {
-      dispatch(selectColumnName(""));
+    if (activeColumnName === column?.name) {
+      dispatch(setActiveColumnName(""));
     } else {
-      dispatch(selectColumnName(column.name));
+      dispatch(setActiveColumnName(column.name));
     }
   };
 
@@ -92,9 +95,9 @@ const ColumnItem = ({
       className={classNames(
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
-          "bg-blue-600 text-white": selectedColumnName === column.name,
+          "bg-blue-600 text-white": activeColumnName === column.name,
           "hover:bg-gray-100":
-            selectedColumnName !== column.name ||
+            activeColumnName !== column.name ||
             (!isDragging && item?.id === column?.name),
           "!bg-gray-800 opacity-25":
             isOver || (isDragging && item?.id === column?.name),
@@ -174,7 +177,7 @@ const Form = ({
 
     if (response?.ok) {
       // select the newly created column
-      dispatch(selectColumnName(name));
+      dispatch(setActiveColumnName(name));
     }
   };
 

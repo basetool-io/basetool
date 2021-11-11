@@ -1,3 +1,6 @@
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
+import { SerializedError } from "@reduxjs/toolkit";
+
 export const randomString = (length = 12) => {
   let result = "";
   const characters =
@@ -39,4 +42,13 @@ export const dotNotationToObject = (payload: Record<string, unknown>) => {
   });
 
   return result;
+};
+
+export const extractMessageFromRTKError = (
+  error: FetchBaseQueryError | SerializedError | undefined
+) => {
+  if (!error) return;
+
+  if ("data" in error) return (error as any)?.data?.messages[0];
+  if ("message" in error) return error?.message;
 };
