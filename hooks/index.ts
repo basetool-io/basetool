@@ -40,11 +40,16 @@ export const useAccessControl = () => {
 };
 
 export const useResponsive = () => {
+  if (!document)
+    return { isSm: false, isMd: false, isLg: false, isXl: false, is2xl: false };
+
+  /* eslint-disable react-hooks/rules-of-hooks */
   const isSm = useMedia("(min-width: 640px)", false);
   const isMd = useMedia("(min-width: 768px)", false);
   const isLg = useMedia("(min-width: 1024px)", false);
   const isXl = useMedia("(min-width: 1280px)", false);
   const is2xl = useMedia("(min-width: 1536px)", false);
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return { isSm, isMd, isLg, isXl, is2xl };
 };
