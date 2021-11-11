@@ -41,12 +41,18 @@ const GenericTextOption = ({
     []
   );
 
-  const updateValue = (event: any) => {
+  const handleOnChange = (event: any) => {
     setValue(event.currentTarget.value);
-    if (column)
+    if (column) {
+      track("Updated column option.", {
+        id,
+        type: "text",
+      });
+
       debouncedSetColumnOptions(column.name, {
         [optionKey]: event.currentTarget.value,
       });
+    }
   };
 
   useEffect(() => {
@@ -65,7 +71,7 @@ const GenericTextOption = ({
         placeholder={placeholder}
         required={false}
         value={value}
-        onChange={updateValue}
+        onChange={handleOnChange}
       />
       {formHelperText && <FormHelperText>{formHelperText}</FormHelperText>}
     </OptionWrapper>

@@ -33,11 +33,17 @@ const GenericBooleanOption = ({
 
   const { column, setColumnOptions } = useUpdateColumn();
 
-  const updateValue = (event: any) => {
-    if (column)
+  const handleOnChange = (event: any) => {
+    if (column) {
+      track("Updated column option.", {
+        id,
+        type: "boolean",
+      });
+
       setColumnOptions(column.name, {
         [optionKey]: event.currentTarget.checked,
       });
+    }
   };
 
   if (!column) return null;
@@ -48,7 +54,7 @@ const GenericBooleanOption = ({
         id="required"
         isChecked={isChecked}
         isDisabled={isDisabled}
-        onChange={updateValue}
+        onChange={handleOnChange}
       >
         {checkboxLabel}
       </Checkbox>

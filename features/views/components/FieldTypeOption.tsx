@@ -12,6 +12,16 @@ export const FieldTypeOption = () => {
 
   if (!column) return null;
 
+  const handleOnChange = (e: any) => {
+    setColumnOptions(column.name, {
+      fieldType: e.currentTarget.value as FieldType,
+    });
+
+    track("Changed the field type selector", {
+      type: e.currentTarget.value,
+    });
+  };
+
   return (
     <OptionWrapper
       helpText="We try to infer the type of field from your data source.
@@ -26,12 +36,7 @@ export const FieldTypeOption = () => {
           track("Clicked the field type selector");
         }}
         size="sm"
-        onChange={(e) => {
-          setColumnOptions(column.name, {
-            fieldType: e.currentTarget.value as FieldType,
-          });
-          track("Changed the field type selector");
-        }}
+        onChange={handleOnChange}
       >
         <option disabled>Select field type</option>
         {columnOptions &&

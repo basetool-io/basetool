@@ -1,6 +1,6 @@
 import { Button, Code } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
-import { useDataSourceContext } from "@/hooks";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDeleteColumnMutation } from "@/features/views/api-slice";
 import { useUpdateColumn } from "../hooks";
 import FieldTypeOption from "@/features/views/components/FieldTypeOption";
@@ -35,16 +35,24 @@ const getDynamicInspector = (fieldType: string) => {
 };
 
 function FieldEditor() {
+  const track = useSegment();
   const { column, setColumnOptions } = useUpdateColumn();
   const { viewId } = useDataSourceContext();
 
   const [deleteColumn] = useDeleteColumnMutation();
 
-  const deleteField = async (columnName: string) => {
+  const deleteField = async () => {
+    if (!column) return
+
     if (confirm("Are you sure you want to remove this virtual field?")) {
+      track("Deleted computed field", {
+        fieldType: column.fieldType,
+        computed: column.baseOptions.computed,
+      });
+
       await deleteColumn({
         viewId,
-        columnName,
+        columnName: column.name,
       });
     }
   };
@@ -61,6 +69,17 @@ function FieldEditor() {
   );
 
   if (!column) return null;
+
+  const handleColumnOptionsChange = (
+    columnName: string,
+    payload: Record<string, unknown>
+  ) => {
+    track("Updated column option from inspector", {
+      fieldType: column.fieldType,
+      computed: column.baseOptions.computed,
+    });
+    setColumnOptions(columnName, payload);
+  };
 
   return (
     <>
@@ -85,7 +104,7 @@ function FieldEditor() {
         {/* @todo: make sure this works ok */}
         <InspectorComponent
           column={column}
-          setColumnOptions={setColumnOptions}
+          setColumnOptions={handleColumnOptionsChange}
         />
         {!isComputed && (
           <GenericBooleanOption
@@ -144,7 +163,7 @@ function FieldEditor() {
               colorScheme="red"
               size="xs"
               variant="outline"
-              onClick={() => deleteField(column.name)}
+              onClick={deleteField}
               leftIcon={<TrashIcon className="h-4" />}
             >
               Remove field

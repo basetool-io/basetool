@@ -16,7 +16,7 @@ function Inspector({
     []
   );
 
-  const updateValue = (event: any) => {
+  const handleOnChange = (event: any) => {
     if (column)
       debouncedSetColumnOptions(column.name, {
         "fieldOptions.options": event.currentTarget.value,
@@ -35,7 +35,7 @@ function Inspector({
         required={false}
         size="sm"
         defaultValue={options.options}
-        onChange={updateValue}
+        onChange={handleOnChange}
       />
       <FormHelperText>Add the values comma separated.</FormHelperText>
     </OptionWrapper>

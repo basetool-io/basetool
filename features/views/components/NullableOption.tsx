@@ -42,6 +42,29 @@ const NullableOption = () => {
 
   if (!column) return null;
 
+  const handleOnChange = (e: any, value: string) => {
+    // Get the null values
+    let newNullValues = Object.values({
+      ...column.baseOptions.nullValues,
+    });
+
+    // Add or remove the clicked item
+    if (e.currentTarget.checked) {
+      newNullValues.push(value);
+    } else {
+      newNullValues = without(newNullValues, value);
+    }
+
+    // Set the options
+    setColumnOptions(column.name, {
+      "baseOptions.nullValues": newNullValues,
+    });
+
+    track("Changed the field type selector", {
+      type: e.currentTarget.value,
+    });
+  };
+
   return (
     <>
       <GenericBooleanOption
@@ -62,24 +85,7 @@ const NullableOption = () => {
                   isChecked={Object.values(
                     column.baseOptions.nullValues
                   ).includes(value)}
-                  onChange={(e) => {
-                    // Get the null values
-                    let newNullValues = Object.values({
-                      ...column.baseOptions.nullValues,
-                    });
-
-                    // Add or remove the clicked item
-                    if (e.currentTarget.checked) {
-                      newNullValues.push(value);
-                    } else {
-                      newNullValues = without(newNullValues, value);
-                    }
-
-                    // Set the options
-                    setColumnOptions(column.name, {
-                      "baseOptions.nullValues": newNullValues,
-                    });
-                  }}
+                  onChange={(e) => handleOnChange(e, value)}
                 >
                   {label}
                 </Checkbox>

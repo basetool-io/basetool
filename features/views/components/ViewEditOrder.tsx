@@ -5,7 +5,7 @@ import { PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
-import { useDataSourceContext } from "@/hooks";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useOrderRecords } from "@/features/records/hooks";
 import React, { useEffect, useMemo } from "react";
@@ -29,6 +29,7 @@ const ViewEditOrder = ({
   view: DecoratedView;
   updateOrder: (order: OrderParams[]) => void;
 }) => {
+  const track = useSegment();
   const { viewId } = useDataSourceContext();
   const { setOrderBy, setOrderDirection } = useOrderRecords();
   const { data: columnsResponse } = useGetColumnsQuery(

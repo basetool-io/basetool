@@ -1,24 +1,21 @@
 import { Input } from "@chakra-ui/react";
 import { InspectorProps } from "@/features/fields/types";
-import { debounce, merge } from "lodash"
+import { debounce, merge } from "lodash";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useCallback } from "react";
 import fieldOptions from "./fieldOptions";
 
-function Inspector({
-  column,
-  setColumnOptions,
-}: InspectorProps) {
+function Inspector({ column, setColumnOptions }: InspectorProps) {
   const options = merge(fieldOptions, column.fieldOptions);
   const debouncedSetColumnOptions = useCallback(
     debounce(setColumnOptions, 1000),
     []
   );
 
-  const updateValue = (event: any) => {
+  const handleOnChange = (event: any) => {
     if (column)
       debouncedSetColumnOptions(column.name, {
-        'fieldOptions.rows': event.currentTarget.value,
+        "fieldOptions.rows": event.currentTarget.value,
       });
   };
 
@@ -30,7 +27,7 @@ function Inspector({
         placeholder="Rows"
         required={false}
         defaultValue={options.rows as number}
-        onChange={updateValue}
+        onChange={handleOnChange}
       />
     </OptionWrapper>
   );

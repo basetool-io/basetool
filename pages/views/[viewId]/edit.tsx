@@ -1,22 +1,13 @@
-import {
-  Button,
-  Checkbox,
-  Editable,
-  EditableInput,
-  EditablePreview,
-  Tooltip,
-  useEditableControls,
-} from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { DecoratedView, OrderParams } from "@/features/views/types";
 import { FilterOrFilterGroup } from "@/features/tables/types";
-import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { TrashIcon } from "@heroicons/react/outline";
 import { isArray, isEmpty, isUndefined, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
-import { useAppDispatch, useDataSourceContext } from "@/hooks";
+import { useAppDispatch, useDataSourceContext, useSegment } from "@/hooks";
 import { useFilters, useOrderRecords } from "@/features/records/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,
   useRemoveViewMutation,
@@ -30,28 +21,12 @@ import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
-import TinyLabel from "@/components/TinyLabel";
 import ViewEditColumns from "@/features/views/components/ViewEditColumns";
+import ViewEditDataSourceInfo from "@/features/views/components/ViewEditDataSourceInfo";
 import ViewEditFilters from "@/features/views/components/ViewEditFilters";
+import ViewEditName from "@/features/views/components/ViewEditName";
 import ViewEditOrder from "@/features/views/components/ViewEditOrder";
-
-const NameEditButton = () => {
-  const { isEditing, getEditButtonProps } = useEditableControls();
-
-  if (isEditing) return null;
-
-  return (
-    <Tooltip label="Edit name">
-      <div
-        className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-        {...getEditButtonProps()}
-      >
-        <PencilAltIcon className="h-4 inline" />
-        Edit
-      </div>
-    </Tooltip>
-  );
-};
+import ViewEditVisibility from "@/features/views/components/ViewEditVisibility";
 
 const Edit = () => {
   const router = useRouter();
@@ -59,13 +34,9 @@ const Edit = () => {
   const { viewId, dataSourceId } = useDataSourceContext();
   const [localView, setLocalView] = useState<DecoratedView>();
   const { column } = useUpdateColumn();
-
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  useSegment("Tried to edit a view.", {
+    viewId,
+  });
 
   const {
     data: viewResponse,
@@ -74,7 +45,10 @@ const Edit = () => {
   } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   const backLink = `/views/${viewId}/`;
-  const crumbs = [viewResponse?.data?.name, "Edit"];
+  const crumbs = useMemo(
+    () => ["Edit view", viewResponse?.data?.name],
+    [viewResponse?.data?.name]
+  );
 
   const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
@@ -153,57 +127,37 @@ const Edit = () => {
     );
   }, [localView, appliedFilters]);
 
-  const updateName = async (name: string) => {
-    if (name !== localView.name)
-      await updateView({
-        viewId,
-        body: {
-          ...body,
-          name,
-        },
-      }).unwrap();
-  };
-
-  const updatePublic = async (publicView: boolean) => {
+  const commitViewUpdate = async (
+    key: string,
+    value: string | boolean | OrderParams[] | FilterOrFilterGroup[]
+  ) => {
     setLocalView({
       ...localView,
-      public: publicView,
+      [key]: value,
     });
     await updateView({
       viewId,
       body: {
         ...body,
-        public: publicView,
+        [key]: value,
       },
     }).unwrap();
+  };
+
+  const updateName = async (name: string) => {
+    if (name !== localView.name) commitViewUpdate("name", name);
+  };
+
+  const updateVisibility = async (publicView: boolean) => {
+    commitViewUpdate("public", publicView);
   };
 
   const updateOrder = async (defaultOrder: OrderParams[]) => {
-    setLocalView({
-      ...localView,
-      defaultOrder,
-    });
-    await updateView({
-      viewId,
-      body: {
-        ...body,
-        defaultOrder,
-      },
-    }).unwrap();
+    commitViewUpdate("defaultOrder", defaultOrder);
   };
 
   const updateFilters = async (filters: FilterOrFilterGroup[]) => {
-    setLocalView({
-      ...localView,
-      filters,
-    });
-    await updateView({
-      viewId,
-      body: {
-        ...body,
-        filters,
-      },
-    }).unwrap();
+    commitViewUpdate("filters", filters);
   };
 
   return (
@@ -233,59 +187,12 @@ const Edit = () => {
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
             {localView && (
               <div className="flex flex-col space-y-4 w-full">
-                <div>
-                  <div className="w-1/2 mr-1">
-                    <TinyLabel>Name</TinyLabel>
-                  </div>
-                  <Editable
-                    className="flex-1"
-                    defaultValue={localView?.name}
-                    onSubmit={updateName}
-                    submitOnBlur={true}
-                  >
-                    <div className="relative flex justify-between w-full">
-                      <div className="w-full">
-                        <EditablePreview className="cursor-pointer" />
-                        <EditableInput />
-                      </div>
-                      <NameEditButton />
-                    </div>
-                  </Editable>
-                </div>
-                <div className="grid space-y-4 lg:space-y-0 lg:grid-cols-2">
-                  <div>
-                    <div className=" mr-1">
-                      <TinyLabel>DataSource</TinyLabel>
-                    </div>
-                    <div className="text-sm flex-1">
-                      {dataSourceResponse?.ok && dataSourceResponse.data.name}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="">
-                      <TinyLabel>Table name</TinyLabel>
-                    </div>
-                    <div className="text-sm flex-1">{localView?.tableName}</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="">
-                    <TinyLabel>Visibility</TinyLabel>
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <Checkbox
-                      colorScheme="gray"
-                      isChecked={localView?.public}
-                      onChange={(e) => updatePublic(e.currentTarget.checked)}
-                    >
-                      Visible to all members
-                    </Checkbox>
-                  </div>
-                </div>
-
+                <ViewEditName updateName={updateName} />
+                <ViewEditVisibility updateVisibility={updateVisibility} />
                 <ViewEditFilters updateFilters={updateFilters} />
                 <ViewEditOrder view={localView} updateOrder={updateOrder} />
                 <ViewEditColumns />
+                <ViewEditDataSourceInfo />
               </div>
             )}
           </div>
