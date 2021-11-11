@@ -118,7 +118,6 @@ export const useProfile = () => {
 
 export const useDataSourceContext = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const [dataSourceId, setDataSourceId] = useState("");
   const [tableName, setTableName] = useState("");
