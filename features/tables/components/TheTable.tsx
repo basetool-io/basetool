@@ -162,7 +162,7 @@ const TheTable = memo(() => {
 
                 const IconElement = column?.meta
                   ? iconForField(column.meta)
-                  : () => "" as any;
+                  : null;
 
                 return (
                   <div

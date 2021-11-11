@@ -79,16 +79,17 @@ const Edit = () => {
         setAppliedFilters(viewResponse.data.filters);
       }
 
-      // We have to check whether there is a default order on the view and the order from the query to be empty.
-      if (
-        viewResponse.data.defaultOrder &&
-        !isEmpty(viewResponse.data.defaultOrder) &&
-        isUndefined(router.query.orderBy) &&
-        isUndefined(router.query.orderDirection)
-      ) {
-        setOrderBy(viewResponse.data.defaultOrder.columnName);
-        setOrderDirection(viewResponse.data.defaultOrder.direction);
-      }
+      // Set the records order (state -> query -> '')
+      setOrderBy(
+        viewResponse.data.defaultOrder[0]?.columnName ||
+          router?.query?.orderBy ||
+          ""
+      );
+      setOrderDirection(
+        viewResponse.data.defaultOrder[0]?.direction ||
+          router?.query?.orderDirection ||
+          ""
+      );
     }
   };
 

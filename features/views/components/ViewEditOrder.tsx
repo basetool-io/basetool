@@ -1,14 +1,12 @@
 import { Button, Select, Tooltip } from "@chakra-ui/react";
 import { DecoratedView, OrderParams } from "../types";
-import { OrderDirection } from "@/features/tables/types";
 import { PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useOrderRecords } from "@/features/records/hooks";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import TinyLabel from "@/components/TinyLabel";
 
 const OrderDirections = [
@@ -31,7 +29,6 @@ const ViewEditOrder = ({
 }) => {
   const track = useSegment();
   const { viewId } = useDataSourceContext();
-  const { setOrderBy, setOrderDirection } = useOrderRecords();
   const { data: columnsResponse } = useGetColumnsQuery(
     {
       viewId,
@@ -51,14 +48,17 @@ const ViewEditOrder = ({
 
     return {
       columnName: columns[0].name,
-      direction: "asc",
+      direction: "desc",
     };
   }, [columns]);
 
-  useEffect(() => {
-    setOrderBy(view?.defaultOrder?.columnName || "");
-    setOrderDirection((view?.defaultOrder?.direction as OrderDirection) || "");
-  }, [view?.defaultOrder]);
+  const handleUpdateOrder = (order: OrderParams[]) => {
+    track('Updated order on edit view page', {
+      direction: order[0]?.direction
+    })
+
+    updateOrder(order)
+  }
 
   return (
     <div>
@@ -69,7 +69,7 @@ const ViewEditOrder = ({
             <Tooltip label="Add order rule">
               <div
                 className="flex justify-center items-center mx-1 text-xs cursor-pointer"
-                onClick={() => updateOrder([defaultOrder])}
+                onClick={() => handleUpdateOrder([defaultOrder])}
               >
                 <PlusCircleIcon className="h-4 inline mr-px" /> Add
               </div>
@@ -88,12 +88,14 @@ const ViewEditOrder = ({
             <Select
               size="xs"
               className="font-mono"
-              value={view?.defaultOrder?.columnName}
+              value={view?.defaultOrder[0]?.columnName}
               onChange={(e) =>
-                updateOrder([{
-                  ...view.defaultOrder[0],
-                  columnName: e.currentTarget.value,
-                }])
+                handleUpdateOrder([
+                  {
+                    ...view.defaultOrder[0],
+                    columnName: e.currentTarget.value,
+                  },
+                ])
               }
             >
               {columns &&
@@ -106,12 +108,14 @@ const ViewEditOrder = ({
             <Select
               size="xs"
               className="font-mono"
-              value={view?.defaultOrder?.direction}
+              value={view?.defaultOrder[0]?.direction}
               onChange={(e) =>
-                updateOrder([{
-                  ...view.defaultOrder[0],
-                  direction: e.currentTarget.value,
-                }])
+                handleUpdateOrder([
+                  {
+                    ...view.defaultOrder[0],
+                    direction: e.currentTarget.value,
+                  },
+                ])
               }
             >
               {OrderDirections.map((order, idx) => (
@@ -121,7 +125,7 @@ const ViewEditOrder = ({
               ))}
             </Select>
             <Tooltip label="Remove order rule">
-              <Button size="xs" variant="link" onClick={() => updateOrder([])}>
+              <Button size="xs" variant="link" onClick={() => handleUpdateOrder([])}>
                 <TrashIcon className="h-3 text-gray-700" />
               </Button>
             </Tooltip>
