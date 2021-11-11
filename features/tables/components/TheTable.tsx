@@ -195,7 +195,7 @@ const TheTable = memo(() => {
                           handleOrder(column.meta.name)
                         }
                       >
-                        <IconElement className="h-3 inline-flex flex-shrink-0 mr-2" />
+                        {IconElement && <IconElement className="h-3 inline-flex flex-shrink-0 mr-2" />}
                         <span className="inline-block leading-none">
                           <>
                             {column.render("Header")}
