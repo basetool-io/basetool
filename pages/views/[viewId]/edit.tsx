@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { DecoratedView, OrderParams } from "@/features/views/types";
 import { FilterOrFilterGroup } from "@/features/tables/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { isArray, isEmpty, isUndefined, pick } from "lodash";
+import { isArray, pick } from "lodash";
 import { setColumns } from "@/features/views/state-slice";
 import { useAppDispatch, useDataSourceContext, useSegment } from "@/hooks";
 import { useFilters, useOrderRecords } from "@/features/records/hooks";
