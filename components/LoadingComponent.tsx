@@ -61,7 +61,8 @@ const LoadingComponent = ({
         {children && children}
         {!children && (
           <>
-            {label} <div className="mt-1 font-semibold">{subTitle}</div>
+            <div className="text-sm">{label}</div>
+            <div className="mt-1 font-semibold">{subTitle}</div>
           </>
         )}
       </div>

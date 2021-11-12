@@ -172,7 +172,7 @@ const RecordsTable = ({
         <div className="flex">
           <div
             className={
-              "table-widget relative divide-y bg-true-gray-200 divide-true-gray-200 overflow-auto w-full md:w-auto"
+              "table-widget relative divide-y bg-true-gray-200 divide-true-gray-200 overflow-auto w-full"
             }
             {...getTableProps()}
           >

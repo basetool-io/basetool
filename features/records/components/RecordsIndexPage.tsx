@@ -165,16 +165,17 @@ const RecordsIndexPage = ({
               <div className="flex-1 flex flex-col justify-between w-full">
                 {isFetching && (
                   <div className="flex-1 flex">
-                    <LoadingOverlay transparent />
+                    <LoadingOverlay label="Fetching records" transparent />
                   </div>
                 )}
                 {!isFetching && (
-                  <div className="flex-1 flex overflow-x-auto w-full">
-                    <RecordsTable error={error} />
-                  </div>
+                  <>
+                    <div className="flex-1 flex overflow-x-auto w-full">
+                      <RecordsTable error={error} />
+                    </div>
+                    <PaginationComponent />
+                  </>
                 )}
-
-                <PaginationComponent />
               </div>
             )}
           </div>

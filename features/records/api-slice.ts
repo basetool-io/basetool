@@ -147,6 +147,7 @@ export const recordsApiSlice = createApi({
 
 export const {
   useGetRecordsQuery,
+  useLazyGetRecordsQuery,
   useGetRecordQuery,
   useCreateRecordMutation,
   useUpdateRecordMutation,

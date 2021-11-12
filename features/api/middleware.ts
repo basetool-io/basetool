@@ -61,12 +61,11 @@ export const withMiddlewares =
       // Flushing before returning is necessary if deploying to Vercel, see
       // https://vercel.com/docs/platform/limits#streaming-responses
       await flush(2000);
-
       if (!res.headersSent) {
         const status = error.code && isNumber(error.code) ? error.code : 500;
 
         if (error instanceof SQLError) {
-          return res.status(status).send(
+          res.status(status).send(
             ApiResponse.withError(error.message, {
               meta: { error },
             })
@@ -78,11 +77,11 @@ export const withMiddlewares =
               meta: { errorMessage: error.message, error },
             })
           );
+        }
 
-          // throw the error in the console in development
-          if (!inDevelopment) {
-            throw error;
-          }
+        // throw the error in the console in development
+        if (inDevelopment) {
+          throw error;
         }
       }
     }

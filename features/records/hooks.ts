@@ -38,7 +38,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { getFilteredColumns } from "../fields";
-import { isArray, isEqual, isNull, merge } from "lodash";
+import { isArray, isEqual, isNull, isString, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
@@ -151,14 +151,17 @@ export const useOrderRecords = (
     dispatch(setOrderDirectionInState(values));
   };
 
-  useEffect(() => {
-    if (initialOrderBy) {
-      setOrderBy(initialOrderBy);
-    }
-    if (initialOrderDirection) {
-      setOrderDirection(initialOrderDirection);
-    }
-  }, []);
+  const resetOrder = () => {
+    setOrderBy('')
+    setOrderDirection('')
+  }
+
+  if (isString(initialOrderBy)) {
+    setOrderBy(initialOrderBy);
+  }
+  if (isString(initialOrderDirection)) {
+    setOrderDirection(initialOrderDirection);
+  }
 
   const handleOrder = async (columnName: string) => {
     let newOrderDirection: OrderDirection = "";
@@ -212,6 +215,7 @@ export const useOrderRecords = (
     setOrderBy,
     setOrderDirection,
     handleOrder,
+    resetOrder,
   };
 };
 

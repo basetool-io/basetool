@@ -1,4 +1,5 @@
 import { OrderDirection } from "@/features/tables/types";
+import { debounce } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import {
   useColumns,
@@ -11,49 +12,32 @@ import {
 import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetRecordsQuery } from "@/features/records/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
+import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import RecordsIndexPage from "@/features/records/components/RecordsIndexPage";
 
 function TableShow() {
   const router = useRouter();
   const resetState = useResetState();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
-
-  useEffect(() => {
-    resetState();
-  }, []);
-
-  useEffect(() => {
-    resetState();
-  }, [viewId, tableName, dataSourceId]);
-
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
+    { skip: !dataSourceId }
   );
+
+  useEffect(() => {
+    resetState();
+  }, [tableName, dataSourceId]);
 
   const { encodedFilters } = useFilters();
-
-  const { orderBy, orderDirection } = useOrderRecords(
-    (router.query.orderBy as string) ||
-      viewResponse?.data?.defaultOrder[0].column,
-    (router.query.orderDirection as OrderDirection) ||
-      viewResponse?.data?.defaultOrder[0].direction
-  );
   const { limit, offset } = usePagination();
-
-  const {
-    data: recordsResponse,
-    error: recordsError,
-    isFetching: recordsAreFetching,
-  } = useGetRecordsQuery(
-    {
+  const { orderBy, orderDirection } = useOrderRecords(
+    (router.query.orderBy as string) || "",
+    (router.query.orderDirection as OrderDirection) || ""
+  );
+  const getRecordsArguments = useMemo(
+    () => ({
       dataSourceId,
       tableName,
       filters: encodedFilters,
@@ -61,9 +45,36 @@ function TableShow() {
       offset: offset.toString(),
       orderBy: orderBy,
       orderDirection: orderDirection,
-    },
-    { skip: !dataSourceId || !tableName }
+    }),
+    [
+      dataSourceId,
+      tableName,
+      encodedFilters,
+      limit,
+      offset,
+      orderBy,
+      orderDirection,
+    ]
   );
+
+  const [
+    fetch,
+    {
+      data: recordsResponse,
+      error: recordsError,
+      isFetching: recordsAreFetching,
+    },
+  ] = useLazyGetRecordsQuery();
+
+  /**
+   * Because there's one extra render between the momnet the tableName and the state reset changes,
+   * we're debouncing fetching the records so we don't try to fetch the records with the old filters
+   */
+  const debouncedFetch = useCallback(debounce(fetch, 10), []);
+
+  useEffect(() => {
+    if (tableName && dataSourceId) debouncedFetch(getRecordsArguments);
+  }, [viewId, tableName, dataSourceId, getRecordsArguments]);
 
   const { meta } = useRecords(recordsResponse?.data, recordsResponse?.meta);
 
