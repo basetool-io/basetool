@@ -271,6 +271,7 @@ export const api = createApi({
 export const {
   useAddViewMutation,
   useGetViewsQuery,
+  useLazyGetViewsQuery,
   useGetViewQuery,
   useRemoveViewMutation,
   useUpdateViewMutation,

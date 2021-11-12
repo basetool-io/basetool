@@ -55,7 +55,7 @@ function ViewShow() {
   );
 
   const [
-    fetch,
+    fetchRecords,
     {
       data: recordsResponse,
       error: recordsError,
@@ -67,7 +67,7 @@ function ViewShow() {
    * Because there's one extra render between the momnet the tableName and the state reset changes,
    * we're debouncing fetching the records so we don't try to fetch the records with the old filters
    */
-  const debouncedFetch = useCallback(debounce(fetch, 10), []);
+  const debouncedFetch = useCallback(debounce(fetchRecords, 50), []);
 
   useEffect(() => {
     if (tableName && dataSourceId) debouncedFetch(getRecordsArguments);
