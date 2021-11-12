@@ -286,8 +286,10 @@ const ViewEditColumns = ({
   }, [didDrop]);
 
   useEffect(() => {
-    return () => dispatch(setActiveColumnName(""));
-  }, []);
+    return () => {
+      dispatch(setActiveColumnName(""));
+    }
+  }, [])
 
   return (
     <div>
