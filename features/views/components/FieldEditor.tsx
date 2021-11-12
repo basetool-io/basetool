@@ -42,7 +42,7 @@ function FieldEditor() {
   const [deleteColumn] = useDeleteColumnMutation();
 
   const deleteField = async () => {
-    if (!column) return
+    if (!column) return;
 
     if (confirm("Are you sure you want to remove this virtual field?")) {
       track("Deleted computed field", {
@@ -136,13 +136,13 @@ function FieldEditor() {
         />
         <GenericTextOption
           helpText={
-            <Code>
+            <>
               You may use any html and hex color. <br /> We provide very good
               defaults for the following colors <Code>blue</Code>,{" "}
               <Code>red</Code>, <Code>green</Code>, <Code>yellow</Code>,{" "}
               <Code>orange</Code>, <Code>pink</Code>, <Code>purple</Code> and{" "}
               <Code>gray</Code>.
-            </Code>
+            </>
           }
           label="Background color"
           optionKey="baseOptions.backgroundColor"

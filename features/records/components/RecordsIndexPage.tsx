@@ -36,9 +36,7 @@ const RecordsIndexPage = ({
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
+    { skip: !dataSourceId }
   );
 
   const filtersButton = useRef(null);

@@ -83,7 +83,6 @@ const ViewEditFilters = ({
         )}
       </div>
       <Collapse in={isFiltersOpen}>
-        <pre>{JSON.stringify(appliedFilters, null, 2)}</pre>
         <CompactFiltersView filters={appliedFilters} />
       </Collapse>
     </div>

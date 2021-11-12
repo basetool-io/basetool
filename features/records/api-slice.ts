@@ -40,11 +40,11 @@ export const recordsApiSlice = createApi({
               viewId,
               dataSourceId,
               tableName,
+              orderBy,
+              orderDirection,
               filters,
               limit,
               offset,
-              orderBy,
-              orderDirection,
             })
             .query()
             .toString();

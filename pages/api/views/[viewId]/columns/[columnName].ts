@@ -1,5 +1,6 @@
+import { Column } from "@/features/fields/types";
 import { getUserFromRequest, getViewFromRequest } from "@/features/api";
-import { isObjectLike, omit } from "lodash";
+import { isObjectLike, merge, omit } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -60,36 +61,47 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const columnName = req.query.columnName as string;
 
-  const columns: any = {
-    ...(view?.columns as Record<string, unknown>),
+  const columns: any = [...(view?.columns as Column[])];
+
+  const newColumn: any = {
+    name: columnName,
   };
 
   Object.entries(req.body).map(([key, value]) => {
-    columns[columnName] ||= {};
-
     if (key === "fieldType") {
-      columns[columnName].fieldType = value;
+      newColumn.fieldType = value;
     }
     if (key === "label") {
-      columns[columnName].label = value;
+      newColumn.label = value;
     }
 
-    if (key === "baseOptions" && isObjectLike(value)) {
-      columns[columnName].baseOptions ||= {};
-      columns[columnName].baseOptions = {
-        ...columns[columnName].baseOptions,
-        ...(value as Record<string, unknown>),
-      };
-    }
+    if (isObjectLike(value)) {
+      if (key === "baseOptions") {
+        newColumn.baseOptions ||= {};
+        newColumn.baseOptions = {
+          ...newColumn.baseOptions,
+          ...(value as Record<string, unknown>),
+        };
+      }
 
-    if (key === "fieldOptions") {
-      columns[columnName].fieldOptions ||= {};
-      columns[columnName].fieldOptions = {
-        ...columns[columnName].fieldOptions,
-        ...(value as Record<string, unknown>),
-      };
+      if (key === "fieldOptions") {
+        newColumn.fieldOptions ||= {};
+        newColumn.fieldOptions = {
+          ...newColumn.fieldOptions,
+          ...(value as Record<string, unknown>),
+        };
+      }
     }
   });
+
+  const columnIndex = columns.findIndex(
+    (column: Column) => column.name === columnName
+  );
+  if (columns[columnIndex]) {
+    columns[columnIndex] = merge(columns[columnIndex], newColumn);
+  } else {
+    columns.push(newColumn as Column);
+  }
 
   await prisma.view.update({
     where: {

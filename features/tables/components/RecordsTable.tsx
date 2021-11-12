@@ -1,4 +1,5 @@
 import { Checkbox } from "@chakra-ui/react";
+import { Column } from "@/features/fields/types"
 import {
   Row,
   useBlockLayout,
@@ -94,7 +95,7 @@ const RecordsTable = ({
 
   const orderedColumns = useMemo(() => {
     const result = parseColumns({
-      columns: rawColumns,
+      columns: rawColumns.filter((column: Column) => !column?.baseOptions?.disconnected),
       columnWidths,
     });
 
@@ -197,7 +198,7 @@ const RecordsTable = ({
                         <div
                           {...column.getHeaderProps()}
                           className={classNames(
-                            "relative flex h-full thtext-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none",
+                            "relative flex h-full th text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none",
                             {
                               "pl-4": !isRecordSelectorColumn,
                             }

@@ -1,25 +1,33 @@
 import { Button } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
-import { FilterOrFilterGroup } from "@/features/tables/types";
+import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { isArray, pick } from "lodash";
-import { setColumns } from "@/features/records/state-slice";
-import { useAppDispatch, useDataSourceContext, useSegment } from "@/hooks";
-import { useFilters } from "@/features/records/hooks";
+import { debounce, pick } from "lodash";
+import { extractMessageFromRTKError } from "@/lib/helpers";
+import { resetState } from "@/features/records/state-slice";
+import {
+  useColumns,
+  useFilters,
+  useOrderRecords,
+  usePagination,
+  useRecords,
+} from "@/features/records/hooks";
+import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import {
   useGetViewQuery,
   useRemoveViewMutation,
   useUpdateViewMutation,
 } from "@/features/views/api-slice";
+import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import { useUpdateColumn } from "@/features/views/hooks";
 import BackButton from "@/features/records/components/BackButton";
 import FieldEditor from "@/features/views/components/FieldEditor";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import ViewEditColumns from "@/features/views/components/ViewEditColumns";
 import ViewEditDataSourceInfo from "@/features/views/components/ViewEditDataSourceInfo";
@@ -30,9 +38,7 @@ import ViewEditVisibility from "@/features/views/components/ViewEditVisibility";
 
 const Edit = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { viewId, dataSourceId } = useDataSourceContext();
-  // const [localView, setLocalView] = useState<DecoratedView>();
+  const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { column } = useUpdateColumn();
   useSegment("Tried to edit a view.", {
     viewId,
@@ -45,28 +51,93 @@ const Edit = () => {
   } = useGetViewQuery({ viewId }, { skip: !viewId });
   const view = useMemo(() => viewResponse?.data, [viewResponse?.data]);
 
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    { skip: !dataSourceId }
+  );
+
+  useEffect(() => {
+    resetState();
+  }, [viewId]);
+
   const backLink = `/views/${viewId}`;
   const crumbs = useMemo(
     () => ["Edit view", viewResponse?.data?.name],
     [viewResponse?.data?.name]
   );
-
-  const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
-
-  const { setFilters, appliedFilters, setAppliedFilters } = useFilters();
-
-  const { data: columnsResponse } = useGetColumnsQuery(
-    {
-      viewId,
-    },
-    { skip: !viewId }
+  const { encodedFilters, appliedFilters } = useFilters();
+  const { limit, offset } = usePagination();
+  const { orderBy, orderDirection } = useOrderRecords(
+    (router.query.orderBy as string) ||
+      viewResponse?.data?.defaultOrder[0]?.columnName ||
+      "",
+    (router.query.orderDirection as OrderDirection) ||
+      viewResponse?.data?.defaultOrder[0]?.direction ||
+      ""
   );
 
+  const getRecordsArguments = useMemo(
+    () => ({
+      viewId,
+      filters: encodedFilters,
+      limit: limit.toString(),
+      offset: offset.toString(),
+      orderBy,
+      orderDirection,
+    }),
+    [viewId, encodedFilters, limit, offset, orderBy, orderDirection]
+  );
+
+  const [
+    fetch,
+    {
+      data: recordsResponse,
+      error: recordsError,
+      isFetching: recordsAreFetching,
+    },
+  ] = useLazyGetRecordsQuery();
+
+  /**
+   * Because there's one extra render between the momnet the tableName and the state reset changes,
+   * we're debouncing fetching the records so we don't try to fetch the records with the old filters
+   */
+  const debouncedFetch = useCallback(debounce(fetch, 10), []);
+
+  const { meta } = useRecords(recordsResponse?.data, recordsResponse?.meta);
+
+  let skip = true;
+  if (viewId) skip = false;
+  if ((meta as any)?.dataSourceInfo?.supports?.columnsRequest) skip = false;
+
+  const {
+    data: columnsResponse,
+    error: columnsError,
+    isLoading: columnsAreLoading,
+    isFetching: columnsAreFetching,
+  } = useGetColumnsQuery({ viewId }, { skip });
+
+  useColumns({
+    dataSourceResponse,
+    recordsResponse,
+    columnsResponse,
+    tableName,
+    options: { forEdit: true },
+  });
+
   useEffect(() => {
-    if (isArray(columnsResponse?.data)) {
-      dispatch(setColumns(columnsResponse?.data as Column[]));
-    }
-  }, [columnsResponse?.data]);
+    if (viewId) debouncedFetch(getRecordsArguments);
+  }, [viewId, tableName, dataSourceId, getRecordsArguments, columnsResponse?.data]);
+
+  const isFetching = recordsAreFetching || columnsAreFetching;
+
+  const error: string | undefined = useMemo(() => {
+    if (recordsError) return extractMessageFromRTKError(recordsError);
+    if (columnsError) return extractMessageFromRTKError(columnsError);
+
+    return;
+  }, [recordsError, columnsError]);
+
+  const [removeView, { isLoading: viewIsRemoving }] = useRemoveViewMutation();
 
   const handleRemove = async () => {
     if (viewIsLoading || viewIsRemoving) return;
@@ -157,7 +228,7 @@ const Edit = () => {
                 <ViewEditVisibility updateVisibility={updateVisibility} />
                 <ViewEditFilters updateFilters={updateFilters} />
                 <ViewEditOrder view={view} updateOrder={updateOrder} />
-                <ViewEditColumns />
+                <ViewEditColumns columnsAreLoading={columnsAreLoading} />
                 <ViewEditDataSourceInfo />
               </div>
             )}
@@ -165,7 +236,9 @@ const Edit = () => {
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             {column && <FieldEditor />}
             <div className="flex-1 flex overflow-auto">
-              {dataSourceId && <RecordsTable />}
+              {dataSourceId && (
+                <RecordsTable error={error} isFetching={isFetching} />
+              )}
             </div>
           </div>
         </div>

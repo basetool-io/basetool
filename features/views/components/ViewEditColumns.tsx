@@ -18,6 +18,7 @@ import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_VIEW_NAME_LENGTH } from "@/lib/constants";
 import {
   activeColumnNameSelector,
+  columnsSelector,
   setActiveColumnName,
 } from "@/features/records/state-slice";
 import { iconForField } from "@/features/fields";
@@ -220,8 +221,13 @@ const Form = ({
   );
 };
 
-const ViewEditColumns = () => {
-  const { columns, columnsAreLoading } = useColumnsForView();
+const ViewEditColumns = ({
+  columnsAreLoading,
+}: {
+  columnsAreLoading?: boolean;
+}) => {
+  const dispatch = useAppDispatch();
+  const columns = useAppSelector(columnsSelector);
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { viewId } = useDataSourceContext();
   const firstFieldRef = useRef(null);
@@ -278,6 +284,10 @@ const ViewEditColumns = () => {
       }).unwrap();
     }
   }, [didDrop]);
+
+  useEffect(() => {
+    return () => dispatch(setActiveColumnName(""));
+  }, []);
 
   return (
     <div>

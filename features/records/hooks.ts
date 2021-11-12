@@ -152,9 +152,9 @@ export const useOrderRecords = (
   };
 
   const resetOrder = () => {
-    setOrderBy('')
-    setOrderDirection('')
-  }
+    setOrderBy("");
+    setOrderDirection("");
+  };
 
   if (isString(initialOrderBy)) {
     setOrderBy(initialOrderBy);
@@ -224,11 +224,15 @@ export const useColumns = ({
   recordsResponse,
   columnsResponse,
   tableName,
+  options,
 }: {
   dataSourceResponse?: ApiResponse;
   recordsResponse?: ApiResponse;
   columnsResponse?: ApiResponse;
   tableName: string;
+  options?: {
+    forEdit: boolean;
+  };
 }) => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
@@ -253,7 +257,11 @@ export const useColumns = ({
       }
     } else {
       if (columnsResponse?.ok) {
-        columns = getFilteredColumns(columnsResponse?.data, Views.index);
+        if (options?.forEdit) {
+          columns = columnsResponse?.data;
+        } else {
+          columns = getFilteredColumns(columnsResponse?.data, Views.index);
+        }
       }
     }
 
