@@ -9,7 +9,7 @@ import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
 import { tablesApiSlice } from "@/features/tables/api-slice";
 import { api as viewsApiSlice } from "@/features/views/api-slice";
-import appReducer from "@/features/app/state-slice";
+import appState from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
 
 /**
@@ -37,7 +37,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 
 const store = configureStore({
   reducer: {
-    appState: appReducer,
+    appState: appState,
     recordsState: recordsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [organizationsApiSlice.reducerPath]: organizationsApiSlice.reducer,
