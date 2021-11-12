@@ -6,7 +6,7 @@ import getQueryService from "@/plugins/data-sources/getQueryService";
 export const getColumns = async ({
   dataSource,
   tableName,
-  storedColumns,
+  storedColumns = [],
 }: {
   dataSource: DataSource;
   tableName: string;

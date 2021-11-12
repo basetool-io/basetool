@@ -1,7 +1,7 @@
 import { Column } from "@/features/fields/types";
 import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
-import { isEmpty, merge } from "lodash";
+import { isArray, isEmpty, merge } from "lodash";
 import Handlebars from "handlebars";
 
 /**
@@ -56,10 +56,15 @@ export const hydrateColumns = (
   storedColumns: Column[]
 ): Column[] => {
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
-  if (!isEmpty(storedColumns)) {
+  if (!isEmpty(storedColumns) && isArray(storedColumns)) {
     const computedColumns = storedColumns.filter(
       (column: any) => column?.baseOptions?.computed === true
     );
+
+    // Add computed columns
+    if (!isEmpty(computedColumns)) {
+      columns = [...columns, ...(computedColumns as Column[])];
+    }
 
     // Update columns with stored options
     storedColumns.filter(
@@ -71,11 +76,6 @@ export const hydrateColumns = (
         columns[columnIndex] = merge(columns[columnIndex], storedColumn)
       }
     });
-
-    // Add computed columns
-    if (!isEmpty(computedColumns)) {
-      columns = [...columns, ...(computedColumns as Column[])];
-    }
   }
 
   return columns;

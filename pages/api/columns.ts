@@ -51,7 +51,7 @@ const columnsForView = async (req: NextApiRequest, res: NextApiResponse) => {
   if (!view || !dataSource || !tableName) return res.status(404).send("");
 
   // If the data source has columns stored, send those in.
-  const storedColumns = view.columns as [];
+  const storedColumns = view.columns as [] || [];
 
   const columns = await getColumns({ dataSource, tableName, storedColumns });
 
