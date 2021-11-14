@@ -21,7 +21,7 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { merge } from "lodash";
 import { toast } from "react-toastify";
 import {

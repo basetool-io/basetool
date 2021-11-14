@@ -14,8 +14,8 @@ export const recordsApiSlice = createApi({
       getRecords: builder.query<
         ApiResponse,
         {
-          dataSourceId: string;
-          tableName: string;
+          dataSourceId?: string;
+          tableName?: string;
           viewId?: string;
           filters?: string;
           limit?: string;
@@ -37,13 +37,14 @@ export const recordsApiSlice = createApi({
         }) => {
           const queryParams = URI()
             .query({
+              viewId,
               dataSourceId,
               tableName,
+              orderBy,
+              orderDirection,
               filters,
               limit,
               offset,
-              orderBy,
-              orderDirection,
             })
             .query()
             .toString();
@@ -146,6 +147,7 @@ export const recordsApiSlice = createApi({
 
 export const {
   useGetRecordsQuery,
+  useLazyGetRecordsQuery,
   useGetRecordQuery,
   useCreateRecordMutation,
   useUpdateRecordMutation,

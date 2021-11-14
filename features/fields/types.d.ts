@@ -75,3 +75,11 @@ export type EditFieldProps = {
   setValue?: (name: string, value: unknown, config?: unknown) => void;
   view?: Views;
 };
+
+export type InspectorProps = {
+  column: Column;
+  setColumnOptions: (
+    name: Column["name"],
+    options: Record<string, unknown>
+  ) => void;
+};

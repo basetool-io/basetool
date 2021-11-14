@@ -7,7 +7,7 @@ import {
   getDefaultFilterCondition,
 } from "..";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
-import { CalendarIcon, XIcon } from "@heroicons/react/outline";
+import { CalendarIcon, TrashIcon } from "@heroicons/react/outline";
 import { Column } from "@/features/fields/types";
 import { FilterConditions, IFilter, IFilterGroup } from "../types";
 import { isArray, isDate, isUndefined } from "lodash";
@@ -270,10 +270,11 @@ const Filter = ({
     }
   };
 
-  const removeFilterMethod = () => {
+  const handleRemoveFilter = () => {
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
+
       if (newFilters.length > 1) {
         newFilters.splice(idx, 1);
 
@@ -418,8 +419,8 @@ const Filter = ({
           )}
         </div>
         <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={() => removeFilterMethod()}>
-            <XIcon className="h-3 text-gray-700" />
+          <Button size="xs" variant="link" onClick={handleRemoveFilter}>
+            <TrashIcon className="h-3 text-gray-700" />
           </Button>
         </Tooltip>
       </div>

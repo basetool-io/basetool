@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import { usePagination } from "@/features/records/hooks";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import numeral from "numeral";
 
 const OffsetPagination = () => {
@@ -17,6 +17,12 @@ const OffsetPagination = () => {
     recordsCount,
   } = usePagination();
 
+  const maxRecords = useMemo(
+    () =>
+      recordsCount && recordsCount < perPage ? recordsCount : perPage * page,
+    [perPage, page, recordsCount]
+  );
+
   return (
     <nav
       className="bg-white px-4 py-3 flex items-center justify-evenly border-t border-gray-200 sm:px-6 rounded-b"
@@ -24,7 +30,7 @@ const OffsetPagination = () => {
     >
       <div className="flex-1 flex justify-start">
         <div className="inline-block text-gray-500 text-sm">
-          Showing {offset + 1}-{perPage * page} {recordsCount && "of "}
+          Showing {offset + 1}-{maxRecords} {recordsCount && "of "}
           {recordsCount
             ? `${
                 recordsCount < 1000

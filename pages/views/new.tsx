@@ -16,7 +16,7 @@ import {
 import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { isUndefined } from "lodash";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
 import { useDataSourceContext } from "@/hooks";
@@ -39,14 +39,14 @@ export interface IFormFields {
 
 function New() {
   const router = useRouter();
-  const { dataSourceId } = useDataSourceContext();
+  const { dataSourceId, tableName } = useDataSourceContext();
 
   const { register, handleSubmit, formState, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       public: true,
       dataSourceId: parseInt(dataSourceId),
-      tableName: "",
+      tableName: tableName,
     },
     resolver: joiResolver(schema),
   });
@@ -57,7 +57,13 @@ function New() {
         shouldDirty: true,
         shouldTouch: true,
       });
-  }, [dataSourceId]);
+
+    if (tableName)
+      setValue("tableName", tableName, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+  }, [dataSourceId, tableName]);
 
   const watchDataSourceId = watch("dataSourceId");
 

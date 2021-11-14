@@ -19,12 +19,10 @@ import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRolesQuery } from "@/features/roles/api-slice";
 import {
   useGetTablesQuery,
-  usePrefetch,
   useUpdateTableMutation,
 } from "@/features/tables/api-slice";
 import DataSourcesEditLayout from "@/features/data-sources/components/DataSourcesEditLayout";
-import Link from "next/link";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 
@@ -120,7 +118,6 @@ function Edit() {
 
     return false;
   }, [localTable]);
-  const prefetchColumns = usePrefetch("getColumns");
 
   return (
     <DataSourcesEditLayout
@@ -151,27 +148,6 @@ function Edit() {
                 <h3 className="uppercase text-md font-semibold">
                   {getLabel(table)}
                 </h3>
-                <div>
-                  <Link
-                    href={`/data-sources/${dataSourceId}/edit/tables/${tableName}/columns`}
-                    passHref
-                  >
-                    <Button
-                      as="a"
-                      colorScheme="purple"
-                      size="xs"
-                      variant="outline"
-                      onMouseEnter={() =>
-                        prefetchColumns({
-                          dataSourceId,
-                          tableName,
-                        })
-                      }
-                    >
-                      Edit columns
-                    </Button>
-                  </Link>
-                </div>
               </div>
               <div className="divide-y">
                 {localTable && (

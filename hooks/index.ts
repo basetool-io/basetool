@@ -6,13 +6,17 @@ import {
   User,
 } from "@prisma/client";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import {
+  dataSourceIdSelector,
+  setDataSourceId,
+  setSidebarVisibile as setSidebarVisibileToState,
+  setTableName,
+  sidebarsVisibleSelector,
+  tableNameSelector,
+} from "@/features/app/state-slice";
 import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
-import {
-  setSidebarVisibile as setSidebarVisibileToState,
-  sidebarsVisibleSelector,
-} from "@/features/app/state-slice";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
 import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
@@ -123,38 +127,35 @@ export const useProfile = () => {
 
 export const useDataSourceContext = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const dataSourceId = useAppSelector(dataSourceIdSelector);
+  const tableName = useAppSelector(tableNameSelector);
 
-  const [dataSourceId, setDataSourceId] = useState("");
-  const [tableName, setTableName] = useState("");
-
-  const viewId = useMemo(
-    () => router.query.viewId as string,
-    [router.query.viewId]
-  );
+  const viewId = router.query.viewId as string;
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   useEffect(() => {
     if (viewResponse?.ok) {
       if (viewResponse?.data?.dataSourceId)
-        setDataSourceId(viewResponse.data.dataSourceId);
+        dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
       if (viewResponse?.data?.tableName)
-        setTableName(viewResponse.data.tableName);
+        dispatch(setTableName(viewResponse.data.tableName));
     }
   }, [viewResponse]);
 
   useEffect(() => {
     if (router.query.dataSourceId) {
-      setDataSourceId(router.query.dataSourceId as string);
+      dispatch(setDataSourceId(router.query.dataSourceId as string));
       if (router.query.tableName) {
-        setTableName(router.query.tableName as string);
+        dispatch(setTableName(router.query.tableName as string));
       } else {
         // When navigating from a dataSource to another, the dataSourceId updates but tableName doesn't and keeps the table selected, so we have to reset it.
-        setTableName("");
+        dispatch(setTableName(""));
       }
     } else if (router.pathname === "/") {
-      setDataSourceId("");
+      dispatch(setDataSourceId(""));
     }
-  }, [router.pathname, router.query.dataSourceId, router.query.tableName]);
+  }, [router.pathname, router.query.dataSourceId, router.query.tableName, router.query.viewId]);
 
   const recordId = useMemo(
     () => router.query.recordId as string,
@@ -171,7 +172,10 @@ export const useDataSourceContext = () => {
     () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
     [tableIndexPath, viewId]
   );
-  const newRecordPath = useMemo(() => `${recordsPath}/new`, [recordsPath]);
+  const newRecordPath = useMemo(
+    () => (recordsPath ? `${recordsPath}/new` : null),
+    [recordsPath]
+  );
 
   return {
     dataSourceId,

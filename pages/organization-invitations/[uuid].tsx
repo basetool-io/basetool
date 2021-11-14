@@ -6,7 +6,7 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/organizations/invitationsSchema";
 import { useAcceptInvitationMutation } from "@/features/organizations/api-slice";
 import { useForm } from "react-hook-form";

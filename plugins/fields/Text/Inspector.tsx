@@ -3,96 +3,78 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
-  Radio,
-  RadioGroup,
+  Select,
 } from "@chakra-ui/react";
 import { Code } from "@chakra-ui/layout";
-import { Column } from "@/features/fields/types";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import React, { useEffect } from "react";
+import { InspectorProps } from "@/features/fields/types";
+import { debounce, isString } from "lodash";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
+import React, { useCallback, useEffect, useState } from "react";
 
-function Inspector({
-  column,
-  setColumnOptions,
-}: {
-  column: Column;
-  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
-}) {
-  let initiaiDisplayAs;
-  if (column.fieldOptions.displayAsLink === true) {
-    initiaiDisplayAs = "link";
-  } else if (column.fieldOptions.displayAsImage === true) {
-    initiaiDisplayAs = "image";
-  } else if (column.fieldOptions.displayAsEmail === true) {
-    initiaiDisplayAs = "email";
-  } else {
-    initiaiDisplayAs = "text";
-  }
+type DisplayAsOptions = "link" | "image" | "email" | "text";
 
-  const [displayAs, setDisplayAs] = React.useState(initiaiDisplayAs);
+function Inspector({ column, setColumnOptions }: InspectorProps) {
+  const setDisplayAs = (value: DisplayAsOptions) => {
+    setColumnOptions(column.name, {
+      "fieldOptions.displayAs": value,
+    });
+  };
+
+  const debouncedSetColumnOptions = useCallback(
+    debounce(setColumnOptions, 1000),
+    []
+  );
+
+  const [linkText, setLinkText] = useState<string>();
+
+  const updateLinkText = (event: any) => {
+    setLinkText(event.currentTarget.value);
+    if (column)
+      debouncedSetColumnOptions(column.name, {
+        "fieldOptions.linkText": event.currentTarget.value,
+      });
+  };
 
   useEffect(() => {
-    switch (displayAs) {
-      case "link":
-        setColumnOptions(column, {
-          "fieldOptions.displayAsLink": true,
-          "fieldOptions.displayAsImage": false,
-          "fieldOptions.displayAsEmail": false,
-        });
-        break;
-      case "image":
-        setColumnOptions(column, {
-          "fieldOptions.displayAsLink": false,
-          "fieldOptions.displayAsImage": true,
-          "fieldOptions.displayAsEmail": false,
-        });
-        break;
-      case "email":
-        setColumnOptions(column, {
-          "fieldOptions.displayAsLink": false,
-          "fieldOptions.displayAsImage": false,
-          "fieldOptions.displayAsEmail": true,
-        });
-        break;
-      default:
-        setColumnOptions(column, {
-          "fieldOptions.displayAsLink": false,
-          "fieldOptions.displayAsImage": false,
-          "fieldOptions.displayAsEmail": false,
-        });
-        break;
-    }
-  }, [displayAs]);
+    if (isString(column?.fieldOptions?.linkText))
+      setLinkText(column.fieldOptions.linkText);
+  }, [column]);
 
   return (
     <>
-      <OptionWrapper helpText="When you need a field to be displayed in a different way.">
-        <FormControl as="fieldset">
-          <FormLabel as="legend">Display as</FormLabel>
-          <RadioGroup
-            defaultValue="text"
-            onChange={setDisplayAs}
-            value={displayAs}
-          >
-            <HStack spacing="20px">
-              <Radio value="text">Text</Radio>
-              <Radio value="link">Link</Radio>
-              <Radio value="image">Image</Radio>
-              <Radio value="email">Email</Radio>
-            </HStack>
-          </RadioGroup>
-          <FormHelperText>Default is <Code>text</Code></FormHelperText>
-        </FormControl>
-        {column.fieldOptions.displayAsLink === true && (
-          <>
+      <OptionWrapper
+        helpText="When you need a field to be displayed in a different way."
+        label="Display as"
+        id="displayAs"
+      >
+        <Select
+          onChange={(e) =>
+            setDisplayAs(e.currentTarget.value as DisplayAsOptions)
+          }
+          value={(column.fieldOptions.displayAs as DisplayAsOptions) || "text"}
+          size="sm"
+        >
+          <option value="text">Regular text</option>
+          <option value="link">Link</option>
+          <option value="image">Image</option>
+          <option value="email">Email</option>
+        </Select>
+        <div className="flex flex-col space-y-2"></div>
+
+        <FormHelperText>
+          Default is <Code>text</Code> but you can change it to{" "}
+          <Code>link</Code>, <Code>email</Code> or <Code>image</Code>.
+        </FormHelperText>
+
+        {column.fieldOptions.displayAs === "link" && (
+          <div>
             <FormControl id="openNewTab" className="mt-2">
               <FormLabel>Open new tab</FormLabel>
               <Checkbox
                 isChecked={column.fieldOptions.openNewTab === true}
                 onChange={() =>
-                  setColumnOptions(column, {
+                  setColumnOptions(column.name, {
                     "fieldOptions.openNewTab": !column.fieldOptions.openNewTab,
                   })
                 }
@@ -107,15 +89,11 @@ function Inspector({
                 name="linkText"
                 placeholder="Link text"
                 required={false}
-                value={column.fieldOptions.linkText as string}
-                onChange={(e) => {
-                  setColumnOptions(column, {
-                    "fieldOptions.linkText": e.currentTarget.value,
-                  });
-                }}
+                value={linkText}
+                onChange={updateLinkText}
               />
             </FormControl>
-          </>
+          </div>
         )}
       </OptionWrapper>
     </>

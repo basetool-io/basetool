@@ -1,49 +1,43 @@
-import { Column } from "@/features/fields/types";
-import {
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  Input,
-} from "@chakra-ui/react";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import React, { useEffect } from "react";
+import { FormHelperText, Input } from "@chakra-ui/react";
+import { InspectorProps } from "@/features/fields/types";
+import { debounce, merge } from "lodash";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
+import React, { useCallback } from "react";
 import fieldOptions from "./fieldOptions";
 
 function Inspector({
   column,
   setColumnOptions,
-}: {
-  column: Column;
-  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
-}) {
-  const defaultOptions = fieldOptions.options ? fieldOptions.options : "";
-  const initialOptions = column.fieldOptions.options
-    ? column.fieldOptions.options
-    : defaultOptions;
+}: InspectorProps) {
+  const options = merge(fieldOptions, column.fieldOptions);
 
-  // when changing the field type to this one, the new options are not automatically passed to the column
-  useEffect(() => {
-    setColumnOptions(column, { "fieldOptions.options": initialOptions });
-  }, []);
+  const debouncedSetColumnOptions = useCallback(
+    debounce(setColumnOptions, 1000),
+    []
+  );
+
+  const handleOnChange = (event: any) => {
+    if (column)
+      debouncedSetColumnOptions(column.name, {
+        "fieldOptions.options": event.currentTarget.value,
+      });
+  };
 
   return (
-    <OptionWrapper helpText="What are the options a user can choose from?">
-      <FormControl id="options">
-        <FormLabel>Options</FormLabel>
-        <Input
-          type="text"
-          name="options"
-          placeholder="Options"
-          required={false}
-          defaultValue={initialOptions as string}
-          onChange={(e) => {
-            setColumnOptions(column, {
-              "fieldOptions.options": e.currentTarget.value,
-            });
-          }}
-        />
-        <FormHelperText>Add the values comma separated.</FormHelperText>
-      </FormControl>
+    <OptionWrapper
+      helpText="What are the options a user can choose from?"
+      label="Options"
+    >
+      <Input
+        type="text"
+        name="options"
+        placeholder="Options"
+        required={false}
+        size="sm"
+        defaultValue={options.options}
+        onChange={handleOnChange}
+      />
+      <FormHelperText>Add the values comma separated.</FormHelperText>
     </OptionWrapper>
   );
 }

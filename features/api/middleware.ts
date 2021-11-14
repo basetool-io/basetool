@@ -3,7 +3,7 @@ import { SQLError } from "@/lib/errors";
 import { addBreadcrumb, captureException, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { getUserFromRequest } from ".";
-import { inProduction } from "@/lib/environment";
+import { inDevelopment } from "@/lib/environment";
 import { isNumber } from "lodash";
 import ApiResponse from "./ApiResponse";
 import VerifyKeepAlive from "./middlewares/VerifyKeepAlive";
@@ -61,28 +61,28 @@ export const withMiddlewares =
       // Flushing before returning is necessary if deploying to Vercel, see
       // https://vercel.com/docs/platform/limits#streaming-responses
       await flush(2000);
+      if (!res.headersSent) {
+        const status = error.code && isNumber(error.code) ? error.code : 500;
 
-      // Show a prety message in production and throw the error in development
-      if (inProduction || process.env.ERRORS_FORMATTED_AS_JSON === "true") {
-        if (!res.headersSent) {
-          const status = error.code && isNumber(error.code) ? error.code : 500;
-
-          if (error instanceof SQLError) {
-            return res.status(status).send(
-              ApiResponse.withError(error.message, {
-                meta: { error },
-              })
-            );
-          } else {
-            return res.status(status).send(
-              ApiResponse.withError(errorResponse, {
-                meta: { errorMessage: error.message, error },
-              })
-            );
-          }
+        if (error instanceof SQLError) {
+          res.status(status).send(
+            ApiResponse.withError(error.message, {
+              meta: { error },
+            })
+          );
+        } else {
+          // Show a prety message in production and
+          res.status(status).send(
+            ApiResponse.withError(errorResponse, {
+              meta: { errorMessage: error.message, error },
+            })
+          );
         }
-      } else {
-        throw error;
+
+        // throw the error in the console in development
+        if (inDevelopment) {
+          throw error;
+        }
       }
     }
   };

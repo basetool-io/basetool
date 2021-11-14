@@ -14,7 +14,12 @@ const GroupFiltersPanel = (
     verb,
     filters: groupFilters,
     idx: parentIdx,
-  }: { columns: Column[]; verb: FilterVerb; filters: IFilter[]; idx: number },
+  }: {
+    columns: Column[];
+    verb: FilterVerb;
+    filters: IFilter[];
+    idx: number;
+  },
   ref: any
 ) => {
   const { filters, removeFilter, updateFilter } = useFilters();

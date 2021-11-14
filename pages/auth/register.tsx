@@ -9,7 +9,7 @@ import {
 import { getBrowserTimezone } from "@/lib/time";
 import { getCsrfToken, useSession } from "next-auth/client";
 import { isEmpty } from "lodash";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
 import { useForm } from "react-hook-form";

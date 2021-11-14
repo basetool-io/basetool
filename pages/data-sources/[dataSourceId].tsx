@@ -40,7 +40,7 @@ function DataSourcesShow() {
           {showSetup && <GoogleSheetsSetup />}
           {showSetup || (
             <PageWrapper heading={dataSourceResponse?.data?.name}>
-              <>👈 &nbsp;Select a table to get started.</>
+              <>👈 &nbsp;Select a view to get started.</>
             </PageWrapper>
           )}
         </>
