@@ -32,7 +32,7 @@ class Catalog {
   ) {
     const id = dataSource.id.toString();
     const existingConnection = this.connections.find(
-      (connection) => connection.id === id
+      (connection) => connection.id.toString() === id
     );
     if (existingConnection) {
       console.log("existingConnection->", existingConnection);
