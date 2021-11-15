@@ -30,7 +30,7 @@ class Catalog {
     dataSource: DataSource,
     payload: QueryServiceWrapperPayload
   ) {
-    const id = dataSource.toString();
+    const id = dataSource.id.toString();
     const existingConnection = this.connections.find(
       (connection) => connection.id === id
     );
