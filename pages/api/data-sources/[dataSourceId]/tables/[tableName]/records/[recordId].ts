@@ -104,19 +104,30 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const service = await getQueryService({ dataSource });
 
-  const data = await service.runQuery("updateRecord", {
-    tableName: req.query.tableName as string,
-    recordId: req.query.recordId as string,
-    data: req.body.changes,
-  });
+  const [record, data]: [Record<string, any>, Promise<unknown>] =
+    await service.runQueries([
+      {
+        name: "getRecord",
+        payload: {
+          tableName: req.query.tableName as string,
+          recordId: req.query.recordId as string,
+        },
+      },
+      {
+        name: "updateRecord",
+        payload: {
+          tableName: req.query.tableName as string,
+          recordId: req.query.recordId as string,
+          data: req.body.changes,
+        },
+      },
+    ]);
 
-  serverSegment().track({
-    userId: user ? user.id : "",
-    event: "Updated record",
-    properties: {
-      id: dataSource.type,
-    },
-  });
+  const changes = Object.keys(req?.body?.changes).map((columnName: string) => ({
+    column: columnName,
+    before: record[columnName],
+    after: req?.body?.changes[columnName],
+  }));
 
   // todo - find a way to pass viewId in the request
   const activityData = {
@@ -129,11 +140,19 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     dataSourceId: dataSource ? (dataSource.id as number) : undefined,
     viewId: req.query.viewId ? parseInt(req.query.viewId as string) : undefined,
     action: "update",
-    changes: req?.body?.changes,
+    changes: changes,
   };
 
   await prisma.activity.create({
     data: activityData,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated record",
+    properties: {
+      id: dataSource.type,
+    },
   });
 
   res.json(
@@ -166,7 +185,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   // todo - find a way to pass viewId in the request
   const activityData = {
-    recordId: data.toString(),
+    recordId: req.query.recordId as string,
     userId: user ? user.id : 0,
     organizationId: dataSource ? (dataSource.organizationId as number) : 0,
     tableName: req.query.tableName

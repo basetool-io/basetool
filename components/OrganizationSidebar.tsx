@@ -1,5 +1,5 @@
+import { ClipboardListIcon, ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/outline";
 import { Organization } from "@prisma/client"
-import { ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router"
 import Link from "next/link"
 import React, { ReactNode, memo, useMemo } from "react";
@@ -18,7 +18,7 @@ const Item = ({
   description: string;
 }) => {
   const router = useRouter()
-  const isActive = useMemo(() => link === router.asPath, [router.asPath, link])
+  const isActive = useMemo(() => router.asPath.includes(link), [router.asPath, link])
 
   return (
     <Link href={link}>
@@ -59,6 +59,12 @@ function OrganizationSidebar({organization}: {organization?: Organization}) {
           link={organization?.slug ? `/organizations/${organization?.slug}/roles` : ''}
           icon={<ShieldCheckIcon className="h-4" />}
           description="You might allow some members to do some things and others not"
+        />
+        <Item
+          label="Activity"
+          link={organization?.slug ? `/organizations/${organization?.slug}/activity` : ''}
+          icon={<ClipboardListIcon className="h-4" />}
+          description="See all record updates"
         />
       </div>
     </div>

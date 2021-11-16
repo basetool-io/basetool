@@ -1,6 +1,7 @@
 import { apiUrl } from "@/features/api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import ApiResponse from "@/features/api/ApiResponse";
+import URI from "urijs";
 
 export const organizationsApiSlice = createApi({
   reducerPath: "organizations",
@@ -105,6 +106,26 @@ export const organizationsApiSlice = createApi({
           { type: "Organization", id: organizationId },
         ],
       }),
+      getActivities: builder.query<
+        ApiResponse,
+        Partial<{ organizationId: string, page?: string, perPage?: string }>
+      >({
+        query({ organizationId, page, perPage }) {
+          const queryParams = URI()
+          .query({
+            organizationId,
+            page,
+            perPage
+          })
+          .query()
+          .toString();
+
+          return `/organizations/${organizationId}/activities?${queryParams}`;
+        },
+        providesTags: (result, error, { organizationId }) => [
+          { type: "Organization", id: organizationId },
+        ],
+      }),
     };
   },
 });
@@ -117,4 +138,5 @@ export const {
   useUpdateMemberRoleMutation,
   useUpdateOrganizationMutation,
   usePrefetch,
+  useGetActivitiesQuery,
 } = organizationsApiSlice;
