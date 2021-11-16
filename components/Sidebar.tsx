@@ -25,22 +25,12 @@ const Sidebar = () => {
   const { dataSourceId, tableName, viewId } = useDataSourceContext();
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery(
-      { dataSourceId },
-      {
-        skip: !dataSourceId,
-      }
-    );
+    useGetDataSourceQuery({ dataSourceId }, { skip: !dataSourceId });
   const {
     data: tablesResponse,
     isLoading: tablesAreLoading,
     error: tablesError,
-  } = useGetTablesQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  } = useGetTablesQuery({ dataSourceId }, { skip: !dataSourceId });
 
   const {
     data: viewsResponse,
@@ -189,6 +179,9 @@ const Sidebar = () => {
                 onClick={toggleTablesOpen}
               >
                 Tables{" "}
+                <span className="text-xs text-gray-500">
+                  (visible only to owners)
+                </span>
                 {isTablesOpen ? (
                   <ChevronDownIcon className="h-3 inline" />
                 ) : (
@@ -210,7 +203,8 @@ const Sidebar = () => {
                   )}
                   {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
                   {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-                  {!tablesLoading && tablesResponse?.ok &&
+                  {!tablesLoading &&
+                    tablesResponse?.ok &&
                     tablesResponse.data
                       .filter((table: ListTable) =>
                         dataSourceResponse?.data.type === "postgresql" &&
