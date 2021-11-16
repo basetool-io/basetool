@@ -19,7 +19,7 @@ function Shimmer({
     <div
       className={classNames("shimmer-bg rounded-md", className)}
       style={styles}
-    ></div>
+    />
   );
 }
 

@@ -1,50 +1,82 @@
-import { first, isNull } from "lodash";
-import { useDataSourceContext } from "@/hooks";
+import { isNull } from "lodash";
+import { useDataSourceContext, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
+import { useGetViewsQuery } from "@/features/views/api-slice";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
 import Layout from "@/components/Layout";
-import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
-import isEmpty from "lodash/isEmpty";
+import ShimmerOrCount from "@/components/ShimmerOrCount";
 
 function DataSourcesShow() {
   const { dataSourceId } = useDataSourceContext();
-  const { data, error, isLoading } = useGetTablesQuery(
+  const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     { skip: !dataSourceId }
   );
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
+  const { data: tablesResponse, isLoading: tablesAreLoading } =
+    useGetTablesQuery({ dataSourceId }, { skip: !dataSourceId });
+
+  const { data: viewsResponse, isLoading: viewsAreLoading } =
+    useGetViewsQuery();
+  const views = useMemo(
+    () => (viewsResponse?.ok ? viewsResponse.data : []),
+    [viewsResponse]
   );
 
-  const showSetup = useMemo(
+  const showGoogleSheetsSetup = useMemo(
     () => isNull(dataSourceResponse?.data?.options?.spreadsheetId),
     [dataSourceResponse?.data?.options?.spreadsheetId]
   );
 
+  const { organizations, isLoading: sessionIsLoading } = useProfile();
+  const organization = useMemo(
+    () =>
+      organizations.find(
+        (o) => o.id === parseInt(dataSourceResponse?.data?.organizationId)
+      ),
+    [organizations]
+  );
+
   return (
     <Layout>
-      {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-      {error && (
-        <div>
-          Error: {"data" in error && first((error?.data as any)?.messages)}
-        </div>
-      )}
-      {!isLoading && data?.ok && (
-        <>
-          {showSetup && <GoogleSheetsSetup />}
-          {showSetup || (
-            <PageWrapper heading={dataSourceResponse?.data?.name}>
-              <>👈 &nbsp;Select a view to get started.</>
-            </PageWrapper>
-          )}
-        </>
-      )}
+      <>
+        {showGoogleSheetsSetup && <GoogleSheetsSetup />}
+        {showGoogleSheetsSetup || (
+          <PageWrapper heading={dataSourceResponse?.data?.name}>
+            <div>
+              This data source has{" "}
+              <ShimmerOrCount
+                item="table"
+                count={tablesResponse?.data?.length}
+                isLoading={tablesAreLoading}
+              />{" "}
+              and{" "}
+              <ShimmerOrCount
+                item="view"
+                count={viewsResponse?.data?.length}
+                isLoading={viewsAreLoading}
+              />
+              .{" "}
+              {organization && (
+                <>
+                  There are{" "}
+                  <ShimmerOrCount
+                    item="member"
+                    count={organization?.users?.length}
+                    isLoading={sessionIsLoading}
+                  />{" "}
+                  that may see the views you configured.
+                  <br />
+                  {views.length > 0 && <>👈 Select a view to get started.</>}
+                  {views.length === 0 && <>👈 Create view to get started.</>}
+                </>
+              )}
+            </div>
+          </PageWrapper>
+        )}
+      </>
     </Layout>
   );
 }
