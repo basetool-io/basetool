@@ -85,6 +85,14 @@ const ActivityItem = ({
     [activity?.view, activity?.dataSource, activity.tableName]
   );
 
+  const userName = useMemo(
+    () =>
+      activity.user.firstName && activity.user.lastName
+        ? activity.user.firstName + " " + activity.user.lastName
+        : activity.user.email,
+    [activity.user.firstName, activity.user.lastName, activity.user.email]
+  );
+
   const message = useMemo(() => {
     switch (activity.action) {
       case "create":
@@ -191,7 +199,10 @@ const ActivityItem = ({
   }, [activity.changes]);
 
   return (
-    <li key={activity.id} className="relative py-4 my-2 rounded-md sm:w-[28rem] lg:w-[36rem]">
+    <li
+      key={activity.id}
+      className="relative py-4 my-2 rounded-md sm:w-[28rem] lg:w-[36rem]"
+    >
       {!lastItem && (
         <span
           className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200"
@@ -213,9 +224,7 @@ const ActivityItem = ({
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">
-              {activity.user.firstName + " " + activity.user.lastName}
-            </h3>
+            <h3 className="text-sm font-medium">{userName}</h3>
             <p className="text-sm text-gray-500">
               {DateTime.fromISO(activity.createdAt.toString()).toRelative()}
             </p>
