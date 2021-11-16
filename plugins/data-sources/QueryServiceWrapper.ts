@@ -35,7 +35,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   ) {
     let response;
 
-    await this.queryService.connect();
+    // await this.queryService.connect();
 
     // Create a payload with the requests each as a an anonymous function that we can run at a later time.
     const actions = queries.map(
@@ -83,7 +83,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
       }
     }
 
-    await this.queryService.disconnect();
+    // await this.queryService.disconnect();
 
     return response;
   }
