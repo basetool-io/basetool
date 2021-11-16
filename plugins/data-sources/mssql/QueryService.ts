@@ -45,8 +45,8 @@ class QueryService extends AbstractQueryService {
     return client;
   }
 
-  public filterOutColumns(columns: Column<SqlColumnOptions>[]) {
-    return columns.filter((column) => column?.dataSourceInfo?.type !== "timestamp");
+  public filterOutUnsupportedColumns(columns: Column<SqlColumnOptions>[]) {
+    return columns.filter((column) => column?.dataSourceInfo?.type !== "timestamp" && column?.dataSourceInfo?.type !== "geometry");
   }
 
   public getFieldOptionsFromColumnInfo(
@@ -91,6 +91,7 @@ class QueryService extends AbstractQueryService {
 
         switch (column.dataSourceInfo.type) {
           case "datetime":
+          case "datetime2":
           case "timestamp":
             fieldOptions = {
               ...fieldOptions,
@@ -132,6 +133,7 @@ class QueryService extends AbstractQueryService {
       case "money":
       case "float":
       case "real":
+      case "decimal":
         if (idColumns.includes(name)) {
           fieldType = "Id";
         } else {
