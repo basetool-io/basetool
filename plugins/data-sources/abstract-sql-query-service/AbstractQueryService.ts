@@ -460,7 +460,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
   }
 
   public async disconnect(): Promise<this> {
-    // await this.client.destroy();
+    await this.client.destroy();
 
     return this;
   }

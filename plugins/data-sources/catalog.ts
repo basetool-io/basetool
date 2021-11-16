@@ -35,7 +35,8 @@ class Catalog {
       (connection) => connection.id.toString() === id
     );
     if (existingConnection) {
-      console.log("existingConnection->", existingConnection);
+      console.log("existingConnection->");
+      // console.log("existingConnection->", existingConnection);
 
       return existingConnection.service;
     }
