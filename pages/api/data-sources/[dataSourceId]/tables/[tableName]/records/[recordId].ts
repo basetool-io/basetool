@@ -185,7 +185,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   // todo - find a way to pass viewId in the request
   const activityData = {
-    recordId: data.toString(),
+    recordId: req.query.recordId as string,
     userId: user ? user.id : 0,
     organizationId: dataSource ? (dataSource.organizationId as number) : 0,
     tableName: req.query.tableName
