@@ -9,6 +9,7 @@ interface AppState {
   records: [];
   meta: Record<string, string | number | boolean | null>;
   columns: Column[];
+  activeColumnName: Column["name"];
   filters: Array<IFilter | IFilterGroup>;
   appliedFilters: Array<IFilter | IFilterGroup>;
   page: number;
@@ -24,6 +25,7 @@ const initialState: AppState = {
   records: [],
   meta: {},
   columns: [],
+  activeColumnName: "",
   filters: [],
   appliedFilters: [],
   page: 1,
@@ -60,6 +62,8 @@ const recordsStateSlice = createSlice({
     },
     removeFilter(state, action: PayloadAction<number>) {
       state.filters.splice(action.payload, 1);
+    },
+    removeAppliedFilter(state, action: PayloadAction<number>) {
       state.appliedFilters.splice(action.payload, 1);
     },
     updateFilter(
@@ -127,6 +131,9 @@ const recordsStateSlice = createSlice({
     setColumns(state, action: PayloadAction<Column[]>) {
       state.columns = action.payload;
     },
+    setActiveColumnName(state, action: PayloadAction<string>) {
+      state.activeColumnName = action.payload;
+    },
 
     /**
      * Order
@@ -153,11 +160,13 @@ export const {
   setFilters,
   setAppliedFilters,
   removeFilter,
+  removeAppliedFilter,
   updateFilter,
   toggleRecordSelection,
   setRecordsSelected,
   resetRecordsSelection,
   setColumns,
+  setActiveColumnName,
 
   setRecords,
 
@@ -178,6 +187,17 @@ export const metaSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.meta;
 export const columnsSelector = ({ recordsState }: { recordsState: AppState }) =>
   recordsState.columns;
+export const activeColumnSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) =>
+  recordsState.columns.find((c) => c.name === recordsState.activeColumnName);
+export const activeColumnNameSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.activeColumnName;
 export const columnWidthsSelector = ({
   recordsState,
 }: {

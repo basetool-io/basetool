@@ -1,8 +1,9 @@
 import { Column } from "@/features/fields/types";
+import { DataSource, View } from "@prisma/client";
 import { decodeObject } from "@/lib/encoding";
-import { get } from "lodash";
-import { getDataSourceFromRequest } from "@/features/api";
+import { getDataSourceFromRequest, getViewFromRequest } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
+import { merge } from "lodash"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -23,39 +24,52 @@ const handler = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const dataSource = await getDataSourceFromRequest(req);
+  let tableName: string;
+  let dataSource;
+  let filters;
+  let storedColumns: Column[] = [];
+  const limit = parseInt(req.query.limit as string);
+  const offset = parseInt(req.query.offset as string);
+  const orderBy = req.query.orderBy as string;
+  const orderDirection = req.query.orderDirection as string;
 
-  if (!dataSource) return res.status(404).send("");
+  if (req.query.viewId) {
+    const view = (await getViewFromRequest(req, {
+      include: {
+        dataSource: true,
+      },
+    })) as View & {
+      dataSource: DataSource;
+    };
 
-  const tableName = req.query.tableName as string;
+    if (!view || !view?.dataSource) return res.status(404).send("");
 
-  // If the data source has columns stored, send those in.
-  const storedColumns = get(dataSource, [
-    "options",
-    "tables",
-    tableName,
-    "columns",
-  ]);
+    dataSource = view?.dataSource;
+    tableName = view?.tableName as string;
+    storedColumns = view.columns as Column[];
+    const decodedFilters = decodeObject(req.query.filters as string) || []
+    filters = merge(decodedFilters, view.filters);
+  } else {
+    dataSource = await getDataSourceFromRequest(req);
+
+    if (!dataSource) return res.status(404).send("");
+    tableName = req.query.tableName as string;
+    filters = decodeObject(req.query.filters as string);
+  }
 
   const service = await getQueryService({ dataSource });
-
-  const filters = decodeObject(req.query.filters as string);
 
   const [records, columns, count]: [any[], Column[], number] =
     await service.runQueries([
       {
         name: "getRecords",
         payload: {
-          tableName: req.query.tableName as string,
+          tableName,
           filters,
-          limit: req.query.limit
-            ? parseInt(req.query.limit as string, 10)
-            : null,
-          offset: req.query.offset
-            ? parseInt(req.query.offset as string, 10)
-            : null,
-          orderBy: req.query.orderBy as string,
-          orderDirection: req.query.orderDirection as string,
+          limit,
+          offset,
+          orderBy,
+          orderDirection,
         },
       },
       {
@@ -68,7 +82,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       {
         name: "getRecordsCount",
         payload: {
-          tableName: req.query.tableName as string,
+          tableName,
           filters,
         },
       },

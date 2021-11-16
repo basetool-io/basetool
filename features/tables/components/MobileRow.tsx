@@ -17,7 +17,7 @@ const MobileIndexFieldWrapper = ({ cell }: { cell: any }) => {
         <span>{column.label}</span>
       </div>
 
-      {cell.render("Cell")}
+      <div className="-ml-3">{cell.render("Cell")}</div>
     </div>
   );
 };

@@ -60,7 +60,6 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-
   await prisma.view.update({
     where: {
       id: parseInt(req.query.viewId as string, 10),

@@ -1,9 +1,9 @@
-import { ValidationErrorItem, ValidationResult } from 'joi'
-import isString from 'lodash/isString'
+import { ValidationErrorItem, ValidationResult } from "joi";
+import isString from "lodash/isString";
 
 export interface ApiResponseMessage {
   message: string;
-  type: 'success' | 'info' | 'warning' | 'error';
+  type: "success" | "info" | "warning" | "error";
 }
 
 // export interface IApiResponse<T> {
@@ -30,81 +30,87 @@ export interface IApiResponse {
 class ApiResponse {
   public static withMessage(
     message: string,
-    options: IApiResponse = {},
+    options: IApiResponse = {}
   ): ApiResponse {
     return new ApiResponse({
       ...{
-        status: 'success',
+        status: "success",
         ...options,
       },
       messages: [message],
-    })
+    });
   }
 
   public static withError(
     message: string,
-    options: IApiResponse = {},
+    options: IApiResponse = {}
   ): ApiResponse {
     return new ApiResponse({
       ...{
-        status: 'error',
+        status: "error",
         ...options,
       },
       messages: [message],
-    })
+    });
   }
 
   public static withData(
     data: any,
-    options: IApiResponse & { message?: string } = {},
+    options: IApiResponse & { message?: string } = {}
   ) {
-    const { message } = options
+    const { message } = options;
 
     if (message) {
-      delete options.message
-      options.messages = [message]
+      delete options.message;
+      options.messages = [message];
     }
 
     return new ApiResponse({
       ...{
-        status: 'success',
+        status: "success",
         ...options,
       },
       data,
-    })
+    });
+  }
+
+  public static ok() {
+    return new ApiResponse({
+      status: "success",
+    });
   }
 
   public static withValidation(joiResponse: ValidationResult): ApiResponse {
     if (joiResponse && joiResponse.error) {
       return new ApiResponse({
-        status: 'validation_error',
+        status: "validation_error",
         messages: joiResponse.error.details.map(
           (error: ValidationErrorItem) => ({
             message: error.message,
-            type: 'error',
-          }),
+            type: "error",
+          })
         ),
-      })
+      });
     }
 
     return new ApiResponse({
-      messages: ['Something went wrong with validation.'],
-    })
+      messages: ["Something went wrong with validation."],
+    });
   }
 
-  public status: IApiResponse['status'];
+  public status: IApiResponse["status"];
 
-  public data: IApiResponse['data'];
+  public data: IApiResponse["data"];
 
-  public meta: IApiResponse['meta'];
+  public meta: IApiResponse["meta"];
 
-  public messages: IApiResponse['messages'];
+  public messages: IApiResponse["messages"];
 
-  public joiPayload: IApiResponse['joiPayload'];
+  public joiPayload: IApiResponse["joiPayload"];
 
-  public redirectTo: IApiResponse['redirectTo'];
+  public redirectTo: IApiResponse["redirectTo"];
 
-  public reload: IApiResponse['reload'];
+  public reload: IApiResponse["reload"];
 
   constructor({
     messages,
@@ -115,21 +121,21 @@ class ApiResponse {
     redirectTo,
     reload,
   }: IApiResponse) {
-    this.status = status || 'success'
-    this.data = data
-    this.meta = meta
-    this.messages = messages || []
-    this.joiPayload = joiPayload
-    this.redirectTo = redirectTo
-    this.reload = reload
+    this.status = status || "success";
+    this.data = data;
+    this.meta = meta;
+    this.messages = messages || [];
+    this.joiPayload = joiPayload;
+    this.redirectTo = redirectTo;
+    this.reload = reload;
   }
 
   get ok() {
-    return this.status === 'success'
+    return this.status === "success";
   }
 
   get error() {
-    return !this.ok
+    return !this.ok;
   }
 
   toJSON() {
@@ -137,11 +143,13 @@ class ApiResponse {
       ...this,
       ok: this.ok,
       error: this.error,
+    };
+    if (isString(this.messages)) {
+      response.messages = [this.messages];
     }
-    if (isString(this.messages)) { response.messages = [this.messages] }
 
-    return response
+    return response;
   }
 }
 
-export default ApiResponse
+export default ApiResponse;

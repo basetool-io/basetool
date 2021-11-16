@@ -1,11 +1,11 @@
 import { Button } from "@chakra-ui/react";
+import { FilterOrFilterGroup, IFilter, IFilterGroup } from "../types";
 import { FilterVerbs, getDefaultFilterCondition } from "..";
 import {
   FolderAddIcon,
   PlusIcon,
   ReceiptRefundIcon,
 } from "@heroicons/react/outline";
-import { IFilter, IFilterGroup } from "../types";
 import { columnsSelector } from "@/features/records/state-slice";
 import { useAppSelector, useDataSourceContext } from "@/hooks";
 import { useFilters } from "@/features/records/hooks";
@@ -16,14 +16,22 @@ import React, { forwardRef, useMemo } from "react";
 import classNames from "classnames";
 import isEmpty from "lodash/isEmpty";
 
-const FiltersPanel = ({}, ref: any) => {
+const FiltersPanel = (
+  {
+    onApplyFilters,
+  }: {
+    onApplyFilters?: (filters: FilterOrFilterGroup[]) => void;
+  },
+  ref: any
+) => {
   const router = useRouter();
   const { viewId } = useDataSourceContext();
   const columns = useAppSelector(columnsSelector);
-  const { filters, setFilters, setAppliedFilters, allFiltersApplied } = useFilters();
+  const { filters, setFilters, setAppliedFilters, allFiltersApplied } =
+    useFilters();
 
   const addFilter = () => {
-    if (!columns) return
+    if (!columns) return;
 
     const filter: IFilter = {
       columnName: columns[0].name,
@@ -58,6 +66,12 @@ const FiltersPanel = ({}, ref: any) => {
     () => router.pathname.endsWith("/edit") && viewId,
     [viewId, router]
   );
+
+  const handleApplyFilters = () => {
+    if (onApplyFilters) onApplyFilters(filters);
+
+    setAppliedFilters(filters);
+  };
 
   return (
     <div
@@ -134,7 +148,7 @@ const FiltersPanel = ({}, ref: any) => {
           <Button
             size="xs"
             colorScheme="blue"
-            onClick={() => setAppliedFilters(filters)}
+            onClick={handleApplyFilters}
             disabled={allFiltersApplied}
             leftIcon={<ReceiptRefundIcon className="h-3" />}
           >

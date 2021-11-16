@@ -6,7 +6,7 @@ import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { makeField } from "@/features/fields";
 import { toast } from "react-toastify";
 import {
@@ -167,6 +167,11 @@ const Form = ({
     }
   };
 
+  const filteredColumns = useMemo(
+    () => columns.filter((column) => column.baseOptions.computed !== true),
+    [columns]
+  );
+
   return (
     <>
       <PageWrapper
@@ -194,8 +199,8 @@ const Form = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full h-full flex-1 flex flex-col justify-between">
             <div>
-              {columns &&
-                columns.map((column: Column) => {
+              {filteredColumns &&
+                filteredColumns.map((column: Column) => {
                   if (!formData) return null;
 
                   const field = makeField({

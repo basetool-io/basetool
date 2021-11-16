@@ -1,4 +1,4 @@
-import { DataSource, Organization, User } from "@prisma/client";
+import { DataSource, Organization, User, View } from "@prisma/client";
 import { NextApiRequest } from "next";
 import { getSession } from "next-auth/client";
 import prisma from "@/prisma";
@@ -61,6 +61,18 @@ export const getUserFromRequest = async (
   return prisma.user.findFirst({
     where: {
       email: session.user.email,
+    },
+    ...options,
+  });
+};
+
+export const getViewFromRequest = async (
+  req: NextApiRequest,
+  options: Record<string, unknown> = {}
+): Promise<View | null> => {
+  return await prisma.view.findUnique({
+    where: {
+      id: parseInt((req.query.viewId || req.body.viewId) as string),
     },
     ...options,
   });

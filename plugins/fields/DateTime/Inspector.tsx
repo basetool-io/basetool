@@ -1,39 +1,33 @@
-import { Column } from "@/features/fields/types";
-import { FormLabel, Select } from "@chakra-ui/react";
+import { InspectorProps } from "@/features/fields/types";
+import { Select } from "@chakra-ui/react";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, merge } from "lodash";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { useEffect, useState } from "react";
 import fieldOptions from "./fieldOptions";
 
-function Inspector({
-  column,
-  setColumnOptions,
-}: {
-  column: Column;
-  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
-}) {
+function Inspector({ column, setColumnOptions }: InspectorProps) {
   const selectOptions = ["date_time", "only_date", "only_time"];
   const [selectValue, setSelectValue] = useState("date_time");
-  const columnFieldOptions = merge(fieldOptions, column.fieldOptions);
+  const options = merge(fieldOptions, column.fieldOptions);
 
   // Respond to select changes
   useEffect(() => {
     switch (selectValue) {
       case "date_time":
-        setColumnOptions(column, {
+        setColumnOptions(column.name, {
           "fieldOptions.showDate": true,
           "fieldOptions.showTime": true,
         });
         break;
       case "only_date":
-        setColumnOptions(column, {
+        setColumnOptions(column.name, {
           "fieldOptions.showDate": true,
           "fieldOptions.showTime": false,
         });
         break;
       case "only_time":
-        setColumnOptions(column, {
+        setColumnOptions(column.name, {
           "fieldOptions.showDate": false,
           "fieldOptions.showTime": true,
         });
@@ -43,33 +37,26 @@ function Inspector({
 
   // Setting the defaults
   useEffect(() => {
-    if (!isEmpty(columnFieldOptions)) {
-      const defaults = Object.fromEntries(
-        Object.entries(columnFieldOptions).map(([key, value]) => [
-          `fieldOptions.${key}`,
-          value,
-        ])
-      );
-      if (columnFieldOptions.showDate) {
-        if (columnFieldOptions.showTime) {
+    if (!isEmpty(options)) {
+      if (options.showDate) {
+        if (options.showTime) {
           setSelectValue("date_time");
         } else {
           setSelectValue("only_date");
         }
-      } else if (columnFieldOptions.showTime) {
+      } else if (options.showTime) {
         setSelectValue("only_time");
       }
-      setColumnOptions(column, defaults);
     }
   }, []);
 
   return (
-    <OptionWrapper helpText="Control what kind of information this field has.">
-      <FormLabel htmlFor={`dateTime-${column.name}`}>
-        Type of picker
-      </FormLabel>
+    <OptionWrapper
+      helpText="Control what kind of information this field has."
+      label="Type of picker"
+    >
       <Select
-        id={`dateTime-${column.name}`}
+        id={`type_of_picker`}
         value={selectValue}
         onChange={(e) => setSelectValue(e.currentTarget.value)}
       >

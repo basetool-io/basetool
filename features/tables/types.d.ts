@@ -10,7 +10,7 @@ export type Tables = {
   [tableName: string]: Table;
 };
 
-export type OrderDirection = '' | 'asc' | 'desc'
+export type OrderDirection = "" | "asc" | "desc";
 
 export type FilterConditions =
   | IntFilterConditions
@@ -35,3 +35,5 @@ export type IFilterGroup = {
   filters: IFilter[];
   isBase?: boolean;
 };
+
+export type FilterOrFilterGroup = IFilter | IFilterGroup;

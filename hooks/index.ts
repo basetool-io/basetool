@@ -40,11 +40,16 @@ export const useAccessControl = () => {
 };
 
 export const useResponsive = () => {
+  if (!document)
+    return { isSm: false, isMd: false, isLg: false, isXl: false, is2xl: false };
+
+  /* eslint-disable react-hooks/rules-of-hooks */
   const isSm = useMedia("(min-width: 640px)", false);
   const isMd = useMedia("(min-width: 768px)", false);
   const isLg = useMedia("(min-width: 1024px)", false);
   const isXl = useMedia("(min-width: 1280px)", false);
   const is2xl = useMedia("(min-width: 1536px)", false);
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return { isSm, isMd, isLg, isXl, is2xl };
 };
@@ -123,20 +128,18 @@ export const useProfile = () => {
 export const useDataSourceContext = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-
   const dataSourceId = useAppSelector(dataSourceIdSelector);
   const tableName = useAppSelector(tableNameSelector);
 
-  const viewId = useMemo(
-    () => router.query.viewId as string,
-    [router.query.viewId]
-  );
+  const viewId = router.query.viewId as string;
   const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
 
   useEffect(() => {
     if (viewResponse?.ok) {
-      if (viewResponse?.data?.dataSourceId) dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
-      if (viewResponse?.data?.tableName) dispatch(setTableName(viewResponse.data.tableName));
+      if (viewResponse?.data?.dataSourceId)
+        dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
+      if (viewResponse?.data?.tableName)
+        dispatch(setTableName(viewResponse.data.tableName));
     }
   }, [viewResponse]);
 
@@ -149,10 +152,10 @@ export const useDataSourceContext = () => {
         // When navigating from a dataSource to another, the dataSourceId updates but tableName doesn't and keeps the table selected, so we have to reset it.
         dispatch(setTableName(""));
       }
-    } else if(router.pathname === "/") {
+    } else if (router.pathname === "/") {
       dispatch(setDataSourceId(""));
     }
-  }, [router.query]);
+  }, [router.pathname, router.query.dataSourceId, router.query.tableName, router.query.viewId]);
 
   const recordId = useMemo(
     () => router.query.recordId as string,
@@ -169,9 +172,12 @@ export const useDataSourceContext = () => {
     () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
     [tableIndexPath, viewId]
   );
-  const newRecordPath = useMemo(() => `${recordsPath}/new`, [recordsPath]);
+  const newRecordPath = useMemo(
+    () => (recordsPath ? `${recordsPath}/new` : null),
+    [recordsPath]
+  );
 
-return {
+  return {
     dataSourceId,
     tableName,
     viewId,

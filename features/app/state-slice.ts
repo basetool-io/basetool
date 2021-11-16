@@ -10,8 +10,8 @@ interface AppState {
 const initialState: AppState = {
   sidebarsVisible: false,
 
-  dataSourceId: '',
-  tableName: '',
+  dataSourceId: "",
+  tableName: "",
 };
 
 const appStateSlice = createSlice({
@@ -27,10 +27,10 @@ const appStateSlice = createSlice({
       state.sidebarsVisible = action.payload;
     },
 
+    /* Data source context */
     setDataSourceId(state, action: PayloadAction<string>) {
       state.dataSourceId = action.payload;
     },
-
     setTableName(state, action: PayloadAction<string>) {
       state.tableName = action.payload;
     },
@@ -42,10 +42,10 @@ export const sidebarsVisibleSelector = ({ appState }: { appState: AppState }) =>
 
 export const dataSourceIdSelector = ({ appState }: { appState: AppState }) =>
   appState.dataSourceId;
-
 export const tableNameSelector = ({ appState }: { appState: AppState }) =>
   appState.tableName;
 
-export const { resetState, setSidebarVisibile, setDataSourceId, setTableName } = appStateSlice.actions;
+export const { resetState, setSidebarVisibile, setDataSourceId, setTableName } =
+  appStateSlice.actions;
 
 export default appStateSlice.reducer;

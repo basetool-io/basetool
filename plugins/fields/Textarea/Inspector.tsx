@@ -1,46 +1,34 @@
-import { Column } from "@/features/fields/types";
-import { FormControl, FormLabel, Input } from "@chakra-ui/react";
-import OptionWrapper from "@/features/tables/components/OptionsWrapper";
-import React, { useEffect } from "react";
+import { Input } from "@chakra-ui/react";
+import { InspectorProps } from "@/features/fields/types";
+import { debounce, merge } from "lodash";
+import OptionWrapper from "@/features/views/components/OptionWrapper";
+import React, { useCallback } from "react";
 import fieldOptions from "./fieldOptions";
 
-function Inspector({
-  column,
-  setColumnOptions,
-}: {
-  column: Column;
-  setColumnOptions: (c: Column, options: Record<string, unknown>) => void;
-}) {
-  const defaultValue = fieldOptions.rows ? fieldOptions.rows : 5;
-  const initialValue = column.fieldOptions.rows
-    ? column.fieldOptions.rows
-    : defaultValue;
+function Inspector({ column, setColumnOptions }: InspectorProps) {
+  const options = merge(fieldOptions, column.fieldOptions);
+  const debouncedSetColumnOptions = useCallback(
+    debounce(setColumnOptions, 1000),
+    []
+  );
 
-  // when changing the field type to this one, the new options are not automatically passed to the column
-  useEffect(() => {
-    setColumnOptions(column, { "fieldOptions.rows": initialValue });
-  }, []);
+  const handleOnChange = (event: any) => {
+    if (column)
+      debouncedSetColumnOptions(column.name, {
+        "fieldOptions.rows": event.currentTarget.value,
+      });
+  };
 
   return (
-    <OptionWrapper helpText="Choose how tall should the input be.">
-      <FormControl id="rows">
-        <FormLabel>Rows</FormLabel>
-        <Input
-          type="number"
-          name="rows"
-          placeholder="Rows"
-          required={false}
-          defaultValue={initialValue as number}
-          onChange={(e) => {
-            setColumnOptions(column, {
-              "fieldOptions.rows":
-                parseInt(e.currentTarget.value) > 0
-                  ? parseInt(e.currentTarget.value)
-                  : initialValue,
-            });
-          }}
-        />
-      </FormControl>
+    <OptionWrapper helpText="Choose how tall should the input be." label="Rows">
+      <Input
+        type="number"
+        name="rows"
+        placeholder="Rows"
+        required={false}
+        defaultValue={options.rows as number}
+        onChange={handleOnChange}
+      />
     </OptionWrapper>
   );
 }

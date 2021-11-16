@@ -36,7 +36,9 @@ export const evaluateBinding = ({
   // create the evaluation function
   const evalFn = new Function(...contextParams, statement);
   // evaluate the context
-  const evaluatedValue = evalFn(...contextValues);
-
-  return evaluatedValue;
+  try {
+    return evalFn(...contextValues);
+  } catch (error) {
+    console.error("Evaluation error:", error);
+  }
 };

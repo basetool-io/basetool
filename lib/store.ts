@@ -1,5 +1,6 @@
 import { Middleware, configureStore } from "@reduxjs/toolkit";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
+import { api as fieldsApiSlice } from "@/features/fields/api-slice";
 import { keys } from "lodash";
 import { organizationsApiSlice } from "@/features/organizations/api-slice";
 import { profileApiSlice } from "@/features/profile/api-slice";
@@ -7,8 +8,8 @@ import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
 import { tablesApiSlice } from "@/features/tables/api-slice";
-import { viewsApiSlice } from "@/features/views/api-slice";
-import appReducer from "@/features/app/state-slice";
+import { api as viewsApiSlice } from "@/features/views/api-slice";
+import appState from "@/features/app/state-slice";
 import recordsReducer from "@/features/records/state-slice";
 
 /**
@@ -36,7 +37,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 
 const store = configureStore({
   reducer: {
-    appState: appReducer,
+    appState: appState,
     recordsState: recordsReducer,
     [dataSourcesApiSlice.reducerPath]: dataSourcesApiSlice.reducer,
     [organizationsApiSlice.reducerPath]: organizationsApiSlice.reducer,
@@ -45,6 +46,7 @@ const store = configureStore({
     [tablesApiSlice.reducerPath]: tablesApiSlice.reducer,
     [profileApiSlice.reducerPath]: profileApiSlice.reducer,
     [viewsApiSlice.reducerPath]: viewsApiSlice.reducer,
+    [fieldsApiSlice.reducerPath]: fieldsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -55,6 +57,7 @@ const store = configureStore({
       tablesApiSlice.middleware,
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
+      fieldsApiSlice.middleware,
       rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",

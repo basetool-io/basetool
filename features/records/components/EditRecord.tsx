@@ -3,7 +3,7 @@ import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
-import { useGetColumnsQuery } from "@/features/tables/api-slice";
+import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import Form from "@/features/records/components/Form";

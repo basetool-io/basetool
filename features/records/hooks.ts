@@ -18,6 +18,7 @@ import {
   pageSelector,
   perPageSelector,
   recordsSelector,
+  removeAppliedFilter,
   removeFilter,
   resetRecordsSelection as resetRecordsSelectionInState,
   resetState as resetReduxState,
@@ -37,7 +38,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { getFilteredColumns } from "../fields";
-import { isArray, isEmpty, isEqual, isNull, merge } from "lodash";
+import { isArray, isEqual, isNull, isString, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
@@ -56,7 +57,7 @@ export const useResetState = () => {
   return resetState;
 };
 
-export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
+export const useFilters = () => {
   const dispatch = useAppDispatch();
   const { setPage } = usePagination();
   const filters = useAppSelector(filtersSelector);
@@ -68,6 +69,8 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
     dispatch(setFilters(filters));
 
   const removeTheFilter = (idx: number) => dispatch(removeFilter(idx));
+  const removeTheAppliedFilter = (idx: number) =>
+    dispatch(removeAppliedFilter(idx));
 
   const updateTheFilter = (idx: number, filter: IFilter | IFilterGroup) =>
     dispatch(updateFilter({ idx, filter }));
@@ -82,13 +85,6 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
     dispatch(setAppliedFiltersInState([]));
   };
 
-  useEffect(() => {
-    if (initialFilters && !isEmpty(initialFilters)) {
-      setTheFilters(initialFilters);
-      setAppliedFilters(initialFilters);
-    }
-  }, []);
-
   const appliedNonBaseFilters = useMemo(
     () => appliedFilters.filter(({ isBase }) => !isBase),
     [appliedFilters]
@@ -102,6 +98,7 @@ export const useFilters = (initialFilters?: Array<IFilter | IFilterGroup>) => {
     setAppliedFilters,
     allFiltersApplied,
     removeFilter: removeTheFilter,
+    removeAppliedFilter: removeTheAppliedFilter,
     updateFilter: updateTheFilter,
     resetFilters,
     encodedFilters,
@@ -154,14 +151,17 @@ export const useOrderRecords = (
     dispatch(setOrderDirectionInState(values));
   };
 
-  useEffect(() => {
-    if (initialOrderBy) {
-      setOrderBy(initialOrderBy);
-    }
-    if (initialOrderDirection) {
-      setOrderDirection(initialOrderDirection);
-    }
-  }, []);
+  const resetOrder = () => {
+    setOrderBy("");
+    setOrderDirection("");
+  };
+
+  if (isString(initialOrderBy)) {
+    setOrderBy(initialOrderBy);
+  }
+  if (isString(initialOrderDirection)) {
+    setOrderDirection(initialOrderDirection);
+  }
 
   const handleOrder = async (columnName: string) => {
     let newOrderDirection: OrderDirection = "";
@@ -215,19 +215,24 @@ export const useOrderRecords = (
     setOrderBy,
     setOrderDirection,
     handleOrder,
+    resetOrder,
   };
 };
 
 export const useColumns = ({
   dataSourceResponse,
-  dataResponse,
+  recordsResponse,
   columnsResponse,
   tableName,
+  options,
 }: {
   dataSourceResponse?: ApiResponse;
-  dataResponse?: ApiResponse;
+  recordsResponse?: ApiResponse;
   columnsResponse?: ApiResponse;
   tableName: string;
+  options?: {
+    forEdit: boolean;
+  };
 }) => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
@@ -247,19 +252,23 @@ export const useColumns = ({
       dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
         false
     ) {
-      if (dataResponse?.ok) {
-        columns = dataResponse?.meta?.columns;
+      if (recordsResponse?.ok) {
+        columns = recordsResponse?.meta?.columns;
       }
     } else {
       if (columnsResponse?.ok) {
-        columns = getFilteredColumns(columnsResponse?.data, Views.index);
+        if (options?.forEdit) {
+          columns = columnsResponse?.data;
+        } else {
+          columns = getFilteredColumns(columnsResponse?.data, Views.index);
+        }
       }
     }
 
     if (isArray(columns)) {
       setColumns(columns as []);
     }
-  }, [dataResponse, dataSourceResponse, columnsResponse, tableName]);
+  }, [recordsResponse, dataSourceResponse, columnsResponse, tableName]);
 
   return {
     columns,
@@ -268,7 +277,7 @@ export const useColumns = ({
 };
 
 export const useRecords = (
-  initialRecords: [],
+  initialRecords?: [],
   meta?: Record<string, unknown>
 ) => {
   const dispatch = useAppDispatch();
@@ -296,6 +305,7 @@ export const useRecords = (
 
   return {
     records,
+    meta,
     setRecords,
   };
 };

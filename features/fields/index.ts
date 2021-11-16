@@ -7,7 +7,7 @@ import {
   KeyIcon,
   PhotographIcon,
   SelectorIcon,
-  TrendingUpIcon
+  TrendingUpIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
 import { Views } from "./enums";
@@ -35,6 +35,10 @@ export const getColumnOptions = (
       label: "Text",
     },
     {
+      id: "Textarea",
+      label: "Text area",
+    },
+    {
       id: "Number",
       label: "Number",
     },
@@ -51,16 +55,12 @@ export const getColumnOptions = (
       label: "Select",
     },
     {
-      id: "Textarea",
-      label: "Text area",
-    },
-    {
       id: "Json",
-      label: "Json",
+      label: "JSON",
     },
     {
       id: "ProgressBar",
-      label: "ProgressBar",
+      label: "Progress Bar",
     },
     {
       id: "Gravatar",

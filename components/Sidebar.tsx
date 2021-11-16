@@ -13,14 +13,13 @@ import { first, isUndefined } from "lodash";
 import { getLabel } from "@/features/data-sources";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery, usePrefetch } from "@/features/tables/api-slice";
+import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
+import { usePrefetch } from "@/features/fields/api-slice";
 import Link from "next/link";
-import LoadingOverlay from "./LoadingOverlay";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import Shimmer from "./Shimmer";
 import SidebarItem from "./SidebarItem";
-import isEmpty from "lodash/isEmpty";
 
 const Sidebar = () => {
   const { dataSourceId, tableName, viewId } = useDataSourceContext();
@@ -61,6 +60,31 @@ const Sidebar = () => {
   const { isOpen: isViewsOpen, onToggle: toggleViewsOpen } = useDisclosure({
     defaultIsOpen: true,
   });
+
+  const views = useMemo(
+    () => (viewsResponse?.ok ? viewsResponse?.data : []),
+    [viewsResponse]
+  );
+
+  const filteredViews = useMemo(
+    () =>
+      views.filter(
+        (view: View) =>
+          (view.createdBy === user.id || view.public === true) &&
+          view.dataSourceId === parseInt(dataSourceId)
+      ),
+    [views, dataSourceId]
+  );
+
+  const viewsLoading = useMemo(
+    () => viewsAreLoading || sessionIsLoading,
+    [viewsAreLoading || sessionIsLoading]
+  );
+
+  const tablesLoading = useMemo(
+    () => tablesAreLoading || sessionIsLoading,
+    [tablesAreLoading || sessionIsLoading]
+  );
 
   return (
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
@@ -121,47 +145,36 @@ const Sidebar = () => {
           </div>
 
           <Collapse in={isViewsOpen}>
-            {viewsResponse?.ok &&
-              viewsResponse.data.filter(
-                (view: View) =>
-                  (view.createdBy === user.id || view.public === true) &&
-                  view.dataSourceId === parseInt(dataSourceId)
-              ).length === 0 && (
-                <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
-                  <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
-                    <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
-                    Create view
-                  </div>
-                </Link>
-              )}
-
-            {(viewsAreLoading || sessionIsLoading) && (
-              <div className="flex-1 min-h-full">
-                <LoadingOverlay
-                  transparent={isEmpty(viewsResponse?.data)}
-                  subTitle={false}
-                />
+            {viewsLoading && (
+              <div className="flex-1 min-h-full px-1 space-y-2 mt-3">
+                <Shimmer height={16} width={50} />
+                <Shimmer height={16} width={90} />
+                <Shimmer height={16} width={110} />
+                <Shimmer height={16} width={60} />
               </div>
             )}
-            {viewsResponse?.ok &&
-              viewsResponse.data
-                // display only views created by logged in user or public views and having same datasource
-                .filter(
-                  (view: View) =>
-                    (view.createdBy === user.id || view.public === true) &&
-                    view.dataSourceId === parseInt(dataSourceId)
-                )
-                .map((view: View, idx: number) => (
-                  <SidebarItem
-                    key={idx}
-                    active={view.id === parseInt(viewId)}
-                    label={view.name}
-                    link={`/views/${view.id}`}
-                  />
-                ))}
+            {/* If no views are present, show a nice box with the create message */}
+            {!viewsLoading && filteredViews.length === 0 && (
+              <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
+                <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
+                  <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
+                  Create view
+                </div>
+              </Link>
+            )}
+            {/* display only views created by logged in user or public views and having same datasource */}
+            {!viewsLoading &&
+              filteredViews.map((view: View, idx: number) => (
+                <SidebarItem
+                  key={idx}
+                  active={view.id === parseInt(viewId)}
+                  label={view.name}
+                  link={`/views/${view.id}`}
+                />
+              ))}
           </Collapse>
         </div>
-        {tablesResponse?.ok && ac.hasRole(OWNER_ROLE) && (
+        {ac.hasRole(OWNER_ROLE) && (
           <>
             <hr className="mt-2 mb-2" />
             {tablesError && (
@@ -184,17 +197,20 @@ const Sidebar = () => {
               </div>
               <Collapse in={isTablesOpen}>
                 <div className="">
-                  {tablesAreLoading && (
-                    <div className="flex-1 min-h-full">
-                      <LoadingOverlay
-                        transparent={isEmpty(tablesResponse?.data)}
-                        subTitle={false}
-                      />
+                  {tablesLoading && (
+                    <div className="flex-1 min-h-full px-1 space-y-2 mt-3">
+                      <Shimmer height={16} width={50} />
+                      <Shimmer height={16} width={60} />
+                      <Shimmer height={16} width={120} />
+                      <Shimmer height={16} width={90} />
+                      <Shimmer height={16} width={60} />
+                      <Shimmer height={16} width={110} />
+                      <Shimmer height={16} width={90} />
                     </div>
                   )}
                   {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
                   {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-                  {tablesResponse?.ok &&
+                  {!tablesLoading && tablesResponse?.ok &&
                     tablesResponse.data
                       .filter((table: ListTable) =>
                         dataSourceResponse?.data.type === "postgresql" &&

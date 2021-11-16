@@ -12,7 +12,7 @@ import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
 import { inProduction } from "@/lib/environment";
-import { intercomAppId } from "@/lib/services"
+import { intercomAppId } from "@/lib/services";
 import { isString } from "lodash";
 import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
