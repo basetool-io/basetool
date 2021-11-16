@@ -123,10 +123,10 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       },
     ]);
 
-  const changes = Object.keys(req?.body?.changes).map((change: string) => ({
-    column: change,
-    before: record[change],
-    after: req?.body?.changes[change],
+  const changes = Object.keys(req?.body?.changes).map((columnName: string) => ({
+    column: columnName,
+    before: record[columnName],
+    after: req?.body?.changes[columnName],
   }));
 
   // todo - find a way to pass viewId in the request

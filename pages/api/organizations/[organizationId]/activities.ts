@@ -19,6 +19,16 @@ const handler = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  const skip =
+    req.query.page && req.query.perPage
+      ? (parseInt(req.query.page as string, 10) - 1) *
+        parseInt(req.query.perPage as string, 10)
+      : 0;
+
+  const take = req.query.perPage
+    ? parseInt(req.query.perPage as string, 10)
+    : 10;
+
   const response = (await prisma.organization.findFirst({
     where: {
       id: parseInt(
@@ -61,14 +71,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         orderBy: {
           createdAt: "desc",
         },
-        skip:
-          req.query.page && req.query.perPage
-            ? (parseInt(req.query.page as string, 10) - 1) *
-              parseInt(req.query.perPage as string, 10)
-            : 0,
-        take: req.query.perPage
-          ? parseInt(req.query.perPage as string, 10)
-          : 10,
+        skip,
+        take,
       },
     },
   })) as Organization & {
@@ -87,7 +91,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
 
   res.json(
-    ApiResponse.withData(response?.activities || [], { meta: { count: activitiesCount } })
+    ApiResponse.withData(response?.activities || [], {
+      meta: { count: activitiesCount },
+    })
   );
 }
 
