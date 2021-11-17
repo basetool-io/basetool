@@ -1,6 +1,6 @@
 import { DataSource } from "@prisma/client";
 import { SQLError } from "@/lib/errors";
-import { apiUrl } from "@/features/api/urls";
+import { baseUrl } from "@/features/api/urls";
 import axios from "axios";
 
 export const runQuery = async (
@@ -15,11 +15,13 @@ export const runQueries = async (
   dataSource: DataSource,
   queries: { name: string; payload?: Record<string, unknown> }[]
 ) => {
-  let url = `${apiUrl}/data-sources/${dataSource.id}/query`;
+  let apiDomain = baseUrl
 
   if (process.env.DB_PROXY_SERVER) {
-    url = process.env.DB_PROXY_SERVER;
+    apiDomain = process.env.DB_PROXY_SERVER;
   }
+
+  const url = `${apiDomain}/api/data-sources/${dataSource.id}/query`;
 
   let response;
 
