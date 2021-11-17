@@ -62,17 +62,17 @@ export default class AccessControlService {
     return this.ac.can(this.roleName).deleteAny(record);
   }
 
-  public canViewTable(table: ListTable) {
-    if (isUndefined(table.authorizedRoles)) {
-      return true;
-    } else if (isNull(table.authorizedRoles)) {
-      return true;
-    } else if (isEmpty(table.authorizedRoles)) {
-      return false;
-    } else {
-      return table?.authorizedRoles?.includes(this.roleName);
-    }
-  }
+  // public canViewTable(table: ListTable) {
+  //   if (isUndefined(table.authorizedRoles)) {
+  //     return true;
+  //   } else if (isNull(table.authorizedRoles)) {
+  //     return true;
+  //   } else if (isEmpty(table.authorizedRoles)) {
+  //     return false;
+  //   } else {
+  //     return table?.authorizedRoles?.includes(this.roleName);
+  //   }
+  // }
 
   private getRoleAbilityLogic(ability: string): boolean | undefined {
     if (!this.role) return false;
