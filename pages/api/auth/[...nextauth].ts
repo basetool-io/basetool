@@ -165,9 +165,9 @@ export default NextAuth({
       options: {
         httpOnly: true,
         sameSite: "lax",
-        path: "/",
+        // path: "/",
         secure: useSecureCookies,
-        domain: hostName, // add a . in front so that subdomains are included
+        domain: hostName == "localhost" ? hostName : "." + hostName, // add a . in front so that subdomains are included
       },
     },
   },
