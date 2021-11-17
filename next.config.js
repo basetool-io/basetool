@@ -10,7 +10,7 @@ const moduleExports = {
   images: {
     domains: ["www.gravatar.com"],
   },
-  outputFileTracing: false,
+  outputFileTracing: false, // Sentry quick fix
   reactStrictMode: true,
   async redirects() {
     return [

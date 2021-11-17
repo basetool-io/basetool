@@ -1,21 +1,23 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { intercomSecret } from "@/lib/services"
+import { intercomSecret } from "@/lib/services";
 import NextAuth, { User } from "next-auth";
 import Providers from "next-auth/providers";
+import URI from "urijs";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import prisma from "@/prisma";
-import URI from "urijs";
 
-const useSecureCookies = (process.env.NEXTAUTH_URL as string).startsWith('https://')
-const cookiePrefix = useSecureCookies ? '__Secure-' : ''
-const hostName = URI(process.env.NEXTAUTH_URL as string).hostname()
+const useSecureCookies = (process.env.NEXTAUTH_URL as string).startsWith(
+  "https://"
+);
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+const hostName = URI(process.env.NEXTAUTH_URL as string).hostname();
 
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
 
-  const timestamp = + (user.createdAt as Date)
-  if (!intercomSecret) return
+  const timestamp = +(user.createdAt as Date);
+  if (!intercomSecret) return;
 
   const hmac = crypto.createHmac("sha256", intercomSecret);
 
@@ -28,7 +30,10 @@ function createIntercomUserHash(user: User | undefined): string | undefined {
 }
 
 // Update the user's last known timezone on each login.
-async function updateUserLastKnownTimezone(user: User, lastKnownTimezone: string | undefined) {
+async function updateUserLastKnownTimezone(
+  user: User,
+  lastKnownTimezone: string | undefined
+) {
   if (user?.email && lastKnownTimezone) {
     await prisma.user.updateMany({
       where: {
@@ -66,7 +71,7 @@ export default NextAuth({
           },
         });
 
-        if (!user) throw new Error('Invalid credentials.');
+        if (!user) throw new Error("Invalid credentials.");
 
         const passwordIsValid = bcrypt.compareSync(
           credentials.password,
@@ -79,7 +84,7 @@ export default NextAuth({
           return user;
         }
 
-        throw new Error('Invalid credentials.');
+        throw new Error("Invalid credentials.");
       },
       credentials: {
         // domain: {
@@ -155,16 +160,15 @@ export default NextAuth({
   },
 
   cookies: {
-    sessionToken:
-    {
+    sessionToken: {
       name: `${cookiePrefix}next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
+        sameSite: "lax",
+        path: "/",
         secure: useSecureCookies,
-        domain: hostName == 'localhost' ? hostName : '.' + hostName // add a . in front so that subdomains are included
-      }
+        domain: hostName == "localhost" ? hostName : "." + hostName, // add a . in front so that subdomains are included
+      },
     },
   },
 
