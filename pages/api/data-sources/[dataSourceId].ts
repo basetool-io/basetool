@@ -1,12 +1,10 @@
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { merge } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
-import OwnsDataSource from "../../../features/api/middlewares/OwnsDataSource";
+import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import getDataSourceInfo from "@/plugins/data-sources/getDataSourceInfo";
-import getSchema from "@/plugins/data-sources/getSchema";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -55,16 +53,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const data = req.body;
-  const schema = getSchema(req.body.type);
-
-  if (schema) {
-    const validator = schema.validate(data, { abortEarly: false });
-
-    if (validator.error) {
-      return res.json(ApiResponse.withValidation(validator));
-    }
-  }
 
   const dataSource = await getDataSourceFromRequest(req);
 
@@ -72,16 +60,12 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const options = merge(dataSource.options, {
-    tables: req.body.tables,
-  });
-
   await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      options,
+      name: req.body.name,
     },
   });
 
@@ -89,7 +73,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
     userId: user ? user.id : "",
     event: "Updated data source",
     properties: {
-      id: dataSource.type,
+      id: dataSource?.type,
     },
   });
 
