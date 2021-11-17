@@ -5,7 +5,7 @@ import React, { memo } from "react";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 import dynamic from "next/dynamic";
 
-const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false });
+const DynamicReactJson = dynamic(() => import("react-json-view"), { ssr: false });
 
 const Show = ({ field }: { field: Field }) => {
   let value;
