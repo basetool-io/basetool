@@ -22,7 +22,8 @@ export const getColumns = async ({
     storedColumns,
   });
 
-  columns = hydrateColumns(columns, storedColumns);
+  // TODO think of a way to handle the columns for the edit view.
+  columns = hydrateColumns(columns, storedColumns, "");
 
   return columns;
 };

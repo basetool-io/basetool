@@ -53,6 +53,8 @@ const columnsForView = async (req: NextApiRequest, res: NextApiResponse) => {
   // If the data source has columns stored, send those in.
   const storedColumns = view.columns as [] || [];
 
+  console.log('stredColumnsView', storedColumns);
+
   const columns = await getColumns({ dataSource, tableName, storedColumns });
 
   res.json(ApiResponse.withData(columns));

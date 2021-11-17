@@ -88,7 +88,6 @@ export const recordsApiSlice = createApi({
             .toString();
 
           return `/${recordId}?${queryParams}`;
-          // return `/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`;
         },
         providesTags: (result, error, { recordId }) => [
           { type: "Record", id: recordId },
