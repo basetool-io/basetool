@@ -18,8 +18,8 @@ export const urls = () => {
     }
   }
 
-  // const apiUrl = `${baseUrl}/api`;
-  const apiUrl = `https://api.basetool.io`;
+  const apiUrl = `${baseUrl}/api`;
+  // const apiUrl = `https://api.basetool.io`;
 
   return { baseUrl, apiUrl };
 };
