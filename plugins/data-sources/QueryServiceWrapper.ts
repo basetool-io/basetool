@@ -31,9 +31,31 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   }
 
   public async runQueries(
-    queries: Array<{ name: keyof ISQLQueryService; payload?: unknown }>
+    queries: { name: keyof ISQLQueryService; payload?: unknown }[]
   ) {
+    // console.log("???runQueries", queries);
     let response;
+
+    // ping another route
+
+    // const response = await axios.post(`${apiUrl}/data-sources/${this.dataSource.id}/query`, {
+    // let t;
+    // const url = `${apiUrl}/data-sources/${this.dataSource.id}/query`;
+
+    // console.log("url->", url, apiUrl);
+
+    // try {
+    //   t = await axios.post(url, {
+    //     secret: process.env.QUERY_SECRET,
+    //     queries,
+    //   });
+    // } catch (error) {
+    //   // console.log("error->", error);
+    //   console.log('error.message->', error.message)
+    // }
+    // console.log("!!!t->", t.data);
+
+    // return [{}, []];
 
     // await this.queryService.connect();
 
@@ -41,6 +63,16 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
     const actions = queries.map(
       (query) => () => this.queryService[query.name](query.payload)
     );
+
+    // actions = [
+    //   () => this.queryService.getRecord({ id: 1 })
+    // ]
+
+    // 1. connection limit
+    // 2. self-packaging (oss app should also work)
+
+    // app.basetool.io/data-sources/[dataSourceId]/run-query POST payload
+    // aws.server.com/data-sources/[dataSourceId]/run-query POST payload (ip static)
 
     // If the datasource has SSH credentials we should use a tunnel to pass the connection through.
     if ((this.dataSource.options as any)?.connectsWithSSH) {

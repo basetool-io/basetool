@@ -2,11 +2,11 @@ import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { getDataSourceFromRequest } from "@/features/api";
 import { isUndefined } from "lodash";
+import { runQuery } from "@/plugins/data-sources/runQueries";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -26,10 +26,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({ dataSource });
-
-  const tables = (await service.runQuery("getTables")) as ListTable[];
-  const storedTableData = (dataSource?.options as any)?.tables || {};
+  const tables = (await runQuery(dataSource, "getTables")) as ListTable[];
+  const storedTableData = (dataSource?.options as any)?.tables || [];
   let newTableData = [...tables];
 
   // If we have any, we'll assign the stored data to the tables we return.
@@ -47,12 +45,17 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Sort the tables by their orderIndex if tables has more than 1 element. If orderIndex has not been set, set it to 9999. We have to sort tables to have them in an order in the list.
-  if(newTableData.length > 1) newTableData.sort((a: ListTable, b: ListTable) => {
-    if (isUndefined(a.orderIndex)) a.orderIndex = 9999;
-    if (isUndefined(b.orderIndex)) b.orderIndex = 9999;
+  if (newTableData.length > 1)
+    newTableData.sort((a: ListTable, b: ListTable) => {
+      if (isUndefined(a.orderIndex)) a.orderIndex = 9999;
+      if (isUndefined(b.orderIndex)) b.orderIndex = 9999;
 
-    return a.orderIndex > b.orderIndex ? 1 : (b.orderIndex > a.orderIndex ? -1 : 0);
-  });
+      return a.orderIndex > b.orderIndex
+        ? 1
+        : b.orderIndex > a.orderIndex
+        ? -1
+        : 0;
+    });
 
   res.json(ApiResponse.withData(newTableData));
 }
