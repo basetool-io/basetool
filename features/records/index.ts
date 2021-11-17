@@ -53,7 +53,6 @@ const addComputedField = async (
 export const hydrateColumns = (
   columns: Column[],
   storedColumns: Column[],
-  view: string
 ): Column[] => {
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns) && isArray(storedColumns)) {
@@ -80,10 +79,5 @@ export const hydrateColumns = (
       });
   }
 
-  // Get the filtered column names.
-  const filteredColumnNames = getFilteredColumns(columns, view).map(
-    ({ name }) => name
-  );
-
-  return columns.filter((column) => filteredColumnNames.includes(column.name));
+  return columns;
 };

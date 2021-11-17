@@ -96,7 +96,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   ]);
 
-  const hydratedColumns = hydrateColumns(columns, storedColumns, "show");
+  const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecord = hydrateRecord(record, hydratedColumns, "show");
 
   res.json(ApiResponse.withData(newRecord));

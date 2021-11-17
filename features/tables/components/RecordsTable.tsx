@@ -1,5 +1,4 @@
 import { Checkbox } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types"
 import {
   Row,
   useBlockLayout,
@@ -16,7 +15,7 @@ import {
   columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import { iconForField, prettifyData } from "@/features/fields";
+import { getFilteredColumns, iconForField, prettifyData } from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
@@ -95,7 +94,7 @@ const RecordsTable = ({
 
   const orderedColumns = useMemo(() => {
     const result = parseColumns({
-      columns: rawColumns.filter((column: Column) => !column?.baseOptions?.disconnected),
+      columns: getFilteredColumns(rawColumns, "index"),
       columnWidths,
     });
 

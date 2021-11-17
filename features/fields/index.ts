@@ -178,7 +178,7 @@ export const getColumnNameLabel = (...args: any[]) => {
 /* Returns the filtered column based on their visibility settings. */
 export const getFilteredColumns = (
   columns: Column[],
-  view: string
+  view?: string
 ): Column[] => {
   if (isArray(columns)) {
     return (

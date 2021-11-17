@@ -88,7 +88,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       },
     ]);
 
-  const hydratedColumns = hydrateColumns(columns, storedColumns, "index");
+  const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecords = records.map((record) =>
     hydrateRecord(record, hydratedColumns, "index")
   );

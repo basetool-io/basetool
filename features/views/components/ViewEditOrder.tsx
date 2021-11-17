@@ -38,7 +38,7 @@ const ViewEditOrder = ({
   );
 
   const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, "index"),
+    () => getFilteredColumns(columnsResponse?.data),
     [columnsResponse?.data]
   );
 

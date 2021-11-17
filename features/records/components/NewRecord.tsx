@@ -9,7 +9,7 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useMemo } from "react";
 
 const NewRecord = () => {
-  const { dataSourceId, tableName } = useDataSourceContext();
+  const { dataSourceId, tableName, viewId } = useDataSourceContext();
   const {
     data: columnsResponse,
     isLoading,
@@ -18,6 +18,7 @@ const NewRecord = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
     },
     { skip: !dataSourceId || !tableName }
   );
