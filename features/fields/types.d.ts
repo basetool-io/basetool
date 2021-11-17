@@ -1,4 +1,3 @@
-import { Views } from "./enums";
 import type { Record as BasetoolRecord } from "@/features/records";
 
 export type FieldType =
@@ -27,7 +26,10 @@ export type ForeignKey = {
 };
 
 export type BaseOptions = {
-  visibility: Views[];
+  visibleOnIndex: boolean;
+  visibleOnShow: boolean;
+  visibleOnEdit: boolean;
+  visibleOnNew: boolean;
   nullable: boolean;
   nullValues: any[];
   required: boolean;
@@ -73,7 +75,7 @@ export type EditFieldProps = {
   register: any;
   schema?: AnySchema;
   setValue?: (name: string, value: unknown, config?: unknown) => void;
-  view?: Views;
+  view?: string;
 };
 
 export type InspectorProps = {

@@ -1,7 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
-import { Views } from "../fields/enums";
 import {
   allColumnsCheckedSelector,
   allFiltersAppliedSelector,
@@ -260,7 +259,7 @@ export const useColumns = ({
         if (options?.forEdit) {
           columns = columnsResponse?.data;
         } else {
-          columns = getFilteredColumns(columnsResponse?.data, Views.index);
+          columns = getFilteredColumns(columnsResponse?.data, "index");
         }
       }
     }

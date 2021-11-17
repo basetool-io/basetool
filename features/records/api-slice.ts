@@ -70,10 +70,25 @@ export const recordsApiSlice = createApi({
       }),
       getRecord: builder.query<
         ApiResponse,
-        { dataSourceId: string; tableName: string; recordId?: string }
+        {
+          dataSourceId?: string;
+          tableName?: string;
+          viewId?: string;
+          recordId: string;
+        }
       >({
-        query({ dataSourceId, tableName, recordId }) {
-          return `/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`;
+        query({ dataSourceId, tableName, viewId, recordId }) {
+          const queryParams = URI()
+            .query({
+              dataSourceId,
+              tableName,
+              viewId,
+            })
+            .query()
+            .toString();
+
+          return `/${recordId}?${queryParams}`;
+          // return `/data-sources/${dataSourceId}/tables/${tableName}/records/${recordId}`;
         },
         providesTags: (result, error, { recordId }) => [
           { type: "Record", id: recordId },

@@ -1,7 +1,6 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
-import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
 import { sortBy } from "lodash"
@@ -24,7 +23,7 @@ import isEmpty from "lodash/isEmpty";
 
 const ShowRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath } =
+  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath, viewId } =
     useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -37,6 +36,7 @@ const ShowRecord = () => {
       dataSourceId,
       tableName,
       recordId,
+      viewId,
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
@@ -45,13 +45,14 @@ const ShowRecord = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
     },
     { skip: !dataSourceId || !tableName }
   );
 
   const columns = useMemo(
     () =>
-      sortBy(getFilteredColumns(columnsResponse?.data, Views.show), [
+      sortBy(getFilteredColumns(columnsResponse?.data, "show"), [
         (column: Column) => column?.baseOptions?.orderIndex,
       ]),
     [columnsResponse?.data]
@@ -151,7 +152,7 @@ const ShowRecord = () => {
                       column,
                       tableName: router.query.tableName as string,
                     });
-                    const Element = getField(column, Views.show);
+                    const Element = getField(column, "show");
 
                     return <Element key={column.name} field={field} />;
                   })}

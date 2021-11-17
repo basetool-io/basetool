@@ -1,7 +1,6 @@
 import { FieldType } from "../fields/types"
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants";
-import { Views } from "../fields/enums"
 import { inProduction } from "@/lib/environment";
 
 export const getLabel = (table: ListTable): string => {
@@ -21,7 +20,8 @@ export const INITIAL_NEW_COLUMN = {
   label: "Computed field",
   primaryKey: false,
   baseOptions: {
-    visibility: [Views.index, Views.show],
+    visibleOnIndex: true,
+    visibleOnShow: true,
     required: false,
     nullable: false,
     nullValues: [],

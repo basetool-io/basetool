@@ -5,7 +5,6 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useMemo } from "react";
 import isEmpty from "lodash/isEmpty";
@@ -36,7 +35,7 @@ const Edit = ({
   const readonly = field?.column?.baseOptions?.readonly
     ? field.column.baseOptions.readonly
     : false;
-  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === "new"
     ? field.column.baseOptions.defaultValue === "true"
     : null;
 

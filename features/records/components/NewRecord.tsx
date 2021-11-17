@@ -1,5 +1,4 @@
 import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
@@ -25,7 +24,7 @@ const NewRecord = () => {
 
   const columns = useMemo(
     () =>
-      getFilteredColumns(columnsResponse?.data, Views.new).filter(
+      getFilteredColumns(columnsResponse?.data, "new").filter(
         (column: Column) => !column.primaryKey
       ),
     [columnsResponse?.data]

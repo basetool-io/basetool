@@ -1,5 +1,4 @@
 import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isArray, isEmpty, merge } from "lodash";
 import Handlebars from "handlebars";
@@ -7,7 +6,7 @@ import Handlebars from "handlebars";
 /**
  * This method will hydrate the record with the computed fields and remove the columns that were filtered out
  */
-export const hydrateRecord = (record: any, columns: Column[]) => {
+export const hydrateRecord = (record: any, columns: Column[], view: string) => {
   // Get the computed columns.
   const computedColumns = columns.filter(
     (column: Column) => column?.baseOptions?.computed === true
@@ -19,10 +18,10 @@ export const hydrateRecord = (record: any, columns: Column[]) => {
     addComputedField(record, editorData, computedColumn.name);
   });
 
-  // Get the filtered column names.
-  const filteredColumnNames = getFilteredColumns(columns, Views.show).map(
-    ({ name }) => name
-  );
+// Get the filtered column names.
+const filteredColumnNames = getFilteredColumns(columns, view).map(
+  ({ name }) => name
+);
 
   // Filter out the columns that were hidden
   // Go into each record and remove the filtered out columns.
@@ -53,7 +52,8 @@ const addComputedField = async (
 
 export const hydrateColumns = (
   columns: Column[],
-  storedColumns: Column[]
+  storedColumns: Column[],
+  view: string
 ): Column[] => {
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns) && isArray(storedColumns)) {
@@ -78,5 +78,10 @@ export const hydrateColumns = (
     });
   }
 
-  return columns;
+  // Get the filtered column names.
+  const filteredColumnNames = getFilteredColumns(columns, view).map(
+    ({ name }) => name
+  );
+
+  return columns.filter((column) => filteredColumnNames.includes(column.name));
 };

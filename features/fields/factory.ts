@@ -1,5 +1,4 @@
 import { ElementType } from "react";
-import { Views } from "./enums";
 import AssociationEditField from "@/plugins/fields/Association/Edit";
 import AssociationIndexField from "@/plugins/fields/Association/Index";
 import AssociationShowField from "@/plugins/fields/Association/Show";
@@ -116,15 +115,15 @@ export const getFieldForIndex = (column: Column) => {
   }
 };
 
-export const getField = (column: Column, view: Views): ElementType => {
+export const getField = (column: Column, view: string): ElementType => {
   switch (view) {
-    case Views.new:
-    case Views.edit:
+    case "new":
+    case "edit":
       return getFieldForEdit(column);
     default:
-    case Views.show:
+    case "show":
       return getFieldForShow(column);
-    case Views.index:
+    case "index":
       return getFieldForIndex(column);
   }
 };

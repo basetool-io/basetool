@@ -1,57 +1,15 @@
 import { Switch } from "@chakra-ui/react";
-import { Views } from "@/features/fields/enums";
-import { humanize } from "@/lib/humanize";
-import { isArray, uniq, without } from "lodash";
-import { useSegment } from "@/hooks"
 import { useUpdateColumn } from "../hooks";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 function VisibilityOption() {
-  const track = useSegment();
   const { column, setColumnOptions } = useUpdateColumn();
-
-  const [visibility, setVisibility] = useState<Views[]>([]);
-
-  useEffect(() => {
-    if (column && isArray(column?.baseOptions?.visibility)) {
-      setVisibility(uniq(column.baseOptions.visibility.filter(Boolean)));
-    }
-  }, [column?.baseOptions?.visibility]);
-
-  useEffect(() => {
-    if (column && column?.name && isArray(visibility)) {
-    }
-  }, [visibility]);
 
   const isComputed = useMemo(
     () => column?.baseOptions?.computed === true,
     [column]
   );
-
-  const filteredColumns = useMemo(
-    () => (isComputed ? ["index", "show"] : Object.keys(Views)),
-    [isComputed, Views]
-  );
-
-  if (!column) return null;
-
-  const changeVisibilityOption = (view: Views, checked: boolean) => {
-    let newVisibility;
-    track("Updated visibility column option.");
-
-    if (checked) {
-      newVisibility = [...visibility, view];
-    } else {
-      newVisibility = without(visibility, view);
-    }
-
-    setColumnOptions(column.name, {
-      baseOptions: {
-        visibility: uniq(newVisibility.filter(Boolean)),
-      },
-    });
-  };
 
   return (
     <OptionWrapper
@@ -66,18 +24,66 @@ function VisibilityOption() {
       label="Visibility"
       id="visibility"
     >
-      {filteredColumns.map((view) => (
-        <div className="flex justify-between items-center">
-          <div>{humanize(view)}</div>
-          <Switch
-            size="sm"
-            isChecked={visibility.includes(view as Views)}
-            onChange={(e) => {
-              changeVisibilityOption(view as Views, e.target.checked);
-            }}
-          />
-        </div>
-      ))}
+      <div className="flex justify-between items-center">
+        <div>Index</div>
+        <Switch
+          size="sm"
+          isChecked={column?.baseOptions?.visibleOnIndex}
+          onChange={(e) => {
+            setColumnOptions(column?.name || "", {
+              baseOptions: {
+                visibleOnIndex: e.currentTarget.checked,
+              },
+            });
+          }}
+        />
+      </div>
+      <div className="flex justify-between items-center">
+        <div>Show</div>
+        <Switch
+          size="sm"
+          isChecked={column?.baseOptions?.visibleOnShow}
+          onChange={(e) => {
+            setColumnOptions(column?.name || "", {
+              baseOptions: {
+                visibleOnShow: e.currentTarget.checked,
+              },
+            });
+          }}
+        />
+      </div>
+      {!isComputed && (
+        <>
+          <div className="flex justify-between items-center">
+            <div>Edit</div>
+            <Switch
+              size="sm"
+              isChecked={column?.baseOptions?.visibleOnEdit}
+              onChange={(e) => {
+                setColumnOptions(column?.name || "", {
+                  baseOptions: {
+                    visibleOnEdit: e.currentTarget.checked,
+                  },
+                });
+              }}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <div>New</div>
+            <Switch
+              size="sm"
+              isChecked={column?.baseOptions?.visibleOnNew}
+              onChange={(e) => {
+                setColumnOptions(column?.name || "", {
+                  baseOptions: {
+                    visibleOnNew: e.currentTarget.checked,
+                  },
+                });
+              }}
+            />
+          </div>
+        </>
+      )}
     </OptionWrapper>
   );
 }

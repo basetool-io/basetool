@@ -2,7 +2,6 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { Save } from "react-feather";
-import { Views } from "@/features/fields/enums";
 import { diff as difference } from "deep-object-diff";
 import { getField } from "@/features/fields/factory";
 import { isFunction } from "lodash";
@@ -213,7 +212,7 @@ const Form = ({
                     schemaForColumn = schema.extract(column.name);
                   } catch (error) {}
 
-                  const Element = getField(column, Views.edit);
+                  const Element = getField(column, "edit");
 
                   return (
                     <Element
@@ -223,7 +222,7 @@ const Form = ({
                       register={register}
                       setValue={setValue}
                       schema={schemaForColumn}
-                      view={formForCreate ? Views.new : Views.edit}
+                      view={formForCreate ? "new" : "edit"}
                     />
                   );
                 })}

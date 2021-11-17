@@ -6,7 +6,6 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getForeignName } from "./helpers";
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
@@ -44,7 +43,7 @@ const Edit = ({
     ? field.column.baseOptions.readonly
     : false;
   const defaultValue =
-    field?.column?.baseOptions?.defaultValue && view === Views.new
+    field?.column?.baseOptions?.defaultValue && view === "new"
       ? field.column.baseOptions.defaultValue
       : null;
 
