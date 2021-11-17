@@ -1,5 +1,5 @@
 import { IQueryService } from "../types";
-import type { Column, FieldType } from "@/features/fields/types";
+import type { FieldType } from "@/features/fields/types";
 import type { Knex } from "knex";
 
 export type AxiosErrorWithMessage = {
@@ -10,18 +10,6 @@ export type ListTable = {
   name: string;
   schema: string;
 };
-
-// export type Table = {
-//   // columns?: {
-//   //   [columnName: string]: Column;
-//   // };
-//   // label?: string;
-//   // authorizedRoles?: string[];
-// };
-
-// export type Tables = {
-//   [tableName: string]: Table;
-// };
 
 export type FieldOptions = Record<string, unknown>;
 

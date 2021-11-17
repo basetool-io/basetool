@@ -11,7 +11,7 @@ import { useDataSourceContext } from "@/hooks";
 import {
   useGetDataSourceQuery,
   useUpdateDataSourceMutation,
-} from "../api-slice";
+} from "@/features/data-sources/api-slice";
 import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";

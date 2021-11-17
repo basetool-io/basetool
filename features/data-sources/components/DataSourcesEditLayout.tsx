@@ -7,7 +7,7 @@ import {
 } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
-import DataSourceEditName from "./DataSourceEditName";
+import DataSourceEditName from "@/features/data-sources/components/DataSourceEditName";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { ReactElement, memo } from "react";

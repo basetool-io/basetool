@@ -211,8 +211,6 @@ const Sidebar = () => {
                           ? table.schema === "public"
                           : true
                       )
-                      // .filter((table: ListTable) => ac.canViewTable(table))
-                      // .filter((table: ListTable) => !table?.hidden)
                       .map((table: ListTable, idx: number) => (
                         <SidebarItem
                           key={idx}
