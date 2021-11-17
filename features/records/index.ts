@@ -18,10 +18,10 @@ export const hydrateRecord = (record: any, columns: Column[], view: string) => {
     addComputedField(record, editorData, computedColumn.name);
   });
 
-// Get the filtered column names.
-const filteredColumnNames = getFilteredColumns(columns, view).map(
-  ({ name }) => name
-);
+  // Get the filtered column names.
+  const filteredColumnNames = getFilteredColumns(columns, view).map(
+    ({ name }) => name
+  );
 
   // Filter out the columns that were hidden
   // Go into each record and remove the filtered out columns.
@@ -67,15 +67,17 @@ export const hydrateColumns = (
     }
 
     // Update columns with stored options
-    storedColumns.filter(
-      (column: any) => column?.baseOptions?.computed !== true
-    ).forEach((storedColumn) => {
-      const columnIndex = columns.findIndex((c) => c.name === storedColumn.name)
+    storedColumns
+      .filter((column: any) => column?.baseOptions?.computed !== true)
+      .forEach((storedColumn) => {
+        const columnIndex = columns.findIndex(
+          (c) => c.name === storedColumn.name
+        );
 
-      if (columnIndex > -1) {
-        columns[columnIndex] = merge(columns[columnIndex], storedColumn)
-      }
-    });
+        if (columnIndex > -1) {
+          columns[columnIndex] = merge(columns[columnIndex], storedColumn);
+        }
+      });
   }
 
   // Get the filtered column names.
