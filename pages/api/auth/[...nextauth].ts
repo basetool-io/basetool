@@ -11,7 +11,7 @@ const useSecureCookies = (process.env.NEXTAUTH_URL as string).startsWith(
   "https://"
 );
 const cookiePrefix = useSecureCookies ? "__Secure-" : "";
-const hostName = URI(process.env.NEXTAUTH_URL as string).hostname();
+const hostName = URI(process.env.NEXTAUTH_URL as string).domain();
 
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
