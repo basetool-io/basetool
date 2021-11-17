@@ -75,9 +75,10 @@ const DataSourcesEditLayout = ({
         flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex justify-center">
-          <div className="w-60">
+          <div className="w-72">
             <DataSourceEditName />
             <Button
+              className="mt-10"
               isFullWidth={true}
               colorScheme="red"
               size="xs"
