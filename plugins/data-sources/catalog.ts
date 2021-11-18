@@ -2,6 +2,7 @@ import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
 import { getQueryServiceWrapper } from "./serverHelpers";
 import { randomString } from "@/lib/helpers";
+import logger from "@/lib/logger";
 
 type Connection = {
   id: string;
@@ -23,10 +24,13 @@ class Catalog {
     );
 
     if (existingConnection) {
+      logger.debug(`Catalog.id: ${this.id} returning existing connection ${id}.`);
+
       return existingConnection.service;
     }
 
     const service = await getQueryServiceWrapper(dataSource);
+    logger.debug(`Catalog.id: ${this.id} created connection ${id}.`);
 
     this.connections.push({
       id,

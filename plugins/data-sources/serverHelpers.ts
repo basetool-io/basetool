@@ -5,6 +5,7 @@ import { baseUrl } from "@/features/api/urls";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
 import getDataSourceInfo from "./getDataSourceInfo";
+import logger from "@/lib/logger"
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -30,6 +31,8 @@ export const runQueries = async (
   let response;
 
   if (dataSourceInfo?.runsInProxy && process.env.USE_PROXY === "1") {
+    logger.debug(`Running query in proxy on the following API server ${apiDomain}`)
+
     try {
       response = await axios.post(url, {
         secret: process.env.PROXY_SECRET,
@@ -62,6 +65,7 @@ export const runQueries = async (
       }
     }
   } else {
+    logger.debug(`Running query on server.`)
     const service = await getQueryServiceWrapper(dataSource);
 
     return await service.runQueries(queries);
