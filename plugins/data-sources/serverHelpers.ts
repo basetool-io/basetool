@@ -28,7 +28,7 @@ export const runQueries = async (
     url = apiDomain
   }
 
-  url = `${url}/api/data-sources/${dataSource.id}/query`;
+  url = `${url}/data-sources/${dataSource.id}/query`;
 
   let response;
 
