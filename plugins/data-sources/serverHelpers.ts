@@ -1,10 +1,10 @@
 import { DataSource } from "@prisma/client";
-import { ISQLQueryService } from "./abstract-sql-query-service/types"
-import { QueryServiceWrapperPayload } from "./types"
+import { IQueryServiceWrapper } from "./types";
 import { SQLError } from "@/lib/errors";
 import { baseUrl } from "@/features/api/urls";
-import QueryServiceWrapper from "./QueryServiceWrapper"
+import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
+import getDataSourceInfo from "./getDataSourceInfo";
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -17,21 +17,22 @@ export const runQuery = async (
 export const runQueries = async (
   dataSource: DataSource,
   queries: { name: string; payload?: Record<string, unknown> }[]
-  ) => {
-  let apiDomain = baseUrl
+) => {
+  const dataSourceInfo = await getDataSourceInfo(dataSource.type);
+  let apiDomain = baseUrl;
 
-  if (process.env.DB_PROXY_SERVER) {
-    apiDomain = process.env.DB_PROXY_SERVER;
+  if (process.env.PROXY_SERVER) {
+    apiDomain = process.env.PROXY_SERVER;
   }
 
   const url = `${apiDomain}/api/data-sources/${dataSource.id}/query`;
 
   let response;
 
-  if (process.env.USE_QUERY_ROUTE === '1') {
+  if (dataSourceInfo?.runsInProxy && process.env.USE_PROXY === "1") {
     try {
       response = await axios.post(url, {
-        secret: process.env.QUERY_SECRET,
+        secret: process.env.PROXY_SECRET,
         queries,
       });
 
@@ -50,26 +51,24 @@ export const runQueries = async (
 
         throw newError;
       } else {
-        throw new Error("Something went wrong with the DB connection.");
+        let message = "Something went wrong with the DB connection.";
+
+        // Try to fetch the root message from `ApiResponse`
+        if (error?.response?.data?.meta?.errorMessage) {
+          message = error?.response?.data?.meta?.errorMessage;
+        }
+
+        throw new Error(message);
       }
     }
   } else {
-    const service = await getQueryService(dataSource, payload)
+    const service = await getQueryServiceWrapper(dataSource);
 
-    try {
-      return res.send(await service.runQueries(req?.body?.queries));
-    } catch (error) {
-      return res.status(500).send({
-        error: true,
-        type: error.constructor.name,
-        message: error.message,
-        stack: error.stack,
-      });
-    }
+    return await service.runQueries(queries);
   }
 };
 
-export const getQueryServiceClass = async (type: string): Promise<ISQLQueryService> => {
+export const getQueryServiceClass = async (type: string) => {
   const dataSourceType = type === "maria_db" ? "mysql" : type;
 
   return (
@@ -77,8 +76,28 @@ export const getQueryServiceClass = async (type: string): Promise<ISQLQueryServi
   ).default;
 };
 
-export const getQueryService = async (dataSource: DataSource, payload: QueryServiceWrapperPayload) => {
-  const queryServiceClass = await getQueryServiceClass(dataSource.type);
+export const getQueryServiceWrapper = async (
+  dataSource: DataSource
+): Promise<IQueryServiceWrapper> => {
+  let queryService;
 
-  return new QueryServiceWrapper(queryServiceClass, payload);
-}
+  try {
+    queryService = await getQueryServiceClass(dataSource.type);
+
+    return new QueryServiceWrapper(queryService, dataSource);
+  } catch (error: any) {
+    if (error.code === "MODULE_NOT_FOUND") {
+      // Returning a "null" Query service wrapper
+      return {
+        runQuery(name, payload) {
+          return null;
+        },
+        runQueries(queries) {
+          return null;
+        },
+      };
+    } else {
+      throw error;
+    }
+  }
+};

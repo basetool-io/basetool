@@ -17,7 +17,7 @@ const handler = async (
 };
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  if (process.env.QUERY_SECRET !== req?.body?.secret)
+  if (process.env.PROXY_SECRET !== req?.body?.secret)
     return res.status(404).send("");
   if (!req?.body?.queries)
     return res.send(ApiResponse.withError("No queries sent."));
@@ -27,7 +27,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   if (!dataSource)
     return res.send(ApiResponse.withError("Invalid data source."));
 
-  const service = await catalog.getConnection({ dataSource });
+  const service = await catalog.getConnection(dataSource);
 
   try {
     return res.send(await service.runQueries(req?.body?.queries));

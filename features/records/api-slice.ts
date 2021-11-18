@@ -38,8 +38,8 @@ export const recordsApiSlice = createApi({
           const queryParams = URI()
             .query({
               viewId,
-              dataSourceId,
               tableName,
+              dataSourceId,
               orderBy,
               orderDirection,
               filters,

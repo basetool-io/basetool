@@ -1,9 +1,5 @@
 import { DataSource } from "@prisma/client";
-import {
-  IQueryServiceWrapper,
-  QueryServiceWrapperPayload,
-  SSHTunnelCredentials,
-} from "./types";
+import { IQueryServiceWrapper, SSHTunnelCredentials } from "./types";
 import { ISQLQueryService } from "./abstract-sql-query-service/types";
 import { LOCALHOST } from "@/lib/constants";
 import { SQLError, SSHConnectionError } from "@/lib/errors";
@@ -20,8 +16,13 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   public queryService: ISQLQueryService;
   public dataSource: DataSource;
 
-  constructor(queryService: any, payload: QueryServiceWrapperPayload) {
-    this.dataSource = payload.dataSource;
+  constructor(
+    queryService: any,
+    dataSource: DataSource,
+    options?: Record<string, unknown>
+  ) {
+    this.dataSource = dataSource;
+    const payload = { dataSource, options };
     this.queryService = new queryService(payload) as ISQLQueryService;
   }
 
