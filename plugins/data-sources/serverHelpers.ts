@@ -29,7 +29,8 @@ export const runQueries = async (
 
   let response;
 
-  console.log('dataSourceInfo?.runsInProxy->', process.env.USE_PROXY, process.env.USE_PROXY == "1", process.env.USE_PROXY === "1", dataSourceInfo?.runsInProxy)
+  console.log('dataSourceInfo?.runsInProxy->', process.env.PROXY_SERVER, process.env.USE_PROXY, process.env.USE_PROXY == "1", process.env.USE_PROXY === "1", dataSourceInfo?.runsInProxy)
+
   if (dataSourceInfo?.runsInProxy && process.env.USE_PROXY === "1") {
     try {
       response = await axios.post(url, {
