@@ -1,6 +1,8 @@
 export const LOCAL_STORAGE_PREFIX = "basetool";
 export const LOCALHOST = "127.0.0.1";
 
+export const WHITELISTED_IP_ADDRESS = "34.238.175.176";
+
 /**
  * Columns
  */
