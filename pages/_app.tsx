@@ -16,6 +16,7 @@ import { intercomAppId } from "@/lib/services";
 import { isString } from "lodash";
 import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 import NProgress from "nprogress";
 import ProductionScripts from "@/components/ProductionScripts";
 import React, { useEffect } from "react";
@@ -87,6 +88,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [router.events]);
 
+  // TODO read cookies and
+  const checklyCookie = Cookies.get("checkly-visit");
+  console.log("checklyCookie->", checklyCookie);
+
   return (
     <NextAuthProvider
       options={{
@@ -95,7 +100,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
       session={pageProps.session}
     >
-      {inProduction && <ProductionScripts />}
+      {inProduction && !checklyCookie && <ProductionScripts />}
       <DndProvider backend={HTML5Backend}>
         <ReduxProvider store={store}>
           <ChakraProvider resetCSS={false} theme={theme}>
