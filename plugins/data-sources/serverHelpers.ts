@@ -20,13 +20,13 @@ export const runQueries = async (
   queries: { name: string; payload?: Record<string, unknown> }[]
 ) => {
   const dataSourceInfo = await getDataSourceInfo(dataSource.type);
-  let apiDomain = baseUrl;
+  let url = `${baseUrl}/api`;
 
   if (process.env.PROXY_SERVER) {
-    apiDomain = process.env.PROXY_SERVER;
+    url = `${process.env.PROXY_SERVER}`;
   }
 
-  const url = `${apiDomain}/api/data-sources/${dataSource.id}/query`;
+  url = `${url}/data-sources/${dataSource.id}/query`;
 
   let response;
 

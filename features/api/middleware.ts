@@ -50,9 +50,9 @@ export const withMiddlewares =
       });
 
       addBreadcrumb({
-        message: "User info",
+        message: "Session info",
         data: {
-          id: user?.id,
+          userId: user?.id,
           dataSourceId: req.query.dataSourceId || req.body.dataSourceId,
         },
       });
