@@ -4,7 +4,7 @@ import { OrganizationUser, Role, User } from "@prisma/client";
 import { get } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
-import { runQueries, runQuery } from "@/plugins/data-sources/runQueries";
+import { runQueries, runQuery } from "@/plugins/data-sources/serverHelpers";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";

@@ -1,7 +1,7 @@
 import { Column } from "react-table";
 import { DataSource } from "@prisma/client";
 import { hydrateColumns } from "../records";
-import { runQuery } from "@/plugins/data-sources/runQueries";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 
 export const getColumns = async ({
   dataSource,

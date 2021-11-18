@@ -1,20 +1,12 @@
-import { ISQLQueryService } from "./abstract-sql-query-service/types"
 import { QueryServiceWrapperPayload } from "./types";
+import { getQueryService } from "./serverHelpers"
 import { randomString } from "@/lib/helpers"
 import QueryServiceWrapper from "./QueryServiceWrapper";
-
-export const getQueryServiceClass = async (type: string): Promise<ISQLQueryService> => {
-  const dataSourceType = type === "maria_db" ? "mysql" : type;
-
-  return (
-    await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
-  ).default;
-};
 
 type Connection = {
   id: string;
   type: string;
-  service: any;
+  service: QueryServiceWrapper;
   createdAt: number;
 };
 
@@ -22,35 +14,25 @@ class Catalog {
   public connections: Connection[] = [];
   public id = randomString(6)
 
-  // constructor() {
-
-  // }
-
   public async getConnection(payload: QueryServiceWrapperPayload): Promise<QueryServiceWrapper> {
     const { dataSource } = payload;
     const id = dataSource.id.toString();
     const existingConnection = this.connections.find(
       (connection) => connection.id.toString() === id
     );
-    console.log('getConnection->', this.id, this.connections.map(({id}) => id), this.connections.length)
-    if (existingConnection) {
-      console.log("existingConnection->");
-      // console.log("existingConnection->", existingConnection);
 
+    if (existingConnection) {
       return existingConnection.service;
     }
 
-    console.log("no existing connection", id);
-    const queryServiceClass = await getQueryServiceClass(dataSource.type);
+    const service = await getQueryService(dataSource, payload)
 
-    const service = new QueryServiceWrapper(queryServiceClass, payload);
     this.connections.push({
       id,
       type: dataSource.type,
       service,
       createdAt: Date.now(),
     });
-    console.log("pushing | this.connections->", this.connections.length);
 
     return service;
   }

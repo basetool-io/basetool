@@ -1,5 +1,5 @@
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { runQuery } from "@/plugins/data-sources/runQueries";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";

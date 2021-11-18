@@ -2,7 +2,7 @@ import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { getDataSourceFromRequest } from "@/features/api";
 import { isUndefined } from "lodash";
-import { runQuery } from "@/plugins/data-sources/runQueries";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
