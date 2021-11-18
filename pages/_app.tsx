@@ -16,11 +16,11 @@ import { intercomAppId } from "@/lib/services";
 import { isString } from "lodash";
 import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
 import NProgress from "nprogress";
 import ProductionScripts from "@/components/ProductionScripts";
 import React, { useEffect } from "react";
 import ShowErrorMessages from "@/components/ShowErrorMessages";
+import UserAgent from "user-agents";
 import getChakraTheme from "@/lib/chakra";
 import store from "@/lib/store";
 import type { AppProps } from "next/app";
@@ -88,9 +88,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [router.events]);
 
-  // TODO read cookies and
-  const checklyCookie = Cookies.get("checkly-visit");
-  console.log("checklyCookie->", checklyCookie);
+  const userAgent = new UserAgent();
+  const checkly = userAgent ? userAgent.toString().includes("Checkly") : false;
 
   return (
     <NextAuthProvider
@@ -100,7 +99,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
       session={pageProps.session}
     >
-      {inProduction && !checklyCookie && <ProductionScripts />}
+      {(inProduction && !checkly) && <ProductionScripts />}
       <DndProvider backend={HTML5Backend}>
         <ReduxProvider store={store}>
           <ChakraProvider resetCSS={false} theme={theme}>

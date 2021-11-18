@@ -28,6 +28,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "@segment/snippet": "^4.15.3",
     "@sentry/nextjs": "^6.13.3",
+    "@types/user-agents": "^1.0.2",
     "accesscontrol": "^2.2.1",
     "analytics-node": "^5.1.0",
     "autoprefixer": "^10.3.2",
@@ -92,6 +93,7 @@
     "tedious": "^13.0.4",
     "tunnel-ssh": "^4.1.6",
     "urijs": "^1.19.7",
+    "user-agents": "^1.0.839",
     "uuid": "^8.3.2",
     "zx": "^4.2.0"
   },

@@ -1753,6 +1753,11 @@
   resolved "https://registry.npmjs.org/@types/urijs/-/urijs-1.19.17.tgz"
   integrity sha512-ShIlp+8iNGo/yVVfYFoNRqUiaE9wMCzsSl85qTg2/C5l56BTJokU7QeMgVBQ9xhcyhWQP0zGXPBZPPvEG/sRmQ==
 
+"@types/user-agents@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/user-agents/-/user-agents-1.0.2.tgz#3499d4aaf01a004ae9cab4e52b8d8c8b32637733"
+  integrity sha512-WOoL2UJTI6RxV8RB2kS3ZhxjjijI5G1i7mgU7mtlm4LsC1XGCfiV56h+GV4VZnAUkkkLQ4gbFGR/dggT01n0RA==
+
 "@types/uuid@^8.3.1":
   version "8.3.1"
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-8.3.1.tgz"
@@ -3251,6 +3256,11 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
+detect-indent@~6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-6.0.0.tgz#0abd0f549f69fc6659a254fe96786186b6f528fd"
+  integrity sha512-oSyFlqaTHCItVRGK5RmrmjB+CmaMOW7IaNA/kdxqhoa6d17j/5ce9O9eWXmV/KEdRwqpQA+Vqe8a8Bsybu4YnA==
+
 detect-libc@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz"
@@ -3310,6 +3320,11 @@ dnd-core@14.0.1:
     "@react-dnd/invariant" "^2.0.0"
     redux "^4.1.1"
 
+docopt@~0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/docopt/-/docopt-0.6.2.tgz#b28e9e2220da5ec49f7ea5bb24a47787405eeb11"
+  integrity sha1-so6eIiDaXsSffqW7JKR3h0Be6xE=
+
 doctrine@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/doctrine/-/doctrine-2.1.0.tgz"
@@ -3365,6 +3380,15 @@ domutils@^2.5.2:
     dom-serializer "^1.0.1"
     domelementtype "^2.2.0"
     domhandler "^4.2.0"
+
+dot-json@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/dot-json/-/dot-json-1.2.2.tgz#7d35abece4aa22aa75a761388953f98495401bcc"
+  integrity sha512-AKL+GsO4wSEU4LU+fAk/PqN4nQ6PB1vT3HpMiZous9xCzK5S0kh4DzfUY0EfU67jsIXLlu0ty71659N9Nmg+Tw==
+  dependencies:
+    detect-indent "~6.0.0"
+    docopt "~0.6.2"
+    underscore-keypath "~0.0.22"
 
 dotenv-cli@^4.0.0:
   version "4.0.0"
@@ -8368,6 +8392,18 @@ unbox-primitive@^1.0.1:
     has-symbols "^1.0.2"
     which-boxed-primitive "^1.0.2"
 
+underscore-keypath@~0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/underscore-keypath/-/underscore-keypath-0.0.22.tgz#48a528392bb6efc424be1caa56da4b5faccf264d"
+  integrity sha1-SKUoOSu278QkvhyqVtpLX6zPJk0=
+  dependencies:
+    underscore "*"
+
+underscore@*:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.1.tgz#0c1c6bd2df54b6b69f2314066d65b6cde6fcf9d1"
+  integrity sha512-hzSoAVtJF+3ZtiFX0VgfFPHEDRm7Y/QPjGyNo4TVdnDTdft3tr8hEkD25a1jC+TjTuE7tkHGKkhwCgs9dgBB2g==
+
 universalify@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
@@ -8459,6 +8495,14 @@ use-subscription@1.5.1:
   integrity sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==
   dependencies:
     object-assign "^4.1.1"
+
+user-agents@^1.0.839:
+  version "1.0.839"
+  resolved "https://registry.yarnpkg.com/user-agents/-/user-agents-1.0.839.tgz#40941a05f998ec3150a2e32ba04f794055ba0e96"
+  integrity sha512-BtGPvMhVk7mmEHyDKkE4apZqTOACYLKr/7y5A82weckks9u/YZ1pLQcjh7meOpwXq8Gpu5GcJ9aX9ljB7vNgpg==
+  dependencies:
+    dot-json "^1.2.2"
+    lodash.clonedeep "^4.5.0"
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
