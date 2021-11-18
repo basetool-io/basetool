@@ -91,6 +91,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   const userAgent = new UserAgent();
   const checkly = userAgent ? userAgent.toString().includes("Checkly") : false;
 
+  useEffect(() => {
+    console.log('checkly->', checkly)
+  }, [checkly])
+
   return (
     <NextAuthProvider
       options={{
