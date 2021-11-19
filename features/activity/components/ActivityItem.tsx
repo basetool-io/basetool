@@ -12,53 +12,47 @@ import { isArray, isEmpty, isNull, isUndefined } from "lodash";
 import React, { ElementType, memo, useMemo } from "react";
 import md5 from "md5";
 
+const prettyValue = (change: any) => {
+  if (isUndefined(change))
+    return <span className="text-xs uppercase">undefined</span>;
+  if (isNull(change)) return <span className="text-xs uppercase">null</span>;
+  if (isEmpty(change)) return <span className="text-xs uppercase">EMPTY</span>;
+
+  if (typeof change === "object") return JSON.stringify(change, null, 2);
+
+  return change;
+};
+
 const ActivityChanges = memo(
   ({ changes }: { changes: Record<string, any>[] }) => {
     if (!isArray(changes) || isEmpty(changes)) return null;
 
-    const prettyValue = (change: any) => {
-      if (isUndefined(change))
-        return <span className="text-xs uppercase">Undefined</span>;
-      if (isNull(change))
-        return <span className="text-xs uppercase">Null</span>;
-      if (isEmpty(change))
-        return <span className="text-xs uppercase">Empty</span>;
-
-      if (typeof change === "object") return JSON.stringify(change, null, 2);
-
-      return change;
-    };
-
     return (
-      <>
-        <span className="text-xs font-bold uppercase text-gray-800 leading-none">
-          Changes
-        </span>
-        <ul className="space-y-1">
-          {changes &&
-            changes.map((change: Record<string, any>, idx: number) => {
-              return (
-                <li key={idx}>
-                  <span className="text-xs font-semibold">{change.column}</span>{" "}
-                  <br />
-                  <div className="flex flex-col">
-                    <span className="text-gray-700">
-                      {prettyValue(change.before)}
-                    </span>
-                    <span className="uppercase font-semibold text-xs text-true-gray-500">
-                      <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
-                      Changed to
-                      <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
-                    </span>
-                    <span className="text-gray-900">
-                      {prettyValue(change.after)}
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-        </ul>
-      </>
+      <ul className="space-y-4 w-full">
+        {changes.map((change: Record<string, any>, idx: number) => {
+          return (
+            <li key={idx} className="w-full">
+              <span className="text-xs font-semibold uppercase">
+                {change.column}
+              </span>{" "}
+              <br />
+              <div className="flex flex-col flex-grow-0">
+                <span className="flex whitespace-clip max-w-full text-gray-700">
+                  {prettyValue(change.before)}
+                </span>
+                <span className="uppercase font-semibold text-xs text-true-gray-500">
+                  <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
+                  Changed to
+                  <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
+                </span>
+                <span className="flex whitespace-clip max-w-full text-gray-900">
+                  {prettyValue(change.after)}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     );
   }
 );
@@ -185,7 +179,7 @@ const ActivityItem = ({
     );
   };
 
-  const message = useMemo(() => {
+  const Message = useMemo(() => {
     switch (activity.action) {
       case "create":
         return <CreateMessage />;
@@ -205,11 +199,11 @@ const ActivityItem = ({
   return (
     <li
       key={activity.id}
-      className="relative py-4 my-2 rounded-md sm:w-[28rem] lg:w-[36rem]"
+      className="relative  py-4 my-2 rounded-md w-full"
     >
       {!lastItem && (
         <span
-          className="absolute top-5 left-8 -ml-px h-full w-0.5 bg-gray-200"
+          className="absolute top-5 left-8 mt-4 -ml-px h-full w-0.5 bg-gray-200"
           aria-hidden="true"
         />
       )}
@@ -227,13 +221,13 @@ const ActivityItem = ({
           </Avatar>
         </div>
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{userName}</h3>
             <p className="text-sm text-gray-500">
               {DateTime.fromISO(activity.createdAt.toString()).toRelative()}
             </p>
           </div>
-          <p className="text-sm text-gray-500">{message}</p>
+          <p className="text-sm text-gray-500">{Message}</p>
           <ActivityChanges changes={changes} />
         </div>
       </div>
