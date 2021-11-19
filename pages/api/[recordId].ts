@@ -8,12 +8,12 @@ import {
   getViewFromRequest,
 } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
+import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -77,10 +77,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName = req.query.tableName as string;
   }
 
-  const service = await getQueryService({ dataSource });
-
-  const [record, columns]: [any[], Column[]] = await service.runQueries([
-    {
+  const [record, columns]: [any[], Column[]] = await runQueries(
+    dataSource,
+    [{
       name: "getRecord",
       payload: {
         tableName,
