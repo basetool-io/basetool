@@ -18,7 +18,7 @@ import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
 import NProgress from "nprogress";
 import ProductionScripts from "@/components/ProductionScripts";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ShowErrorMessages from "@/components/ShowErrorMessages";
 import UserAgent from "user-agents";
 import getChakraTheme from "@/lib/chakra";
@@ -88,16 +88,15 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [router.events]);
 
+
   const userAgent = new UserAgent();
   const checkly = userAgent ? userAgent.toString().includes("Checkly") : false;
 
-  console.log('checkly->', checkly)
+  const [ua, setUA] = useState(userAgent);
 
   useEffect(() => {
-    console.log('checkly->', checkly)
-  }, [checkly])
-
-  useEffect(() => {
+    const userAgent = new UserAgent();
+    setUA(userAgent);
     console.log('checkly->', checkly)
   }, [])
 
@@ -115,7 +114,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <ChakraProvider resetCSS={false} theme={theme}>
             <ShowErrorMessages>
               {/* Conditionally enable Intercom */}
-              <div className={`h-10 w-100 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}>{userAgent.toString()}</div>
+              <div className={`h-10 w-100 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}>{ua.toString()}</div>
               {isString(intercomAppId) && (
                 <IntercomProvider appId={intercomAppId}>
                   <Component {...pageProps} />
