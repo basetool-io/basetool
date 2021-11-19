@@ -1,6 +1,6 @@
 import { ActivityType } from "@/features/activity/types";
 import {
-  ArrowRightIcon,
+  ArrowDownIcon,
   BanIcon,
   PlusIcon,
   RefreshIcon,
@@ -8,55 +8,61 @@ import {
 } from "@heroicons/react/outline";
 import { Avatar, AvatarBadge, Code, Tooltip } from "@chakra-ui/react";
 import { DateTime } from "luxon";
-import { isEmpty, isNull, isUndefined } from "lodash";
-import React, { ElementType, useMemo } from "react";
+import { isArray, isEmpty, isNull, isUndefined } from "lodash";
+import React, { ElementType, memo, useMemo } from "react";
 import md5 from "md5";
 
-const ActivityChanges = ({activityChanges} : {activityChanges: Record<string, any>[]}) => {
-  if (isEmpty(activityChanges)) return null;
+const ActivityChanges = memo(
+  ({ changes }: { changes: Record<string, any>[] }) => {
+    if (!isArray(changes) || isEmpty(changes)) return null;
 
-  const prettyValue = (change: any) => {
-    if (isUndefined(change))
-      return <span className="text-xs uppercase">Undefined</span>;
-    if (isNull(change)) return <span className="text-xs uppercase">Null</span>;
-    if (isEmpty(change))
-      return <span className="text-xs uppercase">Empty</span>;
+    const prettyValue = (change: any) => {
+      if (isUndefined(change))
+        return <span className="text-xs uppercase">Undefined</span>;
+      if (isNull(change))
+        return <span className="text-xs uppercase">Null</span>;
+      if (isEmpty(change))
+        return <span className="text-xs uppercase">Empty</span>;
 
-    if (typeof change === "object") return JSON.stringify(change, null, 2);
+      if (typeof change === "object") return JSON.stringify(change, null, 2);
 
-    return change;
-  };
+      return change;
+    };
 
-  return (
-    <>
-      <span className="text-xs font-bold uppercase text-gray-800 leading-none">
-        Changes
-      </span>
-      <ul className="space-y-1">
-        {activityChanges &&
-          activityChanges.map(
-            (change: Record<string, any>, idx: number) => {
+    return (
+      <>
+        <span className="text-xs font-bold uppercase text-gray-800 leading-none">
+          Changes
+        </span>
+        <ul className="space-y-1">
+          {changes &&
+            changes.map((change: Record<string, any>, idx: number) => {
               return (
                 <li key={idx}>
-                  <span className="text-xs mr-1 font-semibold">
-                    {change.column}
-                  </span>{" "}
+                  <span className="text-xs font-semibold">{change.column}</span>{" "}
                   <br />
-                  <span className="text-gray-700">
-                    {prettyValue(change.before)}
-                  </span>{" "}
-                  <ArrowRightIcon className="h-3 w-3 inline mb-1 mx-1" />{" "}
-                  <span className="text-gray-900">
-                    {prettyValue(change.after)}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-gray-700">
+                      {prettyValue(change.before)}
+                    </span>
+                    <span className="uppercase font-semibold text-xs text-true-gray-500">
+                      <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
+                      Changed to
+                      <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
+                    </span>
+                    <span className="text-gray-900">
+                      {prettyValue(change.after)}
+                    </span>
+                  </div>
                 </li>
               );
-            }
-          )}
-      </ul>
-    </>
-  );
-}
+            })}
+        </ul>
+      </>
+    );
+  }
+);
+ActivityChanges.displayName = "ActivityChanges";
 
 const ActivityItem = ({
   activity,
@@ -192,7 +198,7 @@ const ActivityItem = ({
     }
   }, [activity.action]);
 
-  const activityChanges: Record<string, any>[] = useMemo(() => {
+  const changes: Record<string, any>[] = useMemo(() => {
     return activity.changes as Record<string, any>[];
   }, [activity.changes]);
 
@@ -228,11 +234,11 @@ const ActivityItem = ({
             </p>
           </div>
           <p className="text-sm text-gray-500">{message}</p>
-          <ActivityChanges activityChanges={activityChanges} />
+          <ActivityChanges changes={changes} />
         </div>
       </div>
     </li>
   );
 };
 
-export default ActivityItem;
+export default memo(ActivityItem);
