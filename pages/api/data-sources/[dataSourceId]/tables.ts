@@ -1,11 +1,11 @@
 import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { getDataSourceFromRequest } from "@/features/api";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -25,10 +25,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({ dataSource });
-
-  const tables = (await service.runQuery("getTables")) as ListTable[];
-  const storedTableData = (dataSource?.options as any)?.tables || {};
+  const tables = (await runQuery(dataSource, "getTables")) as ListTable[];
+  const storedTableData = (dataSource?.options as any)?.tables || [];
   let newTableData = [...tables];
 
   // If we have any, we'll assign the stored data to the tables we return.

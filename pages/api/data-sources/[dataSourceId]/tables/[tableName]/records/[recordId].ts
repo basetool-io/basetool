@@ -4,13 +4,13 @@ import { OrganizationUser, Role, User } from "@prisma/client";
 import { get } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
+import { runQueries, runQuery } from "@/plugins/data-sources/serverHelpers";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -60,8 +60,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const tableName = req.query.tableName as string;
   const recordId = req.query.recordId as string;
 
-  const service = await getQueryService({ dataSource });
-
   // If the data source has columns stored, send those in.
   const storedColumns = get(dataSource, [
     "options",
@@ -70,7 +68,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     "columns",
   ]);
 
-  const [record, columns]: [any[], Column[]] = await service.runQueries([
+  const [record, columns]: [any[], Column[]] = await runQueries(dataSource, [
     {
       name: "getRecord",
       payload: {
@@ -102,10 +100,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const service = await getQueryService({ dataSource });
-
-  const [record, data]: [Record<string, any>, Promise<unknown>] =
-    await service.runQueries([
+  const [record, data]: [Record<string, unknown>, Promise<unknown>] =
+    await runQueries(dataSource, [
       {
         name: "getRecord",
         payload: {
@@ -168,9 +164,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({ dataSource });
-
-  const data = await service.runQuery("deleteRecord", {
+  const data = await runQuery(dataSource, "deleteRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
   });

@@ -5,15 +5,18 @@ export const urls = () => {
     // If we can get it from the window object, use that.
     baseUrl = window.location.origin;
   } else {
+    const prefix = (process.env.BASE_URL as string).includes("localhost")
+      ? "http://"
+      : "https://";
     // By default we should use the BASE_URL.
-    baseUrl = `https://${process.env.BASE_URL}`;
+    baseUrl = `${prefix}${process.env.BASE_URL}`;
 
     // If we're on vercel and not production, we should read the custom deployment url.
-    if (process.env.VERCEL && process.env.VERCEL_ENV !== 'production') {
+    if (process.env.VERCEL && process.env.VERCEL_ENV !== "production") {
       if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-        baseUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+        baseUrl = `${prefix}${process.env.NEXT_PUBLIC_VERCEL_URL}`;
       } else {
-        baseUrl = `https://${process.env.VERCEL_URL}`;
+        baseUrl = `${prefix}${process.env.VERCEL_URL}`;
       }
     }
   }
@@ -23,5 +26,6 @@ export const urls = () => {
   return { baseUrl, apiUrl };
 };
 
-export const { baseUrl } = urls();
-export const { apiUrl } = urls();
+const { baseUrl, apiUrl } = urls();
+
+export { baseUrl, apiUrl };

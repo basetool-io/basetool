@@ -1,7 +1,7 @@
 import { Column } from "react-table";
 import { DataSource } from "@prisma/client";
 import { hydrateColumns } from "../records";
-import getQueryService from "@/plugins/data-sources/getQueryService";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 
 export const getColumns = async ({
   dataSource,
@@ -12,12 +12,7 @@ export const getColumns = async ({
   tableName: string;
   storedColumns: [];
 }): Promise<Column[]> => {
-  const service = await getQueryService({
-    dataSource,
-    options: { cache: false },
-  });
-
-  let columns = await service.runQuery("getColumns", {
+  let columns = await runQuery(dataSource, "getColumns", {
     tableName: tableName,
     storedColumns,
   });

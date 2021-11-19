@@ -11,6 +11,7 @@ export type DataSourceInfo = {
     filters: boolean;
     columnsRequest: boolean;
   };
+  runsInProxy: boolean,
 };
 
 export type PaginationType = "offset" | "cursor";

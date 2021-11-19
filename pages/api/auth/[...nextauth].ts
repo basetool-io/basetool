@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { intercomSecret } from "@/lib/services"
+import { intercomSecret } from "@/lib/services";
 import NextAuth, { User } from "next-auth";
 import Providers from "next-auth/providers";
 import bcrypt from "bcrypt";
@@ -9,8 +9,8 @@ import prisma from "@/prisma";
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
 
-  const timestamp = + (user.createdAt as Date)
-  if (!intercomSecret) return
+  const timestamp = +(user.createdAt as Date);
+  if (!intercomSecret) return;
 
   const hmac = crypto.createHmac("sha256", intercomSecret);
 
@@ -23,7 +23,10 @@ function createIntercomUserHash(user: User | undefined): string | undefined {
 }
 
 // Update the user's last known timezone on each login.
-async function updateUserLastKnownTimezone(user: User, lastKnownTimezone: string | undefined) {
+async function updateUserLastKnownTimezone(
+  user: User,
+  lastKnownTimezone: string | undefined
+) {
   if (user?.email && lastKnownTimezone) {
     await prisma.user.updateMany({
       where: {
@@ -61,7 +64,7 @@ export default NextAuth({
           },
         });
 
-        if (!user) throw new Error('Invalid credentials.');
+        if (!user) throw new Error("Invalid credentials.");
 
         const passwordIsValid = bcrypt.compareSync(
           credentials.password,
@@ -74,7 +77,7 @@ export default NextAuth({
           return user;
         }
 
-        throw new Error('Invalid credentials.');
+        throw new Error("Invalid credentials.");
       },
       credentials: {
         // domain: {

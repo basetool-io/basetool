@@ -10,7 +10,7 @@ const moduleExports = {
   images: {
     domains: ["www.gravatar.com"],
   },
-  outputFileTracing: false,
+  outputFileTracing: false, // Sentry quick fix
   reactStrictMode: true,
   async redirects() {
     return [
@@ -46,13 +46,10 @@ if (process.env.ANALYZE) {
   });
 
   module.exports = withBundleAnalyzer(moduleExports);
-} else if (process.env.BASE_URL && process.env.BASE_URL.includes("localhost")) {
-  module.exports = moduleExports;
-} else if (process.env.BUILDING_IN_DOCKER === '1') {
-  // Removing sentry if we're building in docker
-  module.exports = moduleExports;
-} else {
+} else if (process.env.SENTRY_DSN) {
   // Make sure adding Sentry options is the last code to run before exporting, to
   // ensure that your source maps include changes from all other Webpack plugins
   module.exports = withSentryConfig(moduleExports, SentryWebpackPluginOptions);
+} else {
+  module.exports = moduleExports;
 }

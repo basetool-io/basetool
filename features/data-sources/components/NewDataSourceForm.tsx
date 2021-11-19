@@ -1,6 +1,7 @@
 import {
   Button,
   Checkbox,
+  Code,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -10,7 +11,12 @@ import {
   Switch,
   useDisclosure,
 } from "@chakra-ui/react";
-import { LinkIcon, PlusIcon, TerminalIcon } from "@heroicons/react/outline";
+import {
+  DuplicateIcon,
+  LinkIcon,
+  PlusIcon,
+  TerminalIcon,
+} from "@heroicons/react/outline";
 import {
   Modal,
   ModalBody,
@@ -21,6 +27,7 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types";
+import { WHITELISTED_IP_ADDRESS } from "@/lib/constants";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { merge } from "lodash";
 import { toast } from "react-toastify";
@@ -28,6 +35,7 @@ import {
   useAddDataSourceMutation,
   useCheckConnectionMutation,
 } from "@/features/data-sources/api-slice";
+import { useCopyToClipboard } from "react-use";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
 import { useRouter } from "next/router";
@@ -256,6 +264,8 @@ const NewDataSourceForm = ({
     onClose();
   };
 
+  const [state, copyToClipboard] = useCopyToClipboard();
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -318,7 +328,8 @@ const NewDataSourceForm = ({
                   value={credentialsUrl}
                   onChange={(e) => setCredentialsUrl(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !isEmpty(credentialsUrl)) fillCredentialsFromUrl()
+                    if (e.key === "Enter" && !isEmpty(credentialsUrl))
+                      fillCredentialsFromUrl();
                   }}
                   autoFocus
                 />
@@ -484,6 +495,21 @@ const NewDataSourceForm = ({
                 {errors?.credentials?.useSsl?.message}
               </FormErrorMessage>
             </FormControl>
+
+            <div className="text-gray-800 text-">
+              Add our IP{" "}
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  copyToClipboard(WHITELISTED_IP_ADDRESS);
+                  toast("📋 Copied to clipboard");
+                }}
+              >
+                <Code>{WHITELISTED_IP_ADDRESS}</Code>{" "}
+                <DuplicateIcon className="inline h-4" />
+              </span>{" "}
+              to your server's whitelist.
+            </div>
 
             <FormControl display="flex" alignItems="center">
               <FormLabel htmlFor="connect-with-ssh" mb="0">

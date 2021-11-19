@@ -3,12 +3,12 @@ import { DataSource, View } from "@prisma/client";
 import { decodeObject } from "@/lib/encoding";
 import { getDataSourceFromRequest, getViewFromRequest } from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
-import { merge } from "lodash"
+import { merge } from "lodash";
+import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -47,7 +47,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     dataSource = view?.dataSource;
     tableName = view?.tableName as string;
     storedColumns = view.columns as Column[];
-    const decodedFilters = decodeObject(req.query.filters as string) || []
+    const decodedFilters = decodeObject(req.query.filters as string) || [];
     filters = merge(decodedFilters, view.filters);
   } else {
     dataSource = await getDataSourceFromRequest(req);
@@ -57,10 +57,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     filters = decodeObject(req.query.filters as string);
   }
 
-  const service = await getQueryService({ dataSource });
-
-  const [records, columns, count]: [any[], Column[], number] =
-    await service.runQueries([
+  const [records, columns, count]: [any[], Column[], number] = await runQueries(
+    dataSource,
+    [
       {
         name: "getRecords",
         payload: {
@@ -86,7 +85,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           filters,
         },
       },
-    ]);
+    ]
+  );
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecords = records.map((record) =>

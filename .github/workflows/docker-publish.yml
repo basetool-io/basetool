@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "Build & publish"
+    name: "Build-&-publish"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
