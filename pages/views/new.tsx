@@ -286,7 +286,7 @@ function New() {
                           tablesResponse?.data.map(
                             (table: ListTable, idx: number) => (
                               <option key={idx} value={table.name}>
-                                {table.label ? table.label : table.name}
+                                {table.name}
                               </option>
                             )
                           )}

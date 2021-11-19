@@ -1,6 +1,5 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
-import { merge } from "lodash";
 import { useDataSourceContext } from "@/hooks";
 import {
   useGetDataSourceQuery,
@@ -8,7 +7,7 @@ import {
 } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
-import DataSourceEditSidebar from "@/features/data-sources/components/DataSourceEditSidebar";
+import DataSourceEditName from "@/features/data-sources/components/DataSourceEditName";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { ReactElement, memo } from "react";
@@ -20,7 +19,6 @@ const DataSourcesEditLayout = ({
   crumbs,
   isLoading = false,
   footerElements,
-  children,
 }: {
   dataSourceId?: string;
   backLink?: string;
@@ -32,7 +30,6 @@ const DataSourcesEditLayout = ({
     center?: ReactElement | string;
     right?: ReactElement | string;
   };
-  children?: ReactElement;
 }) => {
   const router = useRouter();
   const { dataSourceId: appRouterDataSourceId } = useDataSourceContext();
@@ -73,34 +70,26 @@ const DataSourcesEditLayout = ({
         isLoading={dataSourceIsLoading || isLoading}
         error={dataSourceError}
         crumbs={crumbs}
-        footerElements={merge(
-          {
-            left: (
-              <Button
-                colorScheme="red"
-                size="xs"
-                variant="outline"
-                onClick={handleRemove}
-                isLoading={dataSourceIsRemoving}
-                leftIcon={<TrashIcon className="h-4" />}
-              >
-                Remove data source
-              </Button>
-            ),
-          },
-          footerElements
-        )}
+        footerElements={footerElements}
         buttons={<BackButton href={backLink}>{backLabel}</BackButton>}
         flush={true}
       >
-        <div className="relative flex-1 max-w-full w-full flex">
-          <div className="flex flex-shrink-0 w-1/4 border-r">
-            <DataSourceEditSidebar />
+        <div className="relative flex-1 max-w-full w-full flex justify-center">
+          <div className="w-72">
+            <DataSourceEditName />
+            <Button
+              className="mt-10"
+              isFullWidth={true}
+              colorScheme="red"
+              size="xs"
+              variant="outline"
+              onClick={handleRemove}
+              isLoading={dataSourceIsRemoving}
+              leftIcon={<TrashIcon className="h-4" />}
+            >
+              Remove data source
+            </Button>
           </div>
-          {children && children}
-          {!children && (
-            <div className="flex-1 p-4">👈 Select a table to get started</div>
-          )}
         </div>
       </PageWrapper>
     </Layout>

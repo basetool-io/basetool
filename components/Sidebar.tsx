@@ -10,7 +10,6 @@ import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/typ
 import { OWNER_ROLE } from "@/features/roles";
 import { View } from "@prisma/client";
 import { first, isUndefined } from "lodash";
-import { getLabel } from "@/features/data-sources";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -25,22 +24,12 @@ const Sidebar = () => {
   const { dataSourceId, tableName, viewId } = useDataSourceContext();
 
   const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery(
-      { dataSourceId },
-      {
-        skip: !dataSourceId,
-      }
-    );
+    useGetDataSourceQuery({ dataSourceId }, { skip: !dataSourceId });
   const {
     data: tablesResponse,
     isLoading: tablesAreLoading,
     error: tablesError,
-  } = useGetTablesQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  } = useGetTablesQuery({ dataSourceId }, { skip: !dataSourceId });
 
   const {
     data: viewsResponse,
@@ -189,6 +178,9 @@ const Sidebar = () => {
                 onClick={toggleTablesOpen}
               >
                 Tables{" "}
+                <span className="text-xs text-gray-500">
+                  (visible only to owners)
+                </span>
                 {isTablesOpen ? (
                   <ChevronDownIcon className="h-3 inline" />
                 ) : (
@@ -210,7 +202,8 @@ const Sidebar = () => {
                   )}
                   {/* @todo: why does the .data attribute remain populated with old content when the hooks has changed? */}
                   {/* Got to a valid DS and then to an invalid one. the data attribute will still have the old data there. */}
-                  {!tablesLoading && tablesResponse?.ok &&
+                  {!tablesLoading &&
+                    tablesResponse?.ok &&
                     tablesResponse.data
                       .filter((table: ListTable) =>
                         dataSourceResponse?.data.type === "postgresql" &&
@@ -218,15 +211,13 @@ const Sidebar = () => {
                           ? table.schema === "public"
                           : true
                       )
-                      .filter((table: ListTable) => ac.canViewTable(table))
-                      .filter((table: ListTable) => !table?.hidden)
                       .map((table: ListTable, idx: number) => (
                         <SidebarItem
                           key={idx}
                           active={
                             table.name === tableName && isUndefined(viewId)
                           }
-                          label={getLabel(table)}
+                          label={table.name}
                           link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                           onMouseOver={() => {
                             // If the datasource supports columns request we'll prefetch it on hover.

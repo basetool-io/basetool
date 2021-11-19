@@ -175,7 +175,7 @@ model Activity {
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
   action         String       @db.VarChar(255)
-  changes        Json?        @default("{}")
+  changes        Json?        @default("[]")
   createdAt      DateTime     @default(now())
 
   @@index([dataSourceId])
