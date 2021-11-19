@@ -5,7 +5,8 @@ import { baseUrl } from "@/features/api/urls";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
 import getDataSourceInfo from "./getDataSourceInfo";
-import logger from "@/lib/logger"
+import logger from "@/lib/logger";
+import options from "@/features/options";
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -21,19 +22,27 @@ export const runQueries = async (
 ) => {
   const dataSourceInfo = await getDataSourceInfo(dataSource.type);
   let apiDomain = baseUrl;
-  let url = `${baseUrl}/api`
+  let url = `${baseUrl}/api`;
 
   if (process.env.PROXY_SERVER) {
     apiDomain = process.env.PROXY_SERVER;
-    url = apiDomain
+    url = apiDomain;
   }
 
   url = `${url}/data-sources/${dataSource.id}/query`;
 
   let response;
+  // We want to better control if the queries should run in a proxy
+  // We're checking to see if the redis DB has any options set 1 or 0.
+  // If nothing is set in redis, we're going to fallback to an environment variable.
+  const runInProxyOverride = (await options.exists("runInProxy"))
+    ? (await options.get("runInProxy")) === "1"
+    : process.env.USE_PROXY === "1";
 
-  if (dataSourceInfo?.runsInProxy && process.env.USE_PROXY === "1") {
-    logger.debug(`Running query in proxy on the following API server ${apiDomain}`)
+  if (dataSourceInfo?.runsInProxy && runInProxyOverride) {
+    logger.debug(
+      `Running query in proxy on the following API server ${apiDomain}`
+    );
 
     try {
       response = await axios.post(url, {
@@ -67,7 +76,7 @@ export const runQueries = async (
       }
     }
   } else {
-    logger.debug(`Running query on server.`)
+    logger.debug(`Running query on own server.`);
     const service = await getQueryServiceWrapper(dataSource);
 
     return await service.runQueries(queries);

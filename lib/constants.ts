@@ -20,3 +20,9 @@ export const DEFAULT_PER_PAGE = 24;
  * AWS
  */
 export const S3_SSH_KEYS_BUCKET_PREFIX = "basetool-ds-keys-";
+
+/**
+* Redis
+*/
+export const REDIS_CACHE_DB = 2;
+export const REDIS_OPTIONS_DB = 5;
