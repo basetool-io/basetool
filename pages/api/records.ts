@@ -8,7 +8,6 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -57,10 +56,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     filters = decodeObject(req.query.filters as string);
   }
 
-  const service = await getQueryService({ dataSource });
-
-  const [records, columns, count]: [any[], Column[], number] =
-    await service.runQueries([
+  const [records, columns, count]: [any[], Column[], number] = await runQueries(
+    dataSource,
+    [
       {
         name: "getRecords",
         payload: {
@@ -86,7 +84,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           filters,
         },
       },
-    ]);
+    ]
+  );
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecords = records.map((record) =>

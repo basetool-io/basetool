@@ -65,7 +65,7 @@ function Activity() {
           <div className="relative flex-1 max-w-full w-full flex">
             {(isLoading || isFetching) && <LoadingOverlay inPageWrapper />}
             <div className="mx-auto px-1">
-              <ul role="list" className="">
+              <ul role="list" className="sm:w-[28rem] lg:w-[36rem]">
                 {!isEmpty(activities) &&
                   activities.map(
                     (activityItem: ActivityType, idx: number) => (

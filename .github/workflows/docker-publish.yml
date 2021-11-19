@@ -3,11 +3,11 @@ name: Docker image
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
-    name: "Build & publish"
+    name: "Build-and-publish"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

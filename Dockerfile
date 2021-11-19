@@ -13,7 +13,6 @@ WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ENV NODE_OPTIONS --openssl-legacy-provider
-ENV BUILDING_IN_DOCKER 1
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next

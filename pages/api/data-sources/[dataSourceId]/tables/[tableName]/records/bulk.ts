@@ -1,10 +1,10 @@
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { serverSegment } from "@/lib/track"
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import pluralize from "pluralize";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -27,9 +27,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({ dataSource });
-
-  const data = await service.runQuery("deleteRecords", {
+  const data = await runQuery(dataSource, "deleteRecords", {
     tableName: req.query.tableName as string,
     recordIds: req.body as number[],
   });
@@ -42,8 +40,8 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-   // todo - find a way to pass viewId in the request
-   const activityData = {
+  // todo - find a way to pass viewId in the request
+  const activityData = {
     recordId: req.body.toString(),
     userId: user ? user.id : 0,
     organizationId: dataSource ? (dataSource.organizationId as number) : 0,

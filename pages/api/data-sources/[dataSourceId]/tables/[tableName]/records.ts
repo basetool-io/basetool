@@ -1,10 +1,10 @@
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
+import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -29,11 +29,9 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const service = await getQueryService({ dataSource });
-
   const { record } = req.body;
 
-  const data = await service.runQuery("createRecord", {
+  const data = await runQuery(dataSource, "createRecord", {
     tableName: req.query.tableName as string,
     data: record,
   });

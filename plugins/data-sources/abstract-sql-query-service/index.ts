@@ -7,6 +7,7 @@ export const defaultSettings: {
     filters: boolean;
     columnsRequest: boolean;
   };
+  runsInProxy: boolean;
 } = {
   readOnly: false,
   pagination: "offset",
@@ -14,4 +15,5 @@ export const defaultSettings: {
     filters: true,
     columnsRequest: true,
   },
+  runsInProxy: true,
 };

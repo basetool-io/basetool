@@ -4,7 +4,6 @@ import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
-import getQueryService from "@/plugins/data-sources/getQueryService";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -31,10 +30,8 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const service = await getQueryService({ dataSource });
-
-  const [record, data]: [Record<string, any>, Promise<unknown>] =
-    await service.runQueries([
+  const [record, data]: [Record<string, unknown>, Promise<unknown>] =
+    await runQueries(dataSource, [
       {
         name: "getRecord",
         payload: {
@@ -73,7 +70,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   };
 
   await prisma.activity.create({
-    data: activityData,
+    data: activityData as any,
   });
 
   serverSegment().track({
@@ -97,9 +94,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const service = await getQueryService({ dataSource });
-
-  const data = await service.runQuery("deleteRecord", {
+  const data = await runQuery(dataSource, "deleteRecord", {
     tableName: req.query.tableName as string,
     recordId: req.query.recordId as string,
   });
