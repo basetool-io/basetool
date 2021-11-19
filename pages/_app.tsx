@@ -18,7 +18,7 @@ import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
 import NProgress from "nprogress";
 import ProductionScripts from "@/components/ProductionScripts";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ShowErrorMessages from "@/components/ShowErrorMessages";
 import UserAgent from "user-agents";
 import getChakraTheme from "@/lib/chakra";
@@ -92,14 +92,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   const userAgent = new UserAgent();
   const checkly = userAgent ? userAgent.toString().includes("Checkly") : false;
 
-  const [ua, setUA] = useState(userAgent);
-
-  useEffect(() => {
-    const userAgent = new UserAgent();
-    setUA(userAgent);
-    console.log('checkly->', checkly)
-  }, [])
-
   return (
     <NextAuthProvider
       options={{
@@ -114,7 +106,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           <ChakraProvider resetCSS={false} theme={theme}>
             <ShowErrorMessages>
               {/* Conditionally enable Intercom */}
-              <div className={`h-10 w-100 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}>{ua.toString()}</div>
               {isString(intercomAppId) && (
                 <IntercomProvider appId={intercomAppId}>
                   <Component {...pageProps} />
@@ -124,7 +115,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               {!isString(intercomAppId) && <Component {...pageProps} />}
             </ShowErrorMessages>
             <ToastContainer
-              position={checkly ? "bottom-right" : "top-right"}
+              position="bottom-right"
               transition={Zoom}
               autoClose={3000}
               hideProgressBar={true}
