@@ -3,7 +3,7 @@ name: Refresh proxy
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   ping:
