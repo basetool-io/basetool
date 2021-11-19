@@ -1,11 +1,12 @@
 import * as fs from "fs";
 import { AnyObject } from "immer/dist/internal";
 import { OrganizationUser, User } from "@prisma/client";
+import { doInitialScan } from "@/plugins/data-sources/abstract-sql-query-service/doInitialScan";
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
 import { getUserFromRequest } from "@/features/api";
 import { pick, sum } from "lodash";
-import { s3KeysBucket } from "@/features/data-sources"
+import { s3KeysBucket } from "@/features/data-sources";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -124,7 +125,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const credentials = JSON.parse(fields.credentials);
   const options = JSON.parse(fields.options);
   const ssh = fields.ssh ? JSON.parse(fields.ssh) : {};
-  delete ssh.key // remove the file reference
+  delete ssh.key; // remove the file reference
   const body = {
     name: fields.name,
     organizationId: fields.organizationId,
@@ -157,6 +158,11 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       organizationId: parseInt(body.organizationId as string),
     },
   });
+
+  const sqlDbs = ["postgresql", "mariadb", "mssql", "mysql"];
+  if (dataSource && sqlDbs.includes(dataSource.type)) {
+    doInitialScan(dataSource);
+  }
 
   // If we get the key from the client we'll store it in S3
   if (files.key) {
