@@ -115,6 +115,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <ChakraProvider resetCSS={false} theme={theme}>
             <ShowErrorMessages>
               {/* Conditionally enable Intercom */}
+              <div className={`h-10 w-10 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}></div>
               {isString(intercomAppId) && (
                 <IntercomProvider appId={intercomAppId}>
                   <Component {...pageProps} />
@@ -124,7 +125,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               {!isString(intercomAppId) && <Component {...pageProps} />}
             </ShowErrorMessages>
             <ToastContainer
-              position={checkly ? "bottom-right" : "bottom-left"}
+              position={checkly ? "bottom-right" : "top-right"}
               transition={Zoom}
               autoClose={3000}
               hideProgressBar={true}
