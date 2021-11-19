@@ -93,6 +93,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     console.log('checkly->', checkly)
+  }, [checkly])
+
+  useEffect(() => {
+    console.log('checkly->', checkly)
   }, [])
 
   return (
