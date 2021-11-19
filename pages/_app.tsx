@@ -93,7 +93,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     console.log('checkly->', checkly)
-  }, [checkly])
+  }, [])
 
   return (
     <NextAuthProvider
