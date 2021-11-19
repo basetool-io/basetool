@@ -1,3 +1,4 @@
+import { REDIS_CACHE_DB } from "@/lib/constants"
 import { isUndefined } from "lodash";
 import Redis, { ValueType } from "ioredis";
 
@@ -8,6 +9,7 @@ class CacheDriver {
     const options = {
       keyPrefix: `basetool_${process.env.NODE_ENV}:`,
       lazyConnect: true,
+      db: REDIS_CACHE_DB,
     };
     this.redis = new Redis(url, options);
   }
