@@ -1,6 +1,8 @@
+import { Column } from './../../../features/fields/types.d';
 import {
   ColumnWithBaseOptions,
   QueryServiceFieldOptions,
+  SqlColumnOptions,
 } from "../abstract-sql-query-service/types";
 import { FieldType } from "@/features/fields/types";
 import { MysqlCredentials } from "../mysql/types";
@@ -43,13 +45,18 @@ class QueryService extends AbstractQueryService {
     return client;
   }
 
+  public filterOutUnsupportedColumns(columns: Column<SqlColumnOptions>[]) {
+    return columns.filter((column) => column?.dataSourceInfo?.type !== "timestamp" && column?.dataSourceInfo?.type !== "geometry");
+  }
+
   public getFieldOptionsFromColumnInfo(
     column: ColumnWithBaseOptions
   ): QueryServiceFieldOptions {
-    const fieldOptions: Record<string, unknown> = {};
+    let fieldOptions: Record<string, unknown> = {};
     let fieldType: FieldType = "Text";
 
     const { name } = column;
+
     switch (column.dataSourceInfo.type) {
       case "char":
       case "varchar":
@@ -61,6 +68,7 @@ class QueryService extends AbstractQueryService {
       case "text":
       case "nchar":
       case "nvarchar":
+      case "xml":
         fieldType = "Textarea";
         break;
 
@@ -80,6 +88,34 @@ class QueryService extends AbstractQueryService {
       case "timestamp":
       case "datetimeoffset":
         fieldType = "DateTime";
+
+        switch (column.dataSourceInfo.type) {
+          case "datetime":
+          case "datetime2":
+          case "timestamp":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: true,
+              showTime: true,
+            };
+            break;
+          case "time":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: false,
+              showTime: true,
+            };
+            break;
+          // case "year":
+          case "date":
+            fieldOptions = {
+              ...fieldOptions,
+              showDate: true,
+              showTime: false,
+            };
+            break;
+        }
+
         break;
 
       case "json":
@@ -97,6 +133,7 @@ class QueryService extends AbstractQueryService {
       case "money":
       case "float":
       case "real":
+      case "decimal":
         if (idColumns.includes(name)) {
           fieldType = "Id";
         } else {
