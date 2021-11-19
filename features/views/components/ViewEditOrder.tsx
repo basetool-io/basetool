@@ -1,7 +1,6 @@
 import { Button, Select, Tooltip } from "@chakra-ui/react";
 import { DecoratedView, OrderParams } from "../types";
 import { PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext, useSegment } from "@/hooks";
@@ -39,7 +38,7 @@ const ViewEditOrder = ({
   );
 
   const columns = useMemo(
-    () => getFilteredColumns(columnsResponse?.data, Views.index),
+    () => getFilteredColumns(columnsResponse?.data),
     [columnsResponse?.data]
   );
 

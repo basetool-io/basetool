@@ -1,5 +1,4 @@
 import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isArray, isEmpty, merge } from "lodash";
 import Handlebars from "handlebars";
@@ -7,7 +6,7 @@ import Handlebars from "handlebars";
 /**
  * This method will hydrate the record with the computed fields and remove the columns that were filtered out
  */
-export const hydrateRecord = (record: any, columns: Column[]) => {
+export const hydrateRecord = (record: any, columns: Column[], view: string) => {
   // Get the computed columns.
   const computedColumns = columns.filter(
     (column: Column) => column?.baseOptions?.computed === true
@@ -20,7 +19,7 @@ export const hydrateRecord = (record: any, columns: Column[]) => {
   });
 
   // Get the filtered column names.
-  const filteredColumnNames = getFilteredColumns(columns, Views.show).map(
+  const filteredColumnNames = getFilteredColumns(columns, view).map(
     ({ name }) => name
   );
 
@@ -53,7 +52,7 @@ const addComputedField = async (
 
 export const hydrateColumns = (
   columns: Column[],
-  storedColumns: Column[]
+  storedColumns: Column[],
 ): Column[] => {
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns) && isArray(storedColumns)) {
@@ -67,15 +66,17 @@ export const hydrateColumns = (
     }
 
     // Update columns with stored options
-    storedColumns.filter(
-      (column: any) => column?.baseOptions?.computed !== true
-    ).forEach((storedColumn) => {
-      const columnIndex = columns.findIndex((c) => c.name === storedColumn.name)
+    storedColumns
+      .filter((column: any) => column?.baseOptions?.computed !== true)
+      .forEach((storedColumn) => {
+        const columnIndex = columns.findIndex(
+          (c) => c.name === storedColumn.name
+        );
 
-      if (columnIndex > -1) {
-        columns[columnIndex] = merge(columns[columnIndex], storedColumn)
-      }
-    });
+        if (columnIndex > -1) {
+          columns[columnIndex] = merge(columns[columnIndex], storedColumn);
+        }
+      });
   }
 
   return columns;

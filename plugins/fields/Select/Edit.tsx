@@ -5,7 +5,6 @@ import {
   FormHelperText,
   Select,
 } from "@chakra-ui/react";
-import { Views } from "@/features/fields/enums";
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -39,7 +38,7 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
-  const defaultValue = field?.column?.baseOptions?.defaultValue && view === Views.new
+  const defaultValue = field?.column?.baseOptions?.defaultValue && view === "new"
   ? field.column.baseOptions.defaultValue
   : null;
 

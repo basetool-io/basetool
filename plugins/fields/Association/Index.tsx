@@ -10,7 +10,7 @@ import React, { memo } from "react";
 import Shimmer from "@/components/Shimmer";
 
 const Index = ({ field }: { field: Field }) => {
-  const { dataSourceId } = useDataSourceContext();
+  const { dataSourceId, viewId } = useDataSourceContext();
   const foreignTableName = field.column.foreignKeyInfo
     .foreignTableName as string;
   const foreignRecordId = field.value || null;
@@ -22,6 +22,7 @@ const Index = ({ field }: { field: Field }) => {
       dataSourceId,
       tableName: foreignTableName,
       recordId: foreignRecordId as string,
+      viewId,
     },
     { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
   );

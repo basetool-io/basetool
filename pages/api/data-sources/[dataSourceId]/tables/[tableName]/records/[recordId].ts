@@ -1,13 +1,7 @@
-import { Role as ACRole } from "@/features/roles/AccessControlService";
-import { Column } from "@/features/fields/types";
-import { OrganizationUser, Role, User } from "@prisma/client";
-import { get } from "lodash";
 import { getDataSourceFromRequest, getUserFromRequest } from "@/features/api";
-import { hydrateColumns, hydrateRecord } from "@/features/records";
 import { runQueries, runQuery } from "@/plugins/data-sources/serverHelpers";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
-import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -19,8 +13,6 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   switch (req.method) {
-    case "GET":
-      return handleGET(req, res);
     case "PUT":
       return handlePUT(req, res);
     case "DELETE":
@@ -29,67 +21,6 @@ const handler = async (
       return res.status(404).send("");
   }
 };
-
-async function handleGET(req: NextApiRequest, res: NextApiResponse) {
-  const user = (await getUserFromRequest(req, {
-    select: {
-      organizations: {
-        include: {
-          role: {
-            select: {
-              name: true,
-              options: true,
-            },
-          },
-        },
-      },
-    },
-  })) as User & {
-    organizations: Array<OrganizationUser & { role: Role }>;
-  };
-
-  const role = user.organizations[0].role;
-  const ac = new AccessControlService(role as ACRole);
-
-  if (!ac.readAny("record").granted) return res.status(403).send("");
-
-  const dataSource = await getDataSourceFromRequest(req);
-
-  if (!dataSource) return res.status(404).send("");
-
-  const tableName = req.query.tableName as string;
-  const recordId = req.query.recordId as string;
-
-  // If the data source has columns stored, send those in.
-  const storedColumns = get(dataSource, [
-    "options",
-    "tables",
-    tableName,
-    "columns",
-  ]);
-
-  const [record, columns]: [any[], Column[]] = await runQueries(dataSource, [
-    {
-      name: "getRecord",
-      payload: {
-        tableName,
-        recordId,
-      },
-    },
-    {
-      name: "getColumns",
-      payload: {
-        tableName,
-        storedColumns,
-      },
-    },
-  ]);
-
-  const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecord = hydrateRecord(record, hydratedColumns);
-
-  res.json(ApiResponse.withData(newRecord));
-}
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   if (!req?.body?.changes || Object.keys(req.body.changes).length === 0)

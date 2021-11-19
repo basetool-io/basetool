@@ -1,11 +1,16 @@
+import { Role as ACRole } from "@/features/roles/AccessControlService";
 import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
-import { decodeObject } from "@/lib/encoding";
-import { getDataSourceFromRequest, getViewFromRequest } from "@/features/api";
+import { OrganizationUser, Role, User } from "@prisma/client";
+import {
+  getDataSourceFromRequest,
+  getUserFromRequest,
+  getViewFromRequest,
+} from "@/features/api";
 import { hydrateColumns, hydrateRecord } from "@/features/records";
-import { merge } from "lodash";
 import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
+import AccessControlService from "@/features/roles/AccessControlService";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
@@ -24,14 +29,32 @@ const handler = async (
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  const user = (await getUserFromRequest(req, {
+    select: {
+      organizations: {
+        include: {
+          role: {
+            select: {
+              name: true,
+              options: true,
+            },
+          },
+        },
+      },
+    },
+  })) as User & {
+    organizations: Array<OrganizationUser & { role: Role }>;
+  };
+
+  const role = user.organizations[0].role;
+  const ac = new AccessControlService(role as ACRole);
+
+  if (!ac.readAny("record").granted) return res.status(403).send("");
+
+  const recordId = req.query.recordId as string;
   let tableName: string;
   let dataSource;
-  let filters;
   let storedColumns: Column[] = [];
-  const limit = parseInt(req.query.limit as string);
-  const offset = parseInt(req.query.offset as string);
-  const orderBy = req.query.orderBy as string;
-  const orderDirection = req.query.orderDirection as string;
 
   if (req.query.viewId) {
     const view = (await getViewFromRequest(req, {
@@ -47,53 +70,35 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     dataSource = view?.dataSource;
     tableName = view?.tableName as string;
     storedColumns = view.columns as Column[];
-    const decodedFilters = decodeObject(req.query.filters as string) || [];
-    filters = merge(decodedFilters, view.filters);
   } else {
     dataSource = await getDataSourceFromRequest(req);
 
     if (!dataSource) return res.status(404).send("");
     tableName = req.query.tableName as string;
-    filters = decodeObject(req.query.filters as string);
   }
 
-  const [records, columns, count]: [any[], Column[], number] = await runQueries(
+  const [record, columns]: [any[], Column[]] = await runQueries(
     dataSource,
-    [
-      {
-        name: "getRecords",
-        payload: {
-          tableName,
-          filters,
-          limit,
-          offset,
-          orderBy,
-          orderDirection,
-        },
+    [{
+      name: "getRecord",
+      payload: {
+        tableName,
+        recordId,
       },
-      {
-        name: "getColumns",
-        payload: {
-          tableName,
-          storedColumns,
-        },
+    },
+    {
+      name: "getColumns",
+      payload: {
+        tableName,
+        storedColumns,
       },
-      {
-        name: "getRecordsCount",
-        payload: {
-          tableName,
-          filters,
-        },
-      },
-    ]
-  );
+    },
+  ]);
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecords = records.map((record) =>
-    hydrateRecord(record, hydratedColumns, "index")
-  );
+  const newRecord = hydrateRecord(record, hydratedColumns, "show");
 
-  res.json(ApiResponse.withData(newRecords, { meta: { count } }));
+  res.json(ApiResponse.withData(newRecord));
 }
 
 export default withMiddlewares(handler, {

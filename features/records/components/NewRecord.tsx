@@ -1,5 +1,4 @@
 import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
@@ -10,7 +9,7 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 import React, { memo, useMemo } from "react";
 
 const NewRecord = () => {
-  const { dataSourceId, tableName } = useDataSourceContext();
+  const { dataSourceId, tableName, viewId } = useDataSourceContext();
   const {
     data: columnsResponse,
     isLoading,
@@ -19,13 +18,14 @@ const NewRecord = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
     },
     { skip: !dataSourceId || !tableName }
   );
 
   const columns = useMemo(
     () =>
-      getFilteredColumns(columnsResponse?.data, Views.new).filter(
+      getFilteredColumns(columnsResponse?.data, "new").filter(
         (column: Column) => !column.primaryKey
       ),
     [columnsResponse?.data]

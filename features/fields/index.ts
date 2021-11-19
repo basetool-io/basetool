@@ -10,7 +10,6 @@ import {
   TrendingUpIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
-import { Views } from "./enums";
 import { compact, first } from "lodash";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
@@ -154,7 +153,10 @@ export const prettifyData = (rawData: any[]): any[] =>
   });
 
 export const getBaseOptions = () => ({
-  visibility: [Views.index, Views.show, Views.edit, Views.new],
+  visibleOnIndex: true,
+  visibleOnShow: true,
+  visibleOnEdit: true,
+  visibleOnNew: true,
   required: false,
   nullable: false,
   nullValues: [],
@@ -176,15 +178,26 @@ export const getColumnNameLabel = (...args: any[]) => {
 /* Returns the filtered column based on their visibility settings. */
 export const getFilteredColumns = (
   columns: Column[],
-  view: Views
+  view?: string
 ): Column[] => {
   if (isArray(columns)) {
     return (
       columns
         // Remove fields that should be hidden on index
-        .filter((column: Column) =>
-          column.baseOptions.visibility.includes(view)
-        )
+        .filter((column: Column) => {
+          switch (view) {
+            case "index":
+              return column.baseOptions.visibleOnIndex;
+            case "show":
+              return column.baseOptions.visibleOnShow;
+            case "edit":
+              return column.baseOptions.visibleOnEdit;
+            case "new":
+              return column.baseOptions.visibleOnNew;
+            default:
+              return true;
+          }
+        })
         // Remove disconnected fields
         .filter((column: Column) => !column?.baseOptions.disconnected)
     );

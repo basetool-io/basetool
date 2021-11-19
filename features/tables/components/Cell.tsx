@@ -1,6 +1,5 @@
 import { Column } from "@/features/fields/types";
 import { Row } from "react-table";
-import { Views } from "@/features/fields/enums";
 import { getField } from "@/features/fields/factory";
 import { makeField } from "@/features/fields";
 
@@ -21,7 +20,7 @@ const Cell = memo(
       column: column?.meta,
       tableName,
     });
-    const Element = getField(column.meta, Views.index);
+    const Element = getField(column.meta, "index");
 
     return <Element field={field} />;
   }

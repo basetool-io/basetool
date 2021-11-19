@@ -626,6 +626,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
     tableName: string;
     storedColumns?: Column[];
   }): Promise<[]> {
+
     const rawColumns = await this.client.table(tableName).columnInfo();
     const primaryKeyColumn = await this.getPrimaryKeyColumn({ tableName });
     const foreignKeys = await this.getForeignKeys(tableName);

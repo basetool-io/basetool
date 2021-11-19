@@ -1,6 +1,5 @@
 import { FieldType } from "../fields/types"
 import { S3_SSH_KEYS_BUCKET_PREFIX } from "@/lib/constants";
-import { Views } from "../fields/enums"
 import { inProduction } from "@/lib/environment";
 
 export const s3KeysBucket = () => {
@@ -14,7 +13,8 @@ export const INITIAL_NEW_COLUMN = {
   label: "Computed field",
   primaryKey: false,
   baseOptions: {
-    visibility: [Views.index, Views.show],
+    visibleOnIndex: true,
+    visibleOnShow: true,
     required: false,
     nullable: false,
     nullValues: [],

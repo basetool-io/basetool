@@ -1,5 +1,4 @@
 import { Column } from "@/features/fields/types";
-import { Views } from "@/features/fields/enums";
 import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
@@ -13,7 +12,7 @@ import React, { memo, useEffect, useMemo } from "react";
 
 const EditRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, recordsPath } =
+  const { dataSourceId, tableName, recordId, recordsPath, viewId } =
     useDataSourceContext();
 
   const {
@@ -25,6 +24,7 @@ const EditRecord = () => {
       dataSourceId,
       tableName,
       recordId,
+      viewId,
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
@@ -32,13 +32,14 @@ const EditRecord = () => {
     {
       dataSourceId,
       tableName,
+      viewId,
     },
     { skip: !dataSourceId || !tableName }
   );
 
   const columns = useMemo(
     () =>
-      sortBy(getFilteredColumns(columnsResponse?.data, Views.edit), [
+      sortBy(getFilteredColumns(columnsResponse?.data, "edit"), [
         (column: Column) => column?.baseOptions?.orderIndex,
       ]),
     [columnsResponse?.data]
