@@ -115,7 +115,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <ChakraProvider resetCSS={false} theme={theme}>
             <ShowErrorMessages>
               {/* Conditionally enable Intercom */}
-              <div className={`h-10 w-10 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}></div>
+              <div className={`h-10 w-100 block≈ z-50 ${checkly ? "bg-green-500" : "bg-red-500"}`}>{userAgent.toString()}</div>
               {isString(intercomAppId) && (
                 <IntercomProvider appId={intercomAppId}>
                   <Component {...pageProps} />
