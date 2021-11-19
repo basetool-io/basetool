@@ -140,7 +140,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
   };
 
   await prisma.activity.create({
-    data: activityData,
+    data: activityData as any,
   });
 
   serverSegment().track({
