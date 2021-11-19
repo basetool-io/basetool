@@ -7,7 +7,7 @@ class Options {
 
   constructor({ url }: { url: string }) {
     const options = {
-      keyPrefix: `basetool_${process.env.NODE_ENV}:`,
+      keyPrefix: `basetool_${process.env.NEXT_PUBLIC_APP_ENV}:`,
       lazyConnect: true,
       db: REDIS_OPTIONS_DB,
     };
