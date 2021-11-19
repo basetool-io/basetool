@@ -124,7 +124,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               {!isString(intercomAppId) && <Component {...pageProps} />}
             </ShowErrorMessages>
             <ToastContainer
-              position={checkly ? "bottom-right" : "top-right"}
+              position={checkly ? "bottom-right" : "bottom-left"}
               transition={Zoom}
               autoClose={3000}
               hideProgressBar={true}
