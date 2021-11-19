@@ -2,16 +2,9 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { intercomSecret } from "@/lib/services";
 import NextAuth, { User } from "next-auth";
 import Providers from "next-auth/providers";
-import URI from "urijs";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import prisma from "@/prisma";
-
-const useSecureCookies = (process.env.NEXTAUTH_URL as string).startsWith(
-  "https://"
-);
-const cookiePrefix = useSecureCookies ? "__Secure-" : "";
-const hostName = URI(process.env.NEXTAUTH_URL as string).domain();
 
 function createIntercomUserHash(user: User | undefined): string | undefined {
   if (!user?.email) return;
@@ -157,19 +150,6 @@ export default NextAuth({
     // error: '/auth/error', // Error code passed in query string as ?error=
     // verifyRequest: '/auth/verify-request', // Used for check email page
     // newUser: null // If set, new users will be directed here on first sign in
-  },
-
-  cookies: {
-    sessionToken: {
-      name: `${cookiePrefix}next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        // path: "/",
-        secure: useSecureCookies,
-        domain: hostName == "localhost" ? hostName : "." + hostName, // add a . in front so that subdomains are included
-      },
-    },
   },
 
   // Callbacks are asynchronous functions you can use to control what happens
