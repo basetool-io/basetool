@@ -91,6 +91,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const userAgent = new UserAgent();
   const checkly = userAgent ? userAgent.toString().includes("Checkly") : false;
 
+  console.log('checkly->', checkly)
+
   useEffect(() => {
     console.log('checkly->', checkly)
   }, [checkly])
