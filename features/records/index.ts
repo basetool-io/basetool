@@ -8,6 +8,7 @@ import Handlebars from "handlebars";
  */
 export const hydrateRecord = (record: any, columns: Column[], view: string) => {
   console.log('hydrateRecord', record, view)
+  // console.log('columns', columns)
   // Get the computed columns.
   const computedColumns = columns.filter(
     (column: Column) => column?.baseOptions?.computed === true
