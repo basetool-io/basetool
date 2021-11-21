@@ -7,7 +7,8 @@ import Handlebars from "handlebars";
  * This method will hydrate the record with the computed fields and remove the columns that were filtered out
  */
 export const hydrateRecord = (record: any, columns: Column[], view: string) => {
-  console.log('hydrateRecord', record, columns, view)
+  console.log('hydrateRecord', record, view)
+  console.log('columns', columns)
   // Get the computed columns.
   const computedColumns = columns.filter(
     (column: Column) => column?.baseOptions?.computed === true
