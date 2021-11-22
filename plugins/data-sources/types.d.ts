@@ -23,8 +23,9 @@ export type QueryResponse = {
 };
 
 export interface IQueryServiceWrapper {
-  runQuery(name: keyof ISQLQueryService, payload?: unknown);
-  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]);
+  runQuery(name: keyof ISQLQueryService, payload?: unknown): Promise<unknown>;
+  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]): Promise<unknown>;
+  disconnect(): Promise<unknown>;
 }
 
 export interface IQueryService {

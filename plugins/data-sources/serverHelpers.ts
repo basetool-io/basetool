@@ -104,10 +104,13 @@ export const getQueryServiceWrapper = async (
     if (error.code === "MODULE_NOT_FOUND") {
       // Returning a "null" Query service wrapper
       return {
-        runQuery(name, payload) {
+        async runQuery(name, payload) {
           return null;
         },
-        runQueries(queries) {
+        async runQueries(queries) {
+          return null;
+        },
+        async disconnect() {
           return null;
         },
       };
