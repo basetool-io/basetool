@@ -42,7 +42,7 @@ function Profile() {
                 size="sm"
                 width="300px"
                 onClick={(e) => {
-                  e.preventDefault();
+                  // e.preventDefault();
                   signOut();
                 }}
               >
