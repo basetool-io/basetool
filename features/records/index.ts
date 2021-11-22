@@ -23,9 +23,6 @@ export const hydrateRecord = (record: any, columns: Column[], view: string) => {
     ({ name }) => name
   );
 
-  console.log("HYDRATERECORD filteredColumnNames", filteredColumnNames);
-  console.log("HYDRATERECORD record", record);
-
   // Filter out the columns that were hidden
   // Go into each record and remove the filtered out columns.
   record = Object.fromEntries(
