@@ -77,6 +77,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName = req.query.tableName as string;
   }
 
+  console.log("dataSource.id, tableName, recordId ", dataSource.id, tableName, recordId)
+
   const [record, columns]: [any[], Column[]] = await runQueries(
     dataSource,
     [{
@@ -94,6 +96,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   ]);
+
+  console.log("record, columns ", record, columns)
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecord = hydrateRecord(record, hydratedColumns, "show");
