@@ -77,7 +77,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName = req.query.tableName as string;
   }
 
-  console.log("dataSource.id, tableName, recordId ", dataSource.id, tableName, recordId)
+  console.log("RECORDID.TS dataSource.id, tableName, recordId, storedColumns.length ", dataSource.id, tableName, recordId, storedColumns.length)
 
   const [record, columns]: [any[], Column[]] = await runQueries(
     dataSource,
@@ -97,7 +97,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   ]);
 
-  console.log("record, columns ", record, columns)
+  console.log("RECORDID.TS record, columns.length ", record, columns.length)
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecord = hydrateRecord(record, hydratedColumns, "show");
