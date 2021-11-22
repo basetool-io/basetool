@@ -36,6 +36,7 @@ export const getKnexClient = (
     client: knexClientType,
     connection,
     debug: false,
+    pool: { min: 2, max: 5 }
   });
 
   return client;
