@@ -24,6 +24,8 @@ export const runQueries = async (
   let apiDomain = baseUrl;
   let url = `${baseUrl}/api`;
 
+  console.log("SERVERHELPERS.TS queries", queries)
+
   if (process.env.PROXY_SERVER) {
     apiDomain = process.env.PROXY_SERVER;
     url = apiDomain;
