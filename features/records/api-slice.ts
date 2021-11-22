@@ -87,7 +87,7 @@ export const recordsApiSlice = createApi({
             .query()
             .toString();
 
-          return `/${recordId}?${queryParams}`;
+          return `/records/${recordId}?${queryParams}`;
         },
         providesTags: (result, error, { recordId }) => [
           { type: "Record", id: recordId },
