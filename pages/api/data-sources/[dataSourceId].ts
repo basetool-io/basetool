@@ -32,6 +32,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       type: true,
       options: true,
       organizationId: true,
+      tablesMetaData: true,
     },
   });
 

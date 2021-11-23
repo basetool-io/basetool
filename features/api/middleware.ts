@@ -1,6 +1,6 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { SQLError } from "@/lib/errors";
-import { addBreadcrumb, captureException, flush } from "@sentry/nextjs";
+import { captureException, configureScope, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { getUserFromRequest } from ".";
 import { inDevelopment } from "@/lib/environment";
@@ -52,18 +52,32 @@ export const withMiddlewares =
         select: { id: true },
       });
 
-      addBreadcrumb({
-        message: "Session info",
-        data: {
-          userId: user?.id,
+      configureScope((scope) => {
+        scope.setUser({
+          id: user?.id?.toString(),
+          name: `${user?.firstName} ${user?.lastName}`,
+        });
+        scope.setTags({
           dataSourceId: req.query.dataSourceId || req.body.dataSourceId,
-        },
+          tableName: req.query.tableName || req.body.tableName,
+          viewId: req.query.viewId || req.body.viewId,
+          env: process.env.NEXT_PUBLIC_APP_ENV,
+          useProxy: process.env.USE_PROXY,
+          baseUrl: process.env.BASE_URL,
+        });
       });
+
       captureException(error);
 
       // Flushing before returning is necessary if deploying to Vercel, see
       // https://vercel.com/docs/platform/limits#streaming-responses
       await flush(2000);
+
+      // throw the error in the console in development
+      if (inDevelopment) {
+        console.error(error);
+      }
+
       if (!res.headersSent) {
         const status = error.code && isNumber(error.code) ? error.code : 500;
 
@@ -80,11 +94,6 @@ export const withMiddlewares =
               meta: { errorMessage: error.message, error },
             })
           );
-        }
-
-        // throw the error in the console in development
-        if (inDevelopment) {
-          throw error;
         }
       }
     }
