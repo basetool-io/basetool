@@ -1,7 +1,7 @@
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import pooler from "@/plugins/data-sources/connectionPooler";
+import pooler from "@/plugins/data-sources/ConnectionPooler"
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
