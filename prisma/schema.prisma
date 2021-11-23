@@ -64,6 +64,7 @@ model DataSource {
   updatedAt               DateTime      @updatedAt
   views                   View[]
   activities              Activity[]
+  tablesMetaData          Json?         @default("[]")
 
   @@index([organizationId])
 }
