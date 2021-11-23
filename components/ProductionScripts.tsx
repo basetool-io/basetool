@@ -5,7 +5,8 @@ import {
   segmentPublicKey,
 } from "@/lib/services";
 import { inProduction } from "@/lib/environment";
-import React, { memo } from "react";
+import { useSession } from "next-auth/client";
+import React, { memo, useEffect } from "react";
 import Script from "next/script";
 
 function renderSnippet() {
@@ -24,6 +25,17 @@ function renderSnippet() {
 }
 
 const ProductionScripts = () => {
+  const [session] = useSession();
+
+  useEffect(() => {
+    if (window && window.FS && session && session.user) {
+      window.FS.identify(session?.user?.id, {
+        displayName: session?.user?.name,
+        email: session?.user?.email,
+      });
+    }
+  }, [session]);
+
   if (!googleAnalyticsUACode || !googleAnalytics4Code) return null;
 
   return (
@@ -44,8 +56,9 @@ const ProductionScripts = () => {
       `}
       </Script>
 
-      {process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === '1' && <Script id="fullstory" strategy="lazyOnload">
-        {`window['_fs_debug'] = false;
+      {process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1" && (
+        <Script id="fullstory" strategy="lazyOnload">
+          {`window['_fs_debug'] = false;
         window['_fs_host'] = 'fullstory.com';
         window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
         window['_fs_org'] = '16MB7H';
@@ -67,7 +80,8 @@ const ProductionScripts = () => {
         if(m[y])m[y]=function(){return g._w[y].apply(this,arguments)};
         g._v="1.3.0";
         })(window,document,window['_fs_namespace'],'script','user');`}
-      </Script>}
+        </Script>
+      )}
     </>
   );
 };

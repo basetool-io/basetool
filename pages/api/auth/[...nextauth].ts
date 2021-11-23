@@ -171,6 +171,7 @@ export default NextAuth({
     async jwt(token, user, account, profile, isNewUser) {
       if (user) {
         token.user = {
+          id: user.id,
           firstName: user.firstName,
           lastName: user.lastName,
           name: `${user.firstName} ${user.lastName}`,
