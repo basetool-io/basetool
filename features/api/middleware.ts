@@ -36,7 +36,8 @@ export const withMiddlewares =
       ...startMiddlewares,
     ];
 
-    let newHandler = handler
+    // If we use `handler` alone it somehow remains stored in memory and all the middlewares get doubled leading to increased loading times.
+    let newHandler = handler;
 
     for (const tuple of allMiddlewares) {
       const [middleware, args] = tuple;
