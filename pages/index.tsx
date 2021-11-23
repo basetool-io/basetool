@@ -92,11 +92,11 @@ function Index() {
                         <div>
                           {isVisible && (
                             <>
-                              <Code>{credentials}</Code>{" "}
                               <Link
                                 href={`/data-sources/postgresql/new?credentials=${credentials}&name=${name}`}
-                              >
+                                >
                                 <a className="ml-1 text-blue-600 cursor-pointer text-sm">
+                                  <Code>{credentials}</Code>{" "}
                                   (use these credentials)
                                 </a>
                               </Link>
