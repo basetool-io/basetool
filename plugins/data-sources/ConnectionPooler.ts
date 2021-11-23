@@ -6,8 +6,8 @@ import {
 } from "@/lib/constants";
 import { getQueryServiceWrapper } from "./serverHelpers";
 import { randomString } from "@/lib/helpers";
-import logger from "@/lib/logger";
 import io from "@pm2/io";
+import logger from "@/lib/logger";
 
 type Connection = {
   id: string;
