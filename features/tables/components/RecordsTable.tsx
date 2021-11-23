@@ -105,6 +105,7 @@ const RecordsTable = ({
   }, [rawColumns, columnWidths]);
 
   const columns = useMemo(() => {
+    // This check is made to ensure columns have id column for the checkbox column and item controls.
     if (hasIdColumn) {
       return [checkboxColumn, ...orderedColumns, controlsColumn];
     } else {
