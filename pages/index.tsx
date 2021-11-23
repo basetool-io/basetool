@@ -1,4 +1,4 @@
-import { Button, Code } from "@chakra-ui/react";
+import { Code } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useProfile } from "@/hooks";
 import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock";
@@ -97,7 +97,7 @@ function Index() {
                                 >
                                 <a className="ml-1 text-blue-600 cursor-pointer text-sm">
                                   <Code>{credentials}</Code>{" "}
-                                  <Button size="">use these credentials</Button>
+                                  (use these credentials)
                                 </a>
                               </Link>
                             </>
