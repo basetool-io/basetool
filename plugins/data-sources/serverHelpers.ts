@@ -2,12 +2,16 @@ import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
 import { SQLError } from "@/lib/errors";
 import { baseUrl } from "@/features/api/urls";
+import GoogleSheetsQueryService from "@/plugins/data-sources/google-sheets/QueryService";
+import MSSQLQueryService from "@/plugins/data-sources/mssql/QueryService";
+import MySQLQueryService from "@/plugins/data-sources/mysql/QueryService";
+import PostgreSQLQueryService from "@/plugins/data-sources/postgresql/QueryService";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
-import catalog from "./catalog"
 import getDataSourceInfo from "./getDataSourceInfo";
 import logger from "@/lib/logger";
 import options from "@/features/options";
+import pooler from "./ConnectionPooler"
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -79,19 +83,25 @@ export const runQueries = async (
   } else {
     logger.debug(`Running query on own server.`);
 
-    const service = await catalog.getConnection(dataSource);
-    // const service = await getQueryServiceWrapper(dataSource);
+    const service = await pooler.getConnection(dataSource);
 
     return await service.runQueries(queries);
   }
 };
 
 export const getQueryServiceClass = async (type: string) => {
-  const dataSourceType = type === "maria_db" ? "mysql" : type;
-
-  return (
-    await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
-  ).default;
+  switch (type) {
+    case "google-sheets":
+      return GoogleSheetsQueryService;
+    case "maria_db":
+    case "mysql":
+      return MySQLQueryService;
+    case "mssql":
+      return MSSQLQueryService;
+    default:
+    case "postgresql":
+      return PostgreSQLQueryService;
+  }
 };
 
 export const getQueryServiceWrapper = async (
@@ -107,10 +117,13 @@ export const getQueryServiceWrapper = async (
     if (error.code === "MODULE_NOT_FOUND") {
       // Returning a "null" Query service wrapper
       return {
-        runQuery(name, payload) {
+        async runQuery(name, payload) {
           return null;
         },
-        runQueries(queries) {
+        async runQueries(queries) {
+          return null;
+        },
+        async disconnect() {
           return null;
         },
       };

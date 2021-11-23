@@ -84,6 +84,10 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
     return response;
   }
+
+  public async disconnect() {
+    return await this.queryService.disconnect()
+  }
 }
 
 // SSH Tunnelling overrides.

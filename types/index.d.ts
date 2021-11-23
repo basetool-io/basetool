@@ -7,6 +7,7 @@ declare global {
       identify: (...args) => void;
       track: (...args) => void;
     };
+    FS?: any;
   }
 }
 
