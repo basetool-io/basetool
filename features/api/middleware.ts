@@ -36,14 +36,17 @@ export const withMiddlewares =
       ...startMiddlewares,
     ];
 
+    // If we use `handler` alone it somehow remains stored in memory and all the middlewares get doubled leading to increased loading times.
+    let newHandler = handler;
+
     for (const tuple of allMiddlewares) {
       const [middleware, args] = tuple;
-      handler = middleware(handler, args);
+      newHandler = middleware(newHandler, args);
     }
 
     // Run the handler. If it crashes, log the error to Sentry and respond with a nice message.
     try {
-      return await handler(req, res);
+      return await newHandler(req, res);
     } catch (error: any) {
       const user = await getUserFromRequest(req, {
         select: { id: true },
