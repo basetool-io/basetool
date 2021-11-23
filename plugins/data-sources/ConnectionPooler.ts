@@ -5,6 +5,7 @@ import {
   POOLER_MAX_DB_CONNECTIONS,
 } from "@/lib/constants";
 import { getQueryServiceWrapper } from "./serverHelpers";
+import { groupBy } from "lodash"
 import { randomString } from "@/lib/helpers";
 import io from "@pm2/io";
 import logger from "@/lib/logger";
@@ -113,11 +114,8 @@ class ConnectionPooler {
   }
 
   private updatePM2Metric() {
-    const connections = io.metric({
-      name: "DB connections",
-    });
-
-    connections.set(this.connections.length);
+    io.metric({ name: "DB connections" }).set(this.connections.length);
+    io.metric({ name: "Unique DB connections" }).set(groupBy(this.connections, 'dataSourceId').length);
   }
 }
 
