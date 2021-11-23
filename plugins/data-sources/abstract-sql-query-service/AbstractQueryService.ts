@@ -482,7 +482,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
       .where(pk, recordId)
       .table(tableName);
 
-    return rows[0]
+    return rows[0];
   }
 
   public async getRecords({
@@ -514,7 +514,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    return await query as [];
+    return (await query) as [];
   }
 
   public async getRecordsCount({
@@ -626,7 +626,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
     tableName: string;
     storedColumns?: Column[];
   }): Promise<[]> {
-
     const rawColumns = await this.client.table(tableName).columnInfo();
     const primaryKeyColumn = await this.getPrimaryKeyColumn({ tableName });
     const foreignKeys = await this.getForeignKeys(tableName);

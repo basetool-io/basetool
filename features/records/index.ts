@@ -52,7 +52,7 @@ const addComputedField = async (
 
 export const hydrateColumns = (
   columns: Column[],
-  storedColumns: Column[],
+  storedColumns: Column[]
 ): Column[] => {
   // Computed columns are bypassed in the database "getColumns", so we need to add them here.
   if (!isEmpty(storedColumns) && isArray(storedColumns)) {
