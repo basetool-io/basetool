@@ -1,4 +1,4 @@
-import { Code } from "@chakra-ui/react";
+import { Button, Code } from "@chakra-ui/react";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useProfile } from "@/hooks";
 import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock";
@@ -92,12 +92,12 @@ function Index() {
                         <div>
                           {isVisible && (
                             <>
-                              <Code>{credentials}</Code>{" "}
                               <Link
                                 href={`/data-sources/postgresql/new?credentials=${credentials}&name=${name}`}
-                              >
+                                >
                                 <a className="ml-1 text-blue-600 cursor-pointer text-sm">
-                                  (use these credentials)
+                                  <Code>{credentials}</Code>{" "}
+                                  <Button size="">use these credentials</Button>
                                 </a>
                               </Link>
                             </>
