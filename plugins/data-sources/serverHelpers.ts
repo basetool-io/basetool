@@ -83,7 +83,6 @@ export const runQueries = async (
     logger.debug(`Running query on own server.`);
 
     const service = await pooler.getConnection(dataSource);
-    // const service = await getQueryServiceWrapper(dataSource);
 
     return await service.runQueries(queries);
   }
