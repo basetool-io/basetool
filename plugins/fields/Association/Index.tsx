@@ -10,19 +10,15 @@ import React, { memo } from "react";
 import Shimmer from "@/components/Shimmer";
 
 const Index = ({ field }: { field: Field }) => {
-  const { dataSourceId, viewId } = useDataSourceContext();
+  const { dataSourceId } = useDataSourceContext();
   const foreignTableName = field.column.foreignKeyInfo
     .foreignTableName as string;
   const foreignRecordId = field.value || null;
-  const {
-    data: recordResponse,
-    isLoading,
-  } = useGetRecordQuery(
+  const { data: recordResponse, isLoading } = useGetRecordQuery(
     {
       dataSourceId,
       tableName: foreignTableName,
       recordId: foreignRecordId as string,
-      viewId,
     },
     { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
   );
