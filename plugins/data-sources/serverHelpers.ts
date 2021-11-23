@@ -7,10 +7,10 @@ import MySQLQueryService from "@/plugins/data-sources/mysql/QueryService";
 import PostgreSQLQueryService from "@/plugins/data-sources/postgresql/QueryService";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
-import catalog from "./catalog"
 import getDataSourceInfo from "./getDataSourceInfo";
 import logger from "@/lib/logger";
 import options from "@/features/options";
+import pooler from "./ConnectionPooler"
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -82,7 +82,7 @@ export const runQueries = async (
   } else {
     logger.debug(`Running query on own server.`);
 
-    const service = await catalog.getConnection(dataSource);
+    const service = await pooler.getConnection(dataSource);
     // const service = await getQueryServiceWrapper(dataSource);
 
     return await service.runQueries(queries);
