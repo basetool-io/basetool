@@ -5,7 +5,7 @@ import { IFilter, IFilterGroup } from "../types";
 import { PlusIcon, XIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/features/records/hooks";
 import Filter from "./Filter";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import VerbComponent, { FilterVerb } from "./VerbComponent";
 
 const GroupFiltersPanel = (
@@ -24,7 +24,11 @@ const GroupFiltersPanel = (
 ) => {
   const { filters, removeFilter, updateFilter } = useFilters();
 
+  const hasColumns = useMemo(() => columns && columns.length > 0, [columns]);
+
   const addFilter = () => {
+    if (!hasColumns) return;
+
     const filter: IFilter = {
       columnName: columns[0].name,
       column: columns[0],
@@ -80,14 +84,16 @@ const GroupFiltersPanel = (
           <hr />
           <div className="flex justify-between">
             <div className="space-x-2">
-              <Button
-                size="xs"
-                colorScheme="gray"
-                onClick={addFilter}
-                leftIcon={<PlusIcon className="h-3 text-gray-600" />}
-              >
-                Add a filter
-              </Button>
+              {hasColumns && (
+                <Button
+                  size="xs"
+                  colorScheme="gray"
+                  onClick={addFilter}
+                  leftIcon={<PlusIcon className="h-3 text-gray-600" />}
+                >
+                  Add a filter
+                </Button>
+              )}
             </div>
           </div>
         </div>

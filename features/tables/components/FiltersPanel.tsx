@@ -30,8 +30,10 @@ const FiltersPanel = (
   const { filters, setFilters, setAppliedFilters, allFiltersApplied } =
     useFilters();
 
+  const hasColumns = useMemo(() => columns && columns.length > 0, [columns]);
+
   const addFilter = () => {
-    if (!columns) return;
+    if (!hasColumns) return;
 
     const filter: IFilter = {
       columnName: columns[0].name,
@@ -45,6 +47,8 @@ const FiltersPanel = (
   };
 
   const addFilterGroup = () => {
+    if (!hasColumns) return;
+
     const filter: IFilterGroup = {
       isGroup: true,
       verb: filters.length > 1 ? filters[1].verb : FilterVerbs.and,
@@ -128,22 +132,26 @@ const FiltersPanel = (
         <hr />
         <div className="flex justify-between">
           <div className="space-x-2">
-            <Button
-              size="xs"
-              colorScheme="gray"
-              onClick={addFilter}
-              leftIcon={<PlusIcon className="h-3 text-gray-600" />}
-            >
-              Add a filter
-            </Button>
-            <Button
-              size="xs"
-              colorScheme="gray"
-              onClick={addFilterGroup}
-              leftIcon={<FolderAddIcon className="h-3 text-gray-600" />}
-            >
-              Add a filter group
-            </Button>
+            {hasColumns && (
+              <>
+                <Button
+                  size="xs"
+                  colorScheme="gray"
+                  onClick={addFilter}
+                  leftIcon={<PlusIcon className="h-3 text-gray-600" />}
+                >
+                  Add a filter
+                </Button>
+                <Button
+                  size="xs"
+                  colorScheme="gray"
+                  onClick={addFilterGroup}
+                  leftIcon={<FolderAddIcon className="h-3 text-gray-600" />}
+                >
+                  Add a filter group
+                </Button>
+              </>
+            )}
           </div>
           <Button
             size="xs"
