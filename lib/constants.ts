@@ -32,3 +32,4 @@ export const REDIS_OPTIONS_DB = 5;
 * SQL Connection Pooler
 */
 export const POOLER_CONNECTION_TIMEOUT = 3 * 60 * 1000; // 3 minutes
+export const POOLER_MAX_DB_CONNECTIONS = 3;

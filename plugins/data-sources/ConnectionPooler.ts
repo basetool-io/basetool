@@ -1,6 +1,6 @@
 import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
-import { POOLER_CONNECTION_TIMEOUT } from "@/lib/constants"
+import { POOLER_CONNECTION_TIMEOUT, POOLER_MAX_DB_CONNECTIONS } from "@/lib/constants";
 import { getQueryServiceWrapper } from "./serverHelpers";
 import { randomString } from "@/lib/helpers";
 import logger from "@/lib/logger";
@@ -17,6 +17,7 @@ type Connection = {
 class ConnectionPooler {
   public connections: Connection[] = [];
 
+  // Each connection pooler gets an ID
   public id = randomString(6);
 
   public async getConnection(
@@ -28,7 +29,8 @@ class ConnectionPooler {
     );
 
     if (existingConnections) {
-      if (existingConnections.length < 3) {
+      // Spin up a few connections
+      if (existingConnections.length < POOLER_MAX_DB_CONNECTIONS) {
         const connection = await this.newConnection(dataSource);
 
         this.connections.push(connection);
@@ -48,6 +50,7 @@ class ConnectionPooler {
       return await this.useConnection(connection);
     }
 
+    // Spin up a new connection
     const connection = await this.newConnection(dataSource);
     this.connections.push(connection);
 
