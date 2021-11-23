@@ -15,7 +15,7 @@ import { isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
-import { useDataSourceContext, useResponsive } from "@/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -87,8 +87,6 @@ function New() {
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  const { isLg } = useResponsive();
-
   const steps = [
     { id: "Step 1", name: "Name your view", button: "Select linked data" },
     {
@@ -138,7 +136,7 @@ function New() {
                 as="a"
                 colorScheme={currentStep < 2 ? "blue" : "green"}
                 size="sm"
-                width={isLg ? "300px" : ""}
+                width={{ lg: "300px" }}
                 onClick={(e) => {
                   return currentStep < 2
                     ? setCurrentStep(currentStep + 1)
