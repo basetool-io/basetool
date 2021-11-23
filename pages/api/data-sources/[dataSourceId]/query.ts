@@ -1,7 +1,7 @@
 import { getDataSourceFromRequest } from "@/features/api";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import catalog from "@/plugins/data-sources/catalog";
+import pooler from "@/plugins/data-sources/ConnectionPooler"
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (
@@ -27,7 +27,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   if (!dataSource)
     return res.send(ApiResponse.withError("Invalid data source."));
 
-  const service = await catalog.getConnection(dataSource);
+  const service = await pooler.getConnection(dataSource);
 
   try {
     return res.send(await service.runQueries(req?.body?.queries));
