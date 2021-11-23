@@ -13,6 +13,7 @@ import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import ErrorMessage from "@/components/ErrorMessage";
 import Head from "next/head";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -40,6 +41,10 @@ const ShowRecord = () => {
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
+
+  useEffect(() => {
+    console.log({error})
+  }, [error])
 
   const { data: columnsResponse } = useGetColumnsQuery(
     {
@@ -101,7 +106,7 @@ const ShowRecord = () => {
           <title>View record {data?.data?.id} | 👋 Hi!</title>
         </Head>
         {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-        {error && <div>Error: {JSON.stringify(error)}</div>}
+        {error && <ErrorMessage message={"status" in error && error?.status === 404 ? "404, Record not found" : undefined} error={"status" in error && error?.status === 404 ? "" : JSON.stringify(error)} />}
         {!isLoading && data?.ok && columnsResponse?.ok && (
           <>
             <PageWrapper
