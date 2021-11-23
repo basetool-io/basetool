@@ -3,7 +3,7 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { sortBy } from "lodash"
+import { sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -24,13 +24,17 @@ import isEmpty from "lodash/isEmpty";
 
 const ShowRecord = () => {
   const router = useRouter();
-  const { dataSourceId, tableName, recordId, tableIndexPath, recordsPath, viewId } =
-    useDataSourceContext();
+  const {
+    dataSourceId,
+    tableName,
+    recordId,
+    tableIndexPath,
+    recordsPath,
+    viewId,
+  } = useDataSourceContext();
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
+    { skip: !dataSourceId }
   );
   const { data, error, isLoading } = useGetRecordQuery(
     {
@@ -41,10 +45,6 @@ const ShowRecord = () => {
     },
     { skip: !dataSourceId || !tableName || !recordId }
   );
-
-  useEffect(() => {
-    console.log({error})
-  }, [error])
 
   const { data: columnsResponse } = useGetColumnsQuery(
     {
@@ -106,7 +106,20 @@ const ShowRecord = () => {
           <title>View record {data?.data?.id} | 👋 Hi!</title>
         </Head>
         {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-        {error && <ErrorMessage message={"status" in error && error?.status === 404 ? "404, Record not found" : undefined} error={"status" in error && error?.status === 404 ? "" : JSON.stringify(error)} />}
+        {error && (
+          <ErrorMessage
+            message={
+              "status" in error && error?.status === 404
+                ? "404, Record not found"
+                : undefined
+            }
+            error={
+              "status" in error && error?.status === 404
+                ? ""
+                : JSON.stringify(error)
+            }
+          />
+        )}
         {!isLoading && data?.ok && columnsResponse?.ok && (
           <>
             <PageWrapper
