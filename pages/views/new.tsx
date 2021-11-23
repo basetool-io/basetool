@@ -8,11 +8,7 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  PlusIcon,
-} from "@heroicons/react/outline";
+import { ChevronLeftIcon } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { isUndefined } from "lodash";
@@ -92,9 +88,13 @@ function New() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
-    { id: "Step 1", name: "Add name" },
-    { id: "Step 2", name: "Select data" },
-    { id: "Step 3", name: "Sharing" },
+    { id: "Step 1", name: "Name your view", button: "Select linked data" },
+    {
+      id: "Step 2",
+      name: "Link data source",
+      button: "Select sharing options",
+    },
+    { id: "Step 3", name: "Sharing & permissions", button: "Create view 👌" },
   ];
 
   // Switch to the page with errors.
@@ -127,40 +127,26 @@ function New() {
                   leftIcon={<ChevronLeftIcon className="h-4" />}
                   onClick={(e) => setCurrentStep(currentStep - 1)}
                 >
-                  Prev
+                  Previous step
                 </Button>
               )
             }
             center={
-              currentStep === 2 && (
-                <Button
-                  as="a"
-                  colorScheme="green"
-                  size="sm"
-                  width="300px"
-                  rightIcon={<PlusIcon className="h-4" />}
-                  onClick={(e) => {
-                    return handleSubmit(onSubmit)(e);
-                  }}
-                  disabled={formIsLoading}
-                  isLoading={formIsLoading}
-                >
-                  Finish
-                </Button>
-              )
-            }
-            right={
-              currentStep < 2 && (
-                <Button
-                  as="a"
-                  colorScheme="blue"
-                  size="sm"
-                  rightIcon={<ChevronRightIcon className="h-4" />}
-                  onClick={(e) => setCurrentStep(currentStep + 1)}
-                >
-                  Next
-                </Button>
-              )
+              <Button
+                as="a"
+                colorScheme={currentStep < 2 ? "blue" : "green"}
+                size="sm"
+                width={{ lg: "300px" }}
+                onClick={(e) => {
+                  return currentStep < 2
+                    ? setCurrentStep(currentStep + 1)
+                    : handleSubmit(onSubmit)(e);
+                }}
+                disabled={formIsLoading}
+                isLoading={formIsLoading}
+              >
+                {steps[currentStep].button}
+              </Button>
             }
           />
         }
@@ -216,7 +202,7 @@ function New() {
             </ol>
           </nav>
           <div className="py-2 flex flex-col justify-center align-middle w-full h-full px-40">
-            <form onSubmit={handleSubmit(onSubmit)} className="my-0 space-y-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="my-0 space-y-4">
               {currentStep === 0 && (
                 <FormControl
                   id="name"
@@ -292,7 +278,9 @@ function New() {
                           )}
                       </Select>
                     )}
-                    <FormHelperText>Name of the cloned table.</FormHelperText>
+                    <FormHelperText>
+                      The table you're linking to.
+                    </FormHelperText>
                     <FormErrorMessage>
                       {errors?.tableName?.message}
                     </FormErrorMessage>
