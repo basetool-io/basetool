@@ -3,6 +3,7 @@ import { IQueryServiceWrapper } from "./types";
 import { SQLError } from "@/lib/errors";
 import { baseUrl } from "@/features/api/urls";
 import GoogleSheetsQueryService from "@/plugins/data-sources/google-sheets/QueryService";
+import MSSQLQueryService from "@/plugins/data-sources/mssql/QueryService";
 import MySQLQueryService from "@/plugins/data-sources/mysql/QueryService";
 import PostgreSQLQueryService from "@/plugins/data-sources/postgresql/QueryService";
 import QueryServiceWrapper from "./QueryServiceWrapper";
@@ -95,6 +96,8 @@ export const getQueryServiceClass = async (type: string) => {
     case "maria_db":
     case "mysql":
       return MySQLQueryService;
+    case "mssql":
+      return MSSQLQueryService;
     default:
     case "postgresql":
       return PostgreSQLQueryService;
