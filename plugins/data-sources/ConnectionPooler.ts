@@ -1,8 +1,13 @@
 import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
-import { POOLER_CONNECTION_TIMEOUT, POOLER_MAX_DB_CONNECTIONS } from "@/lib/constants";
+import {
+  POOLER_CONNECTION_TIMEOUT,
+  POOLER_MAX_DB_CONNECTIONS,
+} from "@/lib/constants";
 import { getQueryServiceWrapper } from "./serverHelpers";
+import { groupBy } from "lodash"
 import { randomString } from "@/lib/helpers";
+import io from "@pm2/io";
 import logger from "@/lib/logger";
 
 type Connection = {
@@ -103,8 +108,14 @@ class ConnectionPooler {
     connection: Connection
   ): Promise<IQueryServiceWrapper> {
     this.cleanup(connection);
+    this.updatePM2Metric();
 
     return connection.service;
+  }
+
+  private updatePM2Metric() {
+    io.metric({ name: "DB connections" }).set(this.connections.length);
+    io.metric({ name: "Unique DB connections" }).set(groupBy(this.connections, 'dataSourceId').length);
   }
 }
 
