@@ -106,19 +106,11 @@ const ShowRecord = () => {
           <title>View record {data?.data?.id} | 👋 Hi!</title>
         </Head>
         {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
-        {error && (
-          <ErrorMessage
-            message={
-              "status" in error && error?.status === 404
-                ? "404, Record not found"
-                : undefined
-            }
-            error={
-              "status" in error && error?.status === 404
-                ? ""
-                : JSON.stringify(error)
-            }
-          />
+        {error && "status" in error && error?.status === 404 && (
+          <ErrorMessage message="404, Record not found" />
+        )}
+        {error && !("status" in error && error?.status === 404) && (
+          <ErrorMessage error={JSON.stringify(error)} />
         )}
         {!isLoading && data?.ok && columnsResponse?.ok && (
           <>
