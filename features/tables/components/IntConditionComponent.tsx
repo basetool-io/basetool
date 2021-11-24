@@ -12,6 +12,8 @@ const options = {
   lte: "<=",
   is_null: "is_null",
   is_not_null: "is_not_null",
+  is_in: "is_in",
+  is_not_in: "is_not_in",
 };
 
 function IntConditionComponent({
