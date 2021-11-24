@@ -1,51 +1,31 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Field } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
-import { getForeignName } from "./helpers";
-import { useDataSourceContext } from "@/hooks";
-import { useGetRecordQuery } from "@/features/records/api-slice";
 import Link from "next/link";
-import React, { memo } from "react";
-import Shimmer from "@/components/Shimmer";
+import React, { memo, useMemo } from "react";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 
 const Show = ({ field }: { field: Field }) => {
-  const { dataSourceId, viewId } = useDataSourceContext();
+  const { value, dataSourceId, foreignTable, foreignId } = useMemo(() => {
+    const valueObject = JSON.parse(field.value as string);
 
-  const foreignTableName = field.column.foreignKeyInfo.foreignTableName as string;
-  const foreignRecordId = field.value || null;
-  const {
-    data: recordResponse,
-    isLoading,
-  } = useGetRecordQuery(
-    {
-      dataSourceId,
-      tableName: foreignTableName,
-      recordId: foreignRecordId as string,
-      viewId,
-    },
-    { skip: !dataSourceId || !foreignTableName || !foreignRecordId }
-  );
+    return valueObject;
+  }, [field.value]);
 
   return (
     <ShowFieldWrapper field={field}>
-      {isLoading && <Shimmer height={32} />}
-      {isLoading || (
-        <>
-          {getForeignName(recordResponse?.data, field) || field.value}
-          <Link
-            href={`/data-sources/${dataSourceId}/tables/${foreignTableName}/${field.value}`}
-          >
-            <a title="Go to record">
-              <Tooltip label="Go to record">
-                <span className="inline-flex">
-                  <ArrowRightIcon className="inline-block underline text-blue-600 cursor-pointer ml-1 h-4 pt-1" />
-                </span>
-              </Tooltip>
-            </a>
-          </Link>
-        </>
-      )}
+      {value}
+      <Link
+        href={`/data-sources/${dataSourceId}/tables/${foreignTable}/${foreignId}`}
+      >
+        <a title="Go to record">
+          <Tooltip label="Go to record">
+            <span className="inline-flex">
+              <ArrowRightIcon className="inline-block underline text-blue-600 cursor-pointer ml-1 h-4 pt-1" />
+            </span>
+          </Tooltip>
+        </a>
+      </Link>
     </ShowFieldWrapper>
   );
 };

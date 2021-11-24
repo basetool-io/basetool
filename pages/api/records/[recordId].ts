@@ -7,7 +7,7 @@ import {
   getUserFromRequest,
   getViewFromRequest,
 } from "@/features/api";
-import { hydrateColumns, hydrateRecord } from "@/features/records";
+import { hydrateColumns, hydrateRecords } from "@/features/records";
 import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -101,9 +101,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   if (!record) return res.status(404).send("");
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecord = hydrateRecord(record, hydratedColumns, "show");
+  const newRecord = await hydrateRecords([record], hydratedColumns, "show", dataSource);
 
-  res.json(ApiResponse.withData(newRecord));
+  res.json(ApiResponse.withData(newRecord[0]));
 }
 
 export default withMiddlewares(handler, {
