@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/outline";
 import {
   Button,
   Checkbox,
@@ -8,10 +9,9 @@ import {
   Input,
   Select,
 } from "@chakra-ui/react";
-import { ChevronLeftIcon } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
-import { isUndefined } from "lodash";
+import { isNumber, isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
@@ -71,9 +71,7 @@ function New() {
   const { data: tablesResponse, isLoading: tablesAreLoading } =
     useGetTablesQuery(
       { dataSourceId: watchDataSourceId.toString() },
-      {
-        skip: !watchDataSourceId.toString(),
-      }
+      { skip: !isNumber(watchDataSourceId) }
     );
 
   const [addView, { isLoading: formIsLoading }] = useAddViewMutation();
@@ -88,13 +86,21 @@ function New() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
-    { id: "Step 1", name: "Name your view", button: "Select linked data" },
+    {
+      id: "Step 1",
+      name: "Name your view",
+      button: "Select linked data",
+    },
     {
       id: "Step 2",
       name: "Link data source",
       button: "Select sharing options",
     },
-    { id: "Step 3", name: "Sharing & permissions", button: "Create view 👌" },
+    {
+      id: "Step 3",
+      name: "Sharing & permissions",
+      button: "Create view 👌",
+    },
   ];
 
   // Switch to the page with errors.
@@ -124,7 +130,7 @@ function New() {
                   as="a"
                   colorScheme="gray"
                   size="sm"
-                  leftIcon={<ChevronLeftIcon className="h-4" />}
+                  leftIcon={<ArrowLeftIcon className="h-4" />}
                   onClick={(e) => setCurrentStep(currentStep - 1)}
                 >
                   Previous step
@@ -144,6 +150,7 @@ function New() {
                 }}
                 disabled={formIsLoading}
                 isLoading={formIsLoading}
+                rightIcon={<ArrowRightIcon className="h-4" />}
               >
                 {steps[currentStep].button}
               </Button>
@@ -256,10 +263,11 @@ function New() {
                     id="tableName"
                     isInvalid={!isUndefined(errors?.tableName?.message)}
                   >
-                    <FormLabel>Select table name</FormLabel>
+                    <FormLabel>Select table</FormLabel>
                     {tablesAreLoading && <Shimmer width={450} height={40} />}
                     {tablesAreLoading || (
                       <Select
+                        placeholder="Select a table"
                         {...register("tableName")}
                         onKeyUp={(e) => {
                           if (e.key === "Enter") {
