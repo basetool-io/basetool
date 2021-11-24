@@ -84,6 +84,8 @@ export enum IntFilterConditions {
   lte = "lte",
   is_null = "is_null",
   is_not_null = "is_not_null",
+  is_in = "is_in",
+  is_not_in = "is_not_in",
 }
 
 export enum SelectFilterConditions {
@@ -119,6 +121,8 @@ export enum StringFilterConditions {
   is_not_empty = "is_not_empty",
   is_null = "is_null",
   is_not_null = "is_not_null",
+  is_in = "is_in",
+  is_not_in = "is_not_in",
 }
 
 export enum FilterVerbs {
