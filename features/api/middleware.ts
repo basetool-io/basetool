@@ -81,7 +81,11 @@ export const withMiddlewares =
       if (!res.headersSent) {
         const status = error.code && isNumber(error.code) ? error.code : 500;
 
-        if (error instanceof SQLError) {
+        // For some reason, sometimes the sql error is not coming as instance of SQLError.
+        if (
+          error instanceof SQLError ||
+          error.constructor.name === "SQLError"
+        ) {
           res.status(status).send(
             ApiResponse.withError(error.message, {
               meta: { error },
