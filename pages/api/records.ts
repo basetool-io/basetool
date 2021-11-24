@@ -57,43 +57,50 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     filters = decodeObject(req.query.filters as string);
   }
 
-  const [records, columns, count]: [any[], Column[], number] = await runQueries(
-    dataSource,
-    [
-      {
-        name: "getRecords",
-        payload: {
-          tableName,
-          filters,
-          limit,
-          offset,
-          orderBy,
-          orderDirection,
-        },
+  const startingAfter = req.query.startingAfter as string;
+  const endingBefore = req.query.endingBefore as string;
+
+  const [{ records, columns, meta }, count]: [
+    unknown[],
+    Column[],
+    number
+  ] = await runQueries(dataSource, [
+    {
+      name: "getRecords",
+      payload: {
+        tableName,
+        filters,
+        limit,
+        offset,
+        orderBy,
+        orderDirection,
+        startingAfter,
+        endingBefore,
       },
-      {
-        name: "getColumns",
-        payload: {
-          tableName,
-          storedColumns,
-        },
+    },
+    {
+      name: "getColumns",
+      payload: {
+        tableName,
+        storedColumns,
       },
-      {
-        name: "getRecordsCount",
-        payload: {
-          tableName,
-          filters,
-        },
+    },
+    {
+      name: "getRecordsCount",
+      payload: {
+        tableName,
+        filters,
       },
-    ]
-  );
+    },
+  ]);
+  console.log("records->", records);
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecords = records.map((record) =>
     hydrateRecord(record, hydratedColumns, "index")
   );
 
-  res.json(ApiResponse.withData(newRecords, { meta: { count } }));
+  res.json(ApiResponse.withData(newRecords, { meta: merge({ count, columns }, meta) }));
 }
 
 export default withMiddlewares(handler, {
