@@ -115,7 +115,7 @@ class ConnectionPooler {
 
   private updatePM2Metric() {
     io.metric({ name: "DB connections" }).set(this.connections.length);
-    io.metric({ name: "Unique DB connections" }).set(groupBy(this.connections, 'dataSourceId').length);
+    io.metric({ name: "Unique DB connections" }).set(Object.keys(groupBy(this.connections, 'dataSourceId')).length);
   }
 }
 
