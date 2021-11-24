@@ -11,13 +11,12 @@ import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
-import { inProduction } from "@/lib/environment";
 import { intercomAppId } from "@/lib/services";
 import { isString } from "lodash";
 import { segment } from "@/lib/track";
 import { useRouter } from "next/router";
+import AnalyticsScripts from "@/components/AnalyticsScripts";
 import NProgress from "nprogress";
-import ProductionScripts from "@/components/ProductionScripts";
 import React, { useEffect } from "react";
 import ShowErrorMessages from "@/components/ShowErrorMessages";
 import getChakraTheme from "@/lib/chakra";
@@ -95,7 +94,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       }}
       session={pageProps.session}
     >
-      {inProduction && <ProductionScripts />}
+      <AnalyticsScripts />
       <DndProvider backend={HTML5Backend}>
         <ReduxProvider store={store}>
           <ChakraProvider resetCSS={false} theme={theme}>
