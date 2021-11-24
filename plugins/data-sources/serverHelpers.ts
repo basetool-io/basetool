@@ -2,10 +2,6 @@ import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
 import { SQLError } from "@/lib/errors";
 import { baseUrl } from "@/features/api/urls";
-import GoogleSheetsQueryService from "@/plugins/data-sources/google-sheets/QueryService";
-import MSSQLQueryService from "@/plugins/data-sources/mssql/QueryService";
-import MySQLQueryService from "@/plugins/data-sources/mysql/QueryService";
-import PostgreSQLQueryService from "@/plugins/data-sources/postgresql/QueryService";
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
 import getDataSourceInfo from "./getDataSourceInfo";
@@ -90,18 +86,11 @@ export const runQueries = async (
 };
 
 export const getQueryServiceClass = async (type: string) => {
-  switch (type) {
-    case "google-sheets":
-      return GoogleSheetsQueryService;
-    case "maria_db":
-    case "mysql":
-      return MySQLQueryService;
-    case "mssql":
-      return MSSQLQueryService;
-    default:
-    case "postgresql":
-      return PostgreSQLQueryService;
-  }
+  const dataSourceType = type === "maria_db" ? "mysql" : type;
+
+  return (
+    await import(`@/plugins/data-sources/${dataSourceType}/QueryService.ts`)
+  ).default;
 };
 
 export const getQueryServiceWrapper = async (

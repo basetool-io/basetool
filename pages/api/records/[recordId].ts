@@ -55,6 +55,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   let tableName: string;
   let dataSource;
   let storedColumns: Column[] = [];
+  let filters;
 
   if (req.query.viewId) {
     const view = (await getViewFromRequest(req, {
@@ -70,6 +71,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     dataSource = view?.dataSource;
     tableName = view?.tableName as string;
     storedColumns = view.columns as Column[];
+    filters = view?.filters;
   } else {
     dataSource = await getDataSourceFromRequest(req);
 
@@ -84,6 +86,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       payload: {
         tableName,
         recordId,
+        filters,
       },
     },
     {
@@ -94,6 +97,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   ]);
+
+  if (!record) return res.status(404).send("");
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecord = hydrateRecord(record, hydratedColumns, "show");

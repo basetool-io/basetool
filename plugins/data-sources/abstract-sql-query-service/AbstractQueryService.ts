@@ -468,19 +468,24 @@ abstract class AbstractQueryService implements ISQLQueryService {
   public async getRecord({
     tableName,
     recordId,
+    filters,
   }: {
     tableName: string;
     recordId: string;
+    filters?: Array<IFilter | IFilterGroup>;
   }): Promise<Record<string, unknown> | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
       throw new Error(`Can't find a primary key for table ${tableName}.`);
 
-    const rows = await this.client
-      .select()
-      .where(pk, recordId)
-      .table(tableName);
+    const query = this.client.table(tableName);
+
+    if (filters) {
+      addFiltersToQuery(query, filters);
+    }
+
+    const rows = await query.select().where(pk, recordId);
 
     return rows[0];
   }

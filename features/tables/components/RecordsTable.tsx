@@ -26,6 +26,7 @@ import {
 } from "@/features/records/hooks";
 import Cell from "./Cell";
 import CheckboxColumnCell from "./CheckboxColumnCell";
+import ErrorMessage from "@/components/ErrorMessage";
 import ItemControlsCell from "./ItemControlsCell";
 import MobileRow from "./MobileRow";
 import React, { memo, useEffect, useMemo } from "react";
@@ -50,17 +51,6 @@ const controlsColumn = {
   width: 104,
   minWidth: 104,
   maxWidth: 104,
-};
-
-const ErrorMessage = ({ error }: { error: string }) => {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center">
-      <div className="max-w-md text-center">
-        <div className="text-xl font-bold">Oh no, There's been an error...</div>
-        <div className="mt-4">{error}</div>
-      </div>
-    </div>
-  );
 };
 
 const RecordsTable = ({
