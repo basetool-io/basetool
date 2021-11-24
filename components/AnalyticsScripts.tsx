@@ -39,6 +39,16 @@ const useUserAnalytics = () => {
 
 const FullStoryScripts = () => {
   const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1";
+  const [session] = useSession();
+
+  useEffect(() => {
+    if (window && window.FS && session && session.user) {
+      window.FS.identify(session?.user?.id, {
+        displayName: session?.user?.name,
+        email: session?.user?.email,
+      });
+    }
+  }, [session]);
 
   if (!fullstoryEnabled) return null;
 
@@ -94,17 +104,6 @@ const GoogleAnalyticsScripts = () => {
 };
 
 const ProductionScripts = () => {
-  const [session] = useSession();
-
-  useEffect(() => {
-    if (window && window.FS && session && session.user) {
-      window.FS.identify(session?.user?.id, {
-        displayName: session?.user?.name,
-        email: session?.user?.email,
-      });
-    }
-  }, [session]);
-
   const UA = useUserAnalytics();
   const isCheckly = useMemo(
     () => UA && isString(UA) && navigator.userAgent.includes("Checkly"),
