@@ -49,26 +49,26 @@ export interface IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-  }): Promise<[]>;
+  }): Promise<RecordsResponse>;
   getRecordsCount(payload: {
     tableName: string;
     filters: IFilter[];
-  }): Promise<number>;
+  }): Promise<number | undefined>;
   getRecord(payload: {
     tableName: string;
     recordId: string;
   }): Promise<Record<string, unknown> | undefined>;
-  updateRecord({
+  updateRecord?({
     tableName: string,
     recordId: string,
     data: unknown,
   }): Promise<unknown>;
-  createRecord({
+  createRecord?({
     tableName: string,
     data: unknown,
   }): Promise<string | undefined>;
-  deleteRecord({ tableName: string, recordId: string }): Promise<unknown>;
-  deleteRecords(payload: {
+  deleteRecord?({ tableName: string, recordId: string }): Promise<unknown>;
+  deleteRecords?(payload: {
     tableName: string;
     recordIds: number[];
   }): Promise<unknown>;
@@ -100,3 +100,16 @@ export type SSHTunnelCredentials = {
   dbCredentials: DataSourceCredentials;
   SSHCredentials: SSHCredentials;
 }
+
+type RecordsResponse = {
+  records: any[];
+  columns?: Column[];
+  meta?: {
+    hasMore?: boolean;
+  };
+};
+
+type RecordResponse<T = unknown> = {
+  record: Record<string, T>;
+  columns?: Column[];
+};

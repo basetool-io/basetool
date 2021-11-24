@@ -38,8 +38,8 @@ export const availableDataSources = [
     id: "stripe",
     label: "Stripe",
     enabled: true,
-    comingSoon: true,
-    beta: false,
+    comingSoon: false,
+    beta: true,
   },
   {
     id: "amazon_redshift",

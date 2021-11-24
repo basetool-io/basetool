@@ -5,7 +5,7 @@ import { doInitialScan } from "@/plugins/data-sources/abstract-sql-query-service
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
 import { getUserFromRequest } from "@/features/api";
-import { pick, sum } from "lodash";
+import { isEmpty, pick, sum } from "lodash";
 import { s3KeysBucket } from "@/features/data-sources";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -122,17 +122,34 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   // Parse and assign the credentials
   const type = fields.type;
-  const credentials = JSON.parse(fields.credentials);
-  const options = JSON.parse(fields.options);
+  let credentials;
+  try {
+    credentials = JSON.parse(fields.credentials);
+  } catch {}
+
+  let options;
+  try {
+    options = JSON.parse(fields.options);
+  } catch {}
+
   const ssh = fields.ssh ? JSON.parse(fields.ssh) : {};
   delete ssh.key; // remove the file reference
-  const body = {
+  const body: {
+    name: string;
+    organizationId: string;
+    type: string;
+    credentials: unknown;
+    ssh?: unknown;
+  } = {
     name: fields.name,
     organizationId: fields.organizationId,
     type,
     credentials,
-    ssh,
   };
+
+  if (!isEmpty(ssh)) {
+    body.ssh = ssh;
+  }
 
   const schema = getSchema(type);
   if (schema) {
@@ -144,9 +161,15 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // encrypt the credentials
-  const encryptedCredentials = encrypt(JSON.stringify(body.credentials));
+  let encryptedCredentials = "";
+  if (!isEmpty(body.credentials)) {
+    encryptedCredentials = encrypt(JSON.stringify(body.credentials));
+  }
   // encrypt the ssh credentials
-  const encryptedSSHCredentials = encrypt(JSON.stringify(body.ssh));
+  let encryptedSSHCredentials = "";
+  if (!isEmpty(body.ssh)) {
+    encryptedSSHCredentials = encrypt(JSON.stringify(body.ssh));
+  }
 
   const dataSource = await prisma.dataSource.create({
     data: {
