@@ -1,8 +1,8 @@
-import { Field } from "@/features/fields/types";
+import { Column } from "@/features/fields/types";
 
-export const getForeignName = (record: any, field: Field) => {
+export const getForeignName = (record: any, column: Column) => {
   // See if we have some `name` column set in the DB
-  const nameColumn: any = field?.column?.fieldOptions?.nameColumn;
+  const nameColumn: any = column?.fieldOptions?.nameColumn;
 
   let prettyName = "";
 

@@ -1,8 +1,12 @@
 import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
 import { decodeObject } from "@/lib/encoding";
+import {
+  filterOutRecordColumns,
+  hydrateColumns,
+  hydrateRecords,
+} from "@/features/records";
 import { getDataSourceFromRequest, getViewFromRequest } from "@/features/api";
-import { hydrateColumns, hydrateRecord } from "@/features/records";
 import { merge } from "lodash";
 import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -97,8 +101,14 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const columns = columnsFromRecords || columnsFromDataSource;
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecords = records.map((record: Record<string, unknown>) =>
-    hydrateRecord(record, hydratedColumns, "index")
+  const hydratedRecords = await hydrateRecords(
+    records,
+    hydratedColumns,
+    dataSource
+  );
+  const newRecords = filterOutRecordColumns(
+    hydratedRecords,
+    hydratedColumns
   );
 
   res.json(

@@ -3,11 +3,15 @@ import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import {
+  filterOutRecordColumns,
+  hydrateColumns,
+  hydrateRecords,
+} from "@/features/records";
+import {
   getDataSourceFromRequest,
   getUserFromRequest,
   getViewFromRequest,
 } from "@/features/api";
-import { hydrateColumns, hydrateRecord } from "@/features/records";
 import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -102,9 +106,17 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const columns = columnsFromRecord || columnsFromDataSource;
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecord = hydrateRecord(record, hydratedColumns, "show");
+  const hydratedRecord = await hydrateRecords(
+    [record],
+    hydratedColumns,
+    dataSource
+  );
+  const newRecord = filterOutRecordColumns(
+    hydratedRecord,
+    hydratedColumns
+  );
 
-  res.json(ApiResponse.withData(newRecord, { meta: { columns } }));
+  res.json(ApiResponse.withData(newRecord[0], { meta: { columns } }));
 }
 
 export default withMiddlewares(handler, {

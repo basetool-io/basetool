@@ -36,7 +36,7 @@ import {
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
 } from "@/features/records/state-slice";
-import { getFilteredColumns } from "../fields";
+import { getVisibleColumns } from "../fields";
 import { isEqual, isNull, isString, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
@@ -260,7 +260,7 @@ export const useColumns = ({
     if (options?.forEdit) {
       setColumns(rawColumns);
     } else {
-      setColumns(getFilteredColumns(rawColumns, "index"));
+      setColumns(getVisibleColumns(rawColumns, "index"));
     }
   }, [rawColumns]);
 

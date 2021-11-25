@@ -60,7 +60,14 @@ export type Column<
   foreignKeyInfo?: ForeignKeyInfo;
 };
 
-export type FieldValue = string | number | undefined | boolean;
+export type RecordAssociationValue = {
+  value: string;
+  foreignId: number;
+  foreignTable: string;
+  dataSourceId: number;
+}
+
+export type FieldValue = string | number | undefined | boolean | RecordAssociationValue;
 
 export type Field = {
   value: FieldValue;

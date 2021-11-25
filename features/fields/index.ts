@@ -10,12 +10,11 @@ import {
   TrendingUpIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
-import { compact, first } from "lodash";
+import { compact, first, isPlainObject } from "lodash";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isArray from "lodash/isArray";
-import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
 
@@ -77,6 +76,26 @@ export const getColumnOptions = (
   return options;
 };
 
+export const stringifyData = (rawData: any[]): any[] =>
+  rawData.map((item: { [key: string]: any }) => {
+    const newItem: { [key: string]: string } = {};
+
+    Object.keys(item).forEach((itemKey: string) => {
+      const itemValue: string = item[itemKey];
+      let finalValue: string;
+
+      if (isPlainObject(itemValue)) {
+        finalValue = JSON.stringify(itemValue);
+      } else {
+        finalValue = itemValue;
+      }
+
+      newItem[itemKey] = finalValue;
+    });
+
+    return newItem;
+  });
+
 export const fieldId = (field: Field) =>
   `${field.tableName}-${field.column.name}`;
 
@@ -89,11 +108,7 @@ export const makeField = ({
   column: Column;
   tableName: string;
 }): Field => {
-  let value = record[column.name] as FieldValue;
-
-  if (isPlainObject(value)) {
-    value = JSON.stringify(value);
-  }
+  const value = record[column.name] as FieldValue;
 
   return {
     value,
@@ -132,26 +147,6 @@ export const iconForField = (field: Column): ElementType => {
   }
 };
 
-export const prettifyData = (rawData: any[]): any[] =>
-  rawData.map((item: { [key: string]: any }) => {
-    const newItem: { [key: string]: string } = {};
-
-    Object.keys(item).forEach((itemKey: string) => {
-      const itemValue: string = item[itemKey];
-      let finalValue: string;
-
-      if (isPlainObject(itemValue)) {
-        finalValue = JSON.stringify(itemValue);
-      } else {
-        finalValue = itemValue;
-      }
-
-      newItem[itemKey] = finalValue;
-    });
-
-    return newItem;
-  });
-
 export const getBaseOptions = () => ({
   visibleOnIndex: true,
   visibleOnShow: true,
@@ -175,15 +170,28 @@ export const getColumnNameLabel = (...args: any[]) => {
   return first(compact(args));
 };
 
-/* Returns the filtered column based on their visibility settings. */
-export const getFilteredColumns = (
+/* Returns the filtered columns based on their disconnected setting. */
+export const getConnectedColumns = (
+  columns: Column[],
+): Column[] => {
+  if (isArray(columns)) {
+    return (
+      columns
+        .filter((column: Column) => !column?.baseOptions.disconnected)
+    );
+  } else {
+    return [];
+  }
+};
+
+/* Returns the filtered columns based on their visibility settings. */
+export const getVisibleColumns = (
   columns: Column[],
   view?: string
 ): Column[] => {
   if (isArray(columns)) {
     return (
       columns
-        // Remove fields that should be hidden on index
         .filter((column: Column) => {
           switch (view) {
             case "index":
@@ -198,8 +206,6 @@ export const getFilteredColumns = (
               return true;
           }
         })
-        // Remove disconnected fields
-        .filter((column: Column) => !column?.baseOptions.disconnected)
     );
   } else {
     return [];

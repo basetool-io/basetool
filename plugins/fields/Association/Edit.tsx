@@ -81,7 +81,7 @@ const Edit = ({
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
                 <option key={record.id} value={record.id}>
-                  {getForeignName(record, field)}
+                  {getForeignName(record, field.column)}
                 </option>
               ))}
           </Select>

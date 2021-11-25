@@ -74,10 +74,27 @@ const Form = ({
     setTheSchema();
   }, [record, columns]);
 
+  const defaultValues = useMemo(() => {
+    // We need to extract the association foreignId for the form.
+    const associationColumnNames = columns
+      .filter(({ fieldType }) => fieldType === "Association")
+      .map(({ name }) => name);
+
+    return Object.fromEntries(
+      Object.entries(record).map(([columnName, value]) => {
+        if (associationColumnNames.includes(columnName)) {
+          return [columnName, value.foreignId];
+        }
+
+        return [columnName, value];
+      })
+    );
+  }, [record]);
+
   const { register, handleSubmit, formState, setValue, getValues, watch } =
     useForm({
       mode: "onTouched",
-      defaultValues: record,
+      defaultValues,
       resolver: joiResolver(schema),
     });
 

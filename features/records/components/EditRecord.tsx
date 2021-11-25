@@ -1,5 +1,5 @@
 import { Column } from "@/features/fields/types";
-import { getFilteredColumns } from "@/features/fields";
+import { getVisibleColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
@@ -41,7 +41,7 @@ const EditRecord = () => {
 
   const columns = useMemo(
     () =>
-      sortBy(getFilteredColumns(columnsResponse?.data, "edit"), [
+      sortBy(getVisibleColumns(columnsResponse?.data, "edit"), [
         (column: Column) => column?.baseOptions?.orderIndex,
       ]),
     [columnsResponse?.data]

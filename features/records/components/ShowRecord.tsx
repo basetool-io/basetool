@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
-import { getFilteredColumns, makeField } from "@/features/fields";
+import { getVisibleColumns, makeField } from "@/features/fields";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -77,7 +77,7 @@ const ShowRecord = () => {
   }, [dataSourceResponse, recordResponse, columnsResponse]);
 
   const columns = useMemo(
-    () => getFilteredColumns(rawColumns, "show"),
+    () => getVisibleColumns(rawColumns, "show"),
     [rawColumns]
   );
 
@@ -213,3 +213,4 @@ const ShowRecord = () => {
 };
 
 export default memo(ShowRecord);
+
