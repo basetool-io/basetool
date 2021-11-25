@@ -9,6 +9,7 @@ const info: DataSourceInfo = {
   supports: {
     filters: false,
     columnsRequest: false,
+    views: false,
   },
   runsInProxy: false,
 };

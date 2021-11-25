@@ -10,6 +10,7 @@ export type DataSourceInfo = {
   supports?: {
     filters: boolean;
     columnsRequest: boolean;
+    views: boolean;
   };
   runsInProxy: boolean;
 };

@@ -1,19 +1,12 @@
-import { PaginationType } from "../types";
+import { DataSourceInfo } from "../types";
 
-export const defaultSettings: {
-  readOnly: boolean;
-  pagination: PaginationType;
-  supports: {
-    filters: boolean;
-    columnsRequest: boolean;
-  };
-  runsInProxy: boolean;
-} = {
+export const defaultSettings: Partial<DataSourceInfo> = {
   readOnly: false,
   pagination: "offset",
   supports: {
     filters: true,
     columnsRequest: true,
+    views: true,
   },
   runsInProxy: true,
 };
