@@ -1,6 +1,6 @@
 import { Checkbox } from "@chakra-ui/react";
 import { useDataSourceContext } from "@/hooks";
-import { useViewResponse } from "../hooks"
+import { useViewResponse } from "../hooks";
 import React from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
