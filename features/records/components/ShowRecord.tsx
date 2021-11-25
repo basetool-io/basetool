@@ -1,6 +1,6 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
-import { PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getVisibleColumns, makeField } from "@/features/fields";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
