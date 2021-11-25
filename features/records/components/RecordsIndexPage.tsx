@@ -82,6 +82,38 @@ const RecordsIndexPage = ({
     }
   }, [dataSourceResponse?.meta?.dataSourceInfo?.pagination]);
 
+  const canBulkDelete = useMemo(
+    () =>
+      ac.deleteAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+
+  const canCreate = useMemo(
+    () =>
+      ac.createAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+
+  const CreateButton = () => {
+    if (!newRecordPath) return null;
+
+    return (
+      <Link href={newRecordPath} passHref>
+        <Button
+          as="a"
+          colorScheme="blue"
+          size="sm"
+          width="300px"
+          leftIcon={<PlusIcon className="h-4" />}
+        >
+          Create record
+        </Button>
+      </Link>
+    );
+  };
+
   return (
     <Layout>
       <PageWrapper
@@ -123,24 +155,8 @@ const RecordsIndexPage = ({
         footer={
           hasIdColumn && (
             <PageWrapper.Footer
-              left={ac.deleteAny("record").granted && <BulkDeleteButton />}
-              center={
-                ac.createAny("record").granted &&
-                !dataSourceResponse?.meta?.dataSourceInfo?.readOnly &&
-                newRecordPath && (
-                  <Link href={newRecordPath} passHref>
-                    <Button
-                      as="a"
-                      colorScheme="blue"
-                      size="sm"
-                      width="300px"
-                      leftIcon={<PlusIcon className="h-4" />}
-                    >
-                      Create record
-                    </Button>
-                  </Link>
-                )
-              }
+              left={canBulkDelete && <BulkDeleteButton />}
+              center={canCreate && <CreateButton />}
             />
           )
         }

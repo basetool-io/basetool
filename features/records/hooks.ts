@@ -222,13 +222,11 @@ export const useColumns = ({
   dataSourceResponse,
   recordsResponse,
   columnsResponse,
-  tableName,
   options,
 }: {
   dataSourceResponse?: ApiResponse;
   recordsResponse?: ApiResponse;
   columnsResponse?: ApiResponse;
-  tableName: string;
   options?: {
     forEdit: boolean; // this refers to view edit page
   };
@@ -256,7 +254,7 @@ export const useColumns = ({
     } else {
       return [];
     }
-  }, [dataSourceResponse, columnsResponse]);
+  }, [dataSourceResponse, recordsResponse, columnsResponse]);
 
   useEffect(() => {
     if (options?.forEdit) {

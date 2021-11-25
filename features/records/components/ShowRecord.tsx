@@ -74,7 +74,7 @@ const ShowRecord = () => {
     } else {
       return [];
     }
-  }, [dataSourceResponse, columnsResponse]);
+  }, [dataSourceResponse, recordResponse, columnsResponse]);
 
   const columns = useMemo(
     () => getFilteredColumns(rawColumns, "show"),
@@ -114,8 +114,48 @@ const ShowRecord = () => {
     }
   }, [canRead, router]);
 
+  const canEdit = useMemo(
+    () =>
+      ac.updateAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+
+  const canDelete = useMemo(
+    () =>
+      ac.deleteAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+
   // Don't show them the show page if the user can't read
   if (!canRead) return null;
+
+  const DeleteButton = () => (
+    <Button
+      className="text-red-600 text-sm cursor-pointer"
+      onClick={() => !isDeleting && handleDelete()}
+      variant="link"
+      colorScheme="red"
+      leftIcon={<TrashIcon className="h-4" />}
+    >
+      Delete
+    </Button>
+  );
+
+  const EditButton = () => (
+    <Link href={`${recordsPath}/${record.id}/edit`} passHref>
+      <Button
+        as="a"
+        colorScheme="blue"
+        size="sm"
+        variant="link"
+        leftIcon={<PencilAltIcon className="h-4" />}
+      >
+        Edit
+      </Button>
+    </Link>
+  );
 
   return (
     <>
@@ -140,40 +180,13 @@ const ShowRecord = () => {
           <>
             <PageWrapper
               icon={<EyeIcon className="inline h-5 text-gray-500" />}
-              crumbs={[router.query.tableName as string, "View record"]}
+              crumbs={[tableName, "View record"]}
               flush={true}
               buttons={<BackButton href={tableIndexPath} />}
               footer={
                 <PageWrapper.Footer
-                  left={
-                    ac.deleteAny("record").granted && (
-                      <Button
-                        className="text-red-600 text-sm cursor-pointer"
-                        onClick={() => !isDeleting && handleDelete()}
-                        variant="link"
-                        colorScheme="red"
-                        leftIcon={<TrashIcon className="h-4" />}
-                      >
-                        Delete
-                      </Button>
-                    )
-                  }
-                  right={
-                    ac.updateAny("record").granted &&
-                    !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                      <Link href={`${recordsPath}/${record.id}/edit`} passHref>
-                        <Button
-                          as="a"
-                          colorScheme="blue"
-                          size="sm"
-                          variant="link"
-                          leftIcon={<PencilAltIcon className="h-4" />}
-                        >
-                          Edit
-                        </Button>
-                      </Link>
-                    )
-                  }
+                  left={canDelete && <DeleteButton />}
+                  right={canEdit && <EditButton />}
                 />
               }
             >
