@@ -136,11 +136,15 @@ const ShowRecord = () => {
         {isLoading && (
           <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />
         )}
-        {error && "status" in error && error?.status === 404 && (
-          <ErrorMessage message="404, Record not found" />
-        )}
-        {error && !("status" in error && error?.status === 404) && (
-          <ErrorMessage error={JSON.stringify(error)} />
+        {error && (
+          <>
+            {"status" in error && error?.status === 404 && (
+              <ErrorMessage message="404, Record not found" />
+            )}
+            {!("status" in error) && (
+              <ErrorMessage error={JSON.stringify(error)} />
+            )}
+          </>
         )}
         {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
           <>
