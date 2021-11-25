@@ -1,4 +1,5 @@
 import { OrderDirection } from "@/features/tables/types";
+import { OrderParams } from "@/features/views/types"
 import { debounce } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
@@ -12,16 +13,16 @@ import {
 import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import { useViewResponse } from "@/features/views/hooks";
 import React, { useCallback, useEffect, useMemo } from "react";
 import RecordsIndexPage from "@/features/records/components/RecordsIndexPage";
 
 function ViewShow() {
   const router = useRouter();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { view } = useViewResponse(viewId);
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     { skip: !dataSourceId }
@@ -35,10 +36,10 @@ function ViewShow() {
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
-      viewResponse?.data?.defaultOrder[0]?.columnName ||
+      (view?.defaultOrder as OrderParams[])[0]?.columnName ||
       "",
     (router.query.orderDirection as OrderDirection) ||
-      viewResponse?.data?.defaultOrder[0]?.direction ||
+      (view?.defaultOrder as OrderParams[])[0]?.direction ||
       ""
   );
 

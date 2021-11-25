@@ -18,11 +18,11 @@ import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
 import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
+import { useViewResponse } from "@/features/views/hooks";
 import AccessControlService, {
   Role,
 } from "@/features/roles/AccessControlService";
@@ -132,16 +132,13 @@ export const useDataSourceContext = () => {
   const tableName = useAppSelector(tableNameSelector);
 
   const viewId = router.query.viewId as string;
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { view } = useViewResponse(viewId);
 
   useEffect(() => {
-    if (viewResponse?.ok) {
-      if (viewResponse?.data?.dataSourceId)
-        dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
-      if (viewResponse?.data?.tableName)
-        dispatch(setTableName(viewResponse.data.tableName));
-    }
-  }, [viewResponse]);
+    if (view?.dataSourceId)
+      dispatch(setDataSourceId(view.dataSourceId.toString()));
+    if (view?.tableName) dispatch(setTableName(view.tableName));
+  }, [view]);
 
   useEffect(() => {
     if (router.query.dataSourceId) {
@@ -155,7 +152,12 @@ export const useDataSourceContext = () => {
     } else if (router.pathname === "/") {
       dispatch(setDataSourceId(""));
     }
-  }, [router.pathname, router.query.dataSourceId, router.query.tableName, router.query.viewId]);
+  }, [
+    router.pathname,
+    router.query.dataSourceId,
+    router.query.tableName,
+    router.query.viewId,
+  ]);
 
   const recordId = useMemo(
     () => router.query.recordId as string,
