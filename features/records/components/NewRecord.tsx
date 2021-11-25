@@ -1,5 +1,5 @@
 import { Column } from "@/features/fields/types";
-import { getFilteredColumns } from "@/features/fields";
+import { getVisibleColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
@@ -25,7 +25,7 @@ const NewRecord = () => {
 
   const columns = useMemo(
     () =>
-      getFilteredColumns(columnsResponse?.data, "new").filter(
+      getVisibleColumns(columnsResponse?.data, "new").filter(
         (column: Column) => !column.primaryKey
       ),
     [columnsResponse?.data]

@@ -3,11 +3,15 @@ import { Column } from "@/features/fields/types";
 import { DataSource, View } from "@prisma/client";
 import { OrganizationUser, Role, User } from "@prisma/client";
 import {
+  filterOutRecordColumns,
+  hydrateColumns,
+  hydrateRecords,
+} from "@/features/records";
+import {
   getDataSourceFromRequest,
   getUserFromRequest,
   getViewFromRequest,
 } from "@/features/api";
-import { hydrateColumns, hydrateRecords } from "@/features/records";
 import { runQueries } from "@/plugins/data-sources/serverHelpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import AccessControlService from "@/features/roles/AccessControlService";
@@ -79,9 +83,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName = req.query.tableName as string;
   }
 
-  const [record, columns]: [any[], Column[]] = await runQueries(
-    dataSource,
-    [{
+  const [record, columns]: [any[], Column[]] = await runQueries(dataSource, [
+    {
       name: "getRecord",
       payload: {
         tableName,
@@ -101,7 +104,15 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   if (!record) return res.status(404).send("");
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecord = await hydrateRecords([record], hydratedColumns, "show", dataSource);
+  const hydratedRecord = await hydrateRecords(
+    [record],
+    hydratedColumns,
+    dataSource
+  );
+  const newRecord = filterOutRecordColumns(
+    hydratedRecord,
+    hydratedColumns
+  );
 
   res.json(ApiResponse.withData(newRecord[0]));
 }

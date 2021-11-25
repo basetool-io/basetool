@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
-import { getFilteredColumns, makeField } from "@/features/fields";
+import { getVisibleColumns, makeField } from "@/features/fields";
 import { sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
@@ -57,7 +57,7 @@ const ShowRecord = () => {
 
   const columns = useMemo(
     () =>
-      sortBy(getFilteredColumns(columnsResponse?.data, "show"), [
+      sortBy(getVisibleColumns(columnsResponse?.data, "show"), [
         (column: Column) => column?.baseOptions?.orderIndex,
       ]),
     [columnsResponse?.data]

@@ -15,7 +15,7 @@ import {
   columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import { getFilteredColumns, iconForField } from "@/features/fields";
+import { getVisibleColumns, iconForField } from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
@@ -82,7 +82,7 @@ const RecordsTable = ({
   // Memoize and add the start and end columns
   const orderedColumns = useMemo(() => {
     const result = parseColumns({
-      columns: getFilteredColumns(rawColumns, "index"),
+      columns: getVisibleColumns(rawColumns, "index"),
       columnWidths,
     });
 

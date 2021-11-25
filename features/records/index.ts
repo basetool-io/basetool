@@ -1,18 +1,40 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { getFilteredColumns } from "@/features/fields";
+import { getConnectedColumns } from "@/features/fields";
 import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
 
+// This will filter out record fields that are disconnected.
+export const filterOutRecordColumns = (
+  records: any,
+  columns: Column[],
+) => {
+  return records.map((record: Record<string, unknown>) => {
+    // Get the filtered column names.
+    const filteredColumnNames = getConnectedColumns(columns).map(
+      ({ name }) => name
+    );
+
+    // Filter out the columns that were hidden
+    // Go into each record and remove the filtered out columns.
+    record = Object.fromEntries(
+      Object.entries(record).filter(([key]) =>
+        filteredColumnNames.includes(key)
+      )
+    );
+
+    return record;
+  });
+};
+
 /**
- * This method will hydrate the records with the computed fields and remove the columns that were filtered out
+ * This method will hydrate the records with the computed fields and associations.
  */
 export const hydrateRecords = async (
   records: any,
   columns: Column[],
-  view: string,
   dataSource: DataSource
 ) => {
   const hydratedRecords = records.map((record: any) => {
@@ -27,26 +49,15 @@ export const hydrateRecords = async (
       addComputedField(record, editorData, computedColumn.name);
     });
 
-    // Get the filtered column names.
-    const filteredColumnNames = getFilteredColumns(columns, view).map(
-      ({ name }) => name
-    );
-
-    // Filter out the columns that were hidden
-    // Go into each record and remove the filtered out columns.
-    record = Object.fromEntries(
-      Object.entries(record).filter(([key]) =>
-        filteredColumnNames.includes(key)
-      )
-    );
-
     return record;
   });
 
+  // Find out the association columns.
   const associationColumns = columns.filter(
     (column: Column) => column.fieldType === "Association"
   );
 
+  // If there are association columns, hydrate the records with the associations.
   if (!isEmpty(associationColumns)) {
     const hydratedRecordsWithAssociations = hydrateAssociations(
       hydratedRecords,
@@ -90,10 +101,7 @@ const hydrateAssociations = async (
           (foreignRecord: any) => foreignRecord.id === record[column.name]
         );
 
-        const foreignNameColumn = getForeignName(
-          foreignRecordComputed,
-          column
-        );
+        const foreignNameColumn = getForeignName(foreignRecordComputed, column);
 
         record[column.name] = {
           value: foreignNameColumn,
@@ -102,10 +110,14 @@ const hydrateAssociations = async (
           dataSourceId: dataSource.id,
         };
 
+        console.log("record[column.name]->", record[column.name]);
+
         return record;
       }
     );
   }
+
+  console.log("hydratedRecordsAssociation->", hydratedRecordsAssociation);
 
   return hydratedRecordsAssociation;
 };
