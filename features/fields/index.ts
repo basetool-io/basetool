@@ -150,14 +150,13 @@ export const getColumnNameLabel = (...args: any[]) => {
   return first(compact(args));
 };
 
-/* Returns the filtered column based on their disconnected setting. */
+/* Returns the filtered columns based on their disconnected setting. */
 export const getConnectedColumns = (
   columns: Column[],
 ): Column[] => {
   if (isArray(columns)) {
     return (
       columns
-        // Remove disconnected fields
         .filter((column: Column) => !column?.baseOptions.disconnected)
     );
   } else {
@@ -165,7 +164,7 @@ export const getConnectedColumns = (
   }
 };
 
-/* Returns the filtered column based on their visibility settings. */
+/* Returns the filtered columns based on their visibility settings. */
 export const getVisibleColumns = (
   columns: Column[],
   view?: string
@@ -173,7 +172,6 @@ export const getVisibleColumns = (
   if (isArray(columns)) {
     return (
       columns
-        // Remove fields that should be hidden on index
         .filter((column: Column) => {
           switch (view) {
             case "index":

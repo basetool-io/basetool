@@ -6,7 +6,9 @@ import { isArray, isEmpty, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
 
-// This will filter out record fields that are disconnected.
+/**
+ * This method will filter out record fields that are disconnected.
+ */
 export const filterOutRecordColumns = (
   records: any,
   columns: Column[],
@@ -71,6 +73,9 @@ export const hydrateRecords = async (
   }
 };
 
+/**
+ * This method will retrieve data from the association and replace the id value with the display value, foreignId, foreignTable and dataSource.
+ */
 const hydrateAssociations = async (
   records: any[],
   associationColumns: Column[],
@@ -110,14 +115,10 @@ const hydrateAssociations = async (
           dataSourceId: dataSource.id,
         };
 
-        console.log("record[column.name]->", record[column.name]);
-
         return record;
       }
     );
   }
-
-  console.log("hydratedRecordsAssociation->", hydratedRecordsAssociation);
 
   return hydratedRecordsAssociation;
 };
