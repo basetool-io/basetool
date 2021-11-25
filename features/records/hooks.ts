@@ -1,4 +1,4 @@
-import { Column } from "@/features/fields/types";
+import { Column } from "../fields/types"
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
 import {
@@ -37,7 +37,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { getFilteredColumns } from "../fields";
-import { isArray, isEqual, isNull, isString, merge } from "lodash";
+import { isEqual, isNull, isString, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
@@ -236,38 +236,35 @@ export const useColumns = ({
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
 
-  const setColumns = (columns: []) => {
+  const setColumns = (columns: Column[]) => {
     dispatch(setColumnsInState(columns));
   };
 
   // Figure out where we should fetch the columns from.
   // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
   // We should probably use just one source in the future.
-  useEffect(() => {
-    let columns: Column[] = [];
-
+  const rawColumns: Column[] = useMemo(() => {
     if (
+      recordsResponse?.ok &&
       dataSourceResponse?.ok &&
       dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
         false
     ) {
-      if (recordsResponse?.ok) {
-        columns = recordsResponse?.meta?.columns;
-      }
+      return recordsResponse?.meta?.columns;
+    } else if (columnsResponse?.ok) {
+      return columnsResponse?.data;
     } else {
-      if (columnsResponse?.ok) {
-        if (options?.forEdit) {
-          columns = columnsResponse?.data;
-        } else {
-          columns = getFilteredColumns(columnsResponse?.data, "index");
-        }
-      }
+      return [];
     }
+  }, [dataSourceResponse, columnsResponse]);
 
-    if (isArray(columns)) {
-      setColumns(columns as []);
+  useEffect(() => {
+    if (options?.forEdit) {
+      setColumns(rawColumns);
+    } else {
+      setColumns(getFilteredColumns(rawColumns, "index"));
     }
-  }, [recordsResponse, dataSourceResponse, columnsResponse, tableName]);
+  }, [rawColumns]);
 
   return {
     columns,
