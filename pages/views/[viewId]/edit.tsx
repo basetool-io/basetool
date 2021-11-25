@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/react";
 import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { debounce, pick } from "lodash";
+import { debounce, first, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/records/state-slice";
 import {
@@ -13,8 +13,8 @@ import {
   useRecords,
 } from "@/features/records/hooks";
 import { useDataSourceContext, useSegment } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import {
   useRemoveViewMutation,
@@ -48,10 +48,7 @@ const Edit = () => {
     error: viewError,
   } = useViewResponse(viewId);
 
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
     resetState();
@@ -63,10 +60,10 @@ const Edit = () => {
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
-      (view?.defaultOrder as OrderParams[])[0]?.columnName ||
+      first(view?.defaultOrder as OrderParams[])?.columnName ||
       "",
     (router.query.orderDirection as OrderDirection) ||
-      (view?.defaultOrder as OrderParams[])[0]?.direction ||
+      first(view?.defaultOrder as OrderParams[])?.direction ||
       ""
   );
 

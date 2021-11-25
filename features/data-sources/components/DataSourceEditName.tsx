@@ -8,11 +8,9 @@ import {
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
-import {
-  useGetDataSourceQuery,
-  useUpdateDataSourceMutation,
-} from "@/features/data-sources/api-slice";
-import React, { useMemo } from "react";
+import { useDataSourceResponse } from "../hooks";
+import { useUpdateDataSourceMutation } from "@/features/data-sources/api-slice";
+import React from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 
@@ -37,13 +35,8 @@ const NameEditButton = () => {
 function DataSourceEditName() {
   const { dataSourceId } = useDataSourceContext();
 
-  const { data: dataSourceResponse, isLoading: dataSourceIsLoading } =
-    useGetDataSourceQuery({ dataSourceId }, { skip: !dataSourceId });
-
-  const dataSource = useMemo(
-    () => dataSourceResponse?.data,
-    [dataSourceResponse]
-  );
+  const { dataSource, isLoading: dataSourceIsLoading } =
+    useDataSourceResponse(dataSourceId);
 
   const [updateDataSource] = useUpdateDataSourceMutation();
 
