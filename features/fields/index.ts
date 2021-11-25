@@ -10,7 +10,7 @@ import {
   TrendingUpIcon,
 } from "@heroicons/react/outline";
 import { ElementType } from "react";
-import { compact, first } from "lodash";
+import { compact, first, isPlainObject } from "lodash";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
@@ -75,6 +75,26 @@ export const getColumnOptions = (
 
   return options;
 };
+
+export const stringifyData = (rawData: any[]): any[] =>
+  rawData.map((item: { [key: string]: any }) => {
+    const newItem: { [key: string]: string } = {};
+
+    Object.keys(item).forEach((itemKey: string) => {
+      const itemValue: string = item[itemKey];
+      let finalValue: string;
+
+      if (isPlainObject(itemValue)) {
+        finalValue = JSON.stringify(itemValue);
+      } else {
+        finalValue = itemValue;
+      }
+
+      newItem[itemKey] = finalValue;
+    });
+
+    return newItem;
+  });
 
 export const fieldId = (field: Field) =>
   `${field.tableName}-${field.column.name}`;

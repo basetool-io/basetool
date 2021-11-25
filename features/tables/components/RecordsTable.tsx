@@ -15,7 +15,7 @@ import {
   columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import { getVisibleColumns, iconForField } from "@/features/fields";
+import { getVisibleColumns, iconForField, stringifyData } from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
@@ -67,10 +67,10 @@ const RecordsTable = ({
   const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
 
   // Get raw records and columsn from the data store
-  const records = useAppSelector(recordsSelector);
+  const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
-  const hasRecords = useMemo(() => records.length > 0, [records]);
+  const hasRecords = useMemo(() => rawRecords.length > 0, [rawRecords]);
 
   const hasIdColumn = useMemo(
     () => rawColumns.find((col) => col.name === "id"),
@@ -79,7 +79,10 @@ const RecordsTable = ({
 
   const columnWidths = useAppSelector(columnWidthsSelector);
 
+  // Process the records and columns to their final form.
+  const records = useMemo(() => stringifyData(rawRecords), [rawRecords]);
   // Memoize and add the start and end columns
+
   const orderedColumns = useMemo(() => {
     const result = parseColumns({
       columns: getVisibleColumns(rawColumns, "index"),
@@ -136,7 +139,7 @@ const RecordsTable = ({
 
   const setCheckedItems = (checked: boolean) => {
     if (checked) {
-      const ids = records.map(({ id }) => id);
+      const ids = records.map((record) => record?.id);
       setRecordsSelected(ids);
     } else {
       resetRecordsSelection();
