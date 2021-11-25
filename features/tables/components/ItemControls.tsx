@@ -4,13 +4,9 @@ import { useAccessControl, useDataSourceContext, useResponsive } from "@/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import Link from "next/link";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 
-function ItemControls({
-  recordId,
-}: {
-  recordId: string;
-}) {
+function ItemControls({ recordId }: { recordId: string }) {
   const { isMd } = useResponsive();
 
   const { dataSourceId, tableName, recordsPath } = useDataSourceContext();
@@ -36,40 +32,59 @@ function ItemControls({
     }
   };
 
+  const canView = useMemo(() => ac.readAny("record").granted, [ac]);
+  const canEdit = useMemo(
+    () =>
+      ac.updateAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+  const canDelete = useMemo(
+    () =>
+      ac.deleteAny("record").granted &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [ac, dataSourceResponse]
+  );
+
+  const ViewButton = () => (
+    <Link href={`${recordsPath}/${recordId}`}>
+      <a>
+        <Tooltip label="View record">
+          <div>
+            <EyeIcon className={isMd ? "h-5" : "h-6"} />
+          </div>
+        </Tooltip>
+      </a>
+    </Link>
+  );
+
+  const EditButton = () => (
+    <Link href={`${recordsPath}/${recordId}/edit`}>
+      <a>
+        <Tooltip label="Edit record">
+          <div>
+            <PencilAltIcon className={isMd ? "h-5" : "h-6"} />
+          </div>
+        </Tooltip>
+      </a>
+    </Link>
+  );
+
+  const DeleteButton = () => (
+    <a onClick={handleDelete} className="cursor-pointer">
+      <Tooltip label="Delete record">
+        <div>
+          <TrashIcon className={isMd ? "h-5" : "h-6"} />
+        </div>
+      </Tooltip>
+    </a>
+  );
+
   return (
     <div className="flex space-x-2 items-center h-full text-gray-500">
-      {ac.readAny("record").granted &&
-        !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-          <Link href={`${recordsPath}/${recordId}`}>
-            <a>
-              <Tooltip label="View record">
-                <div>
-                  <EyeIcon className={isMd ? "h-5" : "h-6"} />
-                </div>
-              </Tooltip>
-            </a>
-          </Link>
-        )}
-      {ac.updateAny("record").granted && (
-        <Link href={`${recordsPath}/${recordId}/edit`}>
-          <a>
-            <Tooltip label="Edit record">
-              <div>
-                <PencilAltIcon className={isMd ? "h-5" : "h-6"} />
-              </div>
-            </Tooltip>
-          </a>
-        </Link>
-      )}
-      {ac.deleteAny("record").granted && (
-        <a onClick={handleDelete} className="cursor-pointer">
-          <Tooltip label="Delete record">
-            <div>
-              <TrashIcon className={isMd ? "h-5" : "h-6"} />
-            </div>
-          </Tooltip>
-        </a>
-      )}
+      {canView && <ViewButton />}
+      {canEdit && <EditButton />}
+      {canDelete && <DeleteButton />}
     </div>
   );
 }

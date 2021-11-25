@@ -1,12 +1,12 @@
 import { Button, Tooltip } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
-import { useOffsetPagination } from "@/features/records/hooks";
+import { useCursorPagination } from "@/features/records/hooks";
 import Link from "next/link";
 import React, { memo } from "react";
 
 const CursorPagination = () => {
   const { previousPageLink, nextPageLink, canNextPage, canPreviousPage } =
-    useOffsetPagination();
+    useCursorPagination();
 
   return (
     <nav

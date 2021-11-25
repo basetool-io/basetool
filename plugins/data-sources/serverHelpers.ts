@@ -7,7 +7,7 @@ import axios from "axios";
 import getDataSourceInfo from "./getDataSourceInfo";
 import logger from "@/lib/logger";
 import options from "@/features/options";
-import pooler from "./ConnectionPooler"
+import pooler from "./ConnectionPooler";
 
 export const runQuery = async (
   dataSource: DataSource,
@@ -33,6 +33,14 @@ export const runQueries = async (
   url = `${url}/data-sources/${dataSource.id}/query`;
 
   let response;
+
+  // If the data source is not meant to be run in the proxy, we get the service directly
+  if (dataSourceInfo && !dataSourceInfo.runsInProxy) {
+    const service = await getQueryServiceWrapper(dataSource);
+
+    return await service.runQueries(queries);
+  }
+
   // We want to better control if the queries should run in a proxy
   // We're checking to see if the redis DB has any options set 1 or 0.
   // If nothing is set in redis, we're going to fallback to an environment variable.
@@ -40,7 +48,7 @@ export const runQueries = async (
     ? (await options.get("runInProxy")) === "1"
     : process.env.USE_PROXY === "1";
 
-  if (dataSourceInfo?.runsInProxy && runInProxyOverride) {
+  if (runInProxyOverride) {
     logger.debug(
       `Running query in proxy on the following API server ${apiDomain}`
     );
@@ -79,6 +87,8 @@ export const runQueries = async (
   } else {
     logger.debug(`Running query on own server.`);
 
+    // if (dataSourceType)
+    // @todo: remove connection pooler from stripe DS
     const service = await pooler.getConnection(dataSource);
 
     return await service.runQueries(queries);

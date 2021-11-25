@@ -26,6 +26,7 @@ import { DataSource } from "@prisma/client";
 import { IFilter, IFilterGroup } from "@/features/tables/types";
 import { MysqlCredentials } from "../mysql/types";
 import { PgCredentials } from "../postgresql/types";
+import { RecordResponse, RecordsResponse } from "../types";
 import { SchemaInspector } from "knex-schema-inspector/dist/types/schema-inspector";
 import { decrypt } from "@/lib/crypto";
 import { getBaseOptions } from "@/features/fields";
@@ -501,7 +502,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
     tableName: string;
     recordId: string;
     filters?: Array<IFilter | IFilterGroup>;
-  }): Promise<Record<string, unknown> | undefined> {
+  }): Promise<RecordResponse<Record<string, unknown>> | undefined> {
     const pk = await this.getPrimaryKeyColumn({ tableName });
 
     if (!pk)
@@ -515,7 +516,9 @@ abstract class AbstractQueryService implements ISQLQueryService {
 
     const rows = await query.select().where(pk, recordId);
 
-    return rows[0];
+    const record = rows[0];
+
+    return { record };
   }
 
   public async getRecords({
@@ -532,11 +535,11 @@ abstract class AbstractQueryService implements ISQLQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-  }): Promise<[]> {
+  }): Promise<RecordsResponse> {
     const query = this.client.table(tableName);
 
     if (isNumber(limit) && isNumber(offset)) {
-      query.limit(limit).offset(offset).select();
+      query.limit(limit).offset(offset);
     }
 
     if (filters) {
@@ -547,7 +550,9 @@ abstract class AbstractQueryService implements ISQLQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     }
 
-    return (await query) as [];
+    const records = await query.select();
+
+    return { records: records as unknown as [] };
   }
 
   public async getRecordsCount({

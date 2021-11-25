@@ -38,8 +38,9 @@ export const availableDataSources = [
     id: "stripe",
     label: "Stripe",
     enabled: true,
-    comingSoon: true,
-    beta: false,
+    comingSoon: false,
+    beta: true,
+    readOnly: true,
   },
   {
     id: "amazon_redshift",
@@ -59,12 +60,42 @@ export const availableDataSources = [
     enabled: false,
     comingSoon: true,
   },
-  // {
-  //   id: "github",
-  //   label: "GitHub",
-  //   enabled: false,
-  //   comingSoon: true,
-  // },
+  {
+    id: "github",
+    label: "GitHub",
+    enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "zendesk",
+    label: "ZenDesk",
+    enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "salesforce",
+    label: "Salesforce",
+    enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "shopify",
+    label: "Shopify",
+    enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "intercom",
+    label: "Intercom",
+    enabled: false,
+    comingSoon: true,
+  },
+  {
+    id: "redis",
+    label: "Redis",
+    enabled: false,
+    comingSoon: true,
+  },
 ];
 
 export const getColumnLabel = (column: { name: string }) => {
