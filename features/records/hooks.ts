@@ -230,7 +230,7 @@ export const useColumns = ({
   columnsResponse?: ApiResponse;
   tableName: string;
   options?: {
-    forEdit: boolean;
+    forEdit: boolean; // this refers to view edit page
   };
 }) => {
   const dispatch = useAppDispatch();
@@ -370,7 +370,7 @@ export const useResizableColumns = ({
   return updateColumnWidths;
 };
 
-export const useOffsetPagination = () => {
+export const useCursorPagination = () => {
   const router = useRouter();
   const meta = useAppSelector(metaSelector);
   const firstRecordId = useAppSelector(firstRecordIdSelector);
@@ -378,10 +378,9 @@ export const useOffsetPagination = () => {
   const hasMore = useMemo(() => meta?.hasMore === true, [meta?.hasMore]);
 
   const [canNextPage, canPreviousPage] = useMemo(() => {
-    let canNext = true;
-    if (router.query.startingAfter) {
-      canNext = hasMore;
-    } else if (router.query.endingBefore) {
+    let canNext = hasMore;
+
+    if (router.query.endingBefore) {
       canNext = true;
     }
 

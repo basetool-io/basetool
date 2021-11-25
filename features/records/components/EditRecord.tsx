@@ -3,8 +3,10 @@ import { getFilteredColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
+import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import ErrorMessage from "@/components/ErrorMessage";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -45,6 +47,11 @@ const EditRecord = () => {
     [columnsResponse?.data]
   );
 
+  const record = useMemo(
+    () => recordResponse?.data || {},
+    [recordResponse?.data]
+  );
+
   const { isLoading: profileIsLoading } = useProfile();
   const ac = useAccessControl();
   const canEdit = useMemo(() => {
@@ -60,6 +67,22 @@ const EditRecord = () => {
     }
   }, [canEdit]);
 
+  const { data: dsResponse } = useGetDataSourceQuery(
+    { dataSourceId },
+    { skip: !dataSourceId }
+  );
+
+  const isReadOnly = useMemo(
+    () => dsResponse?.ok && dsResponse?.meta?.dataSourceInfo?.readOnly,
+    [dsResponse]
+  );
+
+  const formIsVisible = useMemo(
+    () =>
+      !isReadOnly && !isLoading && recordResponse?.ok && columnsResponse?.ok,
+    [isReadOnly, isLoading, recordResponse?.ok, columnsResponse?.ok]
+  );
+
   // Don't show them the edit page if the user can't edit
   if (!canEdit) return null;
 
@@ -69,9 +92,8 @@ const EditRecord = () => {
         <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />
       )}
       {error && <div>Error: {JSON.stringify(error)}</div>}
-      {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
-        <Form record={recordResponse.data} columns={columns} />
-      )}
+      {isReadOnly && <ErrorMessage message="Cannot edit record" />}
+      {formIsVisible && <Form record={record} columns={columns} />}
     </Layout>
   );
 };

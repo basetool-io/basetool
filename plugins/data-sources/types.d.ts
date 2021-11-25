@@ -11,7 +11,8 @@ export type DataSourceInfo = {
     filters: boolean;
     columnsRequest: boolean;
   };
-  runsInProxy: boolean,
+  runsInProxy: boolean;
+  runsQueriesInPool: boolean;
 };
 
 export type PaginationType = "offset" | "cursor";
@@ -24,7 +25,9 @@ export type QueryResponse = {
 
 export interface IQueryServiceWrapper {
   runQuery(name: keyof ISQLQueryService, payload?: unknown): Promise<unknown>;
-  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]): Promise<unknown>;
+  runQueries(
+    queries: { name: keyof ISQLQueryService; payload?: unknown }[]
+  ): Promise<unknown>;
   disconnect(): Promise<unknown>;
 }
 
@@ -57,7 +60,7 @@ export interface IQueryService {
   getRecord(payload: {
     tableName: string;
     recordId: string;
-  }): Promise<Record<string, unknown> | undefined>;
+  }): Promise<RecordResponse | undefined>;
   updateRecord?({
     tableName: string,
     recordId: string,
@@ -99,10 +102,10 @@ export type SSHTunnelCredentials = {
   actions: Array<() => Promise<unknown>>;
   dbCredentials: DataSourceCredentials;
   SSHCredentials: SSHCredentials;
-}
+};
 
 type RecordsResponse = {
-  records: any[];
+  records: unknown[];
   columns?: Column[];
   meta?: {
     hasMore?: boolean;

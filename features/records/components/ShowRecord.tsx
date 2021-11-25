@@ -3,7 +3,6 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getFilteredColumns, makeField } from "@/features/fields";
-import { sortBy } from "lodash";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
 import {
   useDeleteRecordMutation,
@@ -36,7 +35,11 @@ const ShowRecord = () => {
     { dataSourceId },
     { skip: !dataSourceId }
   );
-  const { data, error, isLoading } = useGetRecordQuery(
+  const {
+    data: recordResponse,
+    error,
+    isLoading,
+  } = useGetRecordQuery(
     {
       dataSourceId,
       tableName,
@@ -55,15 +58,40 @@ const ShowRecord = () => {
     { skip: !dataSourceId || !tableName }
   );
 
-  const columns = useMemo(
-    () =>
-      sortBy(getFilteredColumns(columnsResponse?.data, "show"), [
-        (column: Column) => column?.baseOptions?.orderIndex,
-      ]),
-    [columnsResponse?.data]
-  );
+  // const columns = useMemo(
+  //   () =>
+  //     sortBy(getFilteredColumns(columnsResponse?.data, "show"), [
+  //       (column: Column) => column?.baseOptions?.orderIndex,
+  //     ]),
+  //   [columnsResponse?.data]
+  // );
 
-  const record = useMemo(() => data?.data, [data?.data]);
+  // Figure out where we should fetch the columns from.
+  // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
+  // We should probably use just one source in the future.
+  const columns = useMemo(() => {
+    // let columns: Column[] = [];
+
+    if (
+      dataSourceResponse?.ok &&
+      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
+        false
+    ) {
+      if (recordResponse?.ok) {
+        return recordResponse?.meta?.columns;
+      }
+    } else {
+      if (columnsResponse?.ok) {
+        return getFilteredColumns(columnsResponse?.data, "index");
+      }
+    }
+
+    // if (isArray(columns)) {
+    //   setColumns(columns as []);
+    // }
+  }, [recordResponse, dataSourceResponse, columnsResponse, tableName]);
+
+  const record = useMemo(() => recordResponse?.data, [recordResponse?.data]);
 
   const ac = useAccessControl();
 
@@ -103,16 +131,18 @@ const ShowRecord = () => {
     <>
       <Layout>
         <Head>
-          <title>View record {data?.data?.id} | 👋 Hi!</title>
+          <title>View record {recordResponse?.data?.id} | 👋 Hi!</title>
         </Head>
-        {isLoading && <LoadingOverlay transparent={isEmpty(data?.data)} />}
+        {isLoading && (
+          <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />
+        )}
         {error && "status" in error && error?.status === 404 && (
           <ErrorMessage message="404, Record not found" />
         )}
         {error && !("status" in error && error?.status === 404) && (
           <ErrorMessage error={JSON.stringify(error)} />
         )}
-        {!isLoading && data?.ok && columnsResponse?.ok && (
+        {!isLoading && recordResponse?.ok && columnsResponse?.ok && (
           <>
             <PageWrapper
               icon={<EyeIcon className="inline h-5 text-gray-500" />}

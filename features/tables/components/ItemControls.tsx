@@ -32,12 +32,7 @@ function ItemControls({ recordId }: { recordId: string }) {
     }
   };
 
-  const canView = useMemo(
-    () =>
-      ac.readAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
+  const canView = useMemo(() => ac.readAny("record").granted, [ac]);
   const canEdit = useMemo(
     () =>
       ac.updateAny("record").granted &&

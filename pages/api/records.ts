@@ -60,10 +60,10 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const startingAfter = req.query.startingAfter as string;
   const endingBefore = req.query.endingBefore as string;
 
-  const [{ records, columns, meta }, count]: [
-    unknown[],
-    Column[],
-    number
+  const [
+    { records, columns: columnsFromRecords, meta },
+    columnsFromDataSource,
+    count,
   ] = await runQueries(dataSource, [
     {
       name: "getRecords",
@@ -93,14 +93,17 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       },
     },
   ]);
-  console.log("records->", records);
+
+  const columns = columnsFromRecords || columnsFromDataSource;
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
-  const newRecords = records.map((record) =>
+  const newRecords = records.map((record: Record<string, unknown>) =>
     hydrateRecord(record, hydratedColumns, "index")
   );
 
-  res.json(ApiResponse.withData(newRecords, { meta: merge({ count, columns }, meta) }));
+  res.json(
+    ApiResponse.withData(newRecords, { meta: merge({ count, columns }, meta) })
+  );
 }
 
 export default withMiddlewares(handler, {
