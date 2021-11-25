@@ -7,10 +7,10 @@ import {
 } from "@heroicons/react/outline";
 import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
-import { OWNER_ROLE } from "@/features/roles";
 import { View } from "@prisma/client";
 import { first, isUndefined } from "lodash";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useDataSourceContext, useProfile } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
@@ -23,11 +23,15 @@ import SidebarItem from "./SidebarItem";
 const Sidebar = () => {
   const { dataSourceId, tableName, viewId } = useDataSourceContext();
 
+  const { user, isLoading: sessionIsLoading } = useProfile();
+
   const {
     response: dataSourceResponse,
     isLoading: dataSourceIsLoading,
     info: dataSourceInfo,
   } = useDataSourceResponse(dataSourceId);
+
+  const { isOwner } = useACLHelpers({ dataSourceInfo });
 
   const {
     data: tablesResponse,
@@ -42,10 +46,6 @@ const Sidebar = () => {
   } = useGetViewsQuery();
 
   const prefetchColumns = usePrefetch("getColumns");
-
-  const ac = useAccessControl();
-
-  const { user, isLoading: sessionIsLoading } = useProfile();
 
   const { isOpen: isTablesOpen, onToggle: toggleTablesOpen } = useDisclosure({
     defaultIsOpen: true,
@@ -174,7 +174,7 @@ const Sidebar = () => {
           </div>
         )}
         {dataSourceInfo?.supports?.views && <ViewsSection />}
-        {ac.hasRole(OWNER_ROLE) && (
+        {isOwner && (
           <>
             {tablesError && (
               <div>

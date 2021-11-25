@@ -1,13 +1,9 @@
 import { Button, ButtonGroup } from "@chakra-ui/react";
-import { OWNER_ROLE } from "@/features/roles";
 import { PencilAltIcon, PlusIcon } from "@heroicons/react/outline";
 import { columnsSelector } from "../state-slice";
 import { humanize } from "@/lib/humanize";
-import {
-  useAccessControl,
-  useAppSelector,
-  useDataSourceContext,
-} from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useAppSelector, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useViewResponse } from "@/features/views/hooks";
@@ -30,7 +26,6 @@ const RecordsIndexPage = ({
   error?: string;
   isFetching?: boolean;
 }) => {
-  const ac = useAccessControl();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
   const { view } = useViewResponse(viewId);
@@ -79,25 +74,8 @@ const RecordsIndexPage = ({
     }
   }, [info?.pagination]);
 
-  const canBulkDelete = useMemo(
-    () => ac.deleteAny("record").granted && !info?.readOnly,
-    [ac, info]
-  );
-
-  const canCreate = useMemo(
-    () => ac.createAny("record").granted && !info?.readOnly,
-    [ac, info]
-  );
-
-  const canCreateView = useMemo(
-    () => !viewId && ac.hasRole(OWNER_ROLE) && !info?.readOnly,
-    [viewId, ac, info]
-  );
-
-  const canEditView = useMemo(
-    () => viewId && ac.hasRole(OWNER_ROLE),
-    [viewId, ac]
-  );
+  const { canBulkDelete, canCreate, canCreateView, canEditView } =
+    useACLHelpers({ dataSourceInfo: info, viewId });
 
   const CreateButton = () => {
     if (!newRecordPath) return null;

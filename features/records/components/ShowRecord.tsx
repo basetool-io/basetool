@@ -3,7 +3,8 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getVisibleColumns, makeField } from "@/features/fields";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import {
   useDeleteRecordMutation,
@@ -75,8 +76,6 @@ const ShowRecord = () => {
 
   const record = useMemo(() => recordResponse?.data, [recordResponse?.data]);
 
-  const ac = useAccessControl();
-
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
   const handleDelete = async () => {
@@ -92,32 +91,19 @@ const ShowRecord = () => {
     }
   };
 
-  const { isLoading: profileIsLoading } = useProfile();
-  const canRead = useMemo(() => {
-    if (profileIsLoading) return true;
-
-    return ac.readAny("record").granted;
-  }, [ac, profileIsLoading]);
+  const { canView, canEdit, canDelete } = useACLHelpers({
+    dataSourceInfo: info,
+  });
 
   // Redirect to record page if the user can't read
   useEffect(() => {
-    if (!canRead && router) {
+    if (!canView && router) {
       router.push(tableIndexPath);
     }
-  }, [canRead, router]);
-
-  const canEdit = useMemo(
-    () => ac.updateAny("record").granted && !info?.readOnly,
-    [ac, info]
-  );
-
-  const canDelete = useMemo(
-    () => ac.deleteAny("record").granted && !info?.readOnly,
-    [ac, info]
-  );
+  }, [canView, router]);
 
   // Don't show them the show page if the user can't read
-  if (!canRead) return null;
+  if (!canView) return null;
 
   const DeleteButton = () => (
     <Button
