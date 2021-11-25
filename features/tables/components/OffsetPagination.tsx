@@ -26,7 +26,7 @@ const OffsetPagination = () => {
       canPreviousPage={canPreviousPage}
       canNextPage={canNextPage}
       recordsCount={recordsCount}
-      />
+    />
   );
 };
 

@@ -22,6 +22,8 @@ export const recordsApiSlice = createApi({
           offset?: string;
           orderBy?: string;
           orderDirection?: string;
+          startingAfter?: string;
+          endingBefore?: string;
         }
       >({
         query: ({
@@ -34,6 +36,8 @@ export const recordsApiSlice = createApi({
           offset,
           orderBy,
           orderDirection,
+          startingAfter,
+          endingBefore,
         }) => {
           const queryParams = URI()
             .query({
@@ -45,6 +49,8 @@ export const recordsApiSlice = createApi({
               filters,
               limit,
               offset,
+              startingAfter,
+              endingBefore,
             })
             .query()
             .toString();

@@ -44,7 +44,7 @@ function New() {
         <div className="flex justify-center">
           <div className="max-w-3xl">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {availableDataSources.map(({ id, label, beta, comingSoon }) => (
+              {availableDataSources.map(({ id, label, beta, comingSoon, readOnly }) => (
                 <a
                   key={id}
                   className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-cool-gray-100 hover:to-blue-gray-200"
@@ -70,6 +70,11 @@ function New() {
                   {comingSoon && (
                     <div className="absolute text-center top-auto bottom-0 right-0 uppercase font-bold text-xs text-white py-1 w-full bg-blue-400">
                       Coming soon
+                    </div>
+                  )}
+                  {readOnly && (
+                    <div className="absolute text-center top-auto bottom-0 right-0 uppercase font-bold text-xs text-white py-1 w-full bg-green-400">
+                      Read only
                     </div>
                   )}
                   <div className="mb-4">

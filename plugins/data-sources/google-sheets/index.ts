@@ -17,6 +17,10 @@ const info: GoogleSheetsDataSourceInfo = {
     // 'https://www.googleapis.com/auth/drive.readonly',
   ],
   runsInProxy: false,
+  supports: {
+    ...defaultSettings.supports,
+    views: false,
+  }
 };
 
 export default info;

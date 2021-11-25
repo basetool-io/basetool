@@ -1,4 +1,4 @@
-import { Column } from "@/features/fields/types";
+import { Column } from "../fields/types"
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
 import {
@@ -37,7 +37,7 @@ import {
   updateFilter,
 } from "@/features/records/state-slice";
 import { getFilteredColumns } from "../fields";
-import { isArray, isEqual, isNull, isString, merge } from "lodash";
+import { isEqual, isNull, isString, merge } from "lodash";
 import { localStorageColumnWidthsKey } from "@/features/tables";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useEffect } from "react";
@@ -222,52 +222,47 @@ export const useColumns = ({
   dataSourceResponse,
   recordsResponse,
   columnsResponse,
-  tableName,
   options,
 }: {
   dataSourceResponse?: ApiResponse;
   recordsResponse?: ApiResponse;
   columnsResponse?: ApiResponse;
-  tableName: string;
   options?: {
-    forEdit: boolean;
+    forEdit: boolean; // this refers to view edit page
   };
 }) => {
   const dispatch = useAppDispatch();
   const columns = useAppSelector(columnsSelector);
 
-  const setColumns = (columns: []) => {
+  const setColumns = (columns: Column[]) => {
     dispatch(setColumnsInState(columns));
   };
 
   // Figure out where we should fetch the columns from.
   // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
   // We should probably use just one source in the future.
-  useEffect(() => {
-    let columns: Column[] = [];
-
+  const rawColumns: Column[] = useMemo(() => {
     if (
+      recordsResponse?.ok &&
       dataSourceResponse?.ok &&
       dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
         false
     ) {
-      if (recordsResponse?.ok) {
-        columns = recordsResponse?.meta?.columns;
-      }
+      return recordsResponse?.meta?.columns;
+    } else if (columnsResponse?.ok) {
+      return columnsResponse?.data;
     } else {
-      if (columnsResponse?.ok) {
-        if (options?.forEdit) {
-          columns = columnsResponse?.data;
-        } else {
-          columns = getFilteredColumns(columnsResponse?.data, "index");
-        }
-      }
+      return [];
     }
+  }, [dataSourceResponse, recordsResponse, columnsResponse]);
 
-    if (isArray(columns)) {
-      setColumns(columns as []);
+  useEffect(() => {
+    if (options?.forEdit) {
+      setColumns(rawColumns);
+    } else {
+      setColumns(getFilteredColumns(rawColumns, "index"));
     }
-  }, [recordsResponse, dataSourceResponse, columnsResponse, tableName]);
+  }, [rawColumns]);
 
   return {
     columns,
@@ -370,7 +365,7 @@ export const useResizableColumns = ({
   return updateColumnWidths;
 };
 
-export const useOffsetPagination = () => {
+export const useCursorPagination = () => {
   const router = useRouter();
   const meta = useAppSelector(metaSelector);
   const firstRecordId = useAppSelector(firstRecordIdSelector);
@@ -378,10 +373,9 @@ export const useOffsetPagination = () => {
   const hasMore = useMemo(() => meta?.hasMore === true, [meta?.hasMore]);
 
   const [canNextPage, canPreviousPage] = useMemo(() => {
-    let canNext = true;
-    if (router.query.startingAfter) {
-      canNext = hasMore;
-    } else if (router.query.endingBefore) {
+    let canNext = hasMore;
+
+    if (router.query.endingBefore) {
       canNext = true;
     }
 

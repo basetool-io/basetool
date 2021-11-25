@@ -45,6 +45,8 @@ function TableShow() {
       offset: offset.toString(),
       orderBy: orderBy,
       orderDirection: orderDirection,
+      startingAfter: router.query.startingAfter as string,
+      endingBefore: router.query.endingBefore as string,
     }),
     [
       dataSourceId,
@@ -54,6 +56,8 @@ function TableShow() {
       offset,
       orderBy,
       orderDirection,
+      router.query.startingAfter,
+      router.query.endingBefore,
     ]
   );
 
@@ -92,7 +96,6 @@ function TableShow() {
     dataSourceResponse,
     recordsResponse,
     columnsResponse,
-    tableName,
   });
 
   const isFetching = recordsAreFetching || columnsAreFetching;

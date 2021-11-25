@@ -89,7 +89,6 @@ function ViewShow() {
     dataSourceResponse,
     recordsResponse,
     columnsResponse,
-    tableName,
   });
 
   const isFetching = recordsAreFetching || columnsAreFetching;

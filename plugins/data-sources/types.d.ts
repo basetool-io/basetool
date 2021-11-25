@@ -7,11 +7,12 @@ export type DataSourceInfo = {
   description: string;
   readOnly: boolean;
   pagination: PaginationType;
-  supports?: {
+  supports: {
     filters: boolean;
     columnsRequest: boolean;
+    views: boolean;
   };
-  runsInProxy: boolean,
+  runsInProxy: boolean;
 };
 
 export type PaginationType = "offset" | "cursor";
@@ -24,7 +25,9 @@ export type QueryResponse = {
 
 export interface IQueryServiceWrapper {
   runQuery(name: keyof ISQLQueryService, payload?: unknown): Promise<unknown>;
-  runQueries(queries: { name: keyof ISQLQueryService; payload?: unknown }[]): Promise<unknown>;
+  runQueries(
+    queries: { name: keyof ISQLQueryService; payload?: unknown }[]
+  ): Promise<unknown>;
   disconnect(): Promise<unknown>;
 }
 
@@ -49,26 +52,26 @@ export interface IQueryService {
     offset?: number;
     orderBy: string;
     orderDirection: string;
-  }): Promise<[]>;
+  }): Promise<RecordsResponse>;
   getRecordsCount(payload: {
     tableName: string;
     filters: IFilter[];
-  }): Promise<number>;
+  }): Promise<number | undefined>;
   getRecord(payload: {
     tableName: string;
     recordId: string;
-  }): Promise<Record<string, unknown> | undefined>;
-  updateRecord({
+  }): Promise<RecordResponse | undefined>;
+  updateRecord?({
     tableName: string,
     recordId: string,
     data: unknown,
   }): Promise<unknown>;
-  createRecord({
+  createRecord?({
     tableName: string,
     data: unknown,
   }): Promise<string | undefined>;
-  deleteRecord({ tableName: string, recordId: string }): Promise<unknown>;
-  deleteRecords(payload: {
+  deleteRecord?({ tableName: string, recordId: string }): Promise<unknown>;
+  deleteRecords?(payload: {
     tableName: string;
     recordIds: number[];
   }): Promise<unknown>;
@@ -99,4 +102,17 @@ export type SSHTunnelCredentials = {
   actions: Array<() => Promise<unknown>>;
   dbCredentials: DataSourceCredentials;
   SSHCredentials: SSHCredentials;
-}
+};
+
+type RecordsResponse = {
+  records: unknown[];
+  columns?: Column[];
+  meta?: {
+    hasMore?: boolean;
+  };
+};
+
+type RecordResponse<T = unknown> = {
+  record: Record<string, T> | undefined;
+  columns?: Column[];
+};

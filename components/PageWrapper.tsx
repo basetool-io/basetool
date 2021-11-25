@@ -73,15 +73,19 @@ const TitleCrumbs = ({ crumbs }: { crumbs: Array<string | undefined> }) => {
   );
 };
 
-const Footer = ({ left, center, right }: FooterElements) => (
-  <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
-    <div className="flex justify-evenly items-center px-4">
-      <div className="flex-1 flex justify-start">{left}</div>
-      <div className="min-h-[2rem]">{center}</div>
-      <div className="flex-1 flex justify-end">{right}</div>
+const Footer = ({ left, center, right }: FooterElements) => {
+  if (!left && !center && !right) return null;
+
+  return (
+    <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
+      <div className="flex justify-evenly items-center px-4">
+        <div className="flex-1 flex justify-start">{left}</div>
+        <div className="min-h-[2rem]">{center}</div>
+        <div className="flex-1 flex justify-end">{right}</div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 function PageWrapper({
   heading,

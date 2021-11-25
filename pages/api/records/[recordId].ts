@@ -79,31 +79,32 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     tableName = req.query.tableName as string;
   }
 
-  const [record, columns]: [any[], Column[]] = await runQueries(
-    dataSource,
-    [{
-      name: "getRecord",
-      payload: {
-        tableName,
-        recordId,
-        filters,
+  const [{ record, columns: columnsFromRecord }, columnsFromDataSource] =
+    await runQueries(dataSource, [
+      {
+        name: "getRecord",
+        payload: {
+          tableName,
+          recordId,
+          filters,
+        },
       },
-    },
-    {
-      name: "getColumns",
-      payload: {
-        tableName,
-        storedColumns,
+      {
+        name: "getColumns",
+        payload: {
+          tableName,
+          storedColumns,
+        },
       },
-    },
-  ]);
+    ]);
 
   if (!record) return res.status(404).send("");
+  const columns = columnsFromRecord || columnsFromDataSource;
 
   const hydratedColumns = hydrateColumns(columns, storedColumns);
   const newRecord = hydrateRecord(record, hydratedColumns, "show");
 
-  res.json(ApiResponse.withData(newRecord));
+  res.json(ApiResponse.withData(newRecord, { meta: { columns } }));
 }
 
 export default withMiddlewares(handler, {
