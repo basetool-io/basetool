@@ -32,6 +32,7 @@ export const runQueries = async (
 
   url = `${url}/data-sources/${dataSource.id}/query`;
 
+  console.log('url->', url)
   let response;
   // We want to better control if the queries should run in a proxy
   // We're checking to see if the redis DB has any options set 1 or 0.
@@ -50,9 +51,11 @@ export const runQueries = async (
         secret: process.env.PROXY_SECRET,
         queries,
       });
+      console.log('response->', response)
 
       return response ? response.data : [];
     } catch (error) {
+      console.log('error->', error)
       const data = error.response.data;
       if (data.error && data.type) {
         let newError;
