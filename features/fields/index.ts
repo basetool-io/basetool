@@ -15,7 +15,6 @@ import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
 import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isArray from "lodash/isArray";
-import isPlainObject from "lodash/isPlainObject";
 import type { Column, Field, FieldType, FieldValue } from "./types";
 import type { Record } from "@/features/records/types";
 
@@ -89,11 +88,7 @@ export const makeField = ({
   column: Column;
   tableName: string;
 }): Field => {
-  let value = record[column.name] as FieldValue;
-
-  if (isPlainObject(value)) {
-    value = JSON.stringify(value);
-  }
+  const value = record[column.name] as FieldValue;
 
   return {
     value,
@@ -131,26 +126,6 @@ export const iconForField = (field: Column): ElementType => {
       return PhotographIcon;
   }
 };
-
-export const prettifyData = (rawData: any[]): any[] =>
-  rawData.map((item: { [key: string]: any }) => {
-    const newItem: { [key: string]: string } = {};
-
-    Object.keys(item).forEach((itemKey: string) => {
-      const itemValue: string = item[itemKey];
-      let finalValue: string;
-
-      if (isPlainObject(itemValue)) {
-        finalValue = JSON.stringify(itemValue);
-      } else {
-        finalValue = itemValue;
-      }
-
-      newItem[itemKey] = finalValue;
-    });
-
-    return newItem;
-  });
 
 export const getBaseOptions = () => ({
   visibleOnIndex: true,

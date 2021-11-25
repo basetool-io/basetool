@@ -1,16 +1,12 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
-import { Field } from "@/features/fields/types";
+import { Field, RecordAssociationValue } from "@/features/fields/types";
 import { Tooltip } from "@chakra-ui/react";
 import IndexFieldWrapper from "@/features/fields/components/FieldWrapper/IndexFieldWrapper";
 import Link from "next/link";
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 
 const Index = ({ field }: { field: Field }) => {
-  const { value, dataSourceId, foreignTable, foreignId } = useMemo(() => {
-    const valueObject = JSON.parse(field.value as string);
-
-    return valueObject;
-  }, [field.value]);
+  const { value, dataSourceId, foreignTable, foreignId } = field.value as RecordAssociationValue;
 
   return (
     <IndexFieldWrapper field={field}>
