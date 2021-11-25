@@ -96,6 +96,19 @@ const RecordsIndexPage = ({
     [ac, dataSourceResponse]
   );
 
+  const canCreateView = useMemo(
+    () =>
+      !viewId &&
+      ac.hasRole(OWNER_ROLE) &&
+      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
+    [viewId, ac, dataSourceResponse]
+  );
+
+  const canEditView = useMemo(
+    () => viewId && ac.hasRole(OWNER_ROLE),
+    [viewId, ac]
+  );
+
   const CreateButton = () => {
     if (!newRecordPath) return null;
 
@@ -114,6 +127,35 @@ const RecordsIndexPage = ({
     );
   };
 
+  const CreateViewButton = () => (
+    <Link
+      href={`/views/new?dataSourceId=${dataSourceId}&tableName=${tableName}`}
+      passHref
+    >
+      <Button
+        as="a"
+        colorScheme="blue"
+        variant="ghost"
+        leftIcon={<PlusIcon className="h-4" />}
+      >
+        Create view from this table
+      </Button>
+    </Link>
+  );
+
+  const EditViewButton = () => (
+    <Link href={`/views/${viewId}/edit`} passHref>
+      <Button
+        as="a"
+        colorScheme="blue"
+        variant="ghost"
+        leftIcon={<PencilAltIcon className="h-4" />}
+      >
+        Edit view
+      </Button>
+    </Link>
+  );
+
   return (
     <Layout>
       <PageWrapper
@@ -121,35 +163,8 @@ const RecordsIndexPage = ({
         flush={true}
         buttons={
           <ButtonGroup size="xs">
-            {!viewId &&
-              ac.hasRole(OWNER_ROLE) &&
-              !dataSourceResponse?.meta?.dataSourceInfo?.readOnly && (
-                <Link
-                  href={`/views/new?dataSourceId=${dataSourceId}&tableName=${tableName}`}
-                  passHref
-                >
-                  <Button
-                    as="a"
-                    colorScheme="blue"
-                    variant="ghost"
-                    leftIcon={<PlusIcon className="h-4" />}
-                  >
-                    Create view from this table
-                  </Button>
-                </Link>
-              )}
-            {viewId && ac.hasRole(OWNER_ROLE) && (
-              <Link href={`/views/${viewId}/edit`} passHref>
-                <Button
-                  as="a"
-                  colorScheme="blue"
-                  variant="ghost"
-                  leftIcon={<PencilAltIcon className="h-4" />}
-                >
-                  Edit view
-                </Button>
-              </Link>
-            )}
+            {canCreateView && <CreateViewButton />}
+            {canEditView && <EditViewButton />}
           </ButtonGroup>
         }
         footer={

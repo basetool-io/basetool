@@ -112,6 +112,6 @@ type RecordsResponse = {
 };
 
 type RecordResponse<T = unknown> = {
-  record: Record<string, T>;
+  record: Record<string, T> | undefined;
   columns?: Column[];
 };

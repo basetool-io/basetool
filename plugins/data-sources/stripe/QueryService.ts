@@ -1,6 +1,6 @@
 import { Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { IFilter } from "@/features/tables/types"
+import { IFilter } from "@/features/tables/types";
 import { IQueryService, RecordResponse, RecordsResponse } from "../types";
 import { decrypt } from "@/lib/crypto";
 import { first, isBoolean, isNumber, isObjectLike } from "lodash";
@@ -142,7 +142,7 @@ class QueryService implements IQueryService {
       return { records, columns, meta };
     }
 
-    return { records: [], columns: [] };
+    return { records: [], columns: [], meta: {} };
   }
 
   public async getRecordsCount(): Promise<number | undefined> {
@@ -157,7 +157,6 @@ class QueryService implements IQueryService {
     tableName: StripeListAPIs;
     recordId: string;
     select: string[];
-    columns?: Column[];
   }): Promise<RecordResponse<StripeValues> | undefined> {
     // Checking if the tableName is in the supported APIs
     if (Object.values(StripeListAPIs).includes(tableName)) {
@@ -169,7 +168,7 @@ class QueryService implements IQueryService {
       return { record, columns };
     }
 
-    return;
+    return { record: undefined, columns: [] };
   }
 }
 
