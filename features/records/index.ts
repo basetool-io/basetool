@@ -95,7 +95,7 @@ const hydrateAssociations = async (
       },
     ];
 
-    const foreignRecords: any[] = await runQuery(dataSource, "getRecords", {
+    const { records: foreignRecords } = await runQuery(dataSource, "getRecords", {
       tableName: foreignTableName,
       filters,
     });

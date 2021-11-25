@@ -533,8 +533,8 @@ abstract class AbstractQueryService implements ISQLQueryService {
     filters: Array<IFilter | IFilterGroup>;
     limit?: number;
     offset?: number;
-    orderBy: string;
-    orderDirection: string;
+    orderBy?: string;
+    orderDirection?: string;
   }): Promise<RecordsResponse> {
     const query = this.client.table(tableName);
 
