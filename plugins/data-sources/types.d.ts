@@ -7,7 +7,7 @@ export type DataSourceInfo = {
   description: string;
   readOnly: boolean;
   pagination: PaginationType;
-  supports?: {
+  supports: {
     filters: boolean;
     columnsRequest: boolean;
     views: boolean;

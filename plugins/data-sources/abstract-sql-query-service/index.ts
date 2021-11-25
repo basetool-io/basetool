@@ -1,6 +1,9 @@
 import { DataSourceInfo } from "../types";
 
-export const defaultSettings: Partial<DataSourceInfo> = {
+export const defaultSettings: Omit<
+  DataSourceInfo,
+  "id" | "name" | "description"
+> = {
   readOnly: false,
   pagination: "offset",
   supports: {

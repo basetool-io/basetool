@@ -18,7 +18,7 @@ const info: GoogleSheetsDataSourceInfo = {
   ],
   runsInProxy: false,
   supports: {
-    ...defaultSettings?.supports,
+    ...defaultSettings.supports,
     views: false,
   }
 };

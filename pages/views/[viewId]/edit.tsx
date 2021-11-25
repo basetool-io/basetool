@@ -120,7 +120,6 @@ const Edit = () => {
     dataSourceResponse,
     recordsResponse,
     columnsResponse,
-    tableName,
     options: { forEdit: true },
   });
 
