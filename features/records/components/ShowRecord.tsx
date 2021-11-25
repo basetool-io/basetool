@@ -58,38 +58,28 @@ const ShowRecord = () => {
     { skip: !dataSourceId || !tableName }
   );
 
-  // const columns = useMemo(
-  //   () =>
-  //     sortBy(getFilteredColumns(columnsResponse?.data, "show"), [
-  //       (column: Column) => column?.baseOptions?.orderIndex,
-  //     ]),
-  //   [columnsResponse?.data]
-  // );
-
   // Figure out where we should fetch the columns from.
   // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
   // We should probably use just one source in the future.
-  const columns = useMemo(() => {
-    // let columns: Column[] = [];
-
+  const rawColumns = useMemo(() => {
     if (
+      recordResponse?.ok &&
       dataSourceResponse?.ok &&
       dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
         false
     ) {
-      if (recordResponse?.ok) {
-        return recordResponse?.meta?.columns;
-      }
+      return recordResponse?.meta?.columns;
+    } else if (columnsResponse?.ok) {
+      return columnsResponse?.data;
     } else {
-      if (columnsResponse?.ok) {
-        return getFilteredColumns(columnsResponse?.data, "index");
-      }
+      return [];
     }
+  }, [dataSourceResponse, columnsResponse]);
 
-    // if (isArray(columns)) {
-    //   setColumns(columns as []);
-    // }
-  }, [recordResponse, dataSourceResponse, columnsResponse, tableName]);
+  const columns = useMemo(
+    () => getFilteredColumns(rawColumns, "show"),
+    [rawColumns]
+  );
 
   const record = useMemo(() => recordResponse?.data, [recordResponse?.data]);
 
