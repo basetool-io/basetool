@@ -26,7 +26,7 @@ function ViewEditVisibility({
         {!viewIsLoading && (
           <Checkbox
             colorScheme="gray"
-            isChecked={view.public}
+            isChecked={view?.public}
             onChange={(e) => updateVisibility(e.currentTarget.checked)}
           >
             Visible to all members
