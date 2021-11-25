@@ -4,7 +4,7 @@ import { DataSource } from "@prisma/client";
 import { GoogleSheetsCredentials, GoogleSheetsDataSource } from "./types";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { IFilter } from "@/features/tables/types";
-import { IQueryService } from "../types";
+import { IQueryService, RecordResponse, RecordsResponse } from "../types";
 import { OAuth2Client } from "google-auth-library";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { getBaseOptions } from "@/features/fields";
@@ -207,14 +207,14 @@ class QueryService implements IQueryService {
     orderBy: string;
     orderDirection: string;
     columns: Column[];
-  }): Promise<[]> {
+  }): Promise<RecordsResponse> {
     await this.loadInfo();
 
-    if (!this.doc) return [];
+    if (!this.doc) return { records: [] };
 
     const sheet = this.doc.sheetsByTitle[tableName];
     const rawRows = await sheet.getRows();
-    const rows = rawRows.map((row) => {
+    const records = rawRows.map((row) => {
       return Object.fromEntries(
         Object.entries(row)
           .map(([key, value]) => {
@@ -227,7 +227,7 @@ class QueryService implements IQueryService {
       );
     });
 
-    return rows as [];
+    return { records };
   }
 
   public async getRecord({
@@ -238,7 +238,7 @@ class QueryService implements IQueryService {
     tableName: string;
     recordId: string;
     columns: Column[];
-  }): Promise<Record<string, unknown> | undefined> {
+  }): Promise<RecordResponse | undefined> {
     await this.loadInfo();
 
     if (!this.doc) return;
@@ -247,7 +247,7 @@ class QueryService implements IQueryService {
 
     if (!row) return;
 
-    return Object.fromEntries(
+    const record = Object.fromEntries(
       Object.entries(row)
         .map(([key, value]) => {
           // Convert the rowNumber to an ID
@@ -257,6 +257,8 @@ class QueryService implements IQueryService {
         })
         .filter(([key, value]) => !key.startsWith("_")) // Remove private fields off the object
     );
+
+    return { record };
   }
 
   public async createRecord({
