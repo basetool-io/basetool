@@ -1,5 +1,5 @@
 import { useDataSourceContext } from "@/hooks";
-import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks"
 import { useViewResponse } from "../hooks";
 import React from "react";
 import Shimmer from "@/components/Shimmer";

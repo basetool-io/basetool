@@ -5,6 +5,7 @@ import {
   OrganizationUser,
   User,
 } from "@prisma/client";
+import { Role } from "@/features/roles/AccessControlService";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   dataSourceIdSelector,
@@ -23,21 +24,11 @@ import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
 import { useViewResponse } from "@/features/views/hooks";
-import AccessControlService, {
-  Role,
-} from "@/features/roles/AccessControlService";
 import ApiService from "@/features/api/ApiService";
 
 export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-export const useAccessControl = () => {
-  const { role } = useProfile();
-  const ac = useMemo(() => new AccessControlService(role), [role]);
-
-  return ac;
-};
 
 export const useResponsive = () => {
   if (!document)
