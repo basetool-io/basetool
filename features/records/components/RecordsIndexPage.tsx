@@ -9,8 +9,8 @@ import {
   useDataSourceContext,
 } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useViewResponse } from "@/features/views/hooks"
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import { useViewResponse } from "@/features/views/hooks";
 import BulkDeleteButton from "@/features/tables/components/BulkDeleteButton";
 import CursorPagination from "@/features/tables/components/CursorPagination";
 import FiltersButton from "@/features/tables/components/FiltersButton";
@@ -34,10 +34,7 @@ const RecordsIndexPage = ({
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
   const { view } = useViewResponse(viewId);
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { info } = useDataSourceResponse(dataSourceId);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -73,35 +70,28 @@ const RecordsIndexPage = ({
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
 
   const PaginationComponent = useMemo(() => {
-    switch (dataSourceResponse?.meta?.dataSourceInfo?.pagination) {
+    switch (info?.pagination) {
       default:
       case "offset":
         return OffsetPagination;
       case "cursor":
         return CursorPagination;
     }
-  }, [dataSourceResponse?.meta?.dataSourceInfo?.pagination]);
+  }, [info?.pagination]);
 
   const canBulkDelete = useMemo(
-    () =>
-      ac.deleteAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.deleteAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
 
   const canCreate = useMemo(
-    () =>
-      ac.createAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.createAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
 
   const canCreateView = useMemo(
-    () =>
-      !viewId &&
-      ac.hasRole(OWNER_ROLE) &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [viewId, ac, dataSourceResponse]
+    () => !viewId && ac.hasRole(OWNER_ROLE) && !info?.readOnly,
+    [viewId, ac, info]
   );
 
   const canEditView = useMemo(
@@ -180,13 +170,12 @@ const RecordsIndexPage = ({
           <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
             {filtersPanelVisible && <FiltersPanel ref={filtersPanel} />}
             <div className="flex flex-shrink-0">
-              {dataSourceResponse?.ok &&
-                dataSourceResponse?.meta?.dataSourceInfo?.supports?.filters && (
-                  <FiltersButton
-                    filtersButtonRef={filtersButton}
-                    toggleFiltersPanelVisible={toggleFiltersPanelVisible}
-                  />
-                )}
+              {info?.supports?.filters && (
+                <FiltersButton
+                  filtersButtonRef={filtersButton}
+                  toggleFiltersPanelVisible={toggleFiltersPanelVisible}
+                />
+              )}
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">

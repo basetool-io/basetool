@@ -1,5 +1,5 @@
 import { OrderDirection } from "@/features/tables/types";
-import { OrderParams } from "@/features/views/types"
+import { OrderParams } from "@/features/views/types";
 import { debounce, first } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
@@ -11,8 +11,8 @@ import {
   useRecords,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import { useViewResponse } from "@/features/views/hooks";
@@ -23,10 +23,7 @@ function ViewShow() {
   const router = useRouter();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { view } = useViewResponse(viewId);
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
     resetState();

@@ -13,8 +13,8 @@ import {
   useRecords,
 } from "@/features/records/hooks";
 import { useDataSourceContext, useSegment } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import {
   useRemoveViewMutation,
@@ -48,10 +48,7 @@ const Edit = () => {
     error: viewError,
   } = useViewResponse(viewId);
 
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
     resetState();

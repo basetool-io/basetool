@@ -1,10 +1,8 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useDataSourceContext } from "@/hooks";
-import {
-  useGetDataSourceQuery,
-  useRemoveDataSourceMutation,
-} from "@/features/data-sources/api-slice";
+import { useDataSourceResponse } from "../hooks";
+import { useRemoveDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import DataSourceEditName from "@/features/data-sources/components/DataSourceEditName";
@@ -36,18 +34,13 @@ const DataSourcesEditLayout = ({
   dataSourceId ||= appRouterDataSourceId;
 
   const {
-    data: dataSourceResponse,
-    error: dataSourceError,
+    dataSource,
     isLoading: dataSourceIsLoading,
-  } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+    error: dataSourceError,
+  } = useDataSourceResponse(dataSourceId);
 
   backLink ||= `/data-sources/${dataSourceId}/`;
-  crumbs ||= [dataSourceResponse?.data?.name, "Edit"];
+  crumbs ||= [dataSource?.name || "", "Edit"];
 
   const [removeDataSource, { isLoading: dataSourceIsRemoving }] =
     useRemoveDataSourceMutation();

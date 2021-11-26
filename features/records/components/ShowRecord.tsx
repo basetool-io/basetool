@@ -4,12 +4,12 @@ import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getVisibleColumns, makeField } from "@/features/fields";
 import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ErrorMessage from "@/components/ErrorMessage";
@@ -31,10 +31,7 @@ const ShowRecord = () => {
     recordsPath,
     viewId,
   } = useDataSourceContext();
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { info } = useDataSourceResponse(dataSourceId);
   const {
     data: recordResponse,
     error,
@@ -62,19 +59,14 @@ const ShowRecord = () => {
   // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
   // We should probably use just one source in the future.
   const rawColumns = useMemo(() => {
-    if (
-      recordResponse?.ok &&
-      dataSourceResponse?.ok &&
-      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
-        false
-    ) {
+    if (recordResponse?.ok && info?.supports?.columnsRequest === false) {
       return recordResponse?.meta?.columns;
     } else if (columnsResponse?.ok) {
       return columnsResponse?.data;
     } else {
       return [];
     }
-  }, [dataSourceResponse, recordResponse, columnsResponse]);
+  }, [info, recordResponse, columnsResponse]);
 
   const columns = useMemo(
     () => getVisibleColumns(rawColumns, "show"),
@@ -115,17 +107,13 @@ const ShowRecord = () => {
   }, [canRead, router]);
 
   const canEdit = useMemo(
-    () =>
-      ac.updateAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.updateAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
 
   const canDelete = useMemo(
-    () =>
-      ac.deleteAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.deleteAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
 
   // Don't show them the show page if the user can't read

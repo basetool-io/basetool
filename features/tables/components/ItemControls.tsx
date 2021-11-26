@@ -1,8 +1,8 @@
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
 import { useAccessControl, useDataSourceContext, useResponsive } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useDeleteRecordMutation } from "@/features/records/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import Link from "next/link";
 import React, { memo, useMemo } from "react";
 
@@ -14,12 +14,7 @@ function ItemControls({ recordId }: { recordId: string }) {
   const [deleteRecord] = useDeleteRecordMutation();
   const ac = useAccessControl();
 
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  const { info } = useDataSourceResponse(dataSourceId);
 
   const handleDelete = async () => {
     const confirmed = confirm("Are you sure you want to remove this record?");
@@ -34,16 +29,12 @@ function ItemControls({ recordId }: { recordId: string }) {
 
   const canView = useMemo(() => ac.readAny("record").granted, [ac]);
   const canEdit = useMemo(
-    () =>
-      ac.updateAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.updateAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
   const canDelete = useMemo(
-    () =>
-      ac.deleteAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
+    () => ac.deleteAny("record").granted && !info?.readOnly,
+    [ac, info]
   );
 
   const ViewButton = () => (
