@@ -1,4 +1,5 @@
 import {
+  ChatAltIcon,
   ClockIcon,
   HomeIcon,
   PlusIcon,
@@ -8,13 +9,15 @@ import { DataSource } from "@prisma/client";
 import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
+import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useProfile, useSidebarsVisible } from "@/hooks";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Avatar from "react-avatar";
+import FeedbackPanel from "./FeedbackPanel";
 import Link from "next/link";
-import React, { ReactNode, memo } from "react";
+import React, { ReactNode, memo, useRef } from "react";
 import classNames from "classnames";
 
 const DataSourceItem = ({
@@ -113,6 +116,25 @@ const DataSourcesSidebar = () => {
     </Link>
   );
 
+  const [feedbackPanelVisible, toggleFeedbackPanelVisible] = useBoolean(false);
+  // const feedbackButton = useRef(null);
+  const feedbackPanel = useRef(null);
+
+  useClickAway(feedbackPanel, (e) => {
+    // When a user click the filters button to close the filters panel, the button is still outside,
+    // so the action triggers twice closing and opening the filters panel.
+    const target = e.target as Element;
+
+    //TODO find a way to bypass when you click on that button but not on the svq
+    if (target.id !== "feedback-button") {
+      toggleFeedbackPanelVisible(false);
+    }
+  });
+
+  const handleShowFeedbackPanelClick = () => {
+    toggleFeedbackPanelVisible();
+  };
+
   return (
     <div
       className={classNames("flex flex-1 flex-grow-0 flex-shrink-0", {
@@ -204,6 +226,29 @@ const DataSourcesSidebar = () => {
                 </a>
               </Link>
             )}
+
+            <DataSourceItem
+              active={feedbackPanelVisible}
+              compact={compact}
+              icon={
+                <ChatAltIcon
+                  className="h-6 w-6 text-white"
+                  id="feedback-button"
+                />
+              }
+              label={`Give feedback`}
+              onClick={handleShowFeedbackPanelClick}
+            />
+
+            {feedbackPanelVisible && (
+              <div
+                className="absolute right-auto left-16 bottom-16 z-50"
+                ref={feedbackPanel}
+              >
+                <FeedbackPanel closePanel={() => toggleFeedbackPanelVisible(false)}/>
+              </div>
+            )}
+
             <DataSourceItem
               active={router.asPath.includes(`/profile`)}
               compact={compact}
