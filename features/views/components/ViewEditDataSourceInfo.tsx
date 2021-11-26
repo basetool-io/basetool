@@ -1,24 +1,17 @@
 import { useDataSourceContext } from "@/hooks";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetViewQuery } from "../api-slice";
-import React, { useMemo } from "react";
+import { useViewResponse } from "../hooks"
+import React from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 
 function ViewEditDataSourceInfo() {
   const { viewId, dataSourceId } = useDataSourceContext();
-  const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
-    { viewId },
-    { skip: !viewId }
-  );
+  const { view, isLoading: viewIsLoading } = useViewResponse(viewId);
   const { data: dsResponse, isLoading: dsIsLoading } = useGetDataSourceQuery(
     { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
+    { skip: !dataSourceId }
   );
-
-  const view = useMemo(() => viewResponse?.data, [viewResponse]);
 
   return (
     <div className="grid space-y-4 lg:space-y-0 lg:grid-cols-2">

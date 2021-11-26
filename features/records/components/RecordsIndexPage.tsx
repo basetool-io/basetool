@@ -10,7 +10,7 @@ import {
 } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
+import { useViewResponse } from "@/features/views/hooks"
 import BulkDeleteButton from "@/features/tables/components/BulkDeleteButton";
 import CursorPagination from "@/features/tables/components/CursorPagination";
 import FiltersButton from "@/features/tables/components/FiltersButton";
@@ -33,7 +33,7 @@ const RecordsIndexPage = ({
   const ac = useAccessControl();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { view } = useViewResponse(viewId);
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
     { skip: !dataSourceId }
@@ -61,14 +61,14 @@ const RecordsIndexPage = ({
   );
 
   const headingText = useMemo(() => {
-    if (viewId && viewResponse?.ok) {
-      return viewResponse?.data.name;
+    if (view) {
+      return view.name;
     } else if (tableName) {
       return humanize(tableName);
     } else {
       return "Browse records";
     }
-  }, [viewId, viewResponse, tableName]);
+  }, [view, tableName]);
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
 

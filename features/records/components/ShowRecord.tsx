@@ -213,4 +213,3 @@ const ShowRecord = () => {
 };
 
 export default memo(ShowRecord);
-

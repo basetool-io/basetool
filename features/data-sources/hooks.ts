@@ -8,6 +8,8 @@ export const useDataSourceResponse = (dataSourceId: string) => {
     isFetching,
   } = useGetDataSourceQuery({ dataSourceId }, { skip: !dataSourceId });
 
+  const dataSource = useMemo(() => response?.ok && response.data, [response]);
+
   const info = useMemo(() => {
     if (response && response.ok) {
       return response.meta?.dataSourceInfo;
@@ -17,6 +19,7 @@ export const useDataSourceResponse = (dataSourceId: string) => {
   }, [response]);
 
   return {
+    dataSource,
     response,
     isLoading,
     isFetching,

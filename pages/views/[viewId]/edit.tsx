@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/react";
 import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { debounce, pick } from "lodash";
+import { debounce, first, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/records/state-slice";
 import {
@@ -15,14 +15,13 @@ import {
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
 import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import {
-  useGetViewQuery,
   useRemoveViewMutation,
   useUpdateViewMutation,
 } from "@/features/views/api-slice";
-import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
-import { useUpdateColumn } from "@/features/views/hooks";
+import { useUpdateColumn, useViewResponse } from "@/features/views/hooks";
 import BackButton from "@/features/records/components/BackButton";
 import FieldEditor from "@/features/views/components/FieldEditor";
 import Layout from "@/components/Layout";
@@ -43,13 +42,11 @@ const Edit = () => {
   useSegment("Tried to edit a view.", {
     viewId,
   });
-
   const {
-    data: viewResponse,
+    view,
     isLoading: viewIsLoading,
     error: viewError,
-  } = useGetViewQuery({ viewId }, { skip: !viewId });
-  const view = useMemo(() => viewResponse?.data, [viewResponse?.data]);
+  } = useViewResponse(viewId);
 
   const { data: dataSourceResponse } = useGetDataSourceQuery(
     { dataSourceId },
@@ -61,18 +58,15 @@ const Edit = () => {
   }, [viewId]);
 
   const backLink = `/views/${viewId}`;
-  const crumbs = useMemo(
-    () => ["Edit view", viewResponse?.data?.name],
-    [viewResponse?.data?.name]
-  );
+  const crumbs = useMemo(() => ["Edit view", view?.name], [view?.name]);
   const { encodedFilters, appliedFilters } = useFilters();
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
-      viewResponse?.data?.defaultOrder[0]?.columnName ||
+      first(view?.defaultOrder as OrderParams[])?.columnName ||
       "",
     (router.query.orderDirection as OrderDirection) ||
-      viewResponse?.data?.defaultOrder[0]?.direction ||
+      first(view?.defaultOrder as OrderParams[])?.direction ||
       ""
   );
 
@@ -125,7 +119,13 @@ const Edit = () => {
 
   useEffect(() => {
     if (viewId) debouncedFetch(getRecordsArguments);
-  }, [viewId, tableName, dataSourceId, getRecordsArguments, columnsResponse?.data]);
+  }, [
+    viewId,
+    tableName,
+    dataSourceId,
+    getRecordsArguments,
+    columnsResponse?.data,
+  ]);
 
   const isFetching = recordsAreFetching || columnsAreFetching;
 
@@ -179,7 +179,7 @@ const Edit = () => {
   };
 
   const updateName = async (name: string) => {
-    if (name !== view.name) commitViewUpdate("name", name);
+    if (name !== view?.name) commitViewUpdate("name", name);
   };
 
   const updateVisibility = async (publicView: boolean) => {
