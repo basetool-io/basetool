@@ -1,16 +1,12 @@
 import { Button, ButtonGroup } from "@chakra-ui/react";
-import { OWNER_ROLE } from "@/features/roles";
 import { PencilAltIcon, PlusIcon } from "@heroicons/react/outline";
 import { columnsSelector } from "../state-slice";
 import { humanize } from "@/lib/humanize";
-import {
-  useAccessControl,
-  useAppSelector,
-  useDataSourceContext,
-} from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useAppSelector, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import { useViewResponse } from "@/features/views/hooks";
 import BulkDeleteButton from "@/features/tables/components/BulkDeleteButton";
 import CursorPagination from "@/features/tables/components/CursorPagination";
 import FiltersButton from "@/features/tables/components/FiltersButton";
@@ -30,14 +26,10 @@ const RecordsIndexPage = ({
   error?: string;
   isFetching?: boolean;
 }) => {
-  const ac = useAccessControl();
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { view } = useViewResponse(viewId);
+  const { info } = useDataSourceResponse(dataSourceId);
 
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);
@@ -61,53 +53,29 @@ const RecordsIndexPage = ({
   );
 
   const headingText = useMemo(() => {
-    if (viewId && viewResponse?.ok) {
-      return viewResponse?.data.name;
+    if (view) {
+      return view.name;
     } else if (tableName) {
       return humanize(tableName);
     } else {
       return "Browse records";
     }
-  }, [viewId, viewResponse, tableName]);
+  }, [view, tableName]);
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
 
   const PaginationComponent = useMemo(() => {
-    switch (dataSourceResponse?.meta?.dataSourceInfo?.pagination) {
+    switch (info?.pagination) {
       default:
       case "offset":
         return OffsetPagination;
       case "cursor":
         return CursorPagination;
     }
-  }, [dataSourceResponse?.meta?.dataSourceInfo?.pagination]);
+  }, [info?.pagination]);
 
-  const canBulkDelete = useMemo(
-    () =>
-      ac.deleteAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
-
-  const canCreate = useMemo(
-    () =>
-      ac.createAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
-
-  const canCreateView = useMemo(
-    () =>
-      !viewId &&
-      ac.hasRole(OWNER_ROLE) &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [viewId, ac, dataSourceResponse]
-  );
-
-  const canEditView = useMemo(
-    () => viewId && ac.hasRole(OWNER_ROLE),
-    [viewId, ac]
-  );
+  const { canBulkDelete, canCreate, canCreateView, canEditView } =
+    useACLHelpers({ dataSourceInfo: info, viewId });
 
   const CreateButton = () => {
     if (!newRecordPath) return null;
@@ -180,13 +148,12 @@ const RecordsIndexPage = ({
           <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
             {filtersPanelVisible && <FiltersPanel ref={filtersPanel} />}
             <div className="flex flex-shrink-0">
-              {dataSourceResponse?.ok &&
-                dataSourceResponse?.meta?.dataSourceInfo?.supports?.filters && (
-                  <FiltersButton
-                    filtersButtonRef={filtersButton}
-                    toggleFiltersPanelVisible={toggleFiltersPanelVisible}
-                  />
-                )}
+              {info?.supports?.filters && (
+                <FiltersButton
+                  filtersButtonRef={filtersButton}
+                  toggleFiltersPanelVisible={toggleFiltersPanelVisible}
+                />
+              )}
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full">

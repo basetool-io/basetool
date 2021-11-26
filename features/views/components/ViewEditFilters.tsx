@@ -8,7 +8,6 @@ import { FilterOrFilterGroup } from "@/features/tables/types";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useFilters } from "@/features/records/hooks";
-import { useGetViewQuery } from "@/features/views/api-slice";
 import CompactFiltersView from "@/features/views/components/CompactFiltersView";
 import FiltersPanel from "@/features/tables/components/FiltersPanel";
 import React, { useRef } from "react";
@@ -24,9 +23,6 @@ const ViewEditFilters = ({
     defaultIsOpen: true,
   });
   const { viewId } = useDataSourceContext();
-
-  // const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
-
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
   const filtersButton = useRef(null);
   const filtersPanel = useRef(null);

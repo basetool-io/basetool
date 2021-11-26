@@ -1,5 +1,5 @@
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import {
-  useGetDataSourceQuery,
   useGetSheetsQuery,
   useSetSheetToDataSourceMutation,
 } from "@/features/data-sources/api-slice";
@@ -15,12 +15,7 @@ function GoogleSheetsSetup() {
   const dataSourceId = router.query.dataSourceId as string;
   const dataSourceName = "google-sheets";
   const [isReloading, setIsReloading] = useState(false);
-  const { refetch: refetchDataSource } = useGetDataSourceQuery(
-    { dataSourceId },
-    {
-      skip: !dataSourceId,
-    }
-  );
+  const { refetch: refetchDataSource } = useDataSourceResponse(dataSourceId);
   const { refetch: refetchTables } = useGetTablesQuery(
     { dataSourceId },
     { skip: !dataSourceId }

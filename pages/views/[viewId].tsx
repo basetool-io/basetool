@@ -1,5 +1,6 @@
 import { OrderDirection } from "@/features/tables/types";
-import { debounce } from "lodash";
+import { OrderParams } from "@/features/views/types";
+import { debounce, first } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
 import {
@@ -10,22 +11,19 @@ import {
   useRecords,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
+import { useViewResponse } from "@/features/views/hooks";
 import React, { useCallback, useEffect, useMemo } from "react";
 import RecordsIndexPage from "@/features/records/components/RecordsIndexPage";
 
 function ViewShow() {
   const router = useRouter();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { view } = useViewResponse(viewId);
+  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
     resetState();
@@ -35,10 +33,10 @@ function ViewShow() {
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
-      viewResponse?.data?.defaultOrder[0]?.columnName ||
+      first(view?.defaultOrder as OrderParams[])?.columnName ||
       "",
     (router.query.orderDirection as OrderDirection) ||
-      viewResponse?.data?.defaultOrder[0]?.direction ||
+      first(view?.defaultOrder as OrderParams[])?.direction ||
       ""
   );
 

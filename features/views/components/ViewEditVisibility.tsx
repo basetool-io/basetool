@@ -1,7 +1,7 @@
 import { Checkbox } from "@chakra-ui/react";
 import { useDataSourceContext } from "@/hooks";
-import { useGetViewQuery } from "../api-slice";
-import React, { useMemo } from "react";
+import { useViewResponse } from "../hooks";
+import React from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 
@@ -11,12 +11,7 @@ function ViewEditVisibility({
   updateVisibility: (visible: boolean) => void;
 }) {
   const { viewId } = useDataSourceContext();
-  const { data: viewResponse, isLoading: viewIsLoading } = useGetViewQuery(
-    { viewId },
-    { skip: !viewId }
-  );
-
-  const view = useMemo(() => viewResponse?.data, [viewResponse]);
+  const { view, isLoading: viewIsLoading } = useViewResponse(viewId);
 
   return (
     <div>
@@ -31,7 +26,7 @@ function ViewEditVisibility({
         {!viewIsLoading && (
           <Checkbox
             colorScheme="gray"
-            isChecked={view.public}
+            isChecked={view?.public}
             onChange={(e) => updateVisibility(e.currentTarget.checked)}
           >
             Visible to all members

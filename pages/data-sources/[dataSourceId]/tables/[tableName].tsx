@@ -10,8 +10,8 @@ import {
   useResetState,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -21,11 +21,7 @@ function TableShow() {
   const router = useRouter();
   const resetState = useResetState();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
-
+  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
   useEffect(() => {
     resetState();
   }, [tableName, dataSourceId]);

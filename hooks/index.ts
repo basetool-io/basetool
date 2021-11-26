@@ -5,6 +5,7 @@ import {
   OrganizationUser,
   User,
 } from "@prisma/client";
+import { Role } from "@/features/roles/AccessControlService";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import {
   dataSourceIdSelector,
@@ -18,26 +19,16 @@ import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
 import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/profile/api-slice";
-import { useGetViewQuery } from "@/features/views/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import AccessControlService, {
-  Role,
-} from "@/features/roles/AccessControlService";
+import { useViewResponse } from "@/features/views/hooks";
 import ApiService from "@/features/api/ApiService";
 
 export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-export const useAccessControl = () => {
-  const { role } = useProfile();
-  const ac = useMemo(() => new AccessControlService(role), [role]);
-
-  return ac;
-};
 
 export const useResponsive = () => {
   if (!document)
@@ -132,16 +123,13 @@ export const useDataSourceContext = () => {
   const tableName = useAppSelector(tableNameSelector);
 
   const viewId = router.query.viewId as string;
-  const { data: viewResponse } = useGetViewQuery({ viewId }, { skip: !viewId });
+  const { view } = useViewResponse(viewId);
 
   useEffect(() => {
-    if (viewResponse?.ok) {
-      if (viewResponse?.data?.dataSourceId)
-        dispatch(setDataSourceId(viewResponse.data.dataSourceId.toString()));
-      if (viewResponse?.data?.tableName)
-        dispatch(setTableName(viewResponse.data.tableName));
-    }
-  }, [viewResponse]);
+    if (view?.dataSourceId)
+      dispatch(setDataSourceId(view.dataSourceId.toString()));
+    if (view?.tableName) dispatch(setTableName(view.tableName));
+  }, [view]);
 
   useEffect(() => {
     if (router.query.dataSourceId) {
@@ -155,7 +143,12 @@ export const useDataSourceContext = () => {
     } else if (router.pathname === "/") {
       dispatch(setDataSourceId(""));
     }
-  }, [router.pathname, router.query.dataSourceId, router.query.tableName, router.query.viewId]);
+  }, [
+    router.pathname,
+    router.query.dataSourceId,
+    router.query.tableName,
+    router.query.viewId,
+  ]);
 
   const recordId = useMemo(
     () => router.query.recordId as string,

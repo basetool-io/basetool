@@ -1,9 +1,10 @@
 import { Column } from "@/features/fields/types";
 import { getVisibleColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useDataSourceContext } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useGetRecordQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import ErrorMessage from "@/components/ErrorMessage";
@@ -52,13 +53,8 @@ const EditRecord = () => {
     [recordResponse?.data]
   );
 
-  const { isLoading: profileIsLoading } = useProfile();
-  const ac = useAccessControl();
-  const canEdit = useMemo(() => {
-    if (profileIsLoading) return true;
-
-    return ac.updateAny("record").granted;
-  }, [ac, profileIsLoading]);
+  const { info } = useDataSourceResponse(dataSourceId);
+  const { canEdit } = useACLHelpers({ dataSourceInfo: info });
 
   // Redirect to record page if the user can't edit
   useEffect(() => {
@@ -66,16 +62,7 @@ const EditRecord = () => {
       router.push(`${recordsPath}/${recordId}`);
     }
   }, [canEdit]);
-
-  const { data: dsResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
-
-  const isReadOnly = useMemo(
-    () => dsResponse?.ok && dsResponse?.meta?.dataSourceInfo?.readOnly,
-    [dsResponse]
-  );
+  const isReadOnly = useMemo(() => info?.readOnly, [info]);
 
   const formIsVisible = useMemo(
     () =>

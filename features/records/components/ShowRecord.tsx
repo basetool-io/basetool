@@ -3,13 +3,14 @@ import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { getField } from "@/features/fields/factory";
 import { getVisibleColumns, makeField } from "@/features/fields";
-import { useAccessControl, useDataSourceContext, useProfile } from "@/hooks";
+import { useACLHelpers } from "@/features/authorization/hooks";
+import { useDataSourceContext } from "@/hooks";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import {
   useDeleteRecordMutation,
   useGetRecordQuery,
 } from "@/features/records/api-slice";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import ErrorMessage from "@/components/ErrorMessage";
@@ -31,10 +32,7 @@ const ShowRecord = () => {
     recordsPath,
     viewId,
   } = useDataSourceContext();
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { info } = useDataSourceResponse(dataSourceId);
   const {
     data: recordResponse,
     error,
@@ -62,19 +60,14 @@ const ShowRecord = () => {
   // If the data source can fetch the columns ahead of time use those, if not, fetch from the records response.
   // We should probably use just one source in the future.
   const rawColumns = useMemo(() => {
-    if (
-      recordResponse?.ok &&
-      dataSourceResponse?.ok &&
-      dataSourceResponse?.meta?.dataSourceInfo?.supports?.columnsRequest ===
-        false
-    ) {
+    if (recordResponse?.ok && info?.supports?.columnsRequest === false) {
       return recordResponse?.meta?.columns;
     } else if (columnsResponse?.ok) {
       return columnsResponse?.data;
     } else {
       return [];
     }
-  }, [dataSourceResponse, recordResponse, columnsResponse]);
+  }, [info, recordResponse, columnsResponse]);
 
   const columns = useMemo(
     () => getVisibleColumns(rawColumns, "show"),
@@ -82,8 +75,6 @@ const ShowRecord = () => {
   );
 
   const record = useMemo(() => recordResponse?.data, [recordResponse?.data]);
-
-  const ac = useAccessControl();
 
   const [deleteRecord, { isLoading: isDeleting }] = useDeleteRecordMutation();
 
@@ -100,36 +91,19 @@ const ShowRecord = () => {
     }
   };
 
-  const { isLoading: profileIsLoading } = useProfile();
-  const canRead = useMemo(() => {
-    if (profileIsLoading) return true;
-
-    return ac.readAny("record").granted;
-  }, [ac, profileIsLoading]);
+  const { canView, canEdit, canDelete } = useACLHelpers({
+    dataSourceInfo: info,
+  });
 
   // Redirect to record page if the user can't read
   useEffect(() => {
-    if (!canRead && router) {
+    if (!canView && router) {
       router.push(tableIndexPath);
     }
-  }, [canRead, router]);
-
-  const canEdit = useMemo(
-    () =>
-      ac.updateAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
-
-  const canDelete = useMemo(
-    () =>
-      ac.deleteAny("record").granted &&
-      !dataSourceResponse?.meta?.dataSourceInfo?.readOnly,
-    [ac, dataSourceResponse]
-  );
+  }, [canView, router]);
 
   // Don't show them the show page if the user can't read
-  if (!canRead) return null;
+  if (!canView) return null;
 
   const DeleteButton = () => (
     <Button
@@ -213,4 +187,3 @@ const ShowRecord = () => {
 };
 
 export default memo(ShowRecord);
-

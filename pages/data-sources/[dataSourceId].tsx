@@ -1,6 +1,6 @@
 import { isNull } from "lodash";
 import { useDataSourceContext, useProfile } from "@/hooks";
-import { useGetDataSourceQuery } from "@/features/data-sources/api-slice";
+import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useGetViewsQuery } from "@/features/views/api-slice";
 import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
@@ -11,10 +11,7 @@ import ShimmerOrCount from "@/components/ShimmerOrCount";
 
 function DataSourcesShow() {
   const { dataSourceId } = useDataSourceContext();
-  const { data: dataSourceResponse } = useGetDataSourceQuery(
-    { dataSourceId },
-    { skip: !dataSourceId }
-  );
+  const { dataSource } = useDataSourceResponse(dataSourceId);
   const { data: tablesResponse, isLoading: tablesAreLoading } =
     useGetTablesQuery({ dataSourceId }, { skip: !dataSourceId });
 
@@ -26,16 +23,13 @@ function DataSourcesShow() {
   );
 
   const showGoogleSheetsSetup = useMemo(
-    () => isNull(dataSourceResponse?.data?.options?.spreadsheetId),
-    [dataSourceResponse?.data?.options?.spreadsheetId]
+    () => isNull((dataSource?.options as any)?.spreadsheetId),
+    [(dataSource?.options as any)?.spreadsheetId]
   );
 
   const { organizations, isLoading: sessionIsLoading } = useProfile();
   const organization = useMemo(
-    () =>
-      organizations.find(
-        (o) => o.id === parseInt(dataSourceResponse?.data?.organizationId)
-      ),
+    () => organizations.find((o) => o.id === dataSource?.organizationId),
     [organizations]
   );
 
@@ -44,7 +38,7 @@ function DataSourcesShow() {
       <>
         {showGoogleSheetsSetup && <GoogleSheetsSetup />}
         {showGoogleSheetsSetup || (
-          <PageWrapper heading={dataSourceResponse?.data?.name}>
+          <PageWrapper heading={dataSource?.name}>
             <div>
               This data source has{" "}
               <ShimmerOrCount
