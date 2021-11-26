@@ -1,6 +1,6 @@
 import { getUserFromRequest, getViewFromRequest } from "@/features/api";
-import { merge } from "lodash"
-import { serverSegment } from "@/lib/track"
+import { isArray, isObjectLike } from "lodash";
+import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
@@ -27,10 +27,10 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const columnName = req?.body?.name as string;
 
   if (!view || !columnName) return res.status(404).send("");
+  if (!isObjectLike(req.body)) return res.status(404).send("");
 
-  const columns = merge(view.columns, {
-    [columnName]: req.body,
-  });
+  const presentColumns = isArray(view.columns) ? view.columns : [];
+  const columns = [...presentColumns, req.body];
 
   const result = await prisma.view.update({
     where: {
