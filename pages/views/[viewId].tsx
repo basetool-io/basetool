@@ -1,6 +1,6 @@
 import { OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types"
-import { debounce } from "lodash";
+import { debounce, first } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
 import {
@@ -36,10 +36,10 @@ function ViewShow() {
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
-      (view?.defaultOrder as OrderParams[])[0]?.columnName ||
+      first(view?.defaultOrder as OrderParams[])?.columnName ||
       "",
     (router.query.orderDirection as OrderDirection) ||
-      (view?.defaultOrder as OrderParams[])[0]?.direction ||
+      first(view?.defaultOrder as OrderParams[])?.direction ||
       ""
   );
 
