@@ -47,7 +47,7 @@ export const withMiddlewares =
     // Run the handler. If it crashes, log the error to Sentry and respond with a nice message.
     try {
       return await newHandler(req, res);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const user = await getUserFromRequest(req, {
         select: { id: true },
       });
@@ -78,7 +78,7 @@ export const withMiddlewares =
         console.error(error);
       }
 
-      if (!res.headersSent) {
+      if ("code" in error && !res.headersSent) {
         const status = error.code && isNumber(error.code) ? error.code : 500;
 
         // For some reason, sometimes the sql error is not coming as instance of SQLError.

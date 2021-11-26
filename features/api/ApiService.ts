@@ -41,12 +41,12 @@ export const reactToResponse = (data: IApiResponse) => {
   }
 };
 
-export const reactToError = (data: any) => {
+export const reactToError = (data?: { messages?: ApiResponseMessage[] }) => {
   if (data) {
     const { messages } = data;
 
     if (messages) {
-      (data?.messages as ApiResponseMessage[]).map((message) =>
+      messages.map((message) =>
         message.type
           ? toast[message.type](message.message)
           : toast.error(message)

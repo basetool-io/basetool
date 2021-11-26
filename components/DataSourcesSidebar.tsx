@@ -36,7 +36,7 @@ const DataSourceItem = ({
   compact?: boolean;
   flush?: boolean;
   onClick?: () => void;
-  [name: string]: any;
+  [name: string]: unknown;
 }) => {
   const linkElement = (
     <a className="block" onClick={onClick} {...rest}>

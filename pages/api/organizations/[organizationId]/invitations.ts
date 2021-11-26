@@ -112,7 +112,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
       userId: newUser ? newUser.id : "",
       event: "Accepted invitation",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.debug(error);
     captureMessage(`Failed to send email ${error.message}`);
   }
@@ -235,7 +235,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     await email.send(emailData);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.debug(error);
     captureMessage(`Failed to send email ${error.message}`);
   }

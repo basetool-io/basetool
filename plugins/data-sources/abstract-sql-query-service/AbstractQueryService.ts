@@ -837,7 +837,7 @@ async function getDefaultFieldOptionsForFields(
           (await import(`@/plugins/fields/${column.fieldType}/fieldOptions`))
             .default,
         ];
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error.code !== "MODULE_NOT_FOUND") {
           logger.warn({
             msg: `Can't get the field options for '${column.name}' field.`,

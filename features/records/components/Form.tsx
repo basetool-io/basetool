@@ -36,7 +36,7 @@ const makeSchema = async (record: Record, columns: Column[]) => {
       fieldSchema = (
         await import(`@/plugins/fields/${column.fieldType}/schema`)
       ).default;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error.code !== "MODULE_NOT_FOUND")
         logger.warn("Error importing field schema->", error);
       fieldSchema = Joi.any();
@@ -174,7 +174,7 @@ const Form = ({
       } else {
         toast.error("Not enough data.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error?.data?.meta?.errorMessage, {
         // These error messages tend to be quite verbose
         // Add and offset to the left 320 pixels

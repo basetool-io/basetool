@@ -112,7 +112,7 @@ export const getQueryServiceWrapper = async (
     queryService = await getQueryServiceClass(dataSource.type);
 
     return new QueryServiceWrapper(queryService, dataSource);
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.code === "MODULE_NOT_FOUND") {
       // Returning a "null" Query service wrapper
       return {

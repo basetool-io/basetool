@@ -12,7 +12,7 @@ import { isArray, isEmpty, isNull, isUndefined } from "lodash";
 import React, { ElementType, memo, useMemo } from "react";
 import md5 from "md5";
 
-const prettyValue = (change: any) => {
+const prettyValue = (change: unknown) => {
   if (isUndefined(change))
     return <span className="text-xs uppercase">undefined</span>;
   if (isNull(change)) return <span className="text-xs uppercase">null</span>;

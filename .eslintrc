@@ -65,6 +65,7 @@
     //   }
     // ],
     "newline-before-return": 1,
+    "no-implicit-any-catch": 1,
     // "max-len": [
     //   "error",
     //   {

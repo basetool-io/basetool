@@ -75,7 +75,7 @@ const handler = async (
       subject: "New user signup",
       text: `New user with email ${payload.email} and organization ${payload.organization}`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error({
       msg: `Failed to send registration email.`,
       errorMessage: error.message,

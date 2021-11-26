@@ -36,7 +36,7 @@ const handler = async (
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const form = formidable();
   const { fields, files } = await new Promise((resolve, reject) => {
-    return form.parse(req, (error: any, fields: any, files: any) => {
+    return form.parse(req, (error: unknown, fields: any, files: any) => {
       if (error) reject(error);
 
       resolve({ fields, files });

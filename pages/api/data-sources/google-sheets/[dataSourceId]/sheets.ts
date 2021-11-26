@@ -34,7 +34,7 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     driveResponse = await api.listSpreadsheets();
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.send(ApiResponse.withError(error.message));
   }
 

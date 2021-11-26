@@ -66,7 +66,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
           dbCredentials,
           SSHCredentials,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If it's an SSH Error we just want to bubble it up. if it's an SQL error, mark it as one and bubble it up.
         if (error instanceof SSHConnectionError) {
           throw error;
@@ -77,7 +77,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
     } else {
       try {
         response = await Promise.all(actions.map((a) => a()));
-      } catch (error: any) {
+      } catch (error: unknown) {
         throw new SQLError(isString(error) ? error : error.message);
       }
     }
@@ -128,13 +128,13 @@ export const runInSSHTunnel = async ({
   // Because the tunnel uses a callback we're going to wrap it into a promise so we can await for it later.
   const tunnelPromise: Promise<Array<unknown>> = new Promise(
     (resolve, reject) => {
-      sshTunnel = tunnel(tunnelConfig, function (error: any, server: Server) {
+      sshTunnel = tunnel(tunnelConfig, function (error: unknown, server: Server) {
         if (error) reject(error);
 
         // Run the query and resolve/reject the promise with the result
         Promise.all(actions.map((action) => action()))
           .then((response: any) => resolve(response))
-          .catch((error: any) => reject(error));
+          .catch((error: unknown) => reject(error));
       });
       sshTunnel.on("error", (error) => {
         return reject(new SSHConnectionError(error.message));

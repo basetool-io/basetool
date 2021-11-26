@@ -30,7 +30,7 @@ class GoogleDriveService {
         pageSize: 1000,
         q: "mimeType: 'application/vnd.google-apps.spreadsheet'",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error.message.includes("Invalid Credentials")) {
         throw new Error(
           "Invalid Credentials. Please remove and re-add this data source."

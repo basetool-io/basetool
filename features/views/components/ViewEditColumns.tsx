@@ -127,7 +127,7 @@ const ColumnItem = ({
   );
 };
 
-const NameInput = forwardRef((props: any, ref: any) => {
+const NameInput = forwardRef((props: unknown, ref: any) => {
   return (
     <FormControl>
       <FormLabel htmlFor="name">Name</FormLabel>

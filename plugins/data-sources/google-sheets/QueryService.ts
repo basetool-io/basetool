@@ -319,7 +319,7 @@ class QueryService implements IQueryService {
       await row.save();
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(error.message);
 
       return false;
@@ -350,7 +350,7 @@ class QueryService implements IQueryService {
     try {
       // loads document properties and worksheets
       await this.doc?.loadInfo();
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (
         error.message.includes(
           "No refresh token or refresh handler callback is set"

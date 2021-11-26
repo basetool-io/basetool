@@ -17,8 +17,8 @@ export interface ApiResponseMessage {
 
 export interface IApiResponse {
   messages?: Array<string | ApiResponseMessage>;
-  data?: any;
-  meta?: any;
+  data?: unknown;
+  meta?: unknown;
   status?: "success" | "error" | "validation_error";
   joiPayload?: ValidationResult;
   redirectTo?: string;
@@ -55,7 +55,7 @@ class ApiResponse {
   }
 
   public static withData(
-    data: any,
+    data: unknown,
     options: IApiResponse & { message?: string } = {}
   ) {
     const { message } = options;

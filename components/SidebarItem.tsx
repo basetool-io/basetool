@@ -12,7 +12,7 @@ function SidebarItem({
   label: string;
   link: string;
   onClick?: () => void;
-  [name: string]: any;
+  [name: string]: unknown;
 }) {
   return (
     <Link href={link} passHref>
