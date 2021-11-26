@@ -1,6 +1,5 @@
 import { Button, Tooltip } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
-import { isNumber } from "lodash";
 import { useDataSourceContext } from "@/hooks";
 import { useDeleteBulkRecordsMutation } from "@/features/records/api-slice";
 import { useSelectRecords } from "@/features/records/hooks";
@@ -42,7 +41,7 @@ function BulkDeleteButton() {
   );
 
   useEffect(() => {
-    setFilteredSelectedRecords(selectedRecords.filter((id) => isNumber(id)));
+    setFilteredSelectedRecords(selectedRecords.filter((id) => id));
   }, [selectedRecords])
 
   return (
