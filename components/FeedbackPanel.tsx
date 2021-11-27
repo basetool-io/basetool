@@ -6,7 +6,15 @@ import { useSendFeedbackMutation } from "@/features/app/api-slice";
 import React, { memo, useState } from "react";
 import TinyLabel from "./TinyLabel";
 
-const FeedbackPanel = ({ label= "Feedback", closePanel }: { label?: string; closePanel?: () => void }) => {
+const FeedbackPanel = ({
+  label = "Feedback",
+  closePanel,
+  firstFieldRef,
+}: {
+  label?: string;
+  closePanel?: () => void;
+  firstFieldRef: any;
+}) => {
   const [emotion, setEmotion] = useState<string | null>(null);
   const [value, setValue] = useState<string | null>(null);
   const [sendFeedback, { isLoading }] = useSendFeedbackMutation();
@@ -34,6 +42,8 @@ const FeedbackPanel = ({ label= "Feedback", closePanel }: { label?: string; clos
         size="sm"
         className="text-black"
         resize="none"
+        autoFocus={true}
+        ref={firstFieldRef}
       />
       <hr />
       <div className="flex justify-between">
