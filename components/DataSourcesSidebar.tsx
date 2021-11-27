@@ -117,16 +117,14 @@ const DataSourcesSidebar = () => {
   );
 
   const [feedbackPanelVisible, toggleFeedbackPanelVisible] = useBoolean(false);
-  // const feedbackButton = useRef(null);
+  const feedbackButton = useRef(null);
   const feedbackPanel = useRef(null);
 
   useClickAway(feedbackPanel, (e) => {
     // When a user click the filters button to close the filters panel, the button is still outside,
     // so the action triggers twice closing and opening the filters panel.
-    const target = e.target as Element;
-
-    //TODO find a way to bypass when you click on that button but not on the svq
-    if (target.id !== "feedback-button") {
+    if (feedbackButton?.current &&
+      !(feedbackButton?.current as any)?.contains(e.target)) {
       toggleFeedbackPanelVisible(false);
     }
   });
@@ -227,22 +225,21 @@ const DataSourcesSidebar = () => {
               </Link>
             )}
 
+            <div ref={feedbackButton}>
             <DataSourceItem
               active={feedbackPanelVisible}
               compact={compact}
               icon={
-                <ChatAltIcon
-                  className="h-6 w-6 text-white"
-                  id="feedback-button"
-                />
+                <ChatAltIcon className="h-6 w-6 text-white" />
               }
-              label={`Give feedback`}
+              label={`Share any feedback or ideas`}
               onClick={handleShowFeedbackPanelClick}
             />
+            </div>
 
             {feedbackPanelVisible && (
               <div
-                className="absolute right-auto left-16 bottom-16 z-50"
+                className="absolute right-auto left-16 bottom-16 z-50 ml-1"
                 ref={feedbackPanel}
               >
                 <FeedbackPanel closePanel={() => toggleFeedbackPanelVisible(false)}/>

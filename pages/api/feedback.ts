@@ -24,7 +24,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const user = await getUserFromRequest(req);
 
   const emailData: any = {
-    to: "david@basetool.io",
+    to: "hi@basetool.io",
     subject: `New feedback message from ${user?.email || ""}`,
     html: `<div>
             <p>From: ${user?.email || ""}</p>
@@ -32,17 +32,17 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
             <p>Emotion: ${req.body.emotion}</p>
             <p>URL: ${req.body.url}</p>
           </div>`,
-    text: `From: ${user?.email || ""}; Message: ${req.body.note}; Emotion: ${req.body.emotion}; URL: ${req.body.url}`
+    text: `From: ${user?.email || ""}; Message: ${req.body.note}; Emotion: ${req.body.emotion}; URL: ${req.body.url};`
   };
 
   try {
-    const res = await email.send(emailData);
+    await email.send(emailData);
   } catch (error: any) {
     logger.debug(error);
-    captureMessage(`Failed to send email ${error.message}`);
+    captureMessage(`Failed to send email ${error.message}. Message: ${emailData.text}`);
   }
 
-  return res.json(ApiResponse.withMessage("Feedback provided!"));
+  return res.json(ApiResponse.withMessage("🙏🏼 Thank you!"));
 }
 
 export default withMiddlewares(handler, {

@@ -1,34 +1,32 @@
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { Button, IconButton, Textarea } from "@chakra-ui/react";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty } from "lodash";
 import { useRouter } from "next/router";
 import { useSendFeedbackMutation } from "@/features/app/api-slice";
 import React, { memo, useState } from "react";
 import TinyLabel from "./TinyLabel";
 
-const FeedbackPanel = ({ closePanel }: { closePanel?: () => void }) => {
+const FeedbackPanel = ({ label= "Feedback", closePanel }: { label?: string; closePanel?: () => void }) => {
   const [emotion, setEmotion] = useState<string | null>(null);
   const [value, setValue] = useState<string | null>(null);
   const [sendFeedback, { isLoading }] = useSendFeedbackMutation();
   const router = useRouter();
 
   const handleSendFeedback = async () => {
-    const res = await sendFeedback({
+    if (closePanel) closePanel();
+
+    await sendFeedback({
       body: {
         note: value ? value : "",
         emotion: emotion ? emotion : "",
         url: router.pathname ? router.pathname : "",
       },
-    });
-
-    if (res && res?.data && res?.data?.ok) {
-      if (!isUndefined(closePanel)) closePanel();
-    }
+    }).unwrap();
   };
 
   return (
-    <div className="border rounded-md shadow-lg bg-white z-30 p-4 ml-1 space-y-1">
-      <TinyLabel>Feedback</TinyLabel>
+    <div className="border rounded-md shadow-lg bg-white z-30 p-4 space-y-2">
+      <TinyLabel>{label}</TinyLabel>
       <Textarea
         value={value ? value : undefined}
         onChange={(e) => setValue(e.currentTarget.value)}
@@ -41,44 +39,44 @@ const FeedbackPanel = ({ closePanel }: { closePanel?: () => void }) => {
       <div className="flex justify-between">
         <div className="space-x-1">
           <IconButton
-            size="xs"
+            size="sm"
             className={`border hover:border-gray-500 ${
               emotion === "😻" ? "border-palatinate-blue " : ""
             }`}
             aria-label="star"
-            icon={<p>😻</p>}
+            icon={<p className="text-2xl mt-[1px]">😻</p>}
             onClick={() => setEmotion("😻")}
           />
           <IconButton
-            size="xs"
+            size="sm"
             className={`border hover:border-gray-500 ${
               emotion === "😸" ? "border-palatinate-blue " : ""
             }`}
             aria-label="happy"
-            icon={<p>😸</p>}
+            icon={<p className="text-2xl mt-[1px]">😸</p>}
             onClick={() => setEmotion("😸")}
           />
           <IconButton
-            size="xs"
+            size="sm"
             className={`border hover:border-gray-500 ${
               emotion === "😿" ? "border-palatinate-blue " : ""
             }`}
             aria-label="sad"
-            icon={<p>😿</p>}
+            icon={<p className="text-2xl mt-[1px]">😿</p>}
             onClick={() => setEmotion("😿")}
           />
           <IconButton
-            size="xs"
+            size="sm"
             className={`border hover:border-gray-500 ${
               emotion === "😾" ? "border-palatinate-blue " : ""
             }`}
             aria-label="cry"
-            icon={<p>😾</p>}
+            icon={<p className="text-2xl mt-[1px]">😾</p>}
             onClick={() => setEmotion("😾")}
           />
         </div>
         <Button
-          size="xs"
+          size="sm"
           colorScheme="blue"
           onClick={handleSendFeedback}
           isDisabled={isEmpty(value)}
