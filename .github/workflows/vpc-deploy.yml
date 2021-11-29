@@ -27,7 +27,7 @@ jobs:
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
       - name: "Run capistrano"
         run: |
-          'bundle exec cap staging deploy'
+          'cap staging deploy'
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
       # - name: Login to DockerHub
