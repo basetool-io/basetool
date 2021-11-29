@@ -21,6 +21,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Create .env file
+        run: |
+          echo "BASE_URL=localhost:7654\nNEXTAUTH_URL=http://localhost:7654\n" > .env
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
