@@ -13,22 +13,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.0.1 # Not needed with a .ruby-version file
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
+      - uses: ruby/setup-ruby@v1
         with:
-          key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }}
-          name: id_rsa # optional
-          # known_hosts: ${{ secrets.KNOWN_HOSTS }}
-          # config: ${{ secrets.CONFIG }} # ssh_config; optional
-          if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
-    - uses: miloserdow/capistrano-deploy@master
-      with:
-        target: development # Defines the environment that will be used for the deployment
-        deploy_key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }} # Na
+          ruby-version: 3.0.1 # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        - name: Install SSH key
+          uses: shimataro/ssh-key-action@v2
+          with:
+            key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }}
+            name: id_rsa # optional
+            # known_hosts: ${{ secrets.KNOWN_HOSTS }}
+            # config: ${{ secrets.CONFIG }} # ssh_config; optional
+            if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+      - uses: miloserdow/capistrano-deploy@master
+        with:
+          target: staging # Defines the environment that will be used for the deployment
+          deploy_key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }} # Na
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
       # - name: Login to DockerHub
