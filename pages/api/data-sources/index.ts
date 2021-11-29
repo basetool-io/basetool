@@ -8,6 +8,7 @@ import { getUserFromRequest } from "@/features/api";
 import { isEmpty, pick, sum } from "lodash";
 import { s3KeysBucket } from "@/features/data-sources";
 import { serverSegment } from "@/lib/track";
+import { trimValues } from "@/lib/helpers"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
@@ -124,7 +125,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const type = fields.type;
   let credentials;
   try {
-    credentials = JSON.parse(fields.credentials);
+    credentials = trimValues(JSON.parse(fields.credentials));
   } catch {}
 
   let options;
@@ -132,7 +133,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     options = JSON.parse(fields.options);
   } catch {}
 
-  const ssh = fields.ssh ? JSON.parse(fields.ssh) : {};
+  const ssh = fields.ssh ? trimValues(JSON.parse(fields.ssh)) : {};
   delete ssh.key; // remove the file reference
   const body: {
     name: string;
