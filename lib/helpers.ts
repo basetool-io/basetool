@@ -1,5 +1,6 @@
 import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import { isString, trim } from "lodash";
 
 export const randomString = (length = 12) => {
   let result = "";
@@ -51,4 +52,13 @@ export const extractMessageFromRTKError = (
 
   if ("data" in error) return (error as any)?.data?.messages[0];
   if ("message" in error) return error?.message;
+};
+
+export const trimValues = (obj: Record<string, unknown>): Record<string, unknown> => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      isString(value) ? trim(value) : value,
+    ])
+  );
 };
