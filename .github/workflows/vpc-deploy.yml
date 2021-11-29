@@ -25,10 +25,9 @@ jobs:
           known_hosts: ${{ secrets.BASETOOL_IO_CAPISTRANO_KNOWN_HOSTS }}
           # config: ${{ secrets.CONFIG }} # ssh_config; optional
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
-      - uses: miloserdow/capistrano-deploy@master
-        with:
-          target: staging # Defines the environment that will be used for the deployment
-          deploy_key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }} # Na
+      - name: "Run capistrano"
+        run: |
+          'bundle exec cap staging deploy'
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
       # - name: Login to DockerHub
