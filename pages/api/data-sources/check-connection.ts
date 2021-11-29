@@ -65,7 +65,7 @@ const parseCredentials = async (
 
   let credentials;
   try {
-    credentials = JSON.parse(fields.credentials);
+    credentials = trimValues(JSON.parse(fields.credentials));
   } catch {}
 
   let options = {};
@@ -78,9 +78,9 @@ const parseCredentials = async (
   ) as ISSHCredentials;
 
   // Cast port as int
-  if (isString(credentials.port)) credentials.port = parseInt(credentials.port);
+  if (credentials && isString(credentials.port)) credentials.port = parseInt(credentials.port);
 
-  return { type, credentials, options, SSHCredentials, files };
+  return { type, credentials: credentials as PgCredentials | MysqlCredentials, options, SSHCredentials, files };
 };
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
