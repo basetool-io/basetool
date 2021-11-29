@@ -1,14 +1,19 @@
 import * as fs from "fs";
 import { AnyObject } from "immer/dist/internal";
+import {
+  FormCredentials,
+  SSHCredentials as ISSHCredentials,
+  ParsedCredentials,
+} from "@/plugins/data-sources/types";
 import { OrganizationUser, User } from "@prisma/client";
 import { doInitialScan } from "@/plugins/data-sources/abstract-sql-query-service/doInitialScan";
 import { encrypt } from "@/lib/crypto";
 import { getSession } from "next-auth/client";
 import { getUserFromRequest } from "@/features/api";
-import { isEmpty, pick, sum } from "lodash";
+import { isEmpty, isString, pick, sum } from "lodash";
 import { s3KeysBucket } from "@/features/data-sources";
 import { serverSegment } from "@/lib/track";
-import { trimValues } from "@/lib/helpers"
+import { trimValues } from "@/lib/helpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
@@ -36,6 +41,47 @@ const handler = async (
     default:
       return res.status(404).send("");
   }
+};
+
+export const parseCredentials = async (
+  req: NextApiRequest
+): Promise<ParsedCredentials> => {
+  const form = formidable();
+  const { fields, files } = await new Promise((resolve, reject) => {
+    return form.parse(req, (error: any, fields: any, files: any) => {
+      if (error) reject(error);
+
+      resolve({ fields, files });
+    });
+  });
+
+  // Parse and assign the credentials
+  let credentials: FormCredentials = {
+    host: "",
+    port: 0,
+    database: "",
+    user: "",
+    password: "",
+    useSsl: false,
+  };
+  try {
+    credentials = trimValues(JSON.parse(fields.credentials)) as FormCredentials;
+  } catch {}
+
+  let options = {};
+  try {
+    options = trimValues(JSON.parse(fields.options));
+  } catch {}
+
+  const SSHCredentials = (
+    fields.ssh ? trimValues(JSON.parse(fields.ssh)) : {}
+  ) as ISSHCredentials;
+
+  // Cast port as int
+  if (isString(credentials?.port))
+    credentials.port = parseInt(credentials.port);
+
+  return { fields, credentials, options, SSHCredentials, files };
 };
 
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
@@ -112,29 +158,32 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     }[];
   };
 
-  const form = formidable();
-  const { fields, files } = await new Promise((resolve, reject) => {
-    return form.parse(req, (error: any, fields: any, files: any) => {
-      if (error) reject(error);
+  // const form = formidable();
+  // const { fields, files } = await new Promise((resolve, reject) => {
+  //   return form.parse(req, (error: any, fields: any, files: any) => {
+  //     if (error) reject(error);
 
-      resolve({ fields, files });
-    });
-  });
+  //     resolve({ fields, files });
+  //   });
+  // });
 
-  // Parse and assign the credentials
-  const type = fields.type;
-  let credentials;
-  try {
-    credentials = trimValues(JSON.parse(fields.credentials));
-  } catch {}
+  // // Parse and assign the credentials
+  // const type = fields.type;
+  // let credentials;
+  // try {
+  //   credentials = trimValues(JSON.parse(fields.credentials));
+  // } catch {}
 
-  let options;
-  try {
-    options = JSON.parse(fields.options);
-  } catch {}
+  // let options;
+  // try {
+  //   options = JSON.parse(fields.options);
+  // } catch {}
 
-  const ssh = fields.ssh ? trimValues(JSON.parse(fields.ssh)) : {};
-  delete ssh.key; // remove the file reference
+  const parsedCreds = await parseCredentials(req);
+  const { SSHCredentials } = parsedCreds;
+  const { type, credentials, options, files } = parsedCreds;
+
+  delete SSHCredentials.key; // remove the file reference
   const body: {
     name: string;
     organizationId: string;

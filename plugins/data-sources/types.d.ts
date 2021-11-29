@@ -116,3 +116,21 @@ type RecordResponse<T = unknown> = {
   record: Record<string, T> | undefined;
   columns?: Column[];
 };
+
+export type FormCredentials = {
+  host: string;
+  port: number;
+  database: string;
+  user: string;
+  password: string;
+  useSsl: boolean;
+};
+
+export type ParsedCredentials = {
+  fields: Record<string, unknown>;
+  credentials: PgCredentials | MysqlCredentials;
+  options: Record<string, unknown>;
+  SSHCredentials: ISSHCredentials;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  files: any;
+};

@@ -1,9 +1,6 @@
 import * as fs from "fs";
+import { FormCredentials, SSHCredentials as ISSHCredentials, ParsedCredentials } from "@/plugins/data-sources/types";
 import { HeartbeatResult } from "knex-utils/dist/lib/heartbeatUtils";
-import { SSHCredentials as ISSHCredentials } from "@/plugins/data-sources/types";
-import { MysqlCredentials } from "@/plugins/data-sources/mysql/types";
-import { PgCredentials } from "@/plugins/data-sources/postgresql/types";
-import { SQLDataSourceTypes } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { SSHConnectionError } from "@/lib/errors";
 import { SSHTunnelCredentials } from "@/plugins/data-sources/types";
 import { checkHeartbeat } from "knex-utils";
@@ -19,6 +16,7 @@ import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import formidable from "formidable";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { parseCredentials } from "."
 
 export const config = {
   api: {
@@ -36,51 +34,6 @@ const handler = async (
     default:
       return res.status(404).send("");
   }
-};
-
-
-type ParsedCredentials = {
-  type: SQLDataSourceTypes;
-  credentials: PgCredentials | MysqlCredentials;
-  options: Record<string, unknown>;
-  SSHCredentials: ISSHCredentials;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  files: any;
-};
-
-const parseCredentials = async (
-  req: NextApiRequest
-): Promise<ParsedCredentials> => {
-  const form = formidable();
-  const { fields, files } = await new Promise((resolve, reject) => {
-    return form.parse(req, (error: any, fields: any, files: any) => {
-      if (error) reject(error);
-
-      resolve({ fields, files });
-    });
-  });
-
-  // Parse and assign the credentials
-  const type = fields.type;
-
-  let credentials;
-  try {
-    credentials = JSON.parse(fields.credentials);
-  } catch {}
-
-  let options = {};
-  try {
-    options = trimValues(JSON.parse(fields.options));
-  } catch {}
-
-  const SSHCredentials = (
-    fields.ssh ? trimValues(JSON.parse(fields.ssh)) : {}
-  ) as ISSHCredentials;
-
-  // Cast port as int
-  if (isString(credentials.port)) credentials.port = parseInt(credentials.port);
-
-  return { type, credentials, options, SSHCredentials, files };
 };
 
 async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
