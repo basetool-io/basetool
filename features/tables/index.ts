@@ -33,7 +33,6 @@ export const parseColumns = ({
 
     return {
       Header: getColumnNameLabel(
-        column?.baseOptions?.label,
         column?.label,
         column?.name
       ),

@@ -1,19 +1,16 @@
 import { Code } from "@chakra-ui/react";
-import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { useDataSourcesResponse } from "@/features/data-sources/hooks";
 import { useProfile } from "@/hooks";
 import DataSourcesBlock from "@/features/data-sources/components/DataSourcesBlock";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import OrganizationsBlock from "@/features/organizations/components/OrganizationsBlock";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 function Index() {
   const { user, isLoading: profileIsLoading } = useProfile();
-
-  const { data: dataSourcesResponse } = useGetDataSourcesQuery(undefined, {
-    skip: !user.email,
-  });
+  const { dataSources } = useDataSourcesResponse({ skip: !user.email });
   const [genericProjects, setGenericProjects] = useState<
     {
       name: string;
@@ -44,11 +41,6 @@ function Index() {
       isVisible: false,
     },
   ]);
-
-  const hasDataSources = useMemo(
-    () => dataSourcesResponse?.ok && dataSourcesResponse.data.length > 0,
-    [dataSourcesResponse]
-  );
 
   return (
     <Layout hideSidebar={true}>
@@ -94,10 +86,10 @@ function Index() {
                             <>
                               <Link
                                 href={`/data-sources/postgresql/new?credentials=${credentials}&name=${name}`}
-                                >
+                              >
                                 <a className="ml-1 text-blue-600 cursor-pointer text-sm">
-                                  <Code>{credentials}</Code>{" "}
-                                  (use these credentials)
+                                  <Code>{credentials}</Code> (use these
+                                  credentials)
                                 </a>
                               </Link>
                             </>

@@ -11,6 +11,7 @@ export type FieldType =
   | "Json"
   | "Association"
   | "ProgressBar"
+  | "Link"
   | "Gravatar";
 
 export type ForeignKey = {
@@ -36,7 +37,6 @@ export type BaseOptions = {
   readonly: boolean;
   placeholder: string;
   help: string;
-  label: string;
   disconnected: boolean;
   defaultValue: string;
   orderIndex?: number;

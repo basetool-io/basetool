@@ -1,6 +1,7 @@
 import {
   AnnotationIcon,
   ArrowRightIcon,
+  ArrowsExpandIcon,
   CalendarIcon,
   CheckCircleIcon,
   HashtagIcon,
@@ -64,14 +65,18 @@ export const getColumnOptions = (
       id: "Gravatar",
       label: "Gravatar",
     },
+    {
+      id: "Link",
+      label: "Link",
+    },
   ];
 
-  if (column.foreignKeyInfo) {
+  // if (column.foreignKeyInfo) {
     options.push({
       id: "Association",
       label: "Association",
     });
-  }
+  // }
 
   return options;
 };
@@ -142,6 +147,8 @@ export const iconForField = (field: Column): ElementType => {
       return ArrowRightIcon;
     case "ProgressBar":
       return TrendingUpIcon;
+    case "Link":
+      return ArrowsExpandIcon;
     case "Gravatar":
       return PhotographIcon;
   }

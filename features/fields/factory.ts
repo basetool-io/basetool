@@ -16,6 +16,9 @@ import IdShowField from "@/plugins/fields/Id/Show";
 import JsonEditField from "@/plugins/fields/Json/Edit";
 import JsonIndexField from "@/plugins/fields/Json/Index";
 import JsonShowField from "@/plugins/fields/Json/Show";
+import LinkEditField from "@/plugins/fields/Link/Edit";
+import LinkIndexField from "@/plugins/fields/Link/Index";
+import LinkShowField from "@/plugins/fields/Link/Show";
 import NumberEditField from "@/plugins/fields/Number/Edit";
 import NumberIndexField from "@/plugins/fields/Number/Index";
 import NumberShowField from "@/plugins/fields/Number/Show";
@@ -54,6 +57,8 @@ export const getFieldForEdit = (column: Column) => {
       return JsonEditField;
     case "Association":
       return AssociationEditField;
+    case "Link":
+      return LinkEditField;
     case "ProgressBar":
       return ProgressBarEditField;
   }
@@ -82,6 +87,8 @@ export const getFieldForShow = (column: Column) => {
       return AssociationShowField;
     case "ProgressBar":
       return ProgressBarShowField;
+    case "Link":
+      return LinkShowField;
     case "Gravatar":
       return GravatarShowField;
   }
@@ -108,6 +115,8 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
+    case "Link":
+      return LinkIndexField;
     case "ProgressBar":
       return ProgressBarIndexField;
     case "Gravatar":

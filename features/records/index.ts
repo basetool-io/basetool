@@ -9,10 +9,7 @@ import Handlebars from "handlebars";
 /**
  * This method will filter out record fields that are disconnected.
  */
-export const filterOutRecordColumns = (
-  records: any,
-  columns: Column[],
-) => {
+export const filterOutRecordColumns = (records: any, columns: Column[]) => {
   return records.map((record: Record<string, unknown>) => {
     // Get the filtered column names.
     const filteredColumnNames = getConnectedColumns(columns).map(
@@ -39,16 +36,49 @@ export const hydrateRecords = async (
   columns: Column[],
   dataSource: DataSource
 ) => {
+  const linkFields = columns.filter(
+    (column: Column) => column?.fieldType === "Link"
+  );
+
+  const field = linkFields[0];
+
+  // {{recordFrom("stripe", "Csutomers", 'email')}}
+
+  // localFieldName: string;
+  // foreignDataSourceId: string;
+  // foreignTableName: string;
+  // foreignFieldName: string;
+  const {
+    localFieldName,
+    foreignDataSourceId,
+    foreignTableName,
+    foreignFieldName,
+  } = field.fieldOptions;
+  console.log(
+    1,
+    localFieldName,
+    foreignDataSourceId,
+    foreignTableName,
+    foreignFieldName
+  );
+
+  // columns
+
+  // } else if (column.fieldType === "Link") {
+  //   // gather ids
+  //   // fetch the records
+
+  // console.log("here", {linkFields, columns, records, dataSource});
   const hydratedRecords = records.map((record: any) => {
     // Get the computed columns.
     const computedColumns = columns.filter(
       (column: Column) => column?.baseOptions?.computed === true
     );
+    // console.log({ columns, computedColumns: computedColumns[0].fieldOptions });
 
     // Compute and set the value to the record.
     computedColumns.forEach((computedColumn) => {
-      const editorData = computedColumn?.baseOptions?.computedSource;
-      addComputedField(record, editorData, computedColumn.name);
+      addComputedField(record, computedColumn);
     });
 
     return record;
@@ -70,6 +100,24 @@ export const hydrateRecords = async (
     return hydratedRecordsWithAssociations;
   } else {
     return hydratedRecords;
+  }
+};
+
+const addComputedField = async (record: any, column: Column) => {
+  const queryableData = { record };
+  const editorData = column?.baseOptions?.computedSource;
+
+  if (editorData) {
+    const computedName = column.name;
+
+    try {
+      const template = Handlebars.compile(editorData);
+      const value = template(queryableData);
+
+      record[computedName] = value;
+    } catch (error) {
+      console.error("Couldn't parse value.", error);
+    }
   }
 };
 
@@ -95,10 +143,14 @@ const hydrateAssociations = async (
       },
     ];
 
-    const { records: foreignRecords } = await runQuery(dataSource, "getRecords", {
-      tableName: foreignTableName,
-      filters,
-    });
+    const { records: foreignRecords } = await runQuery(
+      dataSource,
+      "getRecords",
+      {
+        tableName: foreignTableName,
+        filters,
+      }
+    );
 
     hydratedRecordsAssociation = hydratedRecordsAssociation.map(
       (record: any) => {
@@ -121,24 +173,6 @@ const hydrateAssociations = async (
   }
 
   return hydratedRecordsAssociation;
-};
-
-const addComputedField = async (
-  record: any,
-  editorData: string,
-  computedName: string
-) => {
-  const queryableData = { record };
-  if (editorData) {
-    try {
-      const template = Handlebars.compile(editorData);
-      const value = template(queryableData);
-
-      record[computedName] = value;
-    } catch (error) {
-      console.error("Couldn't parse value.", error);
-    }
-  }
 };
 
 export const hydrateColumns = (

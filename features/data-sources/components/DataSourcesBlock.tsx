@@ -1,5 +1,5 @@
 import { DataSource } from "@prisma/client";
-import { useGetDataSourcesQuery } from "../api-slice";
+import { useDataSourcesResponse } from "../hooks";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useProfile } from "@/hooks";
 import Image from "next/image";
@@ -9,14 +9,14 @@ import React from "react";
 import Shimmer from "@/components/Shimmer";
 
 const DataSourcesBlock = () => {
-  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery();
+  const { dataSources, isLoading } = useDataSourcesResponse();
   const { organizations } = useProfile();
   const prefetchTables = usePrefetch("getTables");
 
   return (
     <PageWrapper.Section>
       <PageWrapper.Heading>Your DataSources</PageWrapper.Heading>
-      {dataSourcesResponse?.data.length === 0 && (
+      {dataSources.length === 0 && (
         <>
           You don't have any Basetool data sources.{" "}
           <Link href="/data-sources/new">
@@ -33,13 +33,12 @@ const DataSourcesBlock = () => {
                 Loading
               </div>
               <br />
-              <Shimmer height={20}/>
+              <Shimmer height={20} />
             </PageWrapper.Block>
           )}
 
           {!isLoading &&
-            dataSourcesResponse?.ok &&
-            dataSourcesResponse?.data.map((dataSource: DataSource) => {
+            dataSources.map((dataSource: DataSource) => {
               const organization = organizations.find(
                 ({ id }) => id === dataSource?.organizationId
               );
@@ -60,7 +59,11 @@ const DataSourcesBlock = () => {
                     </div>
                     <div className="absolute top-0 left-auto right-0">
                       <div className="relative min-w-[2rem] h-8 filter grayscale group-hover:grayscale-0">
-                        <Image src={`/img/logos/${dataSource.type}.png`} layout="fill" alt={`${dataSource.type} data source`} />
+                        <Image
+                          src={`/img/logos/${dataSource.type}.png`}
+                          layout="fill"
+                          alt={`${dataSource.type} data source`}
+                        />
                       </div>
                     </div>
                     <br />

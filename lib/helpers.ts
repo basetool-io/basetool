@@ -15,7 +15,7 @@ export const randomString = (length = 12) => {
 
 /**
  * Convert string keys to objects:
- * ex { 'baseOptions.label': 'hey' } -> { baseOptions: { label: 'hey' }}
+ * ex { 'baseOptions.placeholder': 'hey' } -> { baseOptions: { placeholder: 'hey' }}
  */
 export const dotNotationToObject = (payload: Record<string, unknown>) => {
   let namespace: "baseOptions" | "fieldOptions" | undefined;

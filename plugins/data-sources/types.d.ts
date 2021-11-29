@@ -47,11 +47,11 @@ export interface IQueryService {
   }): Promise<Column[]>;
   getRecords(payload: {
     tableName: string;
-    filters: IFilter[];
+    filters?: IFilter[];
     limit?: number;
     offset?: number;
-    orderBy: string;
-    orderDirection: string;
+    orderBy?: string;
+    orderDirection?: string;
   }): Promise<RecordsResponse>;
   getRecordsCount(payload: {
     tableName: string;

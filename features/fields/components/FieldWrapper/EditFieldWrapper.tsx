@@ -17,7 +17,6 @@ const EditFieldWrapper = ({
   schema?: AnySchema;
 }) => {
   const prettyColumnName = getColumnNameLabel(
-    field?.column?.baseOptions?.label,
     field?.column?.label,
     field?.column?.name
   );

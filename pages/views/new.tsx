@@ -10,16 +10,15 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { DataSource } from "@prisma/client";
-import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
 import { isNumber, isUndefined } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/views/schema";
 import { useAddViewMutation } from "@/features/views/api-slice";
 import { useDataSourceContext } from "@/hooks";
+import { useDataSourcesResponse } from "@/features/data-sources/hooks";
 import { useForm } from "react-hook-form";
-import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
-import { useGetTablesQuery } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
+import { useTablesResponse } from "@/features/tables/hooks";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useEffect, useState } from "react";
@@ -65,14 +64,20 @@ function New() {
 
   const { errors } = formState;
 
-  const { data: dataSourcesResponse, isLoading: dataSourcesAreLoading } =
-    useGetDataSourcesQuery();
+  const { dataSources, isLoading: dataSourcesAreLoading } =
+    useDataSourcesResponse();
 
-  const { data: tablesResponse, isLoading: tablesAreLoading } =
-    useGetTablesQuery(
-      { dataSourceId: watchDataSourceId.toString() },
-      { skip: !isNumber(watchDataSourceId) }
-    );
+  // const { data: tablesResponse, isLoading: tablesAreLoading } =
+  //   useGetTablesQuery(
+  //     { dataSourceId: watchDataSourceId.toString() },
+  //     { skip: !isNumber(watchDataSourceId) }
+  //   );
+  const { tables, isLoading: tablesAreLoading } = useTablesResponse(
+    watchDataSourceId.toString(),
+    {
+      skip: !isNumber(watchDataSourceId),
+    }
+  );
 
   const [addView, { isLoading: formIsLoading }] = useAddViewMutation();
   const onSubmit = async (formData: IFormFields) => {
@@ -244,14 +249,11 @@ function New() {
                     )}
                     {dataSourcesAreLoading || (
                       <Select {...register("dataSourceId")}>
-                        {dataSourcesResponse?.ok &&
-                          dataSourcesResponse?.data.map(
-                            (dataSource: DataSource) => (
-                              <option key={dataSource.id} value={dataSource.id}>
-                                {dataSource.name}
-                              </option>
-                            )
-                          )}
+                        {dataSources.map((dataSource: DataSource) => (
+                          <option key={dataSource.id} value={dataSource.id}>
+                            {dataSource.name}
+                          </option>
+                        ))}
                       </Select>
                     )}
                     <FormErrorMessage>
@@ -276,14 +278,11 @@ function New() {
                           }
                         }}
                       >
-                        {tablesResponse?.ok &&
-                          tablesResponse?.data.map(
-                            (table: ListTable, idx: number) => (
-                              <option key={idx} value={table.name}>
-                                {table.name}
-                              </option>
-                            )
-                          )}
+                        {tables.map((table, idx: number) => (
+                          <option key={idx} value={table.name}>
+                            {table.name}
+                          </option>
+                        ))}
                       </Select>
                     )}
                     <FormHelperText>

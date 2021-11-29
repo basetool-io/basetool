@@ -1,8 +1,12 @@
-import { Button, Code } from "@chakra-ui/react";
+import {
+  Button,
+  Code,
+} from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDeleteColumnMutation } from "@/features/views/api-slice";
 import { useUpdateColumn } from "../hooks";
+import ComputedOption from "./ComputedOption"
 import FieldTypeOption from "@/features/views/components/FieldTypeOption";
 import GenericBooleanOption from "@/features/views/components/GenericBooleanOption";
 import GenericTextOption from "@/features/views/components/GenericTextOption";
@@ -86,20 +90,7 @@ function FieldEditor() {
       <div className="block space-y-6 py-4 w-1/3 border-r">
         <FieldTypeOption />
 
-        {isComputed && (
-          <GenericTextOption
-            label="Computed value"
-            helpText="Value that has to be computed. You have to refresh the page after changing this value."
-            optionKey="baseOptions.computedSource"
-            placeholder="Label value"
-            defaultValue={column?.baseOptions?.computedSource}
-            formHelperText={
-              <>
-                You can use <Code size="sm">record</Code> in your query.
-              </>
-            }
-          />
-        )}
+        {isComputed && <ComputedOption />}
 
         {/* Some fields have their own configurations. */}
         <InspectorComponent
@@ -125,9 +116,9 @@ function FieldEditor() {
         <GenericTextOption
           label="Label"
           helpText="We are trying to find a good human name for your DB column, but if you want to change it, you can do it here. The label is reflected on Index (table header), Show, Edit and Create views."
-          optionKey="baseOptions.label"
+          optionKey="label"
           placeholder="Label value"
-          defaultValue={column?.baseOptions?.label}
+          defaultValue={column?.label}
           formHelperText={
             <>
               Original name for this field is <Code>{column.name}</Code>.
@@ -229,5 +220,20 @@ function FieldEditor() {
     </>
   );
 }
+
+// {isComputed && (
+//   <GenericTextOption
+//     label="Computed value"
+//     helpText="Value that has to be computed. You have to refresh the page after changing this value."
+//     optionKey="baseOptions.computedSource"
+//     placeholder="Label value"
+//     defaultValue={column?.baseOptions?.computedSource}
+//     formHelperText={
+//       <>
+//         You can use <Code size="sm">record</Code> in your query.
+//       </>
+//     }
+//   />
+// )}
 
 export default FieldEditor;

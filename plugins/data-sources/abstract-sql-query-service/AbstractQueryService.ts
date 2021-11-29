@@ -530,7 +530,7 @@ abstract class AbstractQueryService implements ISQLQueryService {
     orderDirection,
   }: {
     tableName: string;
-    filters: Array<IFilter | IFilterGroup>;
+    filters?: Array<IFilter | IFilterGroup>;
     limit?: number;
     offset?: number;
     orderBy?: string;

@@ -91,7 +91,18 @@ class QueryService implements IQueryService {
     }));
   }
 
-  public async getColumns(): Promise<[]> {
+  public async getColumns({ tableName }: { tableName: string }): Promise<[]> {
+    const { records } = await this.getRecords({
+      tableName: tableName as StripeListAPIs,
+      limit: 1,
+    });
+
+    if (records) {
+      return recordToColumns(
+        first(records) as Record<string, StripeValues>
+      ) as [];
+    }
+
     return [];
   }
 
@@ -107,12 +118,12 @@ class QueryService implements IQueryService {
     endingBefore,
   }: {
     tableName: StripeListAPIs;
-    filters: IFilter[];
+    filters?: IFilter[];
     limit?: number;
     offset?: number;
-    orderBy: string;
-    orderDirection: string;
-    select: string[];
+    orderBy?: string;
+    orderDirection?: string;
+    select?: string[];
     startingAfter?: string;
     endingBefore?: string;
     columns?: Column[];

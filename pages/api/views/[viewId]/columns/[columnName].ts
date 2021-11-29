@@ -1,6 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { getUserFromRequest, getViewFromRequest } from "@/features/api";
-import { isObjectLike, merge, omit } from "lodash";
+import { isObjectLike, merge } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -30,14 +30,13 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   if (!view || !columnName) return res.status(404).send("");
 
-  const columns = omit(view.columns as Record<string, unknown>, [columnName]);
-
+  const columns = (view.columns as Column[]).filter(({name}) => name !== columnName);
   const result = await prisma.view.update({
     where: {
       id: parseInt(req.query.viewId as string, 10),
     },
     data: {
-      columns,
+      columns: columns as any,
     },
   });
 
