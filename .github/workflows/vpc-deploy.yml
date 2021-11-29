@@ -1,0 +1,50 @@
+name: VPC Deploy
+
+on: push
+# on:
+#   push:
+#     branches:
+#       - main
+
+jobs:
+  build:
+    name: "Build-and-publish"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.0.1 # Not needed with a .ruby-version file
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }}
+          name: id_rsa # optional
+          # known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          # config: ${{ secrets.CONFIG }} # ssh_config; optional
+          if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+    - uses: miloserdow/capistrano-deploy@master
+      with:
+        target: development # Defines the environment that will be used for the deployment
+        deploy_key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }} # Na
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Create .env file
+      #   run: |
+      #     echo "BASE_URL=localhost:7654\nNEXTAUTH_URL=http://localhost:7654\n" > .env
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     push: true
+      #     tags: basetool/basetool:latest
+      #     cache-from: type=registry,ref=basetool/basetool:latest
+      #     cache-to: type=inline
