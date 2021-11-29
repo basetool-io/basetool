@@ -8,7 +8,7 @@ on: push
 
 jobs:
   build:
-    name: "Build-and-publish"
+    name: "Deploy to VPC"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
         with:
           key: ${{ secrets.BASETOOL_IO_CAPISTRANO_SSH_KEY }}
           name: id_rsa # optional
-          known_hosts: ''
+          known_hosts: ${{ secrets.BASETOOL_IO_CAPISTRANO_KNOWN_HOSTS }}
           # config: ${{ secrets.CONFIG }} # ssh_config; optional
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
       - uses: miloserdow/capistrano-deploy@master
