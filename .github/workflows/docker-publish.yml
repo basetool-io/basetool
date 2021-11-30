@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Configure docker container
         run: |
+          ls -la .
           mv .env.example .env
           echo echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
         working-directory: ./deploy/docker
