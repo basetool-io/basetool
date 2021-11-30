@@ -35,6 +35,9 @@ jobs:
           tags: basetool/basetool:test_deploy
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
+      - name: Start docker container
+        run: docker compose up
+        path: ./deploy/docker
       - name: Test app
         run: npx zx ./scripts/test-docker-image.mjs
       - name: Build and push
