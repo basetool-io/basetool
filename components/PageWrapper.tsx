@@ -16,7 +16,7 @@ const Heading = ({ children }: { children: string | ReactNode }) => (
 );
 
 const Section = ({ children }: { children: ReactNode }) => (
-  <div className="mb-4">{children}</div>
+  <div>{children}</div>
 );
 
 const Blocks = ({ children }: { children: ReactNode }) => (
