@@ -5,8 +5,6 @@ services:
     build: .
     env_file: .env
     image: docker.io/library/basetool
-    environment:
-      - PORT=7654
     ports:
       - "7654:7654"
     links:
