@@ -38,7 +38,7 @@ const useUserAnalytics = () => {
 };
 
 const FullStoryScripts = () => {
-  const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1";
+  const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1" && process.env.NEXT_PUBLIC_FULLSTORY_ORG;
   const [session] = useSession();
 
   useEffect(() => {
