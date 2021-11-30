@@ -44,6 +44,7 @@ jobs:
           echo "DATABASE_URL=postgresql://postgres:postgres@host.docker.internal/postgres" >> .env
           echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env
           cat .env
+          pg_isready -d postgres -h localhost -p 5432 -U postgres
         working-directory: ./deploy/docker
       - name: Start docker container
         run: docker compose up
