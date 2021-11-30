@@ -31,6 +31,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: basetool/basetool:test
+          tags: basetool/basetool:test_deploy
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
