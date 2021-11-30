@@ -4,13 +4,13 @@ import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
 import { debounce, first, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
-import { resetState } from "@/features/records/state-slice";
 import {
   useColumns,
   useFilters,
   useOrderRecords,
   usePagination,
   useRecords,
+  useResetState,
 } from "@/features/records/hooks";
 import { useDataSourceContext, useSegment } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
@@ -37,6 +37,7 @@ import ViewEditVisibility from "@/features/views/components/ViewEditVisibility";
 
 const Edit = () => {
   const router = useRouter();
+  const resetState = useResetState();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { column } = useUpdateColumn();
   useSegment("Tried to edit a view.", {
@@ -54,9 +55,21 @@ const Edit = () => {
     resetState();
   }, [viewId]);
 
+  useEffect(() => {
+    if (view && view?.filters) {
+      setAppliedFilters(view?.filters as []);
+    }
+  }, [view]);
+
+  useEffect(() => {
+    return () => {
+      resetState();
+    };
+  }, []);
+
   const backLink = `/views/${viewId}`;
   const crumbs = useMemo(() => ["Edit view", view?.name], [view?.name]);
-  const { encodedFilters, appliedFilters } = useFilters();
+  const { encodedFilters, appliedFilters, setAppliedFilters } = useFilters();
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
@@ -92,7 +105,7 @@ const Edit = () => {
    * Because there's one extra render between the momnet the tableName and the state reset changes,
    * we're debouncing fetching the records so we don't try to fetch the records with the old filters
    */
-  const debouncedFetch = useCallback(debounce(fetchRecords, 50), []);
+  const debouncedFetch = useCallback(debounce(fetchRecords, 90), []);
 
   const { meta } = useRecords(recordsResponse?.data, recordsResponse?.meta);
 

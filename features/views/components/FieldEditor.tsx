@@ -30,7 +30,7 @@ const getDynamicInspector = (fieldType: string) => {
       }
     );
   } catch (error) {
-    return () => "";
+    return () => null;
   }
 };
 

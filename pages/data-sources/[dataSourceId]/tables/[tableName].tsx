@@ -22,9 +22,6 @@ function TableShow() {
   const resetState = useResetState();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
-  useEffect(() => {
-    resetState();
-  }, [tableName, dataSourceId]);
 
   const { encodedFilters } = useFilters();
   const { limit, offset } = usePagination();
@@ -32,6 +29,17 @@ function TableShow() {
     (router.query.orderBy as string) || "",
     (router.query.orderDirection as OrderDirection) || ""
   );
+
+  useEffect(() => {
+    resetState();
+  }, [tableName, dataSourceId]);
+
+  useEffect(() => {
+    return () => {
+      resetState();
+    };
+  }, []);
+
   const getRecordsArguments = useMemo(
     () => ({
       dataSourceId,
@@ -70,7 +78,7 @@ function TableShow() {
    * Because there's one extra render between the momnet the tableName and the state reset changes,
    * we're debouncing fetching the records so we don't try to fetch the records with the old filters
    */
-  const debouncedFetch = useCallback(debounce(fetchRecords, 50), []);
+  const debouncedFetch = useCallback(debounce(fetchRecords, 90), []);
 
   useEffect(() => {
     if (tableName && dataSourceId) debouncedFetch(getRecordsArguments);

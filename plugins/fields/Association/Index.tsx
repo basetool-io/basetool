@@ -43,7 +43,7 @@ const Index = ({ field }: { field: Field }) => {
       <a title="Go to record" className="ml-1 text-blue-600 cursor-pointer">
         <Tooltip label="Go to record">
           <span className="inline-flex">
-            <ArrowRightIcon className="inline-block h-3 pt-1" />
+            <ArrowRightIcon className="relative top-[0.125rem] inline-block h-3" />
           </span>
         </Tooltip>
       </a>
