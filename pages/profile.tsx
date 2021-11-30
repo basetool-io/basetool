@@ -18,7 +18,7 @@ function Profile() {
       <PageWrapper heading={`Profile`}>
         <>
           <div className="w-full h-full flex-1 flex flex-col justify-between">
-            <div>
+            <div className="space-y-6">
               <PageWrapper.Section>
                 <>
                   <PageWrapper.Heading>General</PageWrapper.Heading>
