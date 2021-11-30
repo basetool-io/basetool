@@ -1,9 +1,10 @@
 name: Docker image
 
-on:
-  push:
-    branches:
-      - main
+on: push
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   build:
@@ -24,6 +25,14 @@ jobs:
       - name: Create .env file
         run: |
           echo "PORT=7654\nBASE_URL=localhost:${PORT}\nNEXTAUTH_URL=http://${BASE_URL}\nDATABASE_URL=\n" > .env
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          load: true
+          tags: basetool/basetool:latest
+      - name: Test app
+        run: npx zx ./scripts/test-docker-image.mjs
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
