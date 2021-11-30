@@ -2,9 +2,8 @@ version: "3.9"
 
 services:
   app:
-    build: .
+    image: docker.io/basetool/basetool:latest
     env_file: .env
-    image: docker.io/library/basetool
     ports:
       - "7654:7654"
     links:
