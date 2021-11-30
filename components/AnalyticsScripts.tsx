@@ -38,7 +38,7 @@ const useUserAnalytics = () => {
 };
 
 const FullStoryScripts = () => {
-  const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1";
+  const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1" && process.env.NEXT_PUBLIC_FULLSTORY_ORG;
   const [session] = useSession();
 
   useEffect(() => {
@@ -57,7 +57,7 @@ const FullStoryScripts = () => {
       {`window['_fs_debug'] = false;
       window['_fs_host'] = 'fullstory.com';
       window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
-      window['_fs_org'] = '16MB7H';
+      window['_fs_org'] = '${process.env.NEXT_PUBLIC_FULLSTORY_ORG}';
       window['_fs_namespace'] = 'FS';
       (function(m,n,e,t,l,o,g,y){
       if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
