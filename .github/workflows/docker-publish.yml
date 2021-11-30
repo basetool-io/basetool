@@ -31,12 +31,8 @@ jobs:
           cat .env
         working-directory: ./deploy/docker
       - name: Start docker container
-        run: docker compose up -d
+        run: docker compose up --wait
         working-directory: ./deploy/docker
-      - name: Sleep for 5 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '5s'
       - name: Test app
         env:
           PORT: 7654
