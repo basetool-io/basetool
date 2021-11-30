@@ -1,5 +1,5 @@
 #!/usr/bin/env zx
-
+console.log('process.env.DATABASE_URL->', process.env.DATABASE_URL)
 if (process.env.BASETOOL_TELEMETRY_DISABLED !== "1") {
   $.verbose = false;
 
