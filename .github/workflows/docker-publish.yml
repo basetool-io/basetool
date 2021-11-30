@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PG_HOST: localhost
-      PG_USER: basetool
-      PG_PASSWORD: basetool
-      PG_DB: basetool
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DB: postgres
       PG_PORT: 5432
       POSTGRES_HOST: localhost
-      POSTGRES_USER: basetool
-      POSTGRES_PASSWORD: basetool
-      POSTGRES_DB: basetool
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
       POSTGRES_PORT: 5432
       BASETOOL_TELEMETRY_DISABLED: 1
     services:
@@ -41,7 +41,7 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://basetool:basetool@host.docker.internal/basetool" >> .env
+          echo "DATABASE_URL=postgresql://postgres:postgres@host.docker.internal/postgres" >> .env
           echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env
           cat .env
         working-directory: ./deploy/docker
