@@ -35,6 +35,11 @@ jobs:
           tags: basetool/basetool:test_deploy
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
+      - name: Configure docker container
+        run: |
+          mv .env.example .env
+          echo echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
+        working-directory: ./deploy/docker
       - name: Start docker container
         run: docker compose up -d
         working-directory: ./deploy/docker
