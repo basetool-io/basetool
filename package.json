@@ -87,6 +87,7 @@
     "react-toastify": "^8.0.2",
     "react-use": "^17.2.4",
     "react-use-intercom": "^1.4.0",
+    "sharp": "^0.29.3",
     "slugify": "^1.6.0",
     "stripe": "^8.191.0",
     "tailwindcss": "^2.2.15",
