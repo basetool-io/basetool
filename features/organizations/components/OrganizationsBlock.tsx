@@ -1,11 +1,30 @@
 import { useProfile } from "@/hooks";
 import PageWrapper from "@/components/PageWrapper";
-import React from "react";
+import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import pluralize from "pluralize";
 
 const OrganizationsBlock = () => {
-  const { organizations, isLoading } = useProfile();
+  const { user, organizations, isLoading } = useProfile();
+
+  const rolesByOrganizationId = useMemo(() => {
+    const roles: { [orgId: number]: string } = {};
+
+    // We need the user ID to compute this.
+    if (!user?.id) return roles;
+
+    // Cycle through all organizations
+    organizations.map((org) => {
+      // Cycle through all pivots
+      org.users.map((orgUser) => {
+        // When we find the organization get the role associate to the user
+        if (orgUser?.user?.id === user.id && orgUser.role)
+          roles[org.id] = orgUser.role.name;
+      });
+    });
+
+    return roles;
+  }, [user, organizations]);
 
   return (
     <PageWrapper.Section>
@@ -22,7 +41,7 @@ const OrganizationsBlock = () => {
                 Loading
               </div>
               <br />
-              <Shimmer height={40}/>
+              <Shimmer height={40} />
             </PageWrapper.Block>
           )}
 
@@ -46,6 +65,11 @@ const OrganizationsBlock = () => {
                   {org?.users && (
                     <div className="text-sm">
                       {org.users.length} {pluralize("member", org.users.length)}
+                    </div>
+                  )}
+                  {rolesByOrganizationId[org.id] && (
+                    <div className="text-sm">
+                      Your role: {rolesByOrganizationId[org.id]}
                     </div>
                   )}
                 </PageWrapper.Block>

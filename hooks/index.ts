@@ -95,7 +95,7 @@ export const useProfile = () => {
     user: User;
     organizations: Array<
       Organization & {
-        users: Array<OrganizationUser & { user: User }>;
+        users: Array<OrganizationUser & { user: User; role: Role }>;
         dataSources: DataSource[];
       }
     >;

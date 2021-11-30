@@ -29,7 +29,6 @@ function Profile() {
                         Name: {user?.firstName} {user?.lastName}
                       </div>
                       <div>Email: {user?.email}</div>
-                      <div>Role: {role?.name}</div>
                     </>
                   )}
                 </>
