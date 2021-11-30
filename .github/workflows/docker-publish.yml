@@ -25,6 +25,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "PORT=7654\nBASE_URL=localhost:${PORT}\nNEXTAUTH_URL=http://${BASE_URL}\nDATABASE_URL=\n" > .env
+          cat .env
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
         with:
