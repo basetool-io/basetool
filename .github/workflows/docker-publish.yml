@@ -18,7 +18,11 @@ jobs:
       postgres:
         image: postgres
         ports: ["5432:5432"]
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,7 +35,7 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres@localhost/postgres" >> .env
+          echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
           cat .env
         working-directory: ./deploy/docker
       - name: Start docker container
