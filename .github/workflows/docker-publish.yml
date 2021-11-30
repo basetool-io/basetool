@@ -24,7 +24,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Create .env file
         run: |
-          echo "PORT=7654\nBASE_URL=localhost:7654\nNEXTAUTH_URL=http://localhost:7654\nDATABASE_URL=\n" > .env
+          echo "BASE_URL=localhost:7654\nNEXTAUTH_URL=http://localhost:7654\nDATABASE_URL=\n" > .env
           cat .env
       - name: Build and export to Docker
         uses: docker/build-push-action@v2
