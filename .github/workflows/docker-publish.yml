@@ -31,8 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install PostgreSQL 11 client
-        run: |
-          sudo apt-get -yqq install libpq-dev
+        run: sudo apt-get -yqq install libpq-dev
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -42,7 +41,7 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost/basetool" >> .env
+          echo "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/basetool" >> .env
           echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env
           cat .env
         working-directory: ./deploy/docker
