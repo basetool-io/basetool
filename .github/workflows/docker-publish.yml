@@ -36,7 +36,7 @@ jobs:
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
       - name: Start docker container
-        run: docker compose up
+        run: docker compose up -d
         working-directory: ./deploy/docker
       - name: Test app
         run: npx zx ./scripts/test-docker-image.mjs
