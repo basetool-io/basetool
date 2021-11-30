@@ -1,5 +1,6 @@
-import { useSegment } from "@/hooks"
+import { useSegment } from "@/hooks";
 import Layout from "@/components/Layout";
+import Link from "next/link";
 import PageWrapper from "@/components/PageWrapper";
 import React from "react";
 
@@ -46,10 +47,16 @@ function Beta() {
               <a className="inline underline" href="mailto:david@basetool.io">
                 david@basetool.io
               </a>{" "}
-              or through Intercom 👇
+              , through Intercom 👇 or open up an{" "}
+              <Link href="https://github.com/basetool-io/basetool/issues/new/choose">
+                <a className="inline underline">issue on GitHub</a>
+              </Link>
+              .
             </p>
 
-            <p className="mb-2 text-gray-500">* This page is only shown to organization owners.</p>
+            <p className="mb-2 text-gray-500">
+              * This page is only shown to organization owners.
+            </p>
           </div>
         </>
       </PageWrapper>
