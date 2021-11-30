@@ -1,9 +1,10 @@
 name: Docker image
 
-on:
-  push:
-    branches:
-      - main
+on: push
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   build:
@@ -30,6 +31,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: basetool/basetool:latest
+          tags: basetool/basetool:test
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
