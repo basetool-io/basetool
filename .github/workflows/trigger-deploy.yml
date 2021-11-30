@@ -1,0 +1,14 @@
+name: VPC Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy
+        run: |
+          curl -XPOST -u "${{ secrets.BASETOOL_IO_DEPLOY_USERNAME}}:${{secrets.BASETOOL_IO_DEPLOY_SECRET}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${{secrets.BASETOOL_IO_DEPLOY_REPO}}/dispatches --data '{"event_type": "deploy_application"}'
