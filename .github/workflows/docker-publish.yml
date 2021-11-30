@@ -30,7 +30,8 @@ jobs:
         with:
           context: .
           load: true
-          tags: basetool/basetool:latest
+          # tags: basetool/basetool:latest
+          tags: basetool/basetool:test_deploy
       - name: Test app
         run: npx zx ./scripts/test-docker-image.mjs
       - name: Build and push
@@ -39,6 +40,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: basetool/basetool:latest
+          # tags: basetool/basetool:latest
+          tags: basetool/basetool:test_deploy
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
