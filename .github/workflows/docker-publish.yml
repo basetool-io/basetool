@@ -34,7 +34,7 @@ jobs:
         run: docker compose up -d
         working-directory: ./deploy/docker
       - name: Test app
-        env: 
+        env:
           PORT: 7654
         run: npx zx ./scripts/test-docker-image.mjs
 
