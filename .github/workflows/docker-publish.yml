@@ -32,6 +32,8 @@ jobs:
           load: true
           # tags: basetool/basetool:latest
           tags: basetool/basetool:test_deploy
+          cache-from: type=registry,ref=basetool/basetool:latest
+          cache-to: type=inline
       - name: Test app
         run: npx zx ./scripts/test-docker-image.mjs
       - name: Build and push
@@ -42,5 +44,5 @@ jobs:
           push: true
           # tags: basetool/basetool:latest
           tags: basetool/basetool:test_deploy
-          cache-from: type=registry,ref=basetool/basetool:latest
-          cache-to: type=inline
+          # cache-from: type=registry,ref=basetool/basetool:latest
+          # cache-to: type=inline
