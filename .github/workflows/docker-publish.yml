@@ -11,11 +11,17 @@ jobs:
     name: "Build-and-publish"
     runs-on: ubuntu-latest
     env:
+      PG_HOST: localhost
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DB: basetool
+      PG_PORT: 5432
       POSTGRES_HOST: localhost
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: basetool
       POSTGRES_PORT: 5432
+      BASETOOL_TELEMETRY_DISABLED: 1
     services:
       postgres:
         image: postgres:11.5
