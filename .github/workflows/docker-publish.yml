@@ -31,11 +31,11 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
+          echo "DATABASE_URL=postgresql://postgres@localhost/postgres" >> .env
           cat .env
         working-directory: ./deploy/docker
       - name: Start docker container
-        run: docker compose up --wait
+        run: docker compose up
         working-directory: ./deploy/docker
       - name: Test app
         env:
