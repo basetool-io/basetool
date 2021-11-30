@@ -34,7 +34,7 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres@0.0.0.0/postgres" >> .env
+          echo "DATABASE_URL=postgresql://postgres@localhost/postgres" >> .env
           cat .env
         working-directory: ./deploy/docker
       - name: Start docker container
