@@ -14,6 +14,7 @@ jobs:
       POSTGRES_HOST: localhost
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: basetool
       POSTGRES_PORT: 5432
     services:
       postgres:
@@ -35,7 +36,7 @@ jobs:
         run: |
           ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost/postgres\n" >> .env
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost/basetool\n" >> .env
           echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006\n" >> .env
           cat .env
         working-directory: ./deploy/docker
