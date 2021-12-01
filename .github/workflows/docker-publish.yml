@@ -36,7 +36,6 @@ jobs:
         with:
           context: .
           load: true
-          # tags: basetool/basetool:latest
           tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
           cache-from: type=registry,ref=basetool/basetool:latest
           cache-to: type=inline
