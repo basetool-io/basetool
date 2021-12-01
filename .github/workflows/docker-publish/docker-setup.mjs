@@ -1,6 +1,5 @@
 #!/usr/bin/env zx
-import YAML from "yaml";
-import fs from "fs";
+const YAML = require("yaml");
 
 const file = fs.readFileSync("./../../../deploy/docker/docker-compose.yml", "utf8");
 const parsed = YAML.parse(file);
