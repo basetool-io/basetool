@@ -37,6 +37,10 @@ jobs:
       - name: Start docker container
         run: docker compose up --wait
         working-directory: ./deploy/docker
+      - name: Sleep for 5s
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 5s
       - name: Test app
         env:
           PORT: 7654
