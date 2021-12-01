@@ -11,22 +11,7 @@ jobs:
     name: "Build-and-publish"
     runs-on: ubuntu-latest
     env:
-      PG_HOST: localhost
-      PG_USER: postgres
-      PG_PASSWORD: postgres
-      PG_DB: postgres
-      PG_PORT: 5432
-      POSTGRES_HOST: localhost
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      POSTGRES_PORT: 5432
       BASETOOL_TELEMETRY_DISABLED: 1
-    services:
-      postgres:
-        image: postgres:11.5
-        ports: ["5432:5432"]
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -37,22 +22,25 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - run: npm install -g yaml zx
       - name: Configure docker container
         run: |
-          ls -la .
           mv .env.sample .env
-          echo "DATABASE_URL=postgresql://postgres:postgres@host.docker.internal/postgres" >> .env
+          ls -la .
+          echo "DATABASE_URL=postgresql://basetool:basetool@database/basetool" >> .env
           echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env
           cat .env
-          pg_isready -d postgres -h localhost -p 5432 -U postgres
         working-directory: ./deploy/docker
+      - run: |
+          npx zx docker-setup.mjs
+        working-directory: ./.github/workflows/docker-publish
       - name: Start docker container
         run: docker compose up
         working-directory: ./deploy/docker
       - name: Test app
         env:
           PORT: 7654
-        run: npx zx ./scripts/test-docker-image.mjs
+        run: npx zx ./.github/workflows/docker-publish/test-image.mjs
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -75,13 +63,13 @@ jobs:
       - name: Configure docker container
         run: |
           mv .env.example .env
-          echo echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
+          echo "DATABASE_URL=postgresql://postgres@127.0.0.1/postgres" >> .env
         working-directory: ./deploy/docker
       - name: Start docker container
         run: docker compose up -d
         working-directory: ./deploy/docker
       - name: Test app
-        run: npx zx ./scripts/test-docker-image.mjs
+        run: npx zx ./.github/workflows/docker-publish/test-image.mjs
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
