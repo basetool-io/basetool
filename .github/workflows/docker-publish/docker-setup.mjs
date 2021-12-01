@@ -7,7 +7,7 @@ const file = fs.readFileSync(
 );
 const parsed = YAML.parse(file);
 
-parsed.app.image = `${process.env.DOCKER_IMAGE_NAME}:${process.env.DOCKER_IMAGE_TAG}`;
+parsed.services.app.image = `${process.env.DOCKER_IMAGE_NAME}:${process.env.DOCKER_IMAGE_TAG}`;
 parsed.services.database = {
   image: "postgres",
   ports: ["5432:5432"],
