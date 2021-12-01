@@ -32,6 +32,7 @@ jobs:
           cat .env
         working-directory: ./deploy/docker
       - run: |
+          npm install -g yaml zx
           npx zx docker-setup.mjs
         working-directory: ./.github/workflows/docker-publish
       - name: Start docker container
