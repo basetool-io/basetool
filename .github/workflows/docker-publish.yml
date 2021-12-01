@@ -35,7 +35,7 @@ jobs:
           npx zx docker-setup.mjs
         working-directory: ./.github/workflows/docker-publish
       - name: Start docker container
-        run: docker compose up -wait
+        run: docker compose up --wait
         working-directory: ./deploy/docker
       - name: Test app
         env:
