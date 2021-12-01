@@ -22,7 +22,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - run: npm install -g yaml zx
+      - run: npm install yaml zx
       - name: Configure docker container
         run: |
           mv .env.sample .env
@@ -32,7 +32,6 @@ jobs:
           cat .env
         working-directory: ./deploy/docker
       - run: |
-          npm install -g yaml zx
           npx zx docker-setup.mjs
         working-directory: ./.github/workflows/docker-publish
       - name: Start docker container
