@@ -51,8 +51,10 @@ export const availableDataSources = [
   {
     id: "airtable",
     label: "Airtable",
-    enabled: false,
-    comingSoon: true,
+    enabled: true,
+    comingSoon: false,
+    beta: true,
+    readOnly: true,
   },
   {
     id: "swagger",

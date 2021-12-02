@@ -30,6 +30,7 @@
     "@segment/snippet": "^4.15.3",
     "@sentry/nextjs": "^6.13.3",
     "accesscontrol": "^2.2.1",
+    "airtable": "^0.11.1",
     "analytics-node": "^5.1.0",
     "autoprefixer": "^10.3.2",
     "aws-sdk": "^2.1013.0",
