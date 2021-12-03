@@ -75,7 +75,38 @@ class QueryService implements IQueryService {
     });
 
     console.log("Airtable connected");
-    console.log("client->", this.client)
+    console.log("client->", this.client);
+    const base = new Airtable({ apiKey: credentials.secretKey as string }).base(
+      "appShaDj1Fzr8NHDo"
+    );
+
+    base("Imported table")
+      .select({
+        // Selecting the first 3 records in Grid view:
+        maxRecords: 3,
+        view: "Grid view",
+      })
+      .eachPage(
+        function page(records, fetchNextPage) {
+          // This function (`page`) will get called for each page of records.
+
+          records.forEach(function (record) {
+            console.log("Retrieved", record.get("Date"));
+          });
+
+          // To fetch the next page of records, call `fetchNextPage`.
+          // If there are more records, `page` will get called again.
+          // If there are no more records, `done` will get called.
+          fetchNextPage();
+        },
+        function done(err) {
+          if (err) {
+            console.error(err);
+
+            return;
+          }
+        }
+      );
   }
 
   public async connect(): Promise<this> {
