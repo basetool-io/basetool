@@ -11,7 +11,7 @@ import { getCsrfToken, useSession } from "next-auth/client";
 import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/auth/signupSchema";
-import { useApi } from "@/hooks";
+import { useApi, useSegment } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import HeadSection from "@/components/HeadSection";
@@ -49,6 +49,8 @@ function Register() {
   const router = useRouter();
   const [session] = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const track = useSegment();
+
 
   useEffect(() => {
     if (session) router.push("/");
@@ -59,6 +61,10 @@ function Register() {
     setIsLoading(true);
 
     if (response.ok) {
+      track("New user registered", {
+        email: getValues('email'),
+      })
+
       router.push(`/auth/login?email=${getValues('email')}`);
     }
 
