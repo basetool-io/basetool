@@ -36,6 +36,11 @@ class QueryService extends AbstractQueryService {
       connection.ssl = { rejectUnauthorized: false };
     }
 
+    // If the type of connection is Azure, we need to add the `encrypt` option.
+    if (connection.host && connection.host.includes("database.windows.net")) {
+      (connection as Knex.MsSqlConnectionConfig).options = { encrypt: true };
+    }
+
     const client = knex({
       client: "mssql",
       connection,
