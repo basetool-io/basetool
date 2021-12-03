@@ -1,10 +1,13 @@
 import { AnySchema } from "joi";
+import { schema as airtableSchema } from "./airtable/schema";
 import { schema as mysqlSchema } from "./mysql/schema";
 import { schema as postgresqlSchema } from "./postgresql/schema";
 import { schema as stripeSchema } from "./stripe/schema";
 
 const getSchema = (id: string): AnySchema => {
   switch (id) {
+    case "airtable":
+      return airtableSchema;
     case "stripe":
       return stripeSchema;
     case "mysql":

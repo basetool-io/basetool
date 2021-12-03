@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { PlusIcon } from "@heroicons/react/outline";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
-import { schema } from "@/plugins/data-sources/stripe/schema";
+import { schema } from "@/plugins/data-sources/airtable/schema";
 import { useAddDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useForm } from "react-hook-form";
 import { useProfile } from "@/hooks";
@@ -114,7 +114,7 @@ function New() {
               <FormLabel>Name</FormLabel>
               <Input
                 type="string"
-                placeholder="My Stripe API"
+                placeholder="My Airtable API"
                 {...register("name")}
                 autoFocus
               />
@@ -129,7 +129,7 @@ function New() {
                 {...register("credentials.secretKey")}
               />
               <FormHelperText>
-                Generate a new API key <Link href="https://dashboard.stripe.com/apikeys"><a className="underline text-blue-600" target="_blank">here</a></Link>. Scope the API key to whichever resources you want to use.
+                Generate a new API key <Link href="https://airtable.com/account"><a className="underline text-blue-600" target="_blank">here</a></Link>. Scope the API key to whichever resources you want to use.
                 <br />   The credentials are safely
                 encrypted. We'll never show these credentials again.
               </FormHelperText>
