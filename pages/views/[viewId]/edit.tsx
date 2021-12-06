@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/react";
 import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { convertToBaseFilters } from "@/features/records";
+import { convertToBaseFilters } from "@/features/records/convertToBaseFilters"
 import { debounce, first, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/records/state-slice";
