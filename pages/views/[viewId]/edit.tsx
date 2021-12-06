@@ -64,7 +64,7 @@ const Edit = () => {
     resetState();
   }, [viewId]);
 
-  const backLink = `/views/${viewId}`;
+  const backLink = viewId ? `/views/${viewId}` : '';
   const crumbs = useMemo(() => ["Edit view", view?.name], [view?.name]);
   const { encodedFilters, appliedFilters, setFilters, setAppliedFilters } = useFilters();
   const { limit, offset } = usePagination();

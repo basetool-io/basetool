@@ -132,7 +132,7 @@ const RecordsIndexPage = ({
         buttons={
           <ButtonGroup size="xs">
             {canCreateView && <CreateViewButton />}
-            {canEditView && <EditViewButton />}
+            {canEditView && viewId && <EditViewButton />}
           </ButtonGroup>
         }
         footer={
@@ -145,7 +145,7 @@ const RecordsIndexPage = ({
         }
       >
         <div className="relative flex flex-col flex-1 w-full h-full">
-          <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-20 rounded">
+          <div className="relative flex justify-end w-full py-2 px-2 bg-white shadow z-60 rounded">
             {filtersPanelVisible && <FiltersPanel ref={filtersPanel} />}
             <div className="flex flex-shrink-0">
               {info?.supports?.filters && (
@@ -156,7 +156,7 @@ const RecordsIndexPage = ({
               )}
             </div>
           </div>
-          <div className="relative flex-1 flex h-full max-w-full w-full">
+          <div className="relative flex-1 flex h-full max-w-full w-full z-40">
             {dataSourceId && (
               <div className="flex-1 flex flex-col justify-between w-full">
                 {isFetching && (
