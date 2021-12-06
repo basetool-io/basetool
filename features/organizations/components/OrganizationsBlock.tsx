@@ -69,7 +69,7 @@ const OrganizationsBlock = () => {
                   )}
                   {rolesByOrganizationId[org.id] && (
                     <div className="text-sm">
-                      Your role: {rolesByOrganizationId[org.id]}
+                      <strong>Your role</strong>: {rolesByOrganizationId[org.id]}
                     </div>
                   )}
                 </PageWrapper.Block>

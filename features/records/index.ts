@@ -6,7 +6,6 @@ import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, isNull, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
-import { FilterOrFilterGroup } from "../tables/types"
 
 /**
  * This method will filter out record fields that are disconnected.
@@ -60,13 +59,17 @@ export const hydrateRecords = async (
 
   // If there are association columns, hydrate the records with the associations.
   if (!isEmpty(associationColumns)) {
-    const hydratedRecordsWithAssociations = hydrateAssociations(
-      hydratedRecords,
-      associationColumns,
-      dataSource
-    );
+    try {
+      const hydratedRecordsWithAssociations = hydrateAssociations(
+        hydratedRecords,
+        associationColumns,
+        dataSource
+      );
 
-    return hydratedRecordsWithAssociations;
+      return hydratedRecordsWithAssociations;
+    } catch (error) {
+      return hydratedRecords;
+    }
   } else {
     return hydratedRecords;
   }
@@ -89,7 +92,7 @@ const hydrateAssociations = async (
       {
         columnName: "id",
         condition: "is_in",
-        value: uniq(foreignIds).toString(),
+        value: uniq(foreignIds).filter(Boolean).toString(),
         verb: "and",
       },
     ];
@@ -97,17 +100,16 @@ const hydrateAssociations = async (
     const { records: foreignRecords } = await runQuery(
       dataSource,
       "getRecords",
-      {
-        tableName: foreignTableName,
-        filters,
-      }
+      { tableName: foreignTableName, filters }
     );
 
     hydratedRecordsAssociation = hydratedRecordsAssociation.map(
       (record: any) => {
         const foreignRecordComputed = foreignRecords.find(
-          (foreignRecord: any) => foreignRecord.id === record[column.name]
+          (foreignRecord: any) => foreignRecord?.id === record[column.name]
         );
+
+        if (!foreignRecordComputed) return record;
 
         const foreignNameColumn = getForeignName(foreignRecordComputed, column);
 

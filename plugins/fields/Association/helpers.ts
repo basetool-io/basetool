@@ -19,11 +19,11 @@ export const getForeignName = (record: any, column: Column) => {
       if (record.title) prettyName = record.title;
       if (record.name) prettyName = record.name;
     }
+
+    if (prettyName) return `${prettyName} [${record.id}]`;
+
+    if (record && record?.id) return `${record.id}`;
   }
-
-  if (prettyName) return `${prettyName} [${record.id}]`;
-
-  if (record && record.id) return `${record.id}`;
 
   return null;
 };

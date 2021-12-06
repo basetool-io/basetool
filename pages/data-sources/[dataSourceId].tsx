@@ -7,11 +7,12 @@ import GoogleSheetsSetup from "@/components/GoogleSheetsSetup";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { useMemo } from "react";
+import Shimmer from "@/components/Shimmer"
 import ShimmerOrCount from "@/components/ShimmerOrCount";
 
 function DataSourcesShow() {
   const { dataSourceId } = useDataSourceContext();
-  const { dataSource } = useDataSourceResponse(dataSourceId);
+  const { dataSource, isLoading: dataSourceIsLoading } = useDataSourceResponse(dataSourceId);
   const { data: tablesResponse, isLoading: tablesAreLoading } =
     useGetTablesQuery({ dataSourceId }, { skip: !dataSourceId });
 
@@ -38,7 +39,7 @@ function DataSourcesShow() {
       <>
         {showGoogleSheetsSetup && <GoogleSheetsSetup />}
         {showGoogleSheetsSetup || (
-          <PageWrapper heading={dataSource?.name}>
+          <PageWrapper heading={dataSourceIsLoading ? <Shimmer height={28} width={120} /> : dataSource?.name}>
             <div>
               This data source has{" "}
               <ShimmerOrCount
