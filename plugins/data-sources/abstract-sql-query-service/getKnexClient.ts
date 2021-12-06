@@ -32,6 +32,11 @@ export const getKnexClient = (
     connection.port = overrides.port;
   }
 
+  // If the type of connection is MSSQL, we need to add the `encrypt` option for azure connections.
+  if (type === "mssql" && connection.host && connection.host.includes("database.windows.net")) {
+    (connection as Knex.MsSqlConnectionConfig).options = { encrypt: true };
+  }
+
   const client = knex({
     client: knexClientType,
     connection,
