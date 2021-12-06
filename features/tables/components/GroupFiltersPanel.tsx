@@ -2,7 +2,7 @@ import { Button, Tooltip } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { FilterVerbs, IntFilterConditions } from "..";
 import { IFilter, IFilterGroup } from "../types";
-import { PlusIcon, XIcon } from "@heroicons/react/outline";
+import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/features/records/hooks";
 import Filter from "./Filter";
 import React, { forwardRef, useMemo } from "react";
@@ -101,7 +101,7 @@ const GroupFiltersPanel = (
       <div className="align-top pt-2.5">
         <Tooltip label="Remove filter group">
           <Button size="xs" variant="link" onClick={() => removeFilterGroup()}>
-            <XIcon className="h-3 text-gray-700" />
+            <TrashIcon className="h-3 text-gray-700" />
           </Button>
         </Tooltip>
       </div>
