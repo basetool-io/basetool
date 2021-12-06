@@ -67,9 +67,7 @@ export const hydrateRecords = async (
 
       return hydratedRecordsWithAssociations;
     } catch (error) {
-      console.log("error->", error);
-
-return hydratedRecords;
+      return hydratedRecords;
     }
   } else {
     return hydratedRecords;
@@ -89,11 +87,6 @@ const hydrateAssociations = async (
     const foreignIds = records.map((record: any) => record[column.name]);
     const foreignTableName = column.foreignKeyInfo.foreignTableName as string;
 
-    console.log(
-      "uniq(foreignIds).toString()->",
-      foreignIds,
-      uniq(foreignIds).filter(Boolean).toString()
-    );
     const filters: Record<string, any> = [
       {
         columnName: "id",
