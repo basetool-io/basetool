@@ -60,13 +60,11 @@ export const hydrateRecords = async (
   // If there are association columns, hydrate the records with the associations.
   if (!isEmpty(associationColumns)) {
     try {
-      const hydratedRecordsWithAssociations = hydrateAssociations(
+      return await hydrateAssociations(
         hydratedRecords,
         associationColumns,
         dataSource
       );
-
-      return hydratedRecordsWithAssociations;
     } catch (error) {
       return hydratedRecords;
     }
