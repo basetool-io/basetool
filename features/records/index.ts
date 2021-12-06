@@ -1,5 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
+import { FilterOrFilterGroup } from "../tables/types";
 import { getConnectedColumns } from "@/features/fields";
 import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, isNull, merge, uniq } from "lodash";
