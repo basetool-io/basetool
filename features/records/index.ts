@@ -9,10 +9,7 @@ import Handlebars from "handlebars";
 /**
  * This method will filter out record fields that are disconnected.
  */
-export const filterOutRecordColumns = (
-  records: any,
-  columns: Column[],
-) => {
+export const filterOutRecordColumns = (records: any, columns: Column[]) => {
   return records.map((record: Record<string, unknown>) => {
     // Get the filtered column names.
     const filteredColumnNames = getConnectedColumns(columns).map(
@@ -61,13 +58,19 @@ export const hydrateRecords = async (
 
   // If there are association columns, hydrate the records with the associations.
   if (!isEmpty(associationColumns)) {
-    const hydratedRecordsWithAssociations = hydrateAssociations(
-      hydratedRecords,
-      associationColumns,
-      dataSource
-    );
+    try {
+      const hydratedRecordsWithAssociations = hydrateAssociations(
+        hydratedRecords,
+        associationColumns,
+        dataSource
+      );
 
-    return hydratedRecordsWithAssociations;
+      return hydratedRecordsWithAssociations;
+    } catch (error) {
+      console.log("error->", error);
+
+return hydratedRecords;
+    }
   } else {
     return hydratedRecords;
   }
@@ -86,25 +89,33 @@ const hydrateAssociations = async (
     const foreignIds = records.map((record: any) => record[column.name]);
     const foreignTableName = column.foreignKeyInfo.foreignTableName as string;
 
+    console.log(
+      "uniq(foreignIds).toString()->",
+      foreignIds,
+      uniq(foreignIds).filter(Boolean).toString()
+    );
     const filters: Record<string, any> = [
       {
         columnName: "id",
         condition: "is_in",
-        value: uniq(foreignIds).toString(),
+        value: uniq(foreignIds).filter(Boolean).toString(),
         verb: "and",
       },
     ];
 
-    const { records: foreignRecords } = await runQuery(dataSource, "getRecords", {
-      tableName: foreignTableName,
-      filters,
-    });
+    const { records: foreignRecords } = await runQuery(
+      dataSource,
+      "getRecords",
+      { tableName: foreignTableName, filters }
+    );
 
     hydratedRecordsAssociation = hydratedRecordsAssociation.map(
       (record: any) => {
         const foreignRecordComputed = foreignRecords.find(
-          (foreignRecord: any) => foreignRecord.id === record[column.name]
+          (foreignRecord: any) => foreignRecord?.id === record[column.name]
         );
+
+        if (!foreignRecordComputed) return record;
 
         const foreignNameColumn = getForeignName(foreignRecordComputed, column);
 

@@ -65,7 +65,7 @@ const DataSourcesBlock = () => {
                     </div>
                     <br />
                     {organization?.name && (
-                      <div className="text-sm">{organization.name}</div>
+                      <div className="text-sm"><strong>Organization</strong>: {organization.name}</div>
                     )}
                   </div>
                 </PageWrapper.Block>
