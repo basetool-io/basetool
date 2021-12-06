@@ -13,17 +13,18 @@ import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Avatar from "react-avatar";
+import FeedbackSidebarItem from "./FeedbackSidebarItem";
 import Link from "next/link";
 import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
 
-const DataSourceItem = ({
+export const DataSourceItem = ({
   active,
   label,
   link,
   icon,
   initials,
-  compact,
+  compact = false,
   flush = false,
   onClick,
   ...rest
@@ -204,6 +205,9 @@ const DataSourcesSidebar = () => {
                 </a>
               </Link>
             )}
+
+            <FeedbackSidebarItem />
+
             <DataSourceItem
               active={router.asPath.includes(`/profile`)}
               compact={compact}

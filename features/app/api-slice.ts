@@ -1,5 +1,6 @@
 import { apiUrl } from "../api/urls";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import ApiResponse from "../api/ApiResponse";
 
 export const profileApiSlice = createApi({
   reducerPath: "profileApi",
@@ -21,8 +22,20 @@ export const profileApiSlice = createApi({
           return [];
         },
       }),
+      sendFeedback: builder.mutation<
+        ApiResponse,
+        Partial<{
+          body: { note: string, emotion: string, url: string };
+        }>
+      >({
+        query: ({ body }) => ({
+          url: `${apiUrl}/feedback`,
+          method: "POST",
+          body,
+        }),
+      }),
     };
   },
 });
 
-export const { useGetProfileQuery } = profileApiSlice;
+export const { useGetProfileQuery, useSendFeedbackMutation } = profileApiSlice;
