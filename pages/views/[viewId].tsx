@@ -1,6 +1,7 @@
 import { OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
-import { debounce, first } from "lodash";
+import { convertToBaseFilters } from "@/features/records/convertToBaseFilters"
+import { debounce, first, isArray } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
 import {
@@ -26,10 +27,23 @@ function ViewShow() {
   const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
+    if (view && isArray(view.filters)) {
+      const filters = convertToBaseFilters(view.filters as [])
+
+      setFilters(filters)
+      setAppliedFilters(filters)
+    }
+  }, [view]);
+
+  useEffect(() => {
     resetState();
+
+    return () => {
+      resetState();
+    }
   }, [viewId]);
 
-  const { encodedFilters } = useFilters();
+  const { encodedFilters, setFilters, setAppliedFilters } = useFilters();
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||

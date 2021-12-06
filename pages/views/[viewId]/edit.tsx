@@ -3,7 +3,7 @@ import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
 import { convertToBaseFilters } from "@/features/records/convertToBaseFilters"
-import { debounce, first, pick } from "lodash";
+import { debounce, first, isArray, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/records/state-slice";
 import {
@@ -52,12 +52,21 @@ const Edit = () => {
   const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
+    if (view && isArray(view.filters)) {
+      const filters = convertToBaseFilters(view.filters as [])
+
+      setFilters(filters)
+      setAppliedFilters(filters)
+    }
+  }, [view]);
+
+  useEffect(() => {
     resetState();
   }, [viewId]);
 
   const backLink = `/views/${viewId}`;
   const crumbs = useMemo(() => ["Edit view", view?.name], [view?.name]);
-  const { encodedFilters, appliedFilters } = useFilters();
+  const { encodedFilters, appliedFilters, setFilters, setAppliedFilters } = useFilters();
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
