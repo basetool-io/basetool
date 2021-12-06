@@ -1,18 +1,16 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
+import { FilterOrFilterGroup } from "../tables/types";
 import { getConnectedColumns } from "@/features/fields";
 import { getForeignName } from "@/plugins/fields/Association/helpers";
-import { isArray, isEmpty, merge, uniq } from "lodash";
+import { isArray, isEmpty, isNull, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
 
 /**
  * This method will filter out record fields that are disconnected.
  */
-export const filterOutRecordColumns = (
-  records: any,
-  columns: Column[],
-) => {
+export const filterOutRecordColumns = (records: any, columns: Column[]) => {
   return records.map((record: Record<string, unknown>) => {
     // Get the filtered column names.
     const filteredColumnNames = getConnectedColumns(columns).map(
@@ -95,10 +93,14 @@ const hydrateAssociations = async (
       },
     ];
 
-    const { records: foreignRecords } = await runQuery(dataSource, "getRecords", {
-      tableName: foreignTableName,
-      filters,
-    });
+    const { records: foreignRecords } = await runQuery(
+      dataSource,
+      "getRecords",
+      {
+        tableName: foreignTableName,
+        filters,
+      }
+    );
 
     hydratedRecordsAssociation = hydratedRecordsAssociation.map(
       (record: any) => {
@@ -171,4 +173,16 @@ export const hydrateColumns = (
   }
 
   return columns;
+};
+
+export const convertToBaseFilters = (
+  filters: FilterOrFilterGroup[] | null | undefined
+): FilterOrFilterGroup[] => {
+  if (!filters || isNull(filters) || !isArray(filters)) return [];
+
+  return filters
+    .map((filter: FilterOrFilterGroup) => ({
+      ...filter,
+      isBase: true,
+    }));
 };
