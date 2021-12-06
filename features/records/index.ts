@@ -6,6 +6,7 @@ import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, isNull, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
+import { FilterOrFilterGroup } from "../tables/types"
 
 /**
  * This method will filter out record fields that are disconnected.
