@@ -30,9 +30,9 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
             <p>From: ${user?.email || ""}</p>
             <p>Message: ${req.body.note}</p>
             <p>Emotion: ${req.body.emotion}</p>
-            <p>URL: ${req.body.url}</p>
+            <p>Posted from URL: ${req.body.url}</p>
           </div>`,
-    text: `From: ${user?.email || ""}; Message: ${req.body.note}; Emotion: ${req.body.emotion}; URL: ${req.body.url};`
+    text: `From: ${user?.email || ""}; Message: ${req.body.note}; Emotion: ${req.body.emotion}; Posted from URL: ${req.body.url};`
   };
 
   try {

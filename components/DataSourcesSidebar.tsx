@@ -1,5 +1,4 @@
 import {
-  ChatAltIcon,
   ClockIcon,
   HomeIcon,
   PlusIcon,
@@ -9,24 +8,23 @@ import { DataSource } from "@prisma/client";
 import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
-import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceContext, useProfile, useSidebarsVisible } from "@/hooks";
 import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Avatar from "react-avatar";
-import FeedbackPanel from "./FeedbackPanel";
+import FeedbackSidebarItem from "./FeedbackSidebarItem";
 import Link from "next/link";
-import React, { ReactNode, memo, useRef } from "react";
+import React, { ReactNode, memo } from "react";
 import classNames from "classnames";
 
-const DataSourceItem = ({
+export const DataSourceItem = ({
   active,
   label,
   link,
   icon,
   initials,
-  compact,
+  compact = false,
   flush = false,
   onClick,
   ...rest
@@ -115,23 +113,6 @@ const DataSourcesSidebar = () => {
       </a>
     </Link>
   );
-
-  const [feedbackPanelVisible, toggleFeedbackPanelVisible] = useBoolean(false);
-  const feedbackButton = useRef(null);
-  const feedbackPanel = useRef(null);
-
-  useClickAway(feedbackPanel, (e) => {
-    // When a user click the filters button to close the filters panel, the button is still outside,
-    // so the action triggers twice closing and opening the filters panel.
-    if (feedbackButton?.current &&
-      !(feedbackButton?.current as any)?.contains(e.target)) {
-      toggleFeedbackPanelVisible(false);
-    }
-  });
-
-  const handleShowFeedbackPanelClick = () => {
-    toggleFeedbackPanelVisible();
-  };
 
   return (
     <div
@@ -225,26 +206,7 @@ const DataSourcesSidebar = () => {
               </Link>
             )}
 
-            <div ref={feedbackButton}>
-            <DataSourceItem
-              active={feedbackPanelVisible}
-              compact={compact}
-              icon={
-                <ChatAltIcon className="h-6 w-6 text-white" />
-              }
-              label={`Share any feedback or ideas`}
-              onClick={handleShowFeedbackPanelClick}
-            />
-            </div>
-
-            {feedbackPanelVisible && (
-              <div
-                className="absolute right-auto left-16 bottom-16 z-50 ml-1"
-                ref={feedbackPanel}
-              >
-                <FeedbackPanel closePanel={() => toggleFeedbackPanelVisible(false)}/>
-              </div>
-            )}
+            <FeedbackSidebarItem />
 
             <DataSourceItem
               active={router.asPath.includes(`/profile`)}

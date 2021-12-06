@@ -13,7 +13,7 @@ const FeedbackPanel = ({
 }: {
   label?: string;
   closePanel?: () => void;
-  firstFieldRef: any;
+  firstFieldRef?: any;
 }) => {
   const [emotion, setEmotion] = useState<string | null>(null);
   const [value, setValue] = useState<string | null>(null);
