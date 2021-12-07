@@ -3,6 +3,7 @@ import { getVisibleColumns } from "@/features/fields";
 import { isEmpty } from "lodash";
 import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
+import ErrorMessage from "@/components/ErrorMessage";
 import Form from "@/features/records/components/Form";
 import Layout from "@/components/Layout";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -36,7 +37,11 @@ const NewRecord = () => {
       {isLoading && (
         <LoadingOverlay transparent={isEmpty(columnsResponse?.data)} />
       )}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
+      {error && "data" in error && (
+        <ErrorMessage
+          error={(error?.data as { messages: string[] })?.messages[0] as string}
+        />
+      )}
       {!isLoading && columnsResponse?.ok && (
         <Form record={{}} formForCreate={true} columns={columns} />
       )}
