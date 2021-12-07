@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_IMAGE_NAME: basetool/basetool
-      DOCKER_IMAGE_TAG: test_deploy
+      DOCKER_IMAGE_TAG: latest
       BASETOOL_TELEMETRY_DISABLED: 1
     steps:
       - name: Checkout
