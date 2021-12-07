@@ -5,7 +5,7 @@ import { IFilter, IFilterGroup } from "../types";
 import { PlusIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/features/records/hooks";
 import Filter from "./Filter";
-import FilterTrashIcon from "./FilterTrashIcon"
+import FilterTrashIcon from "./FilterTrashIcon";
 import React, { forwardRef, useMemo } from "react";
 import VerbComponent from "./VerbComponent";
 
