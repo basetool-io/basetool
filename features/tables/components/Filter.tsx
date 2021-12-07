@@ -1,21 +1,24 @@
 import {
   BooleanFilterConditions,
   DateFilterConditions,
+  FilterVerbs,
   IntFilterConditions,
   SelectFilterConditions,
   StringFilterConditions,
   getDefaultFilterCondition,
 } from "..";
 import { Button, FormControl, Input, Select, Tooltip } from "@chakra-ui/react";
-import { CalendarIcon, TrashIcon } from "@heroicons/react/outline";
+import { CalendarIcon } from "@heroicons/react/outline";
 import { Column } from "@/features/fields/types";
 import { FilterConditions, IFilter, IFilterGroup } from "../types";
+import { GenericEvent } from "@/types";
 import { isArray, isDate, isUndefined } from "lodash";
 import { useFilters } from "@/features/records/hooks";
 import ConditionComponent from "@/features/tables/components/ConditionComponent";
 import DatePicker from "react-datepicker";
+import FilterTrashIcon from "./FilterTrashIcon"
 import React, { forwardRef, memo, useMemo, useState } from "react";
-import VerbComponent, { FilterVerb } from "./VerbComponent";
+import VerbComponent from "./VerbComponent";
 
 const IS_VALUES = {
   today: "today",
@@ -62,8 +65,9 @@ const CustomDateInput = forwardRef(
     {
       onClick,
     }: {
-      onClick?: (e: any) => void;
+      onClick?: (e: GenericEvent) => void;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref: any
   ) => {
     return (
@@ -79,6 +83,89 @@ const CustomDateInput = forwardRef(
   }
 );
 CustomDateInput.displayName = "CustomDateInput";
+
+const TextInputSelector = ({
+  value,
+  onChange,
+  onBlur,
+}: {
+  value: string | undefined;
+  onChange: (e: GenericEvent) => void;
+  onBlur: (e: GenericEvent) => void;
+}) => (
+  <FormControl>
+    <Input size="xs" value={value} onBlur={onBlur} onChange={onChange} />
+  </FormControl>
+);
+
+const SelectFieldTypeSelector = ({
+  options,
+  defaultValue,
+  onChange,
+}: {
+  options: string | undefined;
+  defaultValue: string | undefined;
+  onChange: (e: GenericEvent) => void;
+}) => (
+  <FormControl>
+    <Select size="xs" defaultValue={defaultValue} onChange={onChange}>
+      {options &&
+        options.split(",").map((option: string, index: number) => (
+          <option key={index} value={option.trim()}>
+            {option.trim()}
+          </option>
+        ))}
+    </Select>
+  </FormControl>
+);
+
+const DateSelector = ({
+  filter,
+  onChange,
+  onChangeDate,
+}: {
+  filter: IFilter;
+  onChange: (e: GenericEvent) => void;
+  onChangeDate: (date: Date | [Date | null, Date | null] | null) => void;
+}) => {
+  const options = useMemo(
+    () =>
+      filter.condition === DateFilterConditions.is_within
+        ? WITHIN_VALUES
+        : IS_VALUES,
+    [filter.condition]
+  );
+
+  return (
+    <FormControl>
+      <div className="flex space-x-1">
+        <Tooltip label="Dates are in server timezone (UTC)." fontSize="xs">
+          <Select size="xs" value={filter.option} onChange={onChange}>
+            {Object.entries(options).map(([id, label]) => (
+              <option key={id} value={id}>
+                {label.replaceAll("_", " ")}
+              </option>
+            ))}
+          </Select>
+        </Tooltip>
+        {filter.option === "exact_date" && (
+          <div className="flex-1">
+            <DatePicker
+              showTimeSelect={true}
+              selected={
+                filter.value !== ""
+                  ? new Date(filter.value as string)
+                  : new Date()
+              }
+              onChange={onChangeDate}
+              customInput={<CustomDateInput />}
+            />
+          </div>
+        )}
+      </div>
+    </FormControl>
+  );
+};
 
 const Filter = ({
   columns,
@@ -246,7 +333,7 @@ const Filter = ({
     }
   };
 
-  const changeFilterVerb = (verb: FilterVerb) => {
+  const changeFilterVerb = (verb: FilterVerbs) => {
     if (!isUndefined(parentIdx)) {
       const groupFilter = filters[parentIdx] as IFilterGroup;
       const newFilters = [...groupFilter.filters];
@@ -299,130 +386,97 @@ const Filter = ({
     }
   };
 
+  const isWithoutValue = useMemo(
+    () => CONDITIONS_WITHOUT_VALUE.includes(filter.condition),
+    [filter.condition]
+  );
+
+  const hasTextInputSelector = useMemo(
+    () =>
+      (!isSelectFilter && !isDateFilter) ||
+      (isSelectFilter && isSelectWithValueInput),
+    [isSelectFilter, isDateFilter, isSelectWithValueInput]
+  );
+
+  const isSelectFieldType = useMemo(
+    () => isSelectFilter && !isSelectWithValueInput,
+    [isSelectFilter, isSelectWithValueInput]
+  );
+
+  const ColumnsSelector = () => (
+    <FormControl className="flex-1">
+      <Select
+        size="xs"
+        value={filter.columnName}
+        onChange={(e) => changeFilterColumn(e.currentTarget.value)}
+      >
+        {columns &&
+          columns
+            .filter((column) => !column.baseOptions.computed)
+            .map((column, idx) => (
+              <option key={idx} value={column.name}>
+                {column.label}
+              </option>
+            ))}
+      </Select>
+    </FormControl>
+  );
+
+  const ValueSelector = useMemo(() => {
+    if (isWithoutValue) return <div></div>;
+    if (isSelectFieldType)
+      return (
+        <SelectFieldTypeSelector
+          defaultValue={filter.value}
+          options={filter.column?.fieldOptions?.options as string}
+          onChange={(e: GenericEvent) =>
+            changeFilterValue(e?.currentTarget?.value)
+          }
+        />
+      );
+    if (isDateFilter)
+      return (
+        <DateSelector
+          filter={filter}
+          onChange={(e: GenericEvent) =>
+            changeFilterOption(e.currentTarget.value)
+          }
+          onChangeDate={handleChangeDate}
+        />
+      );
+    if (hasTextInputSelector)
+      return (
+        <TextInputSelector
+          value={localInputValue}
+          onChange={(e: GenericEvent) =>
+            setLocalInputValue(e.currentTarget.value)
+          }
+          onBlur={() => changeFilterValue(localInputValue || "")}
+        />
+      );
+
+    return <div></div>;
+  }, [localInputValue, isSelectFieldType, isDateFilter, hasTextInputSelector]);
+
   return (
     <>
-      <div className="flex w-full items-center space-x-1">
-        <VerbComponent
-          idx={idx}
-          verb={filter.verb}
-          onChange={(value: FilterVerb) => changeFilterVerb(value)}
-        />
-        <FormControl id="columns" className="min-w-[140px] max-w-[140px]">
-          <Select
-            size="xs"
-            className="font-mono"
-            value={filter.columnName}
-            onChange={(e) => changeFilterColumn(e.currentTarget.value)}
-          >
-            {columns &&
-              columns
-                .filter((column) => !column.baseOptions.computed)
-                .map((column, idx) => (
-                  <option key={idx} value={column.name}>
-                    {column.label}
-                  </option>
-                ))}
-          </Select>
-        </FormControl>
-        <ConditionComponent
-          filter={filter}
-          onChange={(value: FilterConditions) => changeFilterCondition(value)}
-        />
-        <div
-          className={
-            !isUndefined(parentIdx) ||
-            !filters.find((filter) => "isGroup" in filter)
-              ? "min-w-[100px] max-w-[100px]"
-              : "min-w-[210px]"
-          }
-        >
-          {!CONDITIONS_WITHOUT_VALUE.includes(filter.condition) && (
-            <>
-              {isSelectFilter && !isSelectWithValueInput && (
-                <FormControl id="value">
-                  <Select
-                    size="xs"
-                    className="font-mono"
-                    defaultValue={filter.value}
-                    onChange={(e) => changeFilterValue(e.currentTarget.value)}
-                  >
-                    {filter.column?.fieldOptions?.options &&
-                      (filter.column.fieldOptions.options as any)
-                        .split(",")
-                        .map((option: string, index: number) => (
-                          <option key={index} value={option.trim()}>
-                            {option.trim()}
-                          </option>
-                        ))}
-                  </Select>
-                </FormControl>
-              )}
-              {isDateFilter && (
-                <FormControl id="option">
-                  <div className="flex space-x-1">
-                    <Tooltip
-                      label="Dates are in server timezone (UTC)."
-                      fontSize="xs"
-                    >
-                      <Select
-                        size="xs"
-                        className="font-mono"
-                        value={filter.option}
-                        onChange={(e) =>
-                          changeFilterOption(e.currentTarget.value)
-                        }
-                      >
-                        {filter.condition !== DateFilterConditions.is_within &&
-                          Object.entries(IS_VALUES).map(([id, label]) => (
-                            <option key={id} value={id}>
-                              {label.replaceAll("_", " ")}
-                            </option>
-                          ))}
-                        {filter.condition === DateFilterConditions.is_within &&
-                          Object.entries(WITHIN_VALUES).map(([id, label]) => (
-                            <option key={id} value={id}>
-                              {label.replaceAll("_", " ")}
-                            </option>
-                          ))}
-                      </Select>
-                    </Tooltip>
-                    {filter.option === "exact_date" && (
-                      <div className="flex-1">
-                        <DatePicker
-                          selected={
-                            filter.value !== ""
-                              ? new Date(filter.value as string)
-                              : new Date()
-                          }
-                          onChange={handleChangeDate}
-                          customInput={<CustomDateInput />}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </FormControl>
-              )}
-              {((!isSelectFilter && !isDateFilter) ||
-                (isSelectFilter && isSelectWithValueInput)) && (
-                <FormControl id="value">
-                  <Input
-                    size="xs"
-                    value={localInputValue}
-                    className="font-mono"
-                    onChange={(e) => setLocalInputValue(e.currentTarget.value)}
-                    // This is a workaround to avoid the input to lose focus when typing.
-                    onBlur={() => changeFilterValue(localInputValue || "")}
-                  />
-                </FormControl>
-              )}
-            </>
-          )}
+      <div className="flex-1 flex flex-col sm:flex-row w-full sm:w-auto sm:items-center sm:space-x-2">
+        <div className="flex w-16">
+          <VerbComponent
+            idx={idx}
+            verb={filter.verb}
+            onChange={(value: FilterVerbs) => changeFilterVerb(value)}
+          />
         </div>
-        <Tooltip label="Remove filter">
-          <Button size="xs" variant="link" onClick={handleRemoveFilter}>
-            <TrashIcon className="h-3 text-gray-700" />
-          </Button>
-        </Tooltip>
+        <div className="flex-1 grid grid-cols-3 gap-2 font-mono">
+          <ColumnsSelector />
+          <ConditionComponent
+            filter={filter}
+            onChange={(value: FilterConditions) => changeFilterCondition(value)}
+          />
+          {ValueSelector}
+        </div>
+        <FilterTrashIcon onClick={handleRemoveFilter} />
       </div>
     </>
   );

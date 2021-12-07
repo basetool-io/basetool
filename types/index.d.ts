@@ -16,3 +16,10 @@ export type FooterElements = {
   center?: ReactElement | string;
   right?: ReactElement | string;
 }
+
+export type GenericEvent = {
+  currentTarget: {
+    value: string
+  };
+}
+
