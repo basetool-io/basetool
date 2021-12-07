@@ -80,55 +80,53 @@ const FiltersPanel = (
   return (
     <div
       ref={ref}
-      className="absolute border rounded-md shadow-lg bg-white z-30 min-w-[31.2rem] min-h-[6rem] p-4 mt-8"
+      className="absolute border rounded-md shadow-lg bg-white z-60 w-full -mr-2 sm:mr-0 sm:w-[40rem] min-h-[6rem] p-4 mt-8"
     >
-      <div className="relative  flex flex-col justify-between w-full min-h-full h-full space-y-3">
-        <div className="space-y-4">
-          {isEmpty(filters) && (
-            <div>
-              No filters applied to this view
-              <div className="text-sm text-gray-600">
-                Add a filter from the button below
-              </div>
+      <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-3">
+        {isEmpty(filters) && (
+          <div>
+            No filters applied to this view
+            <div className="text-sm text-gray-600">
+              Add a filter from the button below
             </div>
-          )}
-          {isEmpty(filters) ||
-            filters.map((filter, idx) => {
-              const FilterComponent = () => {
-                if ("isGroup" in filter && filter.isGroup) {
-                  return (
-                    <GroupFiltersPanel
-                      idx={idx}
-                      columns={columns}
-                      verb={(filter as IFilterGroup).verb}
-                      filters={(filter as IFilterGroup).filters}
-                    />
-                  );
-                }
-
+          </div>
+        )}
+        {isEmpty(filters) ||
+          filters.map((filter, idx) => {
+            const FilterComponent = () => {
+              if ("isGroup" in filter && filter.isGroup) {
                 return (
-                  <Filter
-                    key={idx}
+                  <GroupFiltersPanel
                     idx={idx}
                     columns={columns}
-                    filter={filter as IFilter}
+                    verb={(filter as IFilterGroup).verb}
+                    filters={(filter as IFilterGroup).filters}
                   />
                 );
-              };
+              }
 
               return (
-                <div
+                <Filter
                   key={idx}
-                  className={classNames({
-                    "opacity-60 pointer-events-none":
-                      filter?.isBase && !isEditBaseFilters,
-                  })}
-                >
-                  <FilterComponent />
-                </div>
+                  idx={idx}
+                  columns={columns}
+                  filter={filter as IFilter}
+                />
               );
-            })}
-        </div>
+            };
+
+            return (
+              <div
+                key={idx}
+                className={classNames({
+                  "opacity-60 pointer-events-none":
+                    filter?.isBase && !isEditBaseFilters,
+                })}
+              >
+                <FilterComponent />
+              </div>
+            );
+          })}
         <hr />
         <div className="flex justify-between">
           <div className="space-x-2">

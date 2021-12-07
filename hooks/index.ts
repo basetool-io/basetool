@@ -154,13 +154,13 @@ export const useDataSourceContext = () => {
     () => router.query.recordId as string,
     [router.query.recordId]
   );
-  const tableIndexPath = useMemo(
-    () =>
-      isUndefined(viewId)
-        ? `/data-sources/${dataSourceId}/tables/${tableName}`
-        : `/views/${viewId}`,
-    [dataSourceId, tableName, viewId]
-  );
+  const tableIndexPath = useMemo(() => {
+    if (viewId) return `/views/${viewId}`;
+    if (dataSourceId && tableName)
+      return `/data-sources/${dataSourceId}/tables/${tableName}`;
+
+    return "";
+  }, [dataSourceId, tableName, viewId]);
   const recordsPath = useMemo(
     () => (isUndefined(viewId) ? tableIndexPath : `${tableIndexPath}/records`),
     [tableIndexPath, viewId]

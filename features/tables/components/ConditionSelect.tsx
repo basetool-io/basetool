@@ -1,4 +1,4 @@
-import { FormControl, Select } from "@chakra-ui/react";
+import { Select } from "@chakra-ui/react";
 import React, { memo } from "react";
 
 function ConditionSelect({
@@ -11,10 +11,8 @@ function ConditionSelect({
   onChange: (value: unknown) => void;
 }) {
   return (
-    <FormControl id="condition" className="min-w-[120px] max-w-[120px]">
       <Select
         size="xs"
-        className="font-mono"
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
       >
@@ -24,7 +22,6 @@ function ConditionSelect({
           </option>
         ))}
       </Select>
-    </FormControl>
   );
 }
 

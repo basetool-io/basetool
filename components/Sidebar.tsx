@@ -26,7 +26,8 @@ const Sidebar = () => {
   const { user, isLoading: sessionIsLoading } = useProfile();
 
   const {
-    response: dataSourceResponse,
+    dataSource,
+    info,
     isLoading: dataSourceIsLoading,
     info: dataSourceInfo,
   } = useDataSourceResponse(dataSourceId);
@@ -150,14 +151,15 @@ const Sidebar = () => {
     <div className="relative py-2 pl-2 w-full overflow-y-auto">
       <div className="relative space-y-x w-full h-full flex flex-col">
         <div className="my-2 mt-4 px-2 font-bold uppercase text leading-none">
-          {dataSourceIsLoading ? (
+          {dataSourceIsLoading && (
             <>
               <Shimmer width={190} height={17} className="mb-2" />
               <Shimmer width={50} height={12} />
             </>
-          ) : (
+          )}
+          {!dataSourceIsLoading && dataSourceId && (
             <>
-              <span>{dataSourceResponse?.data?.name}</span>
+              <span>{dataSource?.name}</span>
               <br />
               <Link href={`/data-sources/${dataSourceId}/edit`}>
                 <a className="inline-block items-center text-xs text-gray-600 cursor-pointer relative mt-1">
@@ -216,8 +218,7 @@ const Sidebar = () => {
                     tablesResponse?.ok &&
                     tablesResponse.data
                       .filter((table: ListTable) =>
-                        dataSourceResponse?.data.type === "postgresql" &&
-                        table.schema
+                        dataSource?.type === "postgresql" && table.schema
                           ? table.schema === "public"
                           : true
                       )
@@ -231,10 +232,7 @@ const Sidebar = () => {
                           link={`/data-sources/${dataSourceId}/tables/${table.name}`}
                           onMouseOver={() => {
                             // If the datasource supports columns request we'll prefetch it on hover.
-                            if (
-                              dataSourceResponse?.meta?.dataSourceInfo?.supports
-                                ?.columnsRequest
-                            ) {
+                            if (info?.supports?.columnsRequest) {
                               prefetchColumns({
                                 dataSourceId,
                                 tableName: table.name,

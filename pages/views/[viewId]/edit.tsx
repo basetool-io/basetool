@@ -2,7 +2,7 @@ import { Button } from "@chakra-ui/react";
 import { FilterOrFilterGroup, OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
 import { TrashIcon } from "@heroicons/react/outline";
-import { convertToBaseFilters } from "@/features/records/convertToBaseFilters"
+import { convertToBaseFilters } from "@/features/records/convertToBaseFilters";
 import { debounce, first, isArray, pick } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/records/state-slice";
@@ -27,7 +27,7 @@ import BackButton from "@/features/records/components/BackButton";
 import FieldEditor from "@/features/views/components/FieldEditor";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { memo, useCallback, useEffect, useMemo } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 import ViewEditColumns from "@/features/views/components/ViewEditColumns";
 import ViewEditDataSourceInfo from "@/features/views/components/ViewEditDataSourceInfo";
@@ -53,10 +53,10 @@ const Edit = () => {
 
   useEffect(() => {
     if (view && isArray(view.filters)) {
-      const filters = convertToBaseFilters(view.filters as [])
+      const filters = convertToBaseFilters(view.filters as []);
 
-      setFilters(filters)
-      setAppliedFilters(filters)
+      setFilters(filters);
+      setAppliedFilters(filters);
     }
   }, [view]);
 
@@ -64,9 +64,10 @@ const Edit = () => {
     resetState();
   }, [viewId]);
 
-  const backLink = `/views/${viewId}`;
+  const backLink = viewId ? `/views/${viewId}` : "";
   const crumbs = useMemo(() => ["Edit view", view?.name], [view?.name]);
-  const { encodedFilters, appliedFilters, setFilters, setAppliedFilters } = useFilters();
+  const { encodedFilters, appliedFilters, setFilters, setAppliedFilters } =
+    useFilters();
   const { limit, offset } = usePagination();
   const { orderBy, orderDirection } = useOrderRecords(
     (router.query.orderBy as string) ||
@@ -250,4 +251,4 @@ const Edit = () => {
   );
 };
 
-export default Edit;
+export default memo(Edit);

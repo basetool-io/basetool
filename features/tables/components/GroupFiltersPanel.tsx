@@ -1,12 +1,13 @@
-import { Button, Tooltip } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Column } from "@/features/fields/types";
 import { FilterVerbs, IntFilterConditions } from "..";
 import { IFilter, IFilterGroup } from "../types";
-import { PlusIcon, XIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/outline";
 import { useFilters } from "@/features/records/hooks";
 import Filter from "./Filter";
+import FilterTrashIcon from "./FilterTrashIcon";
 import React, { forwardRef, useMemo } from "react";
-import VerbComponent, { FilterVerb } from "./VerbComponent";
+import VerbComponent from "./VerbComponent";
 
 const GroupFiltersPanel = (
   {
@@ -16,7 +17,7 @@ const GroupFiltersPanel = (
     idx: parentIdx,
   }: {
     columns: Column[];
-    verb: FilterVerb;
+    verb: FilterVerbs;
     filters: IFilter[];
     idx: number;
   },
@@ -49,7 +50,7 @@ const GroupFiltersPanel = (
     removeFilter(parentIdx);
   };
 
-  const changeFilterGroupVerb = (verb: FilterVerb) => {
+  const changeFilterGroupVerb = (verb: FilterVerbs) => {
     const groupFilter = filters[parentIdx];
     updateFilter(parentIdx, {
       ...groupFilter,
@@ -58,16 +59,17 @@ const GroupFiltersPanel = (
   };
 
   return (
-    <div className="flex">
-      <VerbComponent
-        idx={parentIdx}
-        verb={verb}
-        onChange={(value: FilterVerb) => changeFilterGroupVerb(value)}
-        isFilterGroup={true}
-      />
+    <div className="flex space-x-2">
+      <div className="w-16">
+        <VerbComponent
+          idx={parentIdx}
+          verb={verb}
+          onChange={(value: FilterVerbs) => changeFilterGroupVerb(value)}
+        />
+      </div>
       <div
         ref={ref}
-        className="border flex flex-1 bg-white min-w-[20rem] min-h-[3rem] p-2"
+        className="flex flex-1 bg-white min-w-[20rem] min-h-[3rem] p-2 border"
       >
         <div className="relative flex flex-col justify-between w-full min-h-full h-full space-y-2">
           <div className="space-y-4">
@@ -98,13 +100,7 @@ const GroupFiltersPanel = (
           </div>
         </div>
       </div>
-      <div className="align-top pt-2.5">
-        <Tooltip label="Remove filter group">
-          <Button size="xs" variant="link" onClick={() => removeFilterGroup()}>
-            <XIcon className="h-3 text-gray-700" />
-          </Button>
-        </Tooltip>
-      </div>
+      <FilterTrashIcon onClick={removeFilterGroup} />
     </div>
   );
 };
