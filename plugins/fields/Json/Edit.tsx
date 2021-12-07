@@ -10,6 +10,7 @@ import {
   Tabs,
   Textarea,
 } from "@chakra-ui/react";
+import { InteractionProps } from "react-json-view"
 import { fieldId } from "@/features/fields";
 import { isEmpty, isNull, isString, isUndefined } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
@@ -128,10 +129,10 @@ const Edit = ({
                 displayObjectSize={true}
                 displayDataTypes={true}
                 enableClipboard={false}
-                onEdit={(edit: any) =>
+                onEdit={(edit: InteractionProps) =>
                   handleOnChange(JSON.stringify(edit.updated_src))
                 }
-                onAdd={(edit: any) =>
+                onAdd={(edit: InteractionProps) =>
                   handleOnChange(JSON.stringify(edit.updated_src))
                 }
               />
