@@ -35,7 +35,7 @@ const GroupFiltersPanel = (
       column: columns[0],
       condition: IntFilterConditions.is,
       value: "",
-      verb: groupFilters.length > 1 ? groupFilters[1].verb : FilterVerbss.and,
+      verb: groupFilters.length > 1 ? groupFilters[1].verb : FilterVerbs.and,
     };
 
     const groupFilter = filters[parentIdx] as IFilterGroup;
