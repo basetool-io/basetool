@@ -29,7 +29,8 @@ const ViewEditFilters = ({
   useClickAway(filtersPanel, (e) => {
     // When a user click the filters button to close the filters panel, the button is still outside,
     // so the action triggers twice closing and opening the filters panel.
-    if (e.target !== filtersButton.current) {
+    if (filtersButton?.current &&
+      !(filtersButton?.current as any)?.contains(e.target)) {
       toggleFiltersPanelVisible(false);
     }
   });

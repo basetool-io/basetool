@@ -3,7 +3,7 @@ import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { api as fieldsApiSlice } from "@/features/fields/api-slice";
 import { keys } from "lodash";
 import { organizationsApiSlice } from "@/features/organizations/api-slice";
-import { profileApiSlice } from "@/features/profile/api-slice";
+import { profileApiSlice } from "@/features/app/api-slice";
 import { reactToError, reactToResponse } from "@/features/api/ApiService";
 import { recordsApiSlice } from "@/features/records/api-slice";
 import { rolesApiSlice } from "@/features/roles/api-slice";
