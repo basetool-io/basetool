@@ -141,12 +141,19 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     type: string;
     credentials: unknown;
     ssh?: unknown;
+    baseId?: string;
+    tableNames?: string;
   } = {
     name: fields.name,
     organizationId: fields.organizationId,
     type,
-    credentials,
+    credentials
   };
+
+  // if(type === "airtable"){
+  //   body.baseId = fields.baseId;
+  //   body.tableNames = fields.tableNames;
+  // }
 
   if (!isEmpty(ssh)) {
     body.ssh = ssh;

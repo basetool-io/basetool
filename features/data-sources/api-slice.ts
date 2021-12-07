@@ -6,7 +6,6 @@ import ApiResponse from "@/features/api/ApiResponse";
 const dataSourceFormData = (body: any) => {
   // upload with multipart/form-data
   const formData = new FormData();
-  console.log("body", body);
 
   // Append common data
   formData.append("name", body.name);

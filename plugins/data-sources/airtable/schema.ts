@@ -7,4 +7,8 @@ export const schema = Joi.object({
     secretKey: Joi.string().required(),
   }),
   organizationId: Joi.number().required(),
+  options: {
+    baseId: Joi.string().required(),
+    tableNames: Joi.string().required(),
+  }
 });

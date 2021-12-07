@@ -1,3 +1,4 @@
+import { AirtableBase } from "airtable/lib/airtable_base";
 import { Column, FieldType } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { IFilter } from "@/features/tables/types";
@@ -7,43 +8,18 @@ import { first, isBoolean, isNumber, isObjectLike } from "lodash";
 import { getColumnLabel } from "..";
 import Airtable from "airtable";
 
-type StripeValues = string | number | boolean | null;
-
-enum StripeListAPIs {
-  customers = "customers",
-  charges = "charges",
-  balanceTransactions = "balanceTransactions",
-  events = "events",
-  files = "files",
-  fileLinks = "fileLinks",
-  paymentIntents = "paymentIntents",
-  payouts = "payouts",
-  refunds = "refunds",
-  products = "products",
-  prices = "prices",
-  coupons = "coupons",
-  promotionCodes = "promotionCodes",
-  taxCodes = "taxCodes",
-  taxRates = "taxRates",
-  creditNotes = "creditNotes",
-  invoices = "invoices",
-  invoiceItems = "invoiceItems",
-  plans = "plans",
-  quotes = "quotes",
-  subscriptions = "subscriptions",
-  subscriptionSchedules = "subscriptionSchedules",
-  accounts = "accounts",
-  applicationFees = "applicationFees",
-}
+type AirtableValues = string | number | boolean | null;
 
 export interface AirtableDataSource extends DataSource {
   options: {
     secretKey?: string;
+    baseId: string;
+    tableNames: string;
   };
 }
 
 class QueryService implements IQueryService {
-  public client: Airtable;
+  public client: AirtableBase;
 
   public dataSource: AirtableDataSource;
 
@@ -66,47 +42,13 @@ class QueryService implements IQueryService {
     if (!credentials || !credentials.secretKey)
       throw new Error("No credentials on record.");
 
+    if (!dataSource.options.baseId) throw new Error("No baseId on record.");
+
     this.dataSource = dataSource;
 
-    this.client = require("airtable");
-    Airtable.configure({
-      endpointUrl: "https://api.airtable.com",
+    this.client = new Airtable({
       apiKey: credentials.secretKey as string,
-    });
-
-    console.log("Airtable connected");
-    console.log("client->", this.client);
-    const base = new Airtable({ apiKey: credentials.secretKey as string }).base(
-      "appShaDj1Fzr8NHDo"
-    );
-
-    base("Imported table")
-      .select({
-        // Selecting the first 3 records in Grid view:
-        maxRecords: 3,
-        view: "Grid view",
-      })
-      .eachPage(
-        function page(records, fetchNextPage) {
-          // This function (`page`) will get called for each page of records.
-
-          records.forEach(function (record) {
-            console.log("Retrieved", record.get("Date"));
-          });
-
-          // To fetch the next page of records, call `fetchNextPage`.
-          // If there are more records, `page` will get called again.
-          // If there are no more records, `done` will get called.
-          fetchNextPage();
-        },
-        function done(err) {
-          if (err) {
-            console.error(err);
-
-            return;
-          }
-        }
-      );
+    }).base(dataSource.options.baseId as string);
   }
 
   public async connect(): Promise<this> {
@@ -122,7 +64,11 @@ class QueryService implements IQueryService {
   }
 
   public async getTables() {
-    return Object.keys(StripeListAPIs).map((name) => ({
+    const tableNames = this.dataSource.options.tableNames
+      .split(",")
+      .map((name) => name.trim());
+
+    return tableNames.map((name) => ({
       name,
     }));
   }
@@ -142,7 +88,7 @@ class QueryService implements IQueryService {
     startingAfter,
     endingBefore,
   }: {
-    tableName: StripeListAPIs;
+    tableName: string;
     filters: IFilter[];
     limit?: number;
     offset?: number;
@@ -153,8 +99,12 @@ class QueryService implements IQueryService {
     endingBefore?: string;
     columns?: Column[];
   }): Promise<RecordsResponse> {
-    // Checking if the tableName is in the supported APIs
-    if (Object.values(StripeListAPIs).includes(tableName)) {
+    const tableNames = this.dataSource.options.tableNames
+      .split(",")
+      .map((name) => name.trim());
+
+    // Checking if the tableName is in the given tableNames
+    if (tableNames.includes(tableName)) {
       // casting as any because TS squaks at the `limit` param
       const params: any = {
         limit,
@@ -162,13 +112,25 @@ class QueryService implements IQueryService {
       if (startingAfter) params.starting_after = startingAfter;
       if (endingBefore) params.ending_before = endingBefore;
 
-      const response = await this.client[tableName]?.list(params);
+      const response = await this.client(tableName)
+        ?.select({
+          // Selecting the first 3 records in Grid view:
+          // maxRecords: 2,
+          pageSize: 24,
+          view: "Grid view",
+        })
+        .firstPage();
+
+      const recordsResponse = response.map((record) => {
+        return { id: record.id, ...record.fields };
+      });
 
       const meta = {
-        hasMore: response.has_more,
+        // hasMore: response.has_more,
       };
-      // casting as any[] because Stripe's API returns some weird object
-      const records: any[] = response?.data || [];
+
+      // casting as any[] because Airtable's API returns some weird object
+      const records: any[] = recordsResponse || [];
 
       let columns: Column[] = [];
       if (records && records.length > 0) {
@@ -190,18 +152,23 @@ class QueryService implements IQueryService {
     recordId,
     select,
   }: {
-    tableName: StripeListAPIs;
+    tableName: string;
     recordId: string;
     select: string[];
-  }): Promise<RecordResponse<StripeValues> | undefined> {
+  }): Promise<RecordResponse<AirtableValues> | undefined> {
     // Checking if the tableName is in the supported APIs
-    if (Object.values(StripeListAPIs).includes(tableName)) {
-      const record = (await this.client[tableName]?.retrieve(
-        recordId
-      )) as unknown as Record<string, StripeValues>;
-      const columns = recordToColumns(record);
+    const tableNames = this.dataSource.options.tableNames
+      .split(",")
+      .map((name) => name.trim());
 
-      return { record, columns };
+    // Checking if the tableName is in the given tableNames
+    if (tableNames.includes(tableName)) {
+      const record = await this.client(tableName)?.find("recZMxivcNidwqGW5");
+      const recordResponse = { id: record.id, ...record.fields };
+
+      const columns = recordToColumns(recordResponse);
+
+      return { record: recordResponse, columns };
     }
 
     return { record: undefined, columns: [] };
@@ -210,7 +177,7 @@ class QueryService implements IQueryService {
 
 export default QueryService;
 
-const recordToColumns = (record: Record<string, StripeValues>): Column[] =>
+const recordToColumns = (record: Record<string, AirtableValues>): Column[] =>
   Object.entries(record).map(([key, value]) => {
     const column = {
       name: key,
@@ -244,7 +211,7 @@ const recordToColumns = (record: Record<string, StripeValues>): Column[] =>
 
 const getFieldTypeFromColumnInfo = (
   key: string,
-  value: StripeValues
+  value: AirtableValues
 ): FieldType => {
   if (key === "id") return "Id";
 

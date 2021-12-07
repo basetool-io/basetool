@@ -1,5 +1,6 @@
 import {
   Button,
+  Code,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -27,7 +28,11 @@ export interface IFormFields {
   credentials: {
     secretKey: string;
   };
-  options: Record<string, unknown>
+  options: {
+    baseId: string;
+    tableNames: string;
+    [key: string]: any;
+  };
 }
 
 function New() {
@@ -62,7 +67,10 @@ function New() {
       credentials: {
         secretKey: router.query.credentials ? router.query.credentials : "",
       },
-      options: {},
+      options: {
+        baseId: "",
+        tableNames: "",
+      },
     },
     resolver: joiResolver(schema),
   });
@@ -132,6 +140,30 @@ function New() {
                 Generate a new API key <Link href="https://airtable.com/account"><a className="underline text-blue-600" target="_blank">here</a></Link>. Scope the API key to whichever resources you want to use.
                 <br />   The credentials are safely
                 encrypted. We'll never show these credentials again.
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl id="baseId" isInvalid={(errors as any)?.options?.baseId?.messages?.length > 0}>
+              <FormLabel>Base ID</FormLabel>
+              <Input
+                type="string"
+                placeholder="appShaDj1Fzr8NHDas"
+                {...register("options.baseId")}
+              />
+              <FormHelperText>
+                Find out Base ID <Link href="https://airtable.com/api"><a className="underline text-blue-600" target="_blank">here</a></Link>. Login and after that click on the base you want to use. The base ID can be found in the "Introduction" section or in the URL of the API page of the base. In the URL, the base ID is immediately after "https://airtable.com/" and starts with the word "app".
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl id="tableNames" isInvalid={(errors as any)?.options?.tableNames?.messages?.length > 0}>
+              <FormLabel>Table Names</FormLabel>
+              <Input
+                type="string"
+                placeholder="Users, Products, Orders"
+                {...register("options.tableNames")}
+              />
+              <FormHelperText>
+                Separate table names with commas <Code>,</Code>.
               </FormHelperText>
             </FormControl>
 
