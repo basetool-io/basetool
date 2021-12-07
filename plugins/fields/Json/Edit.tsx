@@ -1,5 +1,5 @@
-import { EditFieldProps } from "@/features/fields/types";
 import {
+  Code,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -10,9 +10,10 @@ import {
   Tabs,
   Textarea,
 } from "@chakra-ui/react";
-import { InteractionProps } from "react-json-view"
+import { EditFieldProps } from "@/features/fields/types";
+import { InteractionProps } from "react-json-view";
 import { fieldId } from "@/features/fields";
-import { isEmpty, isNull, isString, isUndefined } from "lodash";
+import { isEmpty, isNull, isString } from "lodash";
 import EditFieldWrapper from "@/features/fields/components/FieldWrapper/EditFieldWrapper";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
@@ -53,38 +54,29 @@ const Edit = ({
     ? field.column.baseOptions.readonly
     : false;
 
-  let value = useMemo(
-    () =>
-      isUndefined(field.value) || isNull(field.value)
-        ? defaultValue
-        : field.value,
-    [field.value]
-  );
-
-  try {
-    if (isString(value)) {
-      value = JSON.parse(value as string);
+  const value = useMemo(() => {
+    try {
+      if (isString(field.value)) {
+        return JSON.parse(field.value as string);
+      }
+    } catch (e) {
+      return null;
     }
-  } catch (e) {
-    value = null;
-  }
+
+    return field.value;
+  }, [field.value]);
 
   const handleOnChange = (value: string) => {
-    if (isEmpty(value)) {
-      if (setValue) {
-        setAllValues({});
-      }
-    } else {
+    if (!isEmpty(value)) {
       let parsedValue;
+
       try {
         parsedValue = JSON.parse(value);
         setJsonError(null);
       } catch (e) {
-        setJsonError("Error parsing the JSON!");
+        setJsonError("Error parsing the JSON contents!");
       }
-      if (parsedValue) {
-        setAllValues(parsedValue);
-      }
+      setAllValues(parsedValue);
     }
   };
 
@@ -96,7 +88,6 @@ const Edit = ({
         shouldTouch: true,
       });
     }
-    setLocalValue(JSON.stringify(value, null, 2));
   };
 
   useEffect(() => {
@@ -122,20 +113,25 @@ const Edit = ({
 
           <TabPanels>
             <TabPanel>
-              <DynamicReactJson
-                src={value as Record<string, unknown>}
-                name={false}
-                collapsed={false}
-                displayObjectSize={true}
-                displayDataTypes={true}
-                enableClipboard={false}
-                onEdit={(edit: InteractionProps) =>
-                  handleOnChange(JSON.stringify(edit.updated_src))
-                }
-                onAdd={(edit: InteractionProps) =>
-                  handleOnChange(JSON.stringify(edit.updated_src))
-                }
-              />
+              {isNull(value) && <Code>null</Code>}
+              {isNull(value) || (
+                <DynamicReactJson
+                  src={value as Record<string, unknown>}
+                  name={false}
+                  collapsed={false}
+                  displayObjectSize={true}
+                  displayDataTypes={true}
+                  enableClipboard={false}
+                  onEdit={(edit: InteractionProps) => {
+                    handleOnChange(JSON.stringify(edit.updated_src));
+                    setLocalValue(JSON.stringify(edit.updated_src, null, 2));
+                  }}
+                  onAdd={(edit: InteractionProps) => {
+                    handleOnChange(JSON.stringify(edit.updated_src));
+                    setLocalValue(JSON.stringify(edit.updated_src, null, 2));
+                  }}
+                />
+              )}
             </TabPanel>
             <TabPanel>
               <Textarea
