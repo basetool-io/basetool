@@ -292,15 +292,12 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     SelectFilterConditions.is_not_null,
   ];
 
-  const IN_FILTERS = [
-    StringFilterConditions.is_in,
-    IntFilterConditions.is_in,
-  ]
+  const IN_FILTERS = [StringFilterConditions.is_in, IntFilterConditions.is_in];
 
   const NOT_IN_FILTERS = [
     StringFilterConditions.is_not_in,
     IntFilterConditions.is_not_in,
-  ]
+  ];
 
   if (NULL_FILTERS.includes(filter.condition)) {
     if (filter.verb === FilterVerbs.or) {
