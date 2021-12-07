@@ -78,7 +78,16 @@ const EditRecord = () => {
       {isLoading && (
         <LoadingOverlay transparent={isEmpty(recordResponse?.data)} />
       )}
-      {error && <div>Error: {JSON.stringify(error)}</div>}
+      {error && (
+        <>
+          {"status" in error && error?.status === 404 && (
+            <ErrorMessage message="404, Record not found" />
+          )}
+          {!("status" in error) && (
+            <ErrorMessage error={JSON.stringify(error)} />
+          )}
+        </>
+      )}
       {isReadOnly && <ErrorMessage message="Cannot edit record" />}
       {formIsVisible && <Form record={record} columns={columns} />}
     </Layout>
