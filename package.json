@@ -55,7 +55,7 @@
     "intercom-client": "^2.11.2",
     "ioredis": "^4.27.9",
     "joi": "^17.4.2",
-    "knex": "^0.95.10",
+    "knex": "^0.95.14",
     "knex-schema-inspector": "^1.6.2",
     "knex-utils": "^5.4.0",
     "lodash": "^4.17.21",
