@@ -90,7 +90,7 @@
     "sharp": "^0.29.3",
     "slugify": "^1.6.0",
     "stripe": "^8.191.0",
-    "tailwindcss": "^2.2.15",
+    "tailwindcss": "^2.2.19",
     "tedious": "^13.0.4",
     "tunnel-ssh": "^4.1.6",
     "urijs": "^1.19.7",
