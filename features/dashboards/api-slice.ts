@@ -29,14 +29,14 @@ export const api = createApi({
         },
         providesTags: [{ type: "Dashboard", id: "LIST" }],
       }),
-      // getView: builder.query<ApiResponse, Partial<{ viewId: string }>>({
-      //   query({ viewId }) {
-      //     return `/views/${viewId}`;
-      //   },
-      //   providesTags: (result, error, { viewId }) => [
-      //     { type: "View", id: viewId },
-      //   ],
-      // }),
+      getDashboard: builder.query<ApiResponse, Partial<{ dashboardId: string }>>({
+        query({ dashboardId }) {
+          return `/dashboards/${dashboardId}`;
+        },
+        providesTags: (result, error, { dashboardId }) => [
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
       // removeView: builder.mutation<ApiResponse, Partial<{ viewId: string }>>({
       //   query: ({ viewId }) => ({
       //     url: `${apiUrl}/views/${viewId}`,
@@ -268,8 +268,8 @@ export const api = createApi({
 export const {
   useAddDashboardMutation,
   useGetDashboardsQuery,
+  useGetDashboardQuery,
   // useLazyGetViewsQuery,
-  // useGetViewQuery,
   // useRemoveViewMutation,
   // useUpdateViewMutation,
 
