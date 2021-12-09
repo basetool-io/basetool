@@ -23,6 +23,7 @@ model Organization {
   activities  Activity[]
 
   @@index([slug])
+  Dashboard Dashboard[]
 }
 
 model OrganizationUser {
@@ -114,6 +115,7 @@ model User {
   sessions      Session[]
   views         View[]
   activities    Activity[]
+  Dashboard     Dashboard[]
 }
 
 model VerificationRequest {
@@ -182,5 +184,20 @@ model Activity {
   @@index([dataSourceId])
   @@index([viewId])
   @@index([userId])
+  @@index([organizationId])
+}
+
+model Dashboard {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  user           User         @relation(references: [id], fields: [createdBy], onDelete: Cascade)
+  createdBy      Int
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+  organizationId Int
+  isPublic       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([createdBy])
   @@index([organizationId])
 }
