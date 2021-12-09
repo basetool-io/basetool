@@ -21,9 +21,9 @@ model Organization {
   roles       Role[]
   views       View[]
   activities  Activity[]
+  dashboards  Dashboard[]
 
   @@index([slug])
-  Dashboard Dashboard[]
 }
 
 model OrganizationUser {
@@ -115,7 +115,7 @@ model User {
   sessions      Session[]
   views         View[]
   activities    Activity[]
-  Dashboard     Dashboard[]
+  dashboards    Dashboard[]
 }
 
 model VerificationRequest {

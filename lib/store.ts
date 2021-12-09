@@ -1,4 +1,5 @@
 import { Middleware, configureStore } from "@reduxjs/toolkit";
+import { api as dashboardsApiSlice } from "@/features/dashboards/api-slice";
 import { dataSourcesApiSlice } from "@/features/data-sources/api-slice";
 import { api as fieldsApiSlice } from "@/features/fields/api-slice";
 import { keys } from "lodash";
@@ -47,6 +48,7 @@ const store = configureStore({
     [profileApiSlice.reducerPath]: profileApiSlice.reducer,
     [viewsApiSlice.reducerPath]: viewsApiSlice.reducer,
     [fieldsApiSlice.reducerPath]: fieldsApiSlice.reducer,
+    [dashboardsApiSlice.reducerPath]: dashboardsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -58,6 +60,7 @@ const store = configureStore({
       profileApiSlice.middleware,
       viewsApiSlice.middleware,
       fieldsApiSlice.middleware,
+      dashboardsApiSlice.middleware,
       rtkQueryErrorLogger
     ),
   devTools: process.env.NODE_ENV !== "production",
