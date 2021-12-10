@@ -102,6 +102,7 @@ const Edit = () => {
             <BackButton href={backLink}>Back to dashboard</BackButton>
           )
         }
+        flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">

@@ -4,7 +4,6 @@ import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
-import OwnsDataSource from "@/features/api/middlewares/OwnsDataSource";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -98,6 +97,6 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 export default withMiddlewares(handler, {
   middlewares: [
     [IsSignedIn, {}],
-    [OwnsDataSource, {}],
+    // [OwnsDataSource, {}],
   ],
 });
