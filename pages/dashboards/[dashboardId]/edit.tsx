@@ -4,13 +4,15 @@ import { pick } from "lodash";
 import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import {
-  useRemoveDashboardMutation, useUpdateDashboardMutation,
+  useRemoveDashboardMutation,
+  useUpdateDashboardMutation,
 } from "@/features/dashboards/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import DashboardEditDataSourceInfo from "@/features/dashboards/components/DashboardEditDataSourceInfo";
 import DashboardEditName from "@/features/dashboards/components/DashboardEditName";
 import DashboardEditVisibility from "@/features/dashboards/components/DashboardEditVisibility";
+import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useMemo } from "react";
@@ -115,9 +117,7 @@ const Edit = () => {
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            <div className="flex-1 flex overflow-auto">
-              WIDGETS COMING SOON...
-            </div>
+            <DashboardPage />
           </div>
         </div>
       </PageWrapper>
