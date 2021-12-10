@@ -19,7 +19,7 @@ const Sidebar = () => {
   const { isOwner } = useACLHelpers({ dataSourceInfo });
 
   return (
-    <div className="relative py-2 pl-2 w-full overflow-y-auto">
+    <div className="relative py-2 pl-2 w-full">
       <div className="relative space-y-x w-full h-full flex flex-col">
         <div className="my-2 mt-4 px-2 font-bold uppercase text leading-none">
           {dataSourceIsLoading && (

@@ -168,7 +168,7 @@ const DashboardsSidebarSection = () => {
                   </Tooltip>
                 </div>
               </PopoverTrigger>
-              <PopoverContent>
+              <PopoverContent z-index="3">
                 <PopoverArrow />
                 <PopoverBody>
                   <Form firstFieldRef={firstFieldRef} onClose={onClose} />
