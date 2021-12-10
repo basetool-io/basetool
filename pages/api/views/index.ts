@@ -119,6 +119,5 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 export default withMiddlewares(handler, {
   middlewares: [
     [IsSignedIn, {}],
-    // [OwnsDataSource, {}],
   ],
 });
