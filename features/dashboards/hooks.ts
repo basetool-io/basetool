@@ -15,7 +15,6 @@ export const useDashboardResponse = (dashboardId: string) => {
     [response]
   );
 
-
   return {
     dashboard,
     response,

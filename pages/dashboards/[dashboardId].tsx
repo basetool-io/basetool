@@ -4,17 +4,15 @@ import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
-import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 
 const ViewShow = () => {
-  const router = useRouter();
   const { dataSourceId, dashboardId } = useDataSourceContext();
   const { info } = useDataSourceResponse(dataSourceId);
   const { canEdit } = useACLHelpers({ dataSourceInfo: info});
 
-  const { dashboard, isLoading: dashboardIsLoading } = useDashboardResponse(dashboardId);
+  const { dashboard } = useDashboardResponse(dashboardId);
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
