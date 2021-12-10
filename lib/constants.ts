@@ -27,9 +27,13 @@ export const S3_SSH_KEYS_BUCKET_PREFIX = "basetool-ds-keys-";
 export const REDIS_CACHE_DB = 2;
 export const REDIS_OPTIONS_DB = 5;
 
-
 /**
 * SQL Connection Pooler
 */
 export const POOLER_CONNECTION_TIMEOUT = 3 * 60 * 1000; // 3 minutes
 export const POOLER_MAX_DB_CONNECTIONS = 3;
+
+/**
+* Cookies
+*/
+export const COOKIES_FROM_TOOL_NEW = "basetool:from-tool.new"

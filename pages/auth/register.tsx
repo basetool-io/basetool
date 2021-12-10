@@ -6,12 +6,14 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import { COOKIES_FROM_TOOL_NEW } from "@/lib/constants"
 import { getBrowserTimezone } from "@/lib/time";
 import { getCsrfToken, useSession } from "next-auth/client";
 import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
+import { useCookie } from "react-use";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import HeadSection from "@/components/HeadSection";
@@ -49,17 +51,27 @@ function Register() {
   const router = useRouter();
   const [session] = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const [_, updateCookie] = useCookie(COOKIES_FROM_TOOL_NEW);
 
   useEffect(() => {
     if (session) router.push("/");
   }, [session]);
 
+  useEffect(() => {
+    if (router?.query?.from === "tool.new") {
+      updateCookie("1");
+    }
+  }, [router]);
+
   const onSubmit = async (formData: FormFields) => {
-    const response = await api.createUser({...formData, lastKnownTimezone: getBrowserTimezone()});
+    const response = await api.createUser({
+      ...formData,
+      lastKnownTimezone: getBrowserTimezone(),
+    });
     setIsLoading(true);
 
     if (response.ok) {
-      router.push(`/auth/login?email=${getValues('email')}`);
+      router.push(`/auth/login?email=${getValues("email")}`);
     }
 
     setIsLoading(false);
@@ -67,18 +79,19 @@ function Register() {
 
   const csrfToken = useCsrfToken();
 
-  const { register, handleSubmit, formState, setValue, getValues } = useForm<FormFields>({
-    defaultValues: {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-      organization: "",
-      csrfToken,
-    },
-    mode: "all",
-    resolver: joiResolver(schema),
-  });
+  const { register, handleSubmit, formState, setValue, getValues } =
+    useForm<FormFields>({
+      defaultValues: {
+        email: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        organization: "",
+        csrfToken,
+      },
+      mode: "all",
+      resolver: joiResolver(schema),
+    });
   const { errors } = formState;
 
   useEffect(() => {
@@ -90,8 +103,12 @@ function Register() {
       <HeadSection />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div  className="relative mx-auto w-[200px] h-[54px] my-2">
-            <Image src="/img/logo_text_black.png" layout="fill" alt="Basetool Logo" />
+          <div className="relative mx-auto w-[200px] h-[54px] my-2">
+            <Image
+              src="/img/logo_text_black.png"
+              layout="fill"
+              alt="Basetool Logo"
+            />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign up for an account
