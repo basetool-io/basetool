@@ -4,7 +4,7 @@ import {
   OrganizationUser,
   User,
 } from "@prisma/client";
-import { flatten, get, pick } from "lodash";
+import { flatten, get, parseInt, pick } from "lodash";
 import { getUserFromRequest } from "@/features/api";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -44,12 +44,15 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!user || !organizationId) return res.status(404).send("");
 
+  if (!req.body.name || !req.body.dataSourceId) return res.status(404).send("");
+
   const dashboard = await prisma.dashboard.create({
     data: {
       name: req.body.name,
       isPublic: true,
       createdBy: user.id,
       organizationId: organizationId,
+      dataSourceId: parseInt(req.body.dataSourceId),
     },
   });
 
@@ -77,6 +80,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
           organization: {
             include: {
               dashboards: {
+                where: {
+                  dataSourceId: parseInt(req.query.dataSourceId as string),
+                },
                 select: {
                   id: true,
                   name: true,
@@ -85,6 +91,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
                   isPublic: true,
                   createdAt: true,
                   updatedAt: true,
+                  dataSourceId: true,
                 },
                 orderBy: [
                   {

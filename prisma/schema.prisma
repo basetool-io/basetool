@@ -66,6 +66,7 @@ model DataSource {
   views                   View[]
   activities              Activity[]
   tablesMetaData          Json?         @default("[]")
+  dashboards              Dashboard[]
 
   @@index([organizationId])
 }
@@ -197,7 +198,10 @@ model Dashboard {
   isPublic       Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  dataSourceId   Int
 
   @@index([createdBy])
   @@index([organizationId])
+  @@index([dataSourceId])
 }

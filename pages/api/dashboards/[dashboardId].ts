@@ -39,6 +39,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       organizationId: true,
       createdAt: true,
       updatedAt: true,
+      dataSourceId: true,
     },
   });
 
@@ -79,21 +80,21 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const user = await getUserFromRequest(req);
 
-  await prisma.view.delete({
+  await prisma.dashboard.delete({
     where: {
-      id: parseInt(req.query.viewId as string, 10),
+      id: parseInt(req.query.dashboardId as string, 10),
     },
   });
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Deleted view",
+    event: "Deleted dashboard",
     properties: {
-      id: req.query.viewId,
+      id: req.query.dashboardId,
     },
   });
 
-  return res.json(ApiResponse.withMessage("View removed."));
+  return res.json(ApiResponse.withMessage("Dashboard removed."));
 }
 
 export default withMiddlewares(handler, {

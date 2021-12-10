@@ -40,8 +40,8 @@ import Shimmer from "./Shimmer";
 import SidebarItem from "./SidebarItem";
 
 const Sidebar = () => {
-  const { dataSourceId, tableName, viewId } = useDataSourceContext();
-  const dashboardId = "2";
+  const { dataSourceId, tableName, viewId, dashboardId } =
+    useDataSourceContext();
 
   const { user, isLoading: sessionIsLoading } = useProfile();
 
@@ -70,7 +70,7 @@ const Sidebar = () => {
     data: dashboardsResponse,
     isLoading: dashboardsAreLoading,
     error: dashboardsError,
-  } = useGetDashboardsQuery();
+  } = useGetDashboardsQuery({ dataSourceId }, { skip: !dataSourceId });
 
   const prefetchColumns = usePrefetch("getColumns");
 
@@ -225,7 +225,7 @@ const Sidebar = () => {
       if (name.length < 3) return;
 
       const response = await addDashboard({
-        body: { name },
+        body: { name, dataSourceId },
       }).unwrap();
 
       if (response?.ok) {

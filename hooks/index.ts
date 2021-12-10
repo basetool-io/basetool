@@ -1,5 +1,6 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import {
+  Dashboard,
   DataSource,
   Organization,
   OrganizationUser,
@@ -18,6 +19,7 @@ import {
 import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
 import { useEffect } from "react";
+import { useGetDashboardQuery } from "@/features/dashboards/api-slice";
 import { useGetProfileQuery } from "@/features/app/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
@@ -127,9 +129,26 @@ export const useDataSourceContext = () => {
 
   useEffect(() => {
     if (view?.dataSourceId)
-      dispatch(setDataSourceId(view.dataSourceId.toString()));
+    dispatch(setDataSourceId(view.dataSourceId.toString()));
     if (view?.tableName) dispatch(setTableName(view.tableName));
   }, [view]);
+
+  const dashboardId = router.query.dashboardId as string;
+  const {
+    data: dashboardResponse,
+  } = useGetDashboardQuery({ dashboardId }, { skip: !dashboardId });
+
+  const dashboard: Dashboard | undefined = useMemo(
+    () => dashboardResponse?.ok && dashboardResponse.data,
+    [dashboardResponse]
+  );
+
+  useEffect(() => {
+    if (dashboard?.dataSourceId) {
+      dispatch(setDataSourceId(dashboard.dataSourceId.toString()));
+      dispatch(setTableName(""));
+    }
+  }, [dashboard]);
 
   useEffect(() => {
     if (router.query.dataSourceId) {
@@ -148,6 +167,7 @@ export const useDataSourceContext = () => {
     router.query.dataSourceId,
     router.query.tableName,
     router.query.viewId,
+    router.query.dashboardId,
   ]);
 
   const recordId = useMemo(
@@ -178,6 +198,7 @@ export const useDataSourceContext = () => {
     tableIndexPath,
     recordsPath,
     newRecordPath,
+    dashboardId,
   };
 };
 
