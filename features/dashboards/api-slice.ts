@@ -55,6 +55,23 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
+      updateDashboard: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dashboardId: string;
+          body: unknown;
+        }>
+      >({
+        query: ({ dashboardId, body }) => ({
+          url: `${apiUrl}/dashboards/${dashboardId}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { dashboardId }) => [
+          { type: "Dashboard", id: "LIST" },
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
     };
   },
 });
@@ -64,4 +81,5 @@ export const {
   useGetDashboardsQuery,
   useGetDashboardQuery,
   useRemoveDashboardMutation,
+  useUpdateDashboardMutation
 } = api;

@@ -1,6 +1,5 @@
 import { AppDispatch, RootState } from "@/lib/store";
 import {
-  Dashboard,
   DataSource,
   Organization,
   OrganizationUser,
@@ -18,8 +17,8 @@ import {
 } from "@/features/app/state-slice";
 import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
+import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useEffect } from "react";
-import { useGetDashboardQuery } from "@/features/dashboards/api-slice";
 import { useGetProfileQuery } from "@/features/app/api-slice";
 import { useMedia } from "react-use";
 import { useMemo } from "react";
@@ -134,14 +133,7 @@ export const useDataSourceContext = () => {
   }, [view]);
 
   const dashboardId = router.query.dashboardId as string;
-  const {
-    data: dashboardResponse,
-  } = useGetDashboardQuery({ dashboardId }, { skip: !dashboardId });
-
-  const dashboard: Dashboard | undefined = useMemo(
-    () => dashboardResponse?.ok && dashboardResponse.data,
-    [dashboardResponse]
-  );
+  const { dashboard } = useDashboardResponse(dashboardId);
 
   useEffect(() => {
     if (dashboard?.dataSourceId) {

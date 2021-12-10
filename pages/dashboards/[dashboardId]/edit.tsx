@@ -1,13 +1,16 @@
 import { Button } from "@chakra-ui/react";
-import { Dashboard } from "@prisma/client";
 import { TrashIcon } from "@heroicons/react/outline";
+import { pick } from "lodash";
+import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import {
-  useGetDashboardQuery,
-  useRemoveDashboardMutation,
+  useRemoveDashboardMutation, useUpdateDashboardMutation,
 } from "@/features/dashboards/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import DashboardEditDataSourceInfo from "@/features/dashboards/components/DashboardEditDataSourceInfo";
+import DashboardEditName from "@/features/dashboards/components/DashboardEditName";
+import DashboardEditVisibility from "@/features/dashboards/components/DashboardEditVisibility";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useMemo } from "react";
@@ -15,17 +18,11 @@ import React, { memo, useMemo } from "react";
 const Edit = () => {
   const router = useRouter();
   const { dashboardId, dataSourceId } = useDataSourceContext();
-
   const {
-    data: dashboardResponse,
+    dashboard,
     isLoading: dashboardIsLoading,
     error: dashboardError,
-  } = useGetDashboardQuery({ dashboardId }, { skip: !dashboardId });
-
-  const dashboard: Dashboard | undefined = useMemo(
-    () => dashboardResponse?.ok && dashboardResponse.data,
-    [dashboardResponse]
-  );
+  } = useDashboardResponse(dashboardId);
 
   const backLink = dashboardId ? `/dashboards/${dashboardId}` : "";
   const crumbs = useMemo(
@@ -48,46 +45,37 @@ const Edit = () => {
     }
   };
 
-  // const [updateView] = useUpdateViewMutation();
+  const [updateDashboard] = useUpdateDashboardMutation();
 
-  // const body = useMemo(() => {
-  //   return pick(
-  //     {
-  //       ...view,
-  //       filters: convertToBaseFilters(appliedFilters as []),
-  //     },
-  //     ["name", "public", "dataSourceId", "tableName", "filters", "defaultOrder"]
-  //   );
-  // }, [view, appliedFilters]);
+  const body = useMemo(() => {
+    return pick(
+      {
+        ...dashboard,
+      },
+      ["name", "isPublic", "dataSourceId"]
+    );
+  }, [dashboard]);
 
-  // const commitViewUpdate = async (
-  //   key: string,
-  //   value: string | boolean | OrderParams[] | FilterOrFilterGroup[]
-  // ) => {
-  //   await updateView({
-  //     viewId,
-  //     body: {
-  //       ...body,
-  //       [key]: value,
-  //     },
-  //   }).unwrap();
-  // };
+  const commitDashboardUpdate = async (
+    key: string,
+    value: string | boolean
+  ) => {
+    await updateDashboard({
+      dashboardId,
+      body: {
+        ...body,
+        [key]: value,
+      },
+    }).unwrap();
+  };
 
-  // const updateName = async (name: string) => {
-  //   if (name !== view?.name) commitViewUpdate("name", name);
-  // };
+  const updateName = async (name: string) => {
+    if (name !== dashboard?.name) commitDashboardUpdate("name", name);
+  };
 
-  // const updateVisibility = async (publicView: boolean) => {
-  //   commitViewUpdate("public", publicView);
-  // };
-
-  // const updateOrder = async (defaultOrder: OrderParams[]) => {
-  //   commitViewUpdate("defaultOrder", defaultOrder);
-  // };
-
-  // const updateFilters = async (filters: FilterOrFilterGroup[]) => {
-  //   commitViewUpdate("filters", filters);
-  // };
+  const updateVisibility = async (publicView: boolean) => {
+    commitDashboardUpdate("isPublic", publicView);
+  };
 
   return (
     <Layout hideSidebar={true}>
@@ -120,20 +108,15 @@ const Edit = () => {
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
             {dashboard && (
               <div className="flex flex-col space-y-4 w-full">
-                {/* <ViewEditName updateName={updateName} />
-                <ViewEditVisibility updateVisibility={updateVisibility} />
-                <ViewEditFilters updateFilters={updateFilters} />
-                <ViewEditOrder view={view} updateOrder={updateOrder} />
-                <ViewEditColumns columnsAreLoading={columnsAreLoading} />
-                <ViewEditDataSourceInfo /> */}
-                HERE EDIT DASHBOARD
+                <DashboardEditName updateName={updateName} />
+                <DashboardEditVisibility updateVisibility={updateVisibility} />
+                <DashboardEditDataSourceInfo />
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            {/* {column && <FieldEditor />} */}
             <div className="flex-1 flex overflow-auto">
-              HERE WILL BE WIDGETS
+              WIDGETS COMING SOON...
             </div>
           </div>
         </div>

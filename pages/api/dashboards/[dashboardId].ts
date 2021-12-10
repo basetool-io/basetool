@@ -1,5 +1,5 @@
 import { getUserFromRequest } from "@/features/api";
-import { schema } from "@/features/views/schema";
+import { schema } from "@/features/dashboards/schema";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -14,10 +14,10 @@ const handler = async (
   switch (req.method) {
     case "GET":
       return handleGET(req, res);
-    case "PUT":
-      return handlePUT(req, res);
     case "DELETE":
       return handleDELETE(req, res);
+    case "PUT":
+      return handlePUT(req, res);
     default:
       return res.status(404).send("");
   }
@@ -26,10 +26,7 @@ const handler = async (
 async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const dashboard = await prisma.dashboard.findFirst({
     where: {
-      id: parseInt(
-        req.query.dashboardId as string,
-        10
-      ),
+      id: parseInt(req.query.dashboardId as string, 10),
     },
     select: {
       id: true,
@@ -44,37 +41,6 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
 
   res.json(ApiResponse.withData(dashboard));
-}
-
-async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
-  const data = req.body;
-
-  if (schema) {
-    const validator = schema.validate(data, { abortEarly: false });
-
-    if (validator.error) {
-      return res.json(ApiResponse.withValidation(validator));
-    }
-  }
-
-  const user = await getUserFromRequest(req);
-
-  await prisma.view.update({
-    where: {
-      id: parseInt(req.query.viewId as string, 10),
-    },
-    data: data,
-  });
-
-  serverSegment().track({
-    userId: user ? user.id : "",
-    event: "Updated view",
-    properties: {
-      id: req.query.viewId,
-    },
-  });
-
-  return res.json(ApiResponse.withMessage("Updated"));
 }
 
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
@@ -97,8 +63,37 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   return res.json(ApiResponse.withMessage("Dashboard removed."));
 }
 
+async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
+  const data = req.body;
+
+  if (schema) {
+    const validator = schema.validate(data, { abortEarly: false });
+
+    if (validator.error) {
+      return res.json(ApiResponse.withValidation(validator));
+    }
+  }
+
+  const user = await getUserFromRequest(req);
+
+  await prisma.dashboard.update({
+    where: {
+      id: parseInt(req.query.dashboardId as string, 10),
+    },
+    data: data,
+  });
+
+  serverSegment().track({
+    userId: user ? user.id : "",
+    event: "Updated dashboard",
+    properties: {
+      id: req.query.dashboardId,
+    },
+  });
+
+  return res.json(ApiResponse.withMessage("Updated"));
+}
+
 export default withMiddlewares(handler, {
-  middlewares: [
-    [IsSignedIn, {}],
-  ],
+  middlewares: [[IsSignedIn, {}]],
 });
