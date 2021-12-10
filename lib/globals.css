@@ -294,4 +294,26 @@ progress[value]::-moz-progress-bar {
   }
 }
 
+.text-stroke-white {
+  --text-stroke-color: #ffffff;
+}
+
+.text-stroke-black {
+  --text-stroke-color: #000000;
+}
+
+/* Real outline for modern browsers */
+@supports ((text-stroke: 2px white) or (-webkit-text-stroke: 2px white)) {
+  .text-stroked {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--text-stroke-color);
+    text-stroke: 2px var(--text-stroke-color);
+    text-shadow: none;
+  }
+}
+
+.bg-squares {
+  background: url('/img/bg.svg');
+}
+
 @tailwind utilities;
