@@ -132,7 +132,7 @@ const NameInput = forwardRef((props: any, ref: any) => {
     <FormControl>
       <FormLabel htmlFor="name">Name</FormLabel>
       <Input ref={ref} id="name" size="sm" {...props} />
-      <FormHelperText>What should the name be called.</FormHelperText>
+      <FormHelperText>What should the column be called.</FormHelperText>
     </FormControl>
   );
 });
