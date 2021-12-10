@@ -10,9 +10,13 @@ import PageWrapper from "@/components/PageWrapper";
 const DashboardView = () => {
   const { dataSourceId, dashboardId } = useDataSourceContext();
   const { info } = useDataSourceResponse(dataSourceId);
-  const { canEdit } = useACLHelpers({ dataSourceInfo: info});
+  const { canEdit } = useACLHelpers({ dataSourceInfo: info });
 
-  const { dashboard } = useDashboardResponse(dashboardId);
+  const {
+    dashboard,
+    isLoading: dashboardIsLoading,
+    dashboardItems,
+  } = useDashboardResponse(dashboardId);
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
@@ -30,6 +34,7 @@ const DashboardView = () => {
   return (
     <Layout>
       <PageWrapper
+        isLoading={dashboardIsLoading}
         heading={`Dashboard ${dashboard?.name}`}
         buttons={
           <ButtonGroup size="xs">
@@ -38,7 +43,17 @@ const DashboardView = () => {
         }
       >
         <div className="relative flex flex-col flex-1 w-full h-full">
-          WIDGETS COMING SOON...
+          {dashboardItems.length === 0 && (
+            <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600 h-full">
+              No widgets found
+            </div>
+          )}
+          {dashboardItems.length > 0 && (
+            <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600 h-full">
+              {dashboardItems.length} widget(s) found
+            </div>
+          )}
+
         </div>
       </PageWrapper>
     </Layout>

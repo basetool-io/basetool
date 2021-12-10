@@ -15,11 +15,14 @@ export const useDashboardResponse = (dashboardId: string) => {
     [response]
   );
 
+  const dashboardItems = useMemo(() => dashboard ? dashboard?.dashboardItems : [], [dashboard]);
+
   return {
     dashboard,
     response,
     isLoading,
     isFetching,
     error,
+    dashboardItems
   };
 };
