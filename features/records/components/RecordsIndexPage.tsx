@@ -22,9 +22,11 @@ import RecordsTable from "@/features/tables/components/RecordsTable";
 const RecordsIndexPage = ({
   error,
   isFetching,
+  actions,
 }: {
   error?: string;
   isFetching?: boolean;
+  actions: unknown[],
 }) => {
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
@@ -124,6 +126,19 @@ const RecordsIndexPage = ({
     </Link>
   );
 
+  const CreateActionButton = () => (
+    <Link href={`/actions/new?viewId=${viewId}`} passHref>
+      <Button
+        as="a"
+        colorScheme="blue"
+        variant="ghost"
+        leftIcon={<PlusIcon className="h-4" />}
+      >
+        Create action
+      </Button>
+    </Link>
+  );
+
   return (
     <Layout>
       <PageWrapper
@@ -133,6 +148,7 @@ const RecordsIndexPage = ({
           <ButtonGroup size="xs">
             {canCreateView && <CreateViewButton />}
             {canEditView && viewId && <EditViewButton />}
+            {viewId && <CreateActionButton />}
           </ButtonGroup>
         }
         footer={
@@ -157,6 +173,7 @@ const RecordsIndexPage = ({
             </div>
           </div>
           <div className="relative flex-1 flex h-full max-w-full w-full z-40">
+            {/* <pre>{JSON.stringify(actions, null, 2)}</pre> */}
             {dataSourceId && (
               <div className="flex-1 flex flex-col justify-between w-full">
                 {isFetching && (

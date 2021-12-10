@@ -1,6 +1,6 @@
 import { OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
-import { convertToBaseFilters } from "@/features/records/convertToBaseFilters"
+import { convertToBaseFilters } from "@/features/records/convertToBaseFilters";
 import { debounce, first, isArray } from "lodash";
 import { extractMessageFromRTKError } from "@/lib/helpers";
 import { resetState } from "@/features/app/state-slice";
@@ -25,13 +25,14 @@ function ViewShow() {
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { view } = useViewResponse(viewId);
   const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
+  const actions = useMemo(() => view?.actions || [], [view?.actions]);
 
   useEffect(() => {
     if (view && isArray(view.filters)) {
-      const filters = convertToBaseFilters(view.filters as [])
+      const filters = convertToBaseFilters(view.filters as []);
 
-      setFilters(filters)
-      setAppliedFilters(filters)
+      setFilters(filters);
+      setAppliedFilters(filters);
     }
   }, [view]);
 
@@ -40,7 +41,7 @@ function ViewShow() {
 
     return () => {
       resetState();
-    }
+    };
   }, [viewId]);
 
   const { encodedFilters, setFilters, setAppliedFilters } = useFilters();
@@ -112,7 +113,7 @@ function ViewShow() {
     return;
   }, [recordsError, columnsError]);
 
-  return <RecordsIndexPage error={error} isFetching={isFetching} />;
+  return <RecordsIndexPage error={error} isFetching={isFetching} actions={actions} />;
 }
 
 export default ViewShow;
