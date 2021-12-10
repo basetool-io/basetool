@@ -17,6 +17,7 @@ import {
 } from "@/features/app/state-slice";
 import { isUndefined } from "lodash";
 import { segment } from "@/lib/track";
+import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useEffect } from "react";
 import { useGetProfileQuery } from "@/features/app/api-slice";
 import { useMedia } from "react-use";
@@ -131,6 +132,16 @@ export const useDataSourceContext = () => {
     if (view?.tableName) dispatch(setTableName(view.tableName));
   }, [view]);
 
+  const dashboardId = router.query.dashboardId as string;
+  const { dashboard } = useDashboardResponse(dashboardId);
+
+  useEffect(() => {
+    if (dashboard?.dataSourceId) {
+      dispatch(setDataSourceId(dashboard.dataSourceId.toString()));
+      dispatch(setTableName(""));
+    }
+  }, [dashboard]);
+
   useEffect(() => {
     if (router.query.dataSourceId) {
       dispatch(setDataSourceId(router.query.dataSourceId as string));
@@ -148,6 +159,7 @@ export const useDataSourceContext = () => {
     router.query.dataSourceId,
     router.query.tableName,
     router.query.viewId,
+    router.query.dashboardId,
   ]);
 
   const recordId = useMemo(
@@ -178,6 +190,7 @@ export const useDataSourceContext = () => {
     tableIndexPath,
     recordsPath,
     newRecordPath,
+    dashboardId,
   };
 };
 

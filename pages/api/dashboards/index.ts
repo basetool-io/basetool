@@ -1,10 +1,15 @@
-import { Organization, OrganizationUser, User, View } from "@prisma/client";
-import { flatten, get, pick } from "lodash";
+import {
+  Dashboard,
+  Organization,
+  OrganizationUser,
+  User,
+} from "@prisma/client";
+import { flatten, get, parseInt, pick } from "lodash";
 import { getUserFromRequest } from "@/features/api";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
-import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
+import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -39,30 +44,29 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!user || !organizationId) return res.status(404).send("");
 
-  const view = await prisma.view.create({
+  if (!req.body.name || !req.body.dataSourceId) return res.status(404).send("");
+
+  const dashboard = await prisma.dashboard.create({
     data: {
       name: req.body.name,
-      public: req.body.public,
+      isPublic: true,
       createdBy: user.id,
       organizationId: organizationId,
-      dataSourceId: req.body.dataSourceId,
-      tableName: req.body.tableName,
+      dataSourceId: parseInt(req.body.dataSourceId),
     },
   });
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Added a view",
+    event: "Added a dashboard",
     properties: {
       name: req.body.name,
-      dataSourceId: req.body.dataSourceId,
-      table: req.body.tableName,
     },
   });
 
   return res.json(
-    ApiResponse.withData(pick(view, ["id"]), {
-      message: "View created",
+    ApiResponse.withData(pick(dashboard, ["id"]), {
+      message: "Dashboard created",
     })
   );
 }
@@ -75,16 +79,19 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
         include: {
           organization: {
             include: {
-              views: {
+              dashboards: {
+                where: {
+                  dataSourceId: parseInt(req.query.dataSourceId as string),
+                },
                 select: {
                   id: true,
                   name: true,
-                  public: true,
                   createdBy: true,
                   organizationId: true,
+                  isPublic: true,
+                  createdAt: true,
+                  updatedAt: true,
                   dataSourceId: true,
-                  tableName: true,
-                  filters: true,
                 },
                 orderBy: [
                   {
@@ -101,19 +108,19 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     organizations: Array<
       OrganizationUser & {
         organization: Organization & {
-          views: View[];
+          dashboards: Dashboard[];
         };
       }
     >;
   };
 
-  const views = flatten(
+  const dashboards = flatten(
     get(user, ["organizations"])
       .map((orgUser) => orgUser?.organization)
-      .map((org) => org?.views)
+      .map((org) => org?.dashboards)
   );
 
-  res.json(ApiResponse.withData(views));
+  res.json(ApiResponse.withData(dashboards));
 }
 
 export default withMiddlewares(handler, {

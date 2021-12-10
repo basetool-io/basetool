@@ -21,6 +21,7 @@ model Organization {
   roles       Role[]
   views       View[]
   activities  Activity[]
+  dashboards  Dashboard[]
 
   @@index([slug])
 }
@@ -65,6 +66,7 @@ model DataSource {
   views                   View[]
   activities              Activity[]
   tablesMetaData          Json?         @default("[]")
+  dashboards              Dashboard[]
 
   @@index([organizationId])
 }
@@ -114,6 +116,7 @@ model User {
   sessions      Session[]
   views         View[]
   activities    Activity[]
+  dashboards    Dashboard[]
 }
 
 model VerificationRequest {
@@ -183,4 +186,22 @@ model Activity {
   @@index([viewId])
   @@index([userId])
   @@index([organizationId])
+}
+
+model Dashboard {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  user           User         @relation(references: [id], fields: [createdBy], onDelete: Cascade)
+  createdBy      Int
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+  organizationId Int
+  isPublic       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  dataSourceId   Int
+
+  @@index([createdBy])
+  @@index([organizationId])
+  @@index([dataSourceId])
 }

@@ -6,12 +6,14 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import { COOKIES_FROM_TOOL_NEW } from "@/lib/constants"
 import { getBrowserTimezone } from "@/lib/time";
 import { getCsrfToken, useSession } from "next-auth/client";
 import { isEmpty } from "lodash";
 import { joiResolver } from "@hookform/resolvers/joi/dist/joi";
 import { schema } from "@/features/auth/signupSchema";
 import { useApi } from "@/hooks";
+import { useCookie } from "react-use";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import AuthLayout from "@/components/AuthLayout"
@@ -50,10 +52,17 @@ function Register() {
   const router = useRouter();
   const [session] = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const [_, updateCookie] = useCookie(COOKIES_FROM_TOOL_NEW);
 
   useEffect(() => {
     if (session) router.push("/");
   }, [session]);
+
+  useEffect(() => {
+    if (router?.query?.from === "tool.new") {
+      updateCookie("1");
+    }
+  }, [router]);
 
   const onSubmit = async (formData: FormFields) => {
     const response = await api.createUser({
@@ -122,17 +131,6 @@ function Register() {
           <FormHelperText>Something strong.</FormHelperText>
           <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
         </FormControl>
-
-        {/* <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Your info</span>
-            </div>
-          </div>
-        </div> */}
 
         <div className="flex flex-col space-y-4">
           <div className="w-full">
