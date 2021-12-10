@@ -69,7 +69,7 @@
     "pg": "^8.7.1",
     "pino": "^7.2.0",
     "pluralize": "^8.0.0",
-    "postcss": "^8.3.6",
+    "postcss": "^8.3.11",
     "postcss-nested": "^5.0.6",
     "postcss-nested-ancestors": "^2.0.0",
     "prisma": "^3.6.0",
