@@ -128,7 +128,7 @@ export const useDataSourceContext = () => {
 
   useEffect(() => {
     if (view?.dataSourceId)
-    dispatch(setDataSourceId(view.dataSourceId.toString()));
+      dispatch(setDataSourceId(view.dataSourceId.toString()));
     if (view?.tableName) dispatch(setTableName(view.tableName));
   }, [view]);
 

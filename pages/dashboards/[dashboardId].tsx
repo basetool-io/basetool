@@ -7,7 +7,7 @@ import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 
-const ViewShow = () => {
+const DashboardView = () => {
   const { dataSourceId, dashboardId } = useDataSourceContext();
   const { info } = useDataSourceResponse(dataSourceId);
   const { canEdit } = useACLHelpers({ dataSourceInfo: info});
@@ -31,13 +31,11 @@ const ViewShow = () => {
     <Layout>
       <PageWrapper
         heading={`Dashboard ${dashboard?.name}`}
-        flush={true}
         buttons={
           <ButtonGroup size="xs">
             {canEdit && dashboardId && <EditDashboardButton />}
           </ButtonGroup>
         }
-        footer={<></>}
       >
         <div className="relative flex flex-col flex-1 w-full h-full">
           WIDGETS COMING SOON...
@@ -47,4 +45,4 @@ const ViewShow = () => {
   );
 };
 
-export default ViewShow;
+export default DashboardView;

@@ -152,30 +152,32 @@ const DashboardsSidebarSection = () => {
               <ChevronLeftIcon className="h-3 inline" />
             )}
           </div>
-          <div className="flex items-center mx-2">
-            <Popover
-              isOpen={isOpen}
-              initialFocusRef={firstFieldRef}
-              onOpen={onOpen}
-              onClose={onClose}
-            >
-              <PopoverTrigger>
-                <div>
-                  <Tooltip label="Add dashboard">
-                    <div>
-                      <PlusCircleIcon className="h-4 inline cursor-pointer" />
-                    </div>
-                  </Tooltip>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent z-index="3">
-                <PopoverArrow />
-                <PopoverBody>
-                  <Form firstFieldRef={firstFieldRef} onClose={onClose} />
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </div>
+          {filteredDashboards.length > 0 && (
+            <div className="flex items-center mx-2">
+              <Popover
+                isOpen={isOpen}
+                initialFocusRef={firstFieldRef}
+                onOpen={onOpen}
+                onClose={onClose}
+              >
+                <PopoverTrigger>
+                  <div>
+                    <Tooltip label="Add dashboard">
+                      <div>
+                        <PlusCircleIcon className="h-4 inline cursor-pointer" />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent z-index="3">
+                  <PopoverArrow />
+                  <PopoverBody>
+                    <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+                  </PopoverBody>
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
         </div>
 
         <Collapse in={isDashboardsOpen}>
@@ -186,6 +188,29 @@ const DashboardsSidebarSection = () => {
               <Shimmer height={16} width={60} />
             </div>
           )}
+
+          {!dashboardsLoading && filteredDashboards.length === 0 && (
+            <Popover
+              isOpen={isOpen}
+              initialFocusRef={firstFieldRef}
+              onOpen={onOpen}
+              onClose={onClose}
+            >
+              <PopoverTrigger>
+                <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
+                  <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
+                  Create dashboard
+                </div>
+              </PopoverTrigger>
+              <PopoverContent z-index="3">
+                <PopoverArrow />
+                <PopoverBody>
+                  <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          )}
+
           {!dashboardsLoading &&
             filteredDashboards.map((dashboard: Dashboard, idx: number) => (
               <SidebarItem

@@ -37,7 +37,7 @@ const Edit = () => {
     if (dashboardIsLoading || dashboardIsRemoving) return;
 
     const confirmed = confirm(
-      "Are you sure you want to remove this dashboard? All information about it (settings included) will be completely removed from our servers."
+      "Are you sure you want to remove this dashboard? All information, settings, and widgets will be completely removed from our servers."
     );
     if (confirmed) {
       await removeDashboard({ dashboardId }).unwrap();
@@ -102,7 +102,6 @@ const Edit = () => {
             <BackButton href={backLink}>Back to dashboard</BackButton>
           )
         }
-        flush={true}
       >
         <div className="relative flex-1 max-w-full w-full flex">
           <div className="flex flex-shrink-0 w-1/4 border-r p-4">
