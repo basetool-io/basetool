@@ -33,7 +33,7 @@
     "analytics-node": "^5.1.0",
     "autoprefixer": "^10.4.0",
     "aws-sdk": "^2.1013.0",
-    "axios": "^0.21.2",
+    "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "classnames": "^2.3.1",
     "concurrently": "^6.2.1",
