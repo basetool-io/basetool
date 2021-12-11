@@ -77,7 +77,7 @@ const Footer = ({ left, center, right }: FooterElements) => {
   if (!left && !center && !right) return null;
 
   return (
-    <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-30">
+    <div className="sticky top-auto bottom-0 w-[calc(100%+0.5rem)] -ml-1 bg-white shadow-pw-footer rounded-t py-[calc(0.5rem+1px)] z-40">
       <div className="flex justify-evenly items-center px-4">
         <div className="flex-1 flex justify-start">{left}</div>
         <div className="min-h-[2rem]">{center}</div>
