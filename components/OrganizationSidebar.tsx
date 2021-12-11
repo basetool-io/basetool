@@ -36,7 +36,7 @@ const Item = ({
 
 function OrganizationSidebar({organization}: {organization?: Organization}) {
   return (
-    <div className="relative space-y-x w-full h-full overflow-auto flex flex-col">
+    <div className="relative space-y-x w-full h-full overflow-auto flex flex-col overflow-y-auto">
       <div className="px-4 py-4 font-bold uppercase text-sm leading-none h-[40px]">
         {!organization?.name && <Shimmer />}
         {organization?.name}
