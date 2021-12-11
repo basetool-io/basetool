@@ -3347,11 +3347,6 @@ denque@^1.1.0:
   resolved "https://registry.npmjs.org/denque/-/denque-1.5.1.tgz"
   integrity sha512-XwE+iZ4D6ZUB7mfYRMb5wByE8L74HCn30FBN7sWnXksWc1LO1bPDl67pBR9o/kC4z/xSNAwkMYcGgqDV3BE3Hw==
 
-depd@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/depd/-/depd-2.0.0.tgz#b696163cc757560d09cf22cc8fad1571b79e76df"
-  integrity sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==
-
 depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
@@ -8350,16 +8345,15 @@ tarn@^3.0.1:
   resolved "https://registry.npmjs.org/tarn/-/tarn-3.0.1.tgz"
   integrity sha512-6usSlV9KyHsspvwu2duKH+FMUhqJnAh6J5J/4MITl8s94iSUQTLkJggdiewKv4RyARQccnigV48Z+khiuVZDJw==
 
-tedious@^13.0.4:
-  version "13.0.4"
-  resolved "https://registry.yarnpkg.com/tedious/-/tedious-13.0.4.tgz#927367574353483c32ecbfe2b081233b4447684e"
-  integrity sha512-zGCh7MOghlZnJ4hOFn4Rjr/2uTeoEG1oAuoD8BZxSyxJ5Zll3xQ9V39hyFdCuHybJy62yjducwTmepZRXw11TQ==
+tedious@^13.2.0:
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/tedious/-/tedious-13.2.0.tgz#8fef44fbb8c3ef8d951beb60b2d5bf62201be769"
+  integrity sha512-MC6BsOV5uXeYj4vHvU22N4VHZeFtqmqHAPvDuvfpojnOq/DDd9VfyT4e6vyQ/yTpdSMHWIB06eEJp8u3qEWSHg==
   dependencies:
     "@azure/identity" "^1.5.2"
     "@azure/keyvault-keys" "^4.3.0"
     "@js-joda/core" "^4.0.0"
     bl "^5.0.0"
-    depd "^2.0.0"
     iconv-lite "^0.6.3"
     jsbi "^3.2.1"
     native-duplexpair "^1.0.0"
