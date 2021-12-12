@@ -19,7 +19,7 @@ import BackButton from "./BackButton";
 import Joi, { ObjectSchema } from "joi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
 import type { Record } from "@/features/records/types";
@@ -74,6 +74,10 @@ const Form = ({
     setTheSchema();
   }, [record, columns]);
 
+  const visibleColumnNames = useMemo(() => {
+    return columns.map(({ name }) => name);
+  }, [columns]);
+
   const defaultValues = useMemo(() => {
     // We need to extract the association foreignId for the form.
     const associationColumnNames = columns
@@ -81,13 +85,23 @@ const Form = ({
       .map(({ name }) => name);
 
     return Object.fromEntries(
-      Object.entries(record).map(([columnName, value]) => {
-        if (associationColumnNames.includes(columnName)) {
-          return [columnName, value.foreignId];
-        }
+      Object.entries(record)
+        .map(([columnName, value]) => {
+          // Add foreignId for association columns
+          if (associationColumnNames.includes(columnName)) {
+            return [columnName, value.foreignId];
+          }
 
-        return [columnName, value];
-      })
+          return [columnName, value];
+        })
+        .filter(([columnName]) => {
+          // Remove invisible columns
+          if (visibleColumnNames.includes(columnName)) {
+            return true;
+          }
+
+          return false;
+        })
     );
   }, [record]);
 
@@ -97,6 +111,23 @@ const Form = ({
       defaultValues,
       resolver: joiResolver(schema),
     });
+  const { errors } = formState;
+
+  useEffect(() => {
+    /**
+     * Checking the errors payload so we make sure we display validation errors that may be hidden
+     *
+     * EX: A field may have been hidden but has a required validation rule.
+     * Because the field is not rendered on the screen the validation message does not have aplace to appear.
+     */
+    Object.entries(
+      errors as { [name: string]: { message: string; type: string } }
+    ).map(([fieldName, error]) => {
+      if (!visibleColumnNames.includes(fieldName)) {
+        toast.error(error.message);
+      }
+    });
+  }, [errors]);
 
   const formData = watch();
 
@@ -254,4 +285,4 @@ const Form = ({
   );
 };
 
-export default Form;
+export default memo(Form);
