@@ -93,6 +93,7 @@ function FieldEditor() {
             optionKey="baseOptions.computedSource"
             placeholder="Label value"
             defaultValue={column?.baseOptions?.computedSource}
+            className="font-mono"
             formHelperText={
               <>
                 You can use <Code size="sm">record</Code> in your query.
