@@ -67,7 +67,8 @@ const handler = async (
         custom_attributes: {
           Organization: payload?.organization,
         },
-      });
+        signed_up_at: Date.now() / 1000,
+      } as any);
     }
 
     await email.send({
