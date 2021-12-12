@@ -547,7 +547,20 @@ abstract class AbstractQueryService implements ISQLQueryService {
       query.orderBy(`${tableName}.${orderBy}`, orderDirection);
     } else {
       // This is needed for pagination of MSSQL datasource (https://dba.stackexchange.com/questions/167562/how-to-solve-invalid-usage-of-the-option-next-in-the-fetch-statement).
-      if (this.dataSourceType === "mssql") query.orderByRaw("(SELECT NULL)");
+      if (this.dataSourceType === "mssql") {
+        query.orderByRaw("(SELECT NULL)");
+      } else if (this.dataSource) {
+        const tableMetaData = (
+          this?.dataSource?.tablesMetaData as [
+            { name: string; idColumn: string }
+          ]
+        )?.find(({ name }) => name === tableName);
+
+        // If no default order set, we're trying to find the `id` column and sort by that.
+        if (tableMetaData) {
+          query.orderBy(`${tableName}.${tableMetaData.idColumn}`, "desc");
+        }
+      }
     }
 
     const records = await query.select();
