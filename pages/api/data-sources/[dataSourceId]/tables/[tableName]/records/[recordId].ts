@@ -31,7 +31,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const [record, data]: [Record<string, unknown>, Promise<unknown>] =
+  const [{record}, data]: [Record<string, unknown>, Promise<unknown>] =
     await runQueries(dataSource, [
       {
         name: "getRecord",
@@ -52,7 +52,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const changes = Object.keys(req?.body?.changes).map((columnName: string) => ({
     column: columnName,
-    before: record[columnName],
+    before: (record as any)[columnName],
     after: req?.body?.changes[columnName],
   }));
 
