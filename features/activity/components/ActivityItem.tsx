@@ -40,7 +40,7 @@ const ActivityChanges = memo(
                 <span className="flex whitespace-clip max-w-full text-gray-700">
                   {prettyValue(change.before)}
                 </span>
-                <span className="uppercase font-semibold text-xs text-true-gray-500">
+                <span className="uppercase font-semibold text-xs text-neutral-500">
                   <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />
                   Changed to
                   <ArrowDownIcon className="h-3 w-3 inline mb-1 mx-1" />

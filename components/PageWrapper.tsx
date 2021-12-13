@@ -36,7 +36,7 @@ const Block = ({
 }) => {
   const content = (
     <div
-      className="rounded-md border bg-true-gray-50 hover:bg-true-gray-100 hover:border-true-gray-300 p-4 h-full"
+      className="rounded-md border bg-neutral-50 hover:bg-neutral-100 hover:border-neutral-300 p-4 h-full"
       onMouseOver={onMouseOver}
     >
       {children}
