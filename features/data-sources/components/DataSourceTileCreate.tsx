@@ -42,7 +42,7 @@ const DataSourceTileCreate = ({
         <PopoverTrigger>
           <a
             key={id}
-            className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-cool-gray-100 hover:to-blue-gray-200"
+            className="relative block border shadow-md px-12 py-8 rounded text-center overflow-hidden cursor-pointer bg-gradient-to-b from-white to-cool-gray-100 hover:to-slate-200"
             onMouseEnter={() =>
               segment().track("Hovered over new data source type", {
                 id,

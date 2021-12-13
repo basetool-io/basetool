@@ -21,7 +21,7 @@ const OptionWrapper = ({
       <FormControl id={id}>
         <div className="relative flex justify-between mb-1">
           <label
-            className="text-sm font-semibold text-true-gray-600 flex"
+            className="text-sm font-semibold text-neutral-600 flex"
             htmlFor={id}
           >
             {label}

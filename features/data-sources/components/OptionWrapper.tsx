@@ -18,7 +18,7 @@ const OptionWrapper = ({
       {!fullWidth && (
         <div className="w-1/2 mt-6">
           {helpText && (
-            <div className="text-sm text-blue-gray-500 whitespace-pre-line">
+            <div className="text-sm text-slate-500 whitespace-pre-line">
               {helpText}
             </div>
           )}
