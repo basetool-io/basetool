@@ -1,15 +1,19 @@
-import { Column } from "@/features/fields/types";
+import { TableMetaData } from "@/plugins/data-sources/abstract-sql-query-service/doInitialScan";
 
-export const getForeignName = (record: any, column: Column) => {
+type PossibleTypes = string | number | boolean | null | undefined;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getForeignName = (
+  record: Record<string, PossibleTypes>,
+  options?: { field?: string; tableMetadata?: TableMetaData }
+): string | null => {
   // See if we have some `name` column set in the DB
-  const nameColumn: any = column?.fieldOptions?.nameColumn;
-
-  let prettyName = "";
+  let prettyName: PossibleTypes = "";
 
   if (record) {
     // Use the `nameColumn` attribute
-    if (nameColumn) {
-      prettyName = record[nameColumn];
+    if (options?.field) {
+      prettyName = record[options?.field];
     } else {
       // Try and find a common `name` columns
       if (record.url) prettyName = record.url;
@@ -20,7 +24,7 @@ export const getForeignName = (record: any, column: Column) => {
       if (record.name) prettyName = record.name;
     }
 
-    if (prettyName) return `${prettyName} [${record.id}]`;
+    if (prettyName) return prettyName.toString();
 
     if (record && record?.id) return `${record.id}`;
   }

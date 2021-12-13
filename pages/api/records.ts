@@ -106,13 +106,12 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     hydratedColumns,
     dataSource
   );
-  const newRecords = filterOutRecordColumns(
-    hydratedRecords,
-    hydratedColumns
-  );
+  const newRecords = filterOutRecordColumns(hydratedRecords, hydratedColumns);
 
   res.json(
-    ApiResponse.withData(newRecords, { meta: merge({ count, columns }, meta) })
+    ApiResponse.withData(newRecords, {
+      meta: merge({ count, columns: hydratedColumns }, meta),
+    })
   );
 }
 

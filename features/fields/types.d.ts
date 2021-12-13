@@ -11,6 +11,7 @@ export type FieldType =
   | "Json"
   | "Association"
   | "ProgressBar"
+  | "LinkTo"
   | "Gravatar";
 
 export type ForeignKey = {
@@ -65,12 +66,28 @@ export type RecordAssociationValue = {
   foreignId: number;
   foreignTable: string;
   dataSourceId: number;
-}
+};
 
-export type FieldValue = string | number | undefined | boolean | RecordAssociationValue;
+export type LinkToValueItem = {
+  id: number;
+  label: string;
+  foreignId: number;
+  foreignTable: string;
+  dataSourceId: string;
+  foreignColumnName: string;
+};
 
-export type Field = {
-  value: FieldValue;
+export type LinkToValue = LinkToValueItem[];
+
+export type FieldValue =
+  | string
+  | number
+  | undefined
+  | boolean
+  | RecordAssociationValue;
+
+export type Field<T = FieldValue> = {
+  value: T;
   column: Column;
   record: BasetoolRecord;
   tableName: string;

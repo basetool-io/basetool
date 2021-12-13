@@ -15,7 +15,12 @@ import {
   columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import { getConnectedColumns, getVisibleColumns, iconForField, stringifyData } from "@/features/fields";
+import {
+  getConnectedColumns,
+  getVisibleColumns,
+  iconForField,
+  stringifyData,
+} from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
@@ -54,9 +59,13 @@ const controlsColumn = {
 };
 
 const RecordsTable = ({
+  records: forcedRecords,
+  columns: forcedColumns,
   error,
   isFetching,
 }: {
+  records?: any[];
+  columns?: any[];
   error?: string;
   isFetching?: boolean;
 }) => {
@@ -80,12 +89,16 @@ const RecordsTable = ({
   const columnWidths = useAppSelector(columnWidthsSelector);
 
   // Process the records and columns to their final form.
-  const records = useMemo(() => stringifyData(rawRecords), [rawRecords]);
+  const records = useMemo(
+    () => forcedRecords || stringifyData(rawRecords),
+    [forcedRecords, rawRecords]
+  );
   // Memoize and add the start and end columns
 
   const orderedColumns = useMemo(() => {
+    const cols = forcedColumns || rawColumns;
     const result = parseColumns({
-      columns: getConnectedColumns(getVisibleColumns(rawColumns, "index")),
+      columns: getConnectedColumns(getVisibleColumns(cols, "index")),
       columnWidths,
     });
 
@@ -93,7 +106,7 @@ const RecordsTable = ({
       (reactTableColumn: any) =>
         reactTableColumn?.meta?.baseOptions?.orderIndex,
     ]);
-  }, [rawColumns, columnWidths]);
+  }, [forcedRecords, rawColumns, columnWidths]);
 
   const columns = useMemo(() => {
     // This check is made to ensure columns have id column for the checkbox column and item controls.

@@ -1,10 +1,12 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
+import { IFilter } from "../tables/types";
 import { getConnectedColumns } from "@/features/fields";
 import { getForeignName } from "@/plugins/fields/Association/helpers";
-import { isArray, isEmpty, merge, uniq } from "lodash";
+import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
+import { filtersForHasMany } from "./clientHelpers"
 
 /**
  * This method will filter out record fields that are disconnected.
@@ -36,10 +38,11 @@ export const hydrateRecords = async (
   columns: Column[],
   dataSource: DataSource
 ) => {
-  const hydratedRecords = records.map((record: any) => {
+  let hydratedRecords = records.map((record: any) => {
     // Get the computed columns.
     const computedColumns = columns.filter(
-      (column: Column) => column?.baseOptions?.computed === true
+      (column: Column) =>
+        column?.baseOptions?.computed === true && column.fieldType !== "LinkTo"
     );
 
     // Compute and set the value to the record.
@@ -50,6 +53,104 @@ export const hydrateRecords = async (
 
     return record;
   });
+
+  // Get the LinkTo columns.
+  const linkToColumns = columns.filter(
+    (column: Column) => column.fieldType === "LinkTo"
+  );
+  console.log("linkToColumns->", linkToColumns);
+
+  const linkToAssociationsByColumnName: {
+    [columnName: string]: Record<string, unknown>[];
+  } = {};
+
+  for (const column of linkToColumns) {
+    // Compute and set the value to the record.
+    // linkToColumns.forEach((computedColumn) => {
+    // const editorData = computedColumn?.baseOptions?.computedSource;
+    // select from table all where column matches
+    const { tableName, columnName }: { tableName: string; columnName: string } =
+      column.fieldOptions;
+
+    const linkedRecords = await getLinkedRecords(
+      hydratedRecords,
+      tableName,
+      columnName,
+      dataSource
+    );
+    // console.log("linkedRecords->", linkedRecords);
+    // console.log("columnName->", columnName);
+
+    const prettyNames = linkedRecords.map((record: Record<string, unknown>) =>
+      getForeignName(record)
+    );
+    console.log("prettyNames->", prettyNames);
+    linkToAssociationsByColumnName[columnName] ||= [];
+    linkToAssociationsByColumnName[columnName].push(linkedRecords);
+
+    // record[column.name] = {
+    //   value: foreignNameColumn,
+    //   foreignId: parseInt(foreignRecordComputed.id),
+    //   foreignTable: foreignTableName,
+    //   dataSourceId: dataSource.id,
+    // };
+
+    // const foreignNameColumn = getForeignName(linkedRecords, column);
+    // hydratedRecords = get(record, computedColumn.name);
+  }
+
+  hydratedRecords = hydratedRecords.map((record: Record<string, unknown>) => {
+    try {
+      linkToColumns.forEach((column) => {
+        const {
+          tableName,
+          columnName,
+        }: { tableName: string; columnName: string } = column.fieldOptions;
+
+        const tableMetaData = dataSource.tablesMetaData.find(
+          (metaData) => metaData.name === tableName
+        );
+        console.log("tableMetaData->", tableMetaData, tableName);
+        // @todo: why need [0]
+        // @todo: got the records. make them pretty
+        console.log(
+          "v->",
+          column.fieldOptions.columnName,
+          // linkToAssociationsByColumnName[column.fieldOptions.columnName][0],
+          record.id
+        );
+        const associations = linkToAssociationsByColumnName[
+          column.fieldOptions.columnName
+        ][0]?.filter(
+          (rec) => rec[column.fieldOptions.columnName] === record.id
+        );
+
+        record[column.name] = associations.map((association) => {
+          const label = getForeignName(association, {
+            field:
+              (column?.fieldOptions?.nameColumn as string) ||
+              tableMetaData.nameColumn,
+          });
+          console.log("dataSource.id->", dataSource.id);
+
+          return {
+            id: association.id,
+            label,
+            foreignId: parseInt(record.id),
+            foreignTable: tableName,
+            dataSourceId: dataSource.id,
+            foreignColumnName: column.fieldOptions.columnName,
+          };
+        });
+      });
+    } catch (error) {
+      console.log("error->", error);
+    }
+
+    return record;
+  });
+
+  // console.log("hydratedRecords->", hydratedRecords);
 
   // Find out the association columns.
   const associationColumns = columns.filter(
@@ -70,6 +171,23 @@ export const hydrateRecords = async (
   } else {
     return hydratedRecords;
   }
+};
+
+const getLinkedRecords = async (records, tableName, columnName, dataSource) => {
+  // @todo: support custom localKey not just id
+  const foreignIds = records.map((record: any) => record.id);
+
+  const filters = filtersForHasMany(
+    columnName,
+    uniq(foreignIds).filter(Boolean).toString()
+  );
+
+  const { records: foreignRecords } = await runQuery(dataSource, "getRecords", {
+    tableName,
+    filters,
+  });
+
+  return foreignRecords;
 };
 
 /**
@@ -111,7 +229,9 @@ const hydrateAssociations = async (
 
         if (!foreignRecordComputed) return record;
 
-        const foreignNameColumn = getForeignName(foreignRecordComputed, column);
+        const foreignNameColumn = getForeignName(foreignRecordComputed, {
+          field: column?.fieldOptions?.nameColumn as string,
+        });
 
         record[column.name] = {
           value: foreignNameColumn,

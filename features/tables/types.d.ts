@@ -20,7 +20,7 @@ export type FilterConditions =
   | SelectFilterConditions;
 
 export type IFilter = {
-  column: Column;
+  column?: Column;
   columnName: string;
   verb: FilterVerb;
   condition: FilterConditions;

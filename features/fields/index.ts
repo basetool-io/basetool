@@ -5,6 +5,7 @@ import {
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  LinkIcon,
   PhotographIcon,
   SelectorIcon,
   TrendingUpIcon,
@@ -70,6 +71,13 @@ export const getColumnOptions = (
     options.push({
       id: "Association",
       label: "Association",
+    });
+  }
+
+  if (column.baseOptions.computed) {
+    options.push({
+      id: "LinkTo",
+      label: "LinkTo",
     });
   }
 
@@ -142,6 +150,8 @@ export const iconForField = (field: Column): ElementType => {
       return ArrowRightIcon;
     case "ProgressBar":
       return TrendingUpIcon;
+    case "LinkTo":
+      return LinkIcon;
     case "Gravatar":
       return PhotographIcon;
   }

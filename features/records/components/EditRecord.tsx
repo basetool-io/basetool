@@ -1,5 +1,5 @@
 import { Column } from "@/features/fields/types";
-import { getVisibleColumns } from "@/features/fields";
+import { getConnectedColumns, getVisibleColumns } from "@/features/fields";
 import { isEmpty, sortBy } from "lodash";
 import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDataSourceContext } from "@/hooks";
@@ -42,9 +42,10 @@ const EditRecord = () => {
 
   const columns = useMemo(
     () =>
-      sortBy(getVisibleColumns(columnsResponse?.data, "edit"), [
-        (column: Column) => column?.baseOptions?.orderIndex,
-      ]),
+      sortBy(
+        getConnectedColumns(getVisibleColumns(columnsResponse?.data, "edit")),
+        [(column: Column) => column?.baseOptions?.orderIndex]
+      ),
     [columnsResponse?.data]
   );
 
