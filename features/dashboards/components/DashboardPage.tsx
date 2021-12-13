@@ -1,14 +1,34 @@
 import { DashboardItem } from "@prisma/client";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useGetDashboardItemsValuesQuery } from "../api-slice";
 import DashboardItemView from "./DashboardItemView";
-import React from "react";
+import React, { useMemo } from "react";
 
 function DashboardPage() {
   const { dashboardId } = useDataSourceContext();
 
   const { isLoading: dashboardIsLoading, dashboardItems } =
     useDashboardResponse(dashboardId);
+
+  const {
+    data: dashboardItemsValuesResponse,
+    isLoading: dashboardItemsValuesIsLoading,
+  } = useGetDashboardItemsValuesQuery({ dashboardId }, { skip: !dashboardId });
+
+  const dashboardItemsValues: any = useMemo(
+    () =>
+      dashboardItemsValuesResponse?.ok &&
+      Object.fromEntries(
+        dashboardItemsValuesResponse.data.map(
+          (itemValue: { id: number; value: string }) => [
+            itemValue.id,
+            itemValue.value,
+          ]
+        )
+      ),
+    [dashboardItemsValuesResponse]
+  );
 
   return (
     <div className="relative flex flex-col flex-1 w-full h-full p-2">
@@ -20,7 +40,16 @@ function DashboardPage() {
       {!dashboardIsLoading && dashboardItems.length > 0 && (
         <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {dashboardItems.map((dashboardItem: DashboardItem, idx: number) => (
-            <DashboardItemView key={idx} dashboardItem={dashboardItem} />
+            <DashboardItemView
+              key={idx}
+              dashboardItem={dashboardItem}
+              value={
+                dashboardItemsValues
+                  ? dashboardItemsValues[dashboardItem.id]
+                  : undefined
+              }
+              isLoading={dashboardItemsValuesIsLoading}
+            />
           ))}
         </dl>
       )}

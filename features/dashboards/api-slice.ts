@@ -72,6 +72,14 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
+      getDashboardItemsValues: builder.query<ApiResponse, Partial<{ dashboardId: string }>>({
+        query({ dashboardId }) {
+          return `/dashboards/${dashboardId}/dashboardItemsValues`;
+        },
+        providesTags: (result, error, { dashboardId }) => [
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
     };
   },
 });
@@ -81,5 +89,6 @@ export const {
   useGetDashboardsQuery,
   useGetDashboardQuery,
   useRemoveDashboardMutation,
-  useUpdateDashboardMutation
+  useUpdateDashboardMutation,
+  useGetDashboardItemsValuesQuery,
 } = api;

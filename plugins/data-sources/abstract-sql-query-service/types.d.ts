@@ -89,6 +89,9 @@ export interface ISQLQueryService extends IQueryService {
   public getSSHCredentials(): DataSourceCredentials;
   public getParsedCredentials(): DataSourceCredentials;
   public getParsedSSHCredentials(): DataSourceCredentials;
+  public runRawQuery(payload: {
+    query: string;
+  }): Promise<unknown>;
 }
 
 export type QueryServiceFieldOptions = {

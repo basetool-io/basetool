@@ -12,6 +12,7 @@ import BackButton from "@/features/records/components/BackButton";
 import DashboardEditDataSourceInfo from "@/features/dashboards/components/DashboardEditDataSourceInfo";
 import DashboardEditName from "@/features/dashboards/components/DashboardEditName";
 import DashboardEditVisibility from "@/features/dashboards/components/DashboardEditVisibility";
+import DashboardEditWidgets from "@/features/dashboards/components/DashboardEditWidgets";
 import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
@@ -113,6 +114,7 @@ const Edit = () => {
                 <DashboardEditName updateName={updateName} />
                 <DashboardEditVisibility updateVisibility={updateVisibility} />
                 <DashboardEditDataSourceInfo />
+                <DashboardEditWidgets />
               </div>
             )}
           </div>
