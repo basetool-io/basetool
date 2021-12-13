@@ -29,7 +29,7 @@ export const filtersForHasMany = (
 /**
  * This method tries to extract a pretty name from a record
  */
-export const getForeignName = (
+export const getPrettyName = (
   record: BasetoolRecord,
   field?: string | undefined
 ): string => {
