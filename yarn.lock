@@ -2028,14 +2028,14 @@ ajv@^8.0.1:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-analytics-node@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/analytics-node/-/analytics-node-5.1.0.tgz#69f2183af07b7e9aeef129232c6c1e44ef2f28d9"
-  integrity sha512-qojiIIQs+ruKS4BEb7+nLIim0TpmifMnYQYYQWBHcYBurv/IXRs3bL28wCuv1aKpRKpyDjAvugYSA7V7pw8t8g==
+analytics-node@^5.1.2:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/analytics-node/-/analytics-node-5.2.0.tgz#ef167bbf0d51f630e96d3abe604ce449b50a2584"
+  integrity sha512-JAc0K7J//QKGGX2mfwBE7wyG/Rh4W0BATB6CncwYhVX1qLjiXwHmB7bYr9PgJIer5M6jKMOhZoO5lxiruQk9BQ==
   dependencies:
     "@segment/loosely-validate-event" "^2.0.0"
     axios "^0.21.4"
-    axios-retry "^3.0.2"
+    axios-retry "3.2.0"
     lodash.isstring "^4.0.1"
     md5 "^2.2.1"
     ms "^2.0.0"
@@ -2345,7 +2345,7 @@ axe-core@^4.0.2:
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.3.2.tgz"
   integrity sha512-5LMaDRWm8ZFPAEdzTYmgjjEdj1YnQcpfrVajO/sn/LhbpGp0Y0H64c2hLZI1gRMxfA+w1S71Uc/nHaOXgcCvGg==
 
-axios-retry@^3.0.2:
+axios-retry@3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/axios-retry/-/axios-retry-3.2.0.tgz#eb48e72f90b177fde62329b2896aa8476cfb90ba"
   integrity sha512-RK2cLMgIsAQBDhlIsJR5dOhODPigvel18XUv1dDXW+4k1FzebyfRk+C+orot6WPZOYFKSfhLwHPwVmTVOODQ5w==
