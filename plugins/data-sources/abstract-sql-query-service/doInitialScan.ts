@@ -1,16 +1,9 @@
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
 import { ListTable } from "@/plugins/data-sources/abstract-sql-query-service/types";
+import { TableMetaData } from "@/features/data-sources/types"
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import prisma from "@/prisma";
-
-export type TableMetaData = {
-  name: string;
-  idColumn: string;
-  nameColumn: string;
-  createdAtColumn?: string;
-  updatedAtColumn?: string;
-};
 
 export const doInitialScan = async (dataSource: DataSource) => {
   const tables = (await runQuery(dataSource, "getTables")) as ListTable[];

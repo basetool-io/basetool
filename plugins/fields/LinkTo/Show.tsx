@@ -1,5 +1,6 @@
-import { Field, LinkToValue, LinkToValueItem } from "@/features/fields/types";
-import GoToRecordLink from "@/features/fields/components/GoToRecordLink";
+import { Field } from "@/features/fields/types";
+import { LinkToValueItem } from "./types";
+import GoToRecord from "@/features/fields/components/GoToRecordLink";
 import React, { memo, useMemo } from "react";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 
@@ -8,13 +9,14 @@ const LinkToItem = ({ record }: { record: LinkToValueItem }) => {
 
   return (
     <>
-      {record.label} [{record.id}]{href && <GoToRecordLink href={href} />}
+      {record.label} [{record.id}]{href && <GoToRecord href={href} />}
     </>
   );
 };
 
-const Show = ({ field }: { field: Field<LinkToValue> }) => {
+const Show = ({ field }: { field: Field<LinkToValueItem[]> }) => {
   const hasRecords = useMemo(() => field.value?.length > 0, [field.value]);
+  const records = field.value;
 
   return (
     <>
@@ -23,8 +25,8 @@ const Show = ({ field }: { field: Field<LinkToValue> }) => {
           {hasRecords || "No records"}
           {hasRecords && (
             <ol className="list-decimal">
-              {field.value.map((record) => (
-                <li>
+              {records.map((record, idx: number) => (
+                <li key={idx}>
                   <LinkToItem record={record} />
                 </li>
               ))}

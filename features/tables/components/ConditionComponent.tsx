@@ -16,7 +16,7 @@ function ConditionComponent({
   let Component;
   const { column } = filter;
 
-  switch (column.fieldType) {
+  switch (column?.fieldType) {
     case "Id":
     case "Number":
     case "Association":

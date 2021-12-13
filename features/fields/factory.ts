@@ -8,6 +8,7 @@ import BooleanShowField from "@/plugins/fields/Boolean/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
+import DummyField from "./components/DummyField"
 import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
 import GravatarShowField from "@/plugins/fields/Gravatar/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
@@ -38,7 +39,7 @@ import type { Column } from "./types";
 export const getFieldForEdit = (column: Column) => {
   switch (column.fieldType) {
     default:
-      return null;
+      return DummyField;
     case "Text":
       return TextEditField;
     case "Number":
@@ -65,7 +66,7 @@ export const getFieldForEdit = (column: Column) => {
 export const getFieldForShow = (column: Column) => {
   switch (column.fieldType) {
     default:
-      return null;
+      return DummyField;
     case "Text":
       return TextShowField;
     case "Number":
@@ -96,7 +97,7 @@ export const getFieldForShow = (column: Column) => {
 export const getFieldForIndex = (column: Column) => {
   switch (column.fieldType) {
     default:
-      return null;
+      return DummyField;
     case "Id":
       return IdIndexField;
     case "Text":
@@ -124,7 +125,7 @@ export const getFieldForIndex = (column: Column) => {
   }
 };
 
-export const getField = (column: Column, view: string): ElementType | null => {
+export const getField = (column: Column, view: string): ElementType => {
   switch (view) {
     case "new":
     case "edit":

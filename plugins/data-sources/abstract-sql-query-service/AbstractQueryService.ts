@@ -105,7 +105,7 @@ const getValue = (filter: IFilter) => {
 };
 
 const getDefaultFilterValue = (filter: IFilter) => {
-  switch (filter.column.fieldType) {
+  switch (filter?.column?.fieldType) {
     case "Id":
     case "Number":
     case "Association":
@@ -329,7 +329,7 @@ const addFilterToQuery = (query: Knex.QueryBuilder, filter: IFilter) => {
     } else {
       query.whereNotIn(filter.columnName, values);
     }
-  } else if (filter.column.fieldType === "DateTime") {
+  } else if (filter?.column?.fieldType === "DateTime") {
     if ("option" in filter && filter.option) {
       const dateRange = getDateRange(filter.option, filter.value);
       if (filter.verb === FilterVerbs.or) {

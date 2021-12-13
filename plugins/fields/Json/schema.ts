@@ -1,8 +1,8 @@
 import { Column } from "@/features/fields/types";
 import Joi from "joi";
-import type { Record } from "@/features/records/types";
+import type { BasetoolRecord } from "@/features/records/types";
 
-const schema = (record: Record, column: Column) => {
+const schema = (record: BasetoolRecord, column: Column) => {
   let rule = Joi.object();
 
   if (column.baseOptions.required) {

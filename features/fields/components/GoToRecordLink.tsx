@@ -3,7 +3,7 @@ import { Tooltip } from "@chakra-ui/react";
 import Link from "next/link";
 import React, { memo } from "react";
 
-function GoToRecordLink({
+function GoToRecord({
   href,
   label = "Go to record",
 }: {
@@ -23,4 +23,4 @@ function GoToRecordLink({
   );
 }
 
-export default memo(GoToRecordLink);
+export default memo(GoToRecord);

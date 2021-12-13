@@ -182,12 +182,12 @@ const Filter = ({
   const [localInputValue, setLocalInputValue] = useState(filter.value);
 
   const isDateFilter = useMemo(
-    () => filter.column.fieldType === "DateTime",
-    [filter.column.fieldType]
+    () => filter?.column?.fieldType === "DateTime",
+    [filter?.column?.fieldType]
   );
   const isSelectFilter = useMemo(
-    () => filter.column.fieldType === "Select",
-    [filter.column.fieldType]
+    () => filter?.column?.fieldType === "Select",
+    [filter?.column?.fieldType]
   );
 
   const isSelectWithValueInput = useMemo(

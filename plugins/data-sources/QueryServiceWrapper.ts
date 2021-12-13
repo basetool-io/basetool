@@ -78,7 +78,6 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
       try {
         response = await Promise.all(actions.map((a) => a()));
       } catch (error: any) {
-        console.log('error2->', error)
         throw new SQLError(isString(error) ? error : error.message);
       }
     }

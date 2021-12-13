@@ -1,3 +1,3 @@
-export type Record = {
-  [key: string]: FieldValue;
-};
+export type PossibleRecordValues = string | number | boolean | null | undefined;
+
+export type BasetoolRecord<T = PossibleRecordValues> = Record<string, T>

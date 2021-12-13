@@ -58,11 +58,9 @@ export const runQueries = async (
         secret: process.env.PROXY_SECRET,
         queries,
       });
-      console.log('response->', response)
 
       return response ? response.data : [];
     } catch (error) {
-      console.log('error->', error)
       const data = error.response.data;
       if (data.error && data.type) {
         let newError;

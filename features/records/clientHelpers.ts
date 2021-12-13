@@ -15,7 +15,6 @@ export const filtersForHasMany = (
 
   return [
     {
-      column: {},
       columnName,
       condition: "is_in",
       value,
@@ -23,4 +22,3 @@ export const filtersForHasMany = (
     },
   ];
 };
-

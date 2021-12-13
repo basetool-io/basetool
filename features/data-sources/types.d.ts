@@ -11,3 +11,11 @@ interface DataQuery extends PrismaDataQuery {
 }
 
 export default DataQuery;
+
+export type TableMetaData = {
+  name: string;
+  idColumn: string;
+  nameColumn: string;
+  createdAtColumn?: string;
+  updatedAtColumn?: string;
+};

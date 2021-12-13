@@ -1,4 +1,4 @@
-import type { Record as BasetoolRecord } from "@/features/records";
+import type { BasetoolRecord } from "@/features/records";
 
 export type FieldType =
   | "Id"
@@ -67,17 +67,6 @@ export type RecordAssociationValue = {
   foreignTable: string;
   dataSourceId: number;
 };
-
-export type LinkToValueItem = {
-  id: number;
-  label: string;
-  foreignId: number;
-  foreignTable: string;
-  dataSourceId: string;
-  foreignColumnName: string;
-};
-
-export type LinkToValue = LinkToValueItem[];
 
 export type FieldValue =
   | string

@@ -22,4 +22,3 @@ export type GenericEvent = {
     value: string
   };
 }
-

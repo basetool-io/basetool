@@ -1,12 +1,17 @@
+import { BasetoolRecord, PossibleRecordValues } from "./types";
 import { Column } from "@/features/fields/types";
 import { DataSource } from "@prisma/client";
-import { IFilter } from "../tables/types";
+import {
+  LinkToValueFieldOptions,
+  LinkToValueItem,
+} from "@/plugins/fields/LinkTo/types";
+import { TableMetaData } from "../data-sources/types";
+import { filtersForHasMany } from "./clientHelpers";
 import { getConnectedColumns } from "@/features/fields";
 import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
-import { filtersForHasMany } from "./clientHelpers"
 
 /**
  * This method will filter out record fields that are disconnected.
@@ -57,100 +62,72 @@ export const hydrateRecords = async (
   // Get the LinkTo columns.
   const linkToColumns = columns.filter(
     (column: Column) => column.fieldType === "LinkTo"
-  );
-  console.log("linkToColumns->", linkToColumns);
+  ) as Column<Record<string, unknown>, LinkToValueFieldOptions>[];
 
+  // Extrct all LinkTo columns
   const linkToAssociationsByColumnName: {
-    [columnName: string]: Record<string, unknown>[];
+    [columnName: string]: BasetoolRecord[];
   } = {};
 
   for (const column of linkToColumns) {
-    // Compute and set the value to the record.
-    // linkToColumns.forEach((computedColumn) => {
-    // const editorData = computedColumn?.baseOptions?.computedSource;
-    // select from table all where column matches
-    const { tableName, columnName }: { tableName: string; columnName: string } =
-      column.fieldOptions;
+    const { tableName, columnName } = column.fieldOptions;
 
+    // Fetch the records
     const linkedRecords = await getLinkedRecords(
       hydratedRecords,
       tableName,
       columnName,
       dataSource
     );
-    // console.log("linkedRecords->", linkedRecords);
-    // console.log("columnName->", columnName);
 
-    const prettyNames = linkedRecords.map((record: Record<string, unknown>) =>
-      getForeignName(record)
-    );
-    console.log("prettyNames->", prettyNames);
     linkToAssociationsByColumnName[columnName] ||= [];
-    linkToAssociationsByColumnName[columnName].push(linkedRecords);
-
-    // record[column.name] = {
-    //   value: foreignNameColumn,
-    //   foreignId: parseInt(foreignRecordComputed.id),
-    //   foreignTable: foreignTableName,
-    //   dataSourceId: dataSource.id,
-    // };
-
-    // const foreignNameColumn = getForeignName(linkedRecords, column);
-    // hydratedRecords = get(record, computedColumn.name);
+    // Add them to a variable
+    linkedRecords.map((record) =>
+      linkToAssociationsByColumnName[columnName].push(record)
+    );
   }
 
-  hydratedRecords = hydratedRecords.map((record: Record<string, unknown>) => {
-    try {
-      linkToColumns.forEach((column) => {
-        const {
-          tableName,
-          columnName,
-        }: { tableName: string; columnName: string } = column.fieldOptions;
+  // Add them to the records
+  hydratedRecords = hydratedRecords.map(
+    (record: BasetoolRecord<PossibleRecordValues | LinkToValueItem[]>) => {
+      try {
+        linkToColumns.forEach((column) => {
+          const { tableName } = column.fieldOptions;
+          let nameColumn = column?.fieldOptions?.columnName || "id";
 
-        const tableMetaData = dataSource.tablesMetaData.find(
-          (metaData) => metaData.name === tableName
-        );
-        console.log("tableMetaData->", tableMetaData, tableName);
-        // @todo: why need [0]
-        // @todo: got the records. make them pretty
-        console.log(
-          "v->",
-          column.fieldOptions.columnName,
-          // linkToAssociationsByColumnName[column.fieldOptions.columnName][0],
-          record.id
-        );
-        const associations = linkToAssociationsByColumnName[
-          column.fieldOptions.columnName
-        ][0]?.filter(
-          (rec) => rec[column.fieldOptions.columnName] === record.id
-        );
+          // Try and find the name column for that table
+          if (dataSource?.tablesMetaData) {
+            const tableMetaData = (
+              dataSource?.tablesMetaData as TableMetaData[]
+            )?.find(
+              (metaData: { name: string }) => metaData.name === tableName
+            );
+            if (tableMetaData && isString(tableMetaData.nameColumn))
+              nameColumn = tableMetaData.nameColumn;
+          }
 
-        record[column.name] = associations.map((association) => {
-          const label = getForeignName(association, {
-            field:
-              (column?.fieldOptions?.nameColumn as string) ||
-              tableMetaData.nameColumn,
+          const associations = linkToAssociationsByColumnName[
+            column.fieldOptions.columnName
+          ]?.filter((rec) => rec[column.fieldOptions.columnName] === record.id);
+
+          record[column.name] = associations.map((association) => {
+            const label = getForeignName(association, nameColumn);
+
+            return {
+              id: parseInt(association.id as string),
+              label,
+              foreignId: parseInt(record.id as string),
+              foreignTable: tableName,
+              dataSourceId: dataSource.id,
+              foreignColumnName: column.fieldOptions.columnName,
+            };
           });
-          console.log("dataSource.id->", dataSource.id);
-
-          return {
-            id: association.id,
-            label,
-            foreignId: parseInt(record.id),
-            foreignTable: tableName,
-            dataSourceId: dataSource.id,
-            foreignColumnName: column.fieldOptions.columnName,
-          };
         });
-      });
-    } catch (error) {
-      console.log("error->", error);
+      } catch (error) {}
+
+      return record;
     }
-
-    return record;
-  });
-
-  // console.log("hydratedRecords->", hydratedRecords);
+  );
 
   // Find out the association columns.
   const associationColumns = columns.filter(
@@ -173,7 +150,12 @@ export const hydrateRecords = async (
   }
 };
 
-const getLinkedRecords = async (records, tableName, columnName, dataSource) => {
+const getLinkedRecords = async (
+  records: BasetoolRecord[],
+  tableName: string,
+  columnName: string,
+  dataSource: DataSource
+): Promise<BasetoolRecord[]> => {
   // @todo: support custom localKey not just id
   const foreignIds = records.map((record: any) => record.id);
 
@@ -229,9 +211,10 @@ const hydrateAssociations = async (
 
         if (!foreignRecordComputed) return record;
 
-        const foreignNameColumn = getForeignName(foreignRecordComputed, {
-          field: column?.fieldOptions?.nameColumn as string,
-        });
+        const foreignNameColumn = getForeignName(
+          foreignRecordComputed,
+          column?.fieldOptions?.nameColumn as string
+        );
 
         record[column.name] = {
           value: foreignNameColumn,
