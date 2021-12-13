@@ -6,9 +6,8 @@ import {
   LinkToValueItem,
 } from "@/plugins/fields/LinkTo/types";
 import { TableMetaData } from "../data-sources/types";
-import { filtersForHasMany } from "./clientHelpers";
+import { filtersForHasMany, getPrettyName } from "./clientHelpers";
 import { getConnectedColumns } from "@/features/fields";
-import { getForeignName } from "@/plugins/fields/Association/helpers";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 import Handlebars from "handlebars";
@@ -111,7 +110,7 @@ export const hydrateRecords = async (
           ]?.filter((rec) => rec[column.fieldOptions.columnName] === record.id);
 
           record[column.name] = associations.map((association) => {
-            const label = getForeignName(association, nameColumn);
+            const label = getPrettyName(association, nameColumn);
 
             return {
               id: parseInt(association.id as string),
@@ -211,7 +210,7 @@ const hydrateAssociations = async (
 
         if (!foreignRecordComputed) return record;
 
-        const foreignNameColumn = getForeignName(
+        const foreignNameColumn = getPrettyName(
           foreignRecordComputed,
           column?.fieldOptions?.nameColumn as string
         );

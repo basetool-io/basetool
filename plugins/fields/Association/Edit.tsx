@@ -6,7 +6,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { EditFieldProps } from "@/features/fields/types";
-import { getForeignName } from "./helpers";
+import { getPrettyName } from "@/features/records/clientHelpers"
 import { humanize } from "@/lib/humanize";
 import { isEmpty, isFunction, isNull } from "lodash";
 import { useDataSourceContext } from "@/hooks";
@@ -81,7 +81,7 @@ const Edit = ({
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (
                 <option key={record.id} value={record.id}>
-                  {getForeignName(
+                  {getPrettyName(
                     record,
                     field.column?.fieldOptions?.nameColumn as string
                   )}
