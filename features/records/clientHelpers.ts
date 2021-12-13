@@ -1,3 +1,4 @@
+import { Column } from "../fields/types"
 import { IFilter } from "../tables/types";
 import { isArray, isString } from "lodash";
 
@@ -15,6 +16,7 @@ export const filtersForHasMany = (
 
   return [
     {
+      column: {} as Column,
       columnName,
       condition: "is_in",
       value,

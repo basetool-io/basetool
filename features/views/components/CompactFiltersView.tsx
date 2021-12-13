@@ -71,7 +71,7 @@ const CompactFiltersView = ({
             <div key={idx}>
               {idx === 0 ? "" : <Verb>{filter.verb}</Verb>}
               <FilterRow
-                columnName={filter?.column?.label as string}
+                columnName={filter.column.label as string}
                 condition={filter.condition.replaceAll("_", " ")}
                 value={filterValue}
               />
