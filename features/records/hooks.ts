@@ -167,22 +167,22 @@ export const useOrderRecords = (
     let newOrderBy = "";
 
     if (orderBy !== columnName) {
-      newOrderDirection = "asc";
+      newOrderDirection = "desc";
       newOrderBy = columnName;
     } else {
       switch (orderDirection) {
         default:
         case "":
-          newOrderDirection = "asc";
-          newOrderBy = columnName;
-          break;
-        case "asc":
           newOrderDirection = "desc";
           newOrderBy = columnName;
           break;
-        case "desc":
+        case "asc":
           newOrderDirection = "";
           newOrderBy = "";
+          break;
+        case "desc":
+          newOrderDirection = "asc";
+          newOrderBy = columnName;
           break;
       }
     }
