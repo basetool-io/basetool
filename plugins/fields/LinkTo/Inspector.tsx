@@ -4,36 +4,24 @@ import GenericTextOption from "@/features/views/components/GenericTextOption";
 import React from "react";
 import fieldOptions from "./fieldOptions";
 
-function Inspector({ column, setColumnOptions }: InspectorProps) {
+function Inspector({ column }: InspectorProps) {
   const options = merge(fieldOptions, column.fieldOptions);
 
   return (
     <>
       <GenericTextOption
         label="Table"
-        helpText="Value that has to be computed."
         optionKey="fieldOptions.tableName"
-        placeholder="Labelee value"
         defaultValue={options.tableName}
         className="font-mono"
-        // formHelperText={
-        //   <>
-        //     The table
-        //   </>
-        // }
+        formHelperText="From which table should we extract the data."
       />
       <GenericTextOption
-        label="Column"
-        helpText="Value that has to be computed."
+        label="Foreign key"
         optionKey="fieldOptions.columnName"
-        placeholder="Labelee value"
-        defaultValue={options.tableName}
+        defaultValue={options.columnName}
         className="font-mono"
-        // formHelperText={
-        //   <>
-        //     The table
-        //   </>
-        // }
+        formHelperText={`What column from ${options.tableName} should be matched with the record id.`}
       />
     </>
   );
