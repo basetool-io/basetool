@@ -169,12 +169,12 @@ const RecordsTable = ({
         <div className="flex">
           <div
             className={
-              "table-widget relative divide-y bg-true-gray-200 divide-true-gray-200 overflow-auto w-full"
+              "table-widget relative divide-y bg-neutral-200 divide-neutral-200 overflow-auto w-full"
             }
             {...getTableProps()}
           >
             {isMd && (
-              <div className="bg-true-gray-200 rounded-t">
+              <div className="bg-neutral-200 rounded-t">
                 {headerGroups.map((headerGroup) => (
                   <div
                     {...headerGroup.getHeaderGroupProps()}
@@ -194,7 +194,7 @@ const RecordsTable = ({
                         <div
                           {...column.getHeaderProps()}
                           className={classNames(
-                            "relative flex h-full th text-left text-xs font-semibold uppercase text-blue-gray-500 tracking-tight leading-none",
+                            "relative flex h-full th text-left text-xs font-semibold uppercase text-slate-500 tracking-tight leading-none",
                             {
                               "pl-4": !isRecordSelectorColumn,
                             }

@@ -19,7 +19,7 @@ const Edit = ({
   view,
 }: EditFieldProps) => {
   const register = registerMethod(field.column.name);
-  const errors = useMemo(() => formState.errors, [formState])
+  const errors = useMemo(() => formState.errors, [formState]);
   const { name } = register;
 
   // options
@@ -38,17 +38,21 @@ const Edit = ({
     ? field.column.baseOptions.help
     : null;
   const hasHelp = !isNull(helpText);
-  const defaultValue = field?.column?.baseOptions?.defaultValue && view === "new"
-  ? field.column.baseOptions.defaultValue
-  : null;
+  const defaultValue =
+    field?.column?.baseOptions?.defaultValue && view === "new"
+      ? field.column.baseOptions.defaultValue
+      : null;
 
   return (
     <EditFieldWrapper field={field} schema={schema}>
-      <FormControl
-        isInvalid={hasError}
-        isDisabled={readonly}
-      >
-        <Select id={fieldId(field)} {...register} placeholder={placeholder} defaultValue={defaultValue} >
+      <FormControl isInvalid={hasError} isDisabled={readonly}>
+        <Select
+          id={fieldId(field)}
+          {...register}
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          size="sm"
+        >
           {options &&
             options.map((option: string, index: number) => (
               <option key={index} value={option}>

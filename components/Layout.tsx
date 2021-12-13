@@ -76,7 +76,7 @@ function Layout({
           <DataSourcesSidebar />
           <div
             className={classNames(
-              "flex-1 flex bg-true-gray-100 rounded-tl-lg shadow h-[calc(100%-0.5rem)] my-2",
+              "flex-1 flex bg-neutral-100 rounded-tl-lg shadow h-[calc(100%-0.5rem)] my-2",
               {
                 "w-[calc(100%-5rem)]": sidebarsVisible,
                 "w-[calc(100%-0.5rem)] md:w-[calc(100%-5rem)]":

@@ -77,6 +77,7 @@ const Edit = ({
                 shouldTouch: true,
               })
             }
+            size="sm"
           >
             {recordsResponse?.ok &&
               recordsResponse?.data.map((record: Record<string, any>) => (

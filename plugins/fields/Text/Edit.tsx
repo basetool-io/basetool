@@ -49,6 +49,7 @@ const Edit = ({
           defaultValue={defaultValue}
           {...register}
           placeholder={placeholder}
+          size="sm"
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (

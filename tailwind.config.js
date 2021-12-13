@@ -6,7 +6,7 @@ const { bgColors } = require("./lib/colors");
 const whitelistedBgColors = bgColors.map((c) => `bg-${c}-200`);
 
 module.exports = {
-  purge: {
+  content: {
     enabled: true,
     safelist: [...whitelistedBgColors],
     content: [
@@ -19,19 +19,13 @@ module.exports = {
       "./lib/**/*.css",
     ],
   },
-  mode: "jit",
-  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       fontFamily: {
         sans: '"Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",  "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
       },
       colors: {
-        "blue-gray": colors.blueGray,
-        "true-gray": colors.trueGray,
         orange: colors.orange,
-        // "cool-gray": colors.coolGray,
-        "warm-gray": colors.warmGray,
         "cool-gray": {
           DEFAULT: "#2776EA",
           50: "#108105100",
@@ -126,11 +120,5 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {},
-  },
-  plugins: [
-    //     require('@tailwindcss/forms'),
-    // require('tailwind-scrollbar-hide'),
-  ],
+  plugins: [],
 };
