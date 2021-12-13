@@ -1,4 +1,4 @@
-import { Column } from "../fields/types"
+import { Column } from "../fields/types";
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
 import {
