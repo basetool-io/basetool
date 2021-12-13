@@ -30,7 +30,7 @@
     "@segment/snippet": "^4.15.3",
     "@sentry/nextjs": "^6.15.0",
     "accesscontrol": "^2.2.1",
-    "analytics-node": "^5.1.0",
+    "analytics-node": "^5.1.2",
     "autoprefixer": "^10.4.0",
     "aws-sdk": "^2.1013.0",
     "axios": "^0.24.0",
