@@ -1,6 +1,6 @@
 import { Column } from "@/features/fields/types";
 import { getUserFromRequest, getViewFromRequest } from "@/features/api";
-import { isObjectLike, merge, omit } from "lodash";
+import { isArray, isObjectLike, merge } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -28,9 +28,12 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   const columnName = req?.query?.columnName as string;
 
-  if (!view || !columnName) return res.status(404).send("");
+  if (!view || !columnName || !isArray(view?.columns))
+    return res.status(404).send("");
 
-  const columns = omit(view.columns as Record<string, unknown>, [columnName]);
+  const columns = (view.columns as { name: string }[]).filter(
+    ({ name }) => name !== columnName
+  );
 
   const result = await prisma.view.update({
     where: {
