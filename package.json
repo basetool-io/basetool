@@ -59,7 +59,7 @@
     "knex-schema-inspector": "^1.6.4",
     "knex-utils": "^5.4.0",
     "lodash": "^4.17.21",
-    "luxon": "^2.0.2",
+    "luxon": "^2.1.1",
     "md5": "^2.3.0",
     "mysql": "^2.18.1",
     "next": "^12.0.7",
