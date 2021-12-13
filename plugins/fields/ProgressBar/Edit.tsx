@@ -66,6 +66,7 @@ const Edit = ({
           {...register}
           placeholder={placeholder}
           disabled={readonly}
+          size="sm"
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (

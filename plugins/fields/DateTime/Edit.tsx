@@ -25,6 +25,7 @@ const FacadeButton = ({ onClick }: { onClick?: (e: any) => void }) => {
     <Button
       onClick={onClick}
       className="p-0 flex h-full w-full justify-center items-center"
+      size="sm"
     >
       <CalendarIcon className="h-4" />
     </Button>
@@ -154,7 +155,7 @@ const Edit = ({
         isDisabled={columnBaseOptions?.readonly}
       >
         <div className="flex w-full">
-          <InputGroup>
+          <InputGroup size="sm">
             <Input
               type="text"
               onChange={(e) => setTextValue(e.currentTarget.value)}

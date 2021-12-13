@@ -47,6 +47,7 @@ const Edit = ({
           placeholder={placeholder}
           id={fieldId(field)}
           {...register}
+          size="sm"
         />
         {hasHelp && <FormHelperText>{parse(helpText || "")}</FormHelperText>}
         {hasError && (
