@@ -82,7 +82,7 @@
     "react-feather": "^2.0.9",
     "react-hook-form": "^7.19.5",
     "react-json-view": "^1.21.3",
-    "react-redux": "^7.2.4",
+    "react-redux": "^7.2.6",
     "react-table": "^7.7.0",
     "react-toastify": "^8.1.0",
     "react-use": "^17.2.4",
