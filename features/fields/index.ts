@@ -5,10 +5,12 @@ import {
   CheckCircleIcon,
   HashtagIcon,
   KeyIcon,
+  LinkIcon,
   PhotographIcon,
   SelectorIcon,
   TrendingUpIcon,
 } from "@heroicons/react/outline";
+import { BasetoolRecord } from "../records/types"
 import { ElementType } from "react";
 import { compact, first, isPlainObject } from "lodash";
 import BracketsCurlyIcon from "@/components/svg/BracketsCurlyIcon";
@@ -16,7 +18,6 @@ import QuestionIcon from "@/components/svg/QuestionIcon";
 import TextIcon from "@/components/svg/TextIcon";
 import isArray from "lodash/isArray";
 import type { Column, Field, FieldType, FieldValue } from "./types";
-import type { Record } from "@/features/records/types";
 
 export const idColumns = ["id", "_id", "ID", "Id"];
 
@@ -73,6 +74,13 @@ export const getColumnOptions = (
     });
   }
 
+  if (column.baseOptions.computed) {
+    options.push({
+      id: "LinkTo",
+      label: "LinkTo",
+    });
+  }
+
   return options;
 };
 
@@ -104,7 +112,7 @@ export const makeField = ({
   column,
   tableName,
 }: {
-  record: Record;
+  record: BasetoolRecord;
   column: Column;
   tableName: string;
 }): Field => {
@@ -142,6 +150,8 @@ export const iconForField = (field: Column): ElementType => {
       return ArrowRightIcon;
     case "ProgressBar":
       return TrendingUpIcon;
+    case "LinkTo":
+      return LinkIcon;
     case "Gravatar":
       return PhotographIcon;
   }

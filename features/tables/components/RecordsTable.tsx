@@ -15,7 +15,12 @@ import {
   columnsSelector,
   recordsSelector,
 } from "@/features/records/state-slice";
-import { getConnectedColumns, getVisibleColumns, iconForField, stringifyData } from "@/features/fields";
+import {
+  getConnectedColumns,
+  getVisibleColumns,
+  iconForField,
+  stringifyData,
+} from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
 import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";

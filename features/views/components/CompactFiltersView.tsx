@@ -26,7 +26,8 @@ const FilterRow = ({
   condition: string;
   value: string;
 }) => {
-  const prettyCondition: any = Object.keys(SIZE_CONDITIONS).includes(condition)
+  const prettyCondition = Object.keys(SIZE_CONDITIONS).includes(condition)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ? (SIZE_CONDITIONS as any)[condition]
     : condition;
 
@@ -70,7 +71,7 @@ const CompactFiltersView = ({
             <div key={idx}>
               {idx === 0 ? "" : <Verb>{filter.verb}</Verb>}
               <FilterRow
-                columnName={filter.column.label}
+                columnName={filter.column.label as string}
                 condition={filter.condition.replaceAll("_", " ")}
                 value={filterValue}
               />

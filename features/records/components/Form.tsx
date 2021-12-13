@@ -1,3 +1,4 @@
+import { BasetoolRecord } from "../types";
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { PencilAltIcon } from "@heroicons/react/outline";
@@ -16,16 +17,15 @@ import { useDataSourceContext } from "@/hooks";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import BackButton from "./BackButton";
-import Joi, { ObjectSchema } from "joi";
+import Joi, { ObjectSchema, SchemaLike } from "joi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import isUndefined from "lodash/isUndefined";
 import logger from "@/lib/logger";
-import type { Record } from "@/features/records/types";
 
-const makeSchema = async (record: Record, columns: Column[]) => {
-  const schema: { [columnName: string]: any } = {};
+const makeSchema = async (record: BasetoolRecord, columns: Column[]) => {
+  const schema: { [columnName: string]: SchemaLike } = {};
 
   // eslint-disable-next-line no-restricted-syntax
   for (const column of columns) {
@@ -57,7 +57,7 @@ const Form = ({
   columns,
   formForCreate = false,
 }: {
-  record: Record;
+  record: BasetoolRecord;
   columns: Column[];
   formForCreate?: boolean;
 }) => {
@@ -89,14 +89,14 @@ const Form = ({
         .map(([columnName, value]) => {
           // Add foreignId for association columns
           if (associationColumnNames.includes(columnName)) {
-            return [columnName, value.foreignId];
+            return [columnName, (value as any)?.foreignId];
           }
 
           return [columnName, value];
         })
         .filter(([columnName]) => {
           // Remove invisible columns
-          if (visibleColumnNames.includes(columnName)) {
+          if (visibleColumnNames.includes(columnName?.toString() || "")) {
             return true;
           }
 
@@ -251,7 +251,7 @@ const Form = ({
                   if (!formData) return null;
 
                   const field = makeField({
-                    record: formData as Record,
+                    record: formData as BasetoolRecord,
                     column,
                     tableName: tableName,
                   });

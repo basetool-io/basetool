@@ -68,6 +68,8 @@ function FieldEditor() {
     [column]
   );
 
+  const isLinkToField = useMemo(() => column?.fieldType === "LinkTo", [column]);
+
   if (!column) return null;
 
   const handleColumnOptionsChange = (
@@ -86,7 +88,7 @@ function FieldEditor() {
       <div className="block space-y-6 py-4 w-1/3 border-r">
         <FieldTypeOption />
 
-        {isComputed && (
+        {isComputed && !isLinkToField && (
           <GenericTextOption
             label="Computed value"
             helpText="Value that has to be computed. You have to refresh the page after changing this value."

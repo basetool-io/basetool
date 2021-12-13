@@ -8,6 +8,7 @@ import BooleanShowField from "@/plugins/fields/Boolean/Show";
 import DateTimeEditField from "@/plugins/fields/DateTime/Edit";
 import DateTimeIndexField from "@/plugins/fields/DateTime/Index";
 import DateTimeShowField from "@/plugins/fields/DateTime/Show";
+import DummyField from "./components/DummyField"
 import GravatarIndexField from "@/plugins/fields/Gravatar/Index";
 import GravatarShowField from "@/plugins/fields/Gravatar/Show";
 import IdEditField from "@/plugins/fields/Id/Edit";
@@ -16,6 +17,8 @@ import IdShowField from "@/plugins/fields/Id/Show";
 import JsonEditField from "@/plugins/fields/Json/Edit";
 import JsonIndexField from "@/plugins/fields/Json/Index";
 import JsonShowField from "@/plugins/fields/Json/Show";
+import LinkToIndexField from "@/plugins/fields/LinkTo/Index";
+import LinkToShowField from "@/plugins/fields/LinkTo/Show";
 import NumberEditField from "@/plugins/fields/Number/Edit";
 import NumberIndexField from "@/plugins/fields/Number/Index";
 import NumberShowField from "@/plugins/fields/Number/Show";
@@ -36,6 +39,7 @@ import type { Column } from "./types";
 export const getFieldForEdit = (column: Column) => {
   switch (column.fieldType) {
     default:
+      return DummyField;
     case "Text":
       return TextEditField;
     case "Number":
@@ -62,6 +66,7 @@ export const getFieldForEdit = (column: Column) => {
 export const getFieldForShow = (column: Column) => {
   switch (column.fieldType) {
     default:
+      return DummyField;
     case "Text":
       return TextShowField;
     case "Number":
@@ -80,6 +85,8 @@ export const getFieldForShow = (column: Column) => {
       return JsonShowField;
     case "Association":
       return AssociationShowField;
+    case "LinkTo":
+      return LinkToShowField;
     case "ProgressBar":
       return ProgressBarShowField;
     case "Gravatar":
@@ -90,6 +97,7 @@ export const getFieldForShow = (column: Column) => {
 export const getFieldForIndex = (column: Column) => {
   switch (column.fieldType) {
     default:
+      return DummyField;
     case "Id":
       return IdIndexField;
     case "Text":
@@ -108,6 +116,8 @@ export const getFieldForIndex = (column: Column) => {
       return JsonIndexField;
     case "Association":
       return AssociationIndexField;
+    case "LinkTo":
+      return LinkToIndexField;
     case "ProgressBar":
       return ProgressBarIndexField;
     case "Gravatar":

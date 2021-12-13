@@ -1,4 +1,4 @@
-import type { Record as BasetoolRecord } from "@/features/records";
+import type { BasetoolRecord } from "@/features/records";
 
 export type FieldType =
   | "Id"
@@ -11,6 +11,7 @@ export type FieldType =
   | "Json"
   | "Association"
   | "ProgressBar"
+  | "LinkTo"
   | "Gravatar";
 
 export type ForeignKey = {
@@ -65,12 +66,17 @@ export type RecordAssociationValue = {
   foreignId: number;
   foreignTable: string;
   dataSourceId: number;
-}
+};
 
-export type FieldValue = string | number | undefined | boolean | RecordAssociationValue;
+export type FieldValue =
+  | string
+  | number
+  | undefined
+  | boolean
+  | RecordAssociationValue;
 
-export type Field = {
-  value: FieldValue;
+export type Field<T = FieldValue> = {
+  value: T;
   column: Column;
   record: BasetoolRecord;
   tableName: string;

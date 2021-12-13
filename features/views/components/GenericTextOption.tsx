@@ -6,10 +6,10 @@ import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 
 type Props = {
-  helpText: string | ReactNode;
   id?: string;
   label: string;
   optionKey: string;
+  helpText?: string | ReactNode;
   placeholder?: string;
   formHelperText?: string | ReactNode;
   children?: ReactNode;

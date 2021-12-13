@@ -1,8 +1,13 @@
 import { Button } from "@chakra-ui/button";
 import { Column } from "@/features/fields/types";
 import { EyeIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import {
+  getConnectedColumns,
+  getVisibleColumns,
+  makeField,
+} from "@/features/fields";
 import { getField } from "@/features/fields/factory";
-import { getVisibleColumns, makeField } from "@/features/fields";
+import { sortBy } from "lodash";
 import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
@@ -69,10 +74,11 @@ const ShowRecord = () => {
     }
   }, [info, recordResponse, columnsResponse]);
 
-  const columns = useMemo(
-    () => getVisibleColumns(rawColumns, "show"),
-    [rawColumns]
-  );
+  const columns = useMemo(() => {
+    const result = getConnectedColumns(getVisibleColumns(rawColumns, "show"));
+
+    return sortBy(result, [(column) => column?.baseOptions?.orderIndex]);
+  }, [rawColumns]);
 
   const record = useMemo(() => recordResponse?.data, [recordResponse?.data]);
 
