@@ -571,15 +571,30 @@ abstract class AbstractQueryService implements ISQLQueryService {
   public async getRecordsCount({
     tableName,
     filters,
+    columnName,
   }: {
     tableName: string;
     filters: Array<IFilter | IFilterGroup>;
+    columnName?: string;
   }): Promise<number> {
+    // If no column to count was passed to the query we must find one
+    if (!columnName) {
+      const rawColumns = await this.client.table(tableName).columnInfo();
+
+      // Try and use the first one we get for the table
+      if (rawColumns && Object.keys(rawColumns).length > 0) {
+        columnName = Object.keys(rawColumns)[0];
+      } else {
+        columnName = "*";
+      }
+    }
+
+    // console.log('rawColumns->', rawColumns)
     const query = this.client.table(tableName);
     if (filters) {
       addFiltersToQuery(query, filters);
     }
-    const [{ count }] = await query.count("*", { as: "count" });
+    const [{ count }] = await query.count(columnName, { as: "count" });
 
     return parseInt(count as string, 10);
   }
