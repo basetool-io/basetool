@@ -5,7 +5,7 @@ import {
   POOLER_MAX_DB_CONNECTIONS,
 } from "@/lib/constants";
 import { getQueryServiceWrapper } from "./serverHelpers";
-import { groupBy } from "lodash"
+import { groupBy } from "lodash";
 import { randomString } from "@/lib/helpers";
 import io from "@pm2/io";
 import logger from "@/lib/logger";
@@ -29,9 +29,15 @@ class ConnectionPooler {
     dataSource: DataSource
   ): Promise<IQueryServiceWrapper> {
     const dataSourceId = dataSource.id.toString();
-    const existingConnections = this.connections.filter(
-      (connection) => connection.dataSourceId.toString() === dataSourceId
-    );
+    const existingConnections = this.connections.filter((connection) => {
+      const hasMoreThanTenSecondsOfLife =
+        Date.now() - connection.createdAt < POOLER_CONNECTION_TIMEOUT - 10000;
+
+      return (
+        connection.dataSourceId.toString() === dataSourceId &&
+        hasMoreThanTenSecondsOfLife
+      );
+    });
 
     if (existingConnections) {
       // Spin up a few connections
@@ -115,7 +121,9 @@ class ConnectionPooler {
 
   private updatePM2Metric() {
     io.metric({ name: "DB connections" }).set(this.connections.length);
-    io.metric({ name: "Unique DB connections" }).set(Object.keys(groupBy(this.connections, 'dataSourceId')).length);
+    io.metric({ name: "Unique DB connections" }).set(
+      Object.keys(groupBy(this.connections, "dataSourceId")).length
+    );
   }
 }
 
