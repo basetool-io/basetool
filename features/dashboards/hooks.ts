@@ -1,7 +1,8 @@
 import { Dashboard, DashboardItem } from "@prisma/client";
-import { activeWidgetNameSelector } from "./../records/state-slice";
+import { activeWidgetNameSelector, setActiveWidgetName } from "./../records/state-slice";
 import { dotNotationToObject } from "@/lib/helpers";
-import { useAppSelector, useDataSourceContext } from "@/hooks";
+import { isUndefined } from "lodash";
+import { useAppDispatch, useAppSelector, useDataSourceContext } from "@/hooks";
 import {
   useGetDashboardQuery,
   useUpdateDashboardItemMutation,
@@ -9,6 +10,7 @@ import {
 import { useMemo } from "react";
 
 export const useUpdateWidget = () => {
+  const dispatch = useAppDispatch();
   const { dashboardId } = useDataSourceContext();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
   const { dashboardItems } = useDashboardResponse(dashboardId);
@@ -24,15 +26,20 @@ export const useUpdateWidget = () => {
 
   const [updateWidgetOnServer] = useUpdateDashboardItemMutation();
 
-  const setWidgetOptions = (payload: Record<string, unknown>) => {
+  const setWidgetOptions = async (payload: Record<string, unknown>) => {
     if(!widget) return;
 
     const body = dotNotationToObject(payload);
 
-    updateWidgetOnServer({
+    const response = await updateWidgetOnServer({
       dashboardItemId: widget.id.toString(),
       body,
     }).unwrap();
+
+    if (response?.ok && !isUndefined(body?.name)) {
+      // select the renamed widget
+      dispatch(setActiveWidgetName(body.name as string));
+    }
   };
 
   return {

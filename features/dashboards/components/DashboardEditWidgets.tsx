@@ -24,7 +24,6 @@ import { useAddDashboardItemMutation } from "../api-slice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
-
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
@@ -109,12 +108,12 @@ const Form = ({
       dashboardId,
       body: {
         dashboardId,
-        name: snakeCase(name),
+        name: name,
       },
     }).unwrap();
 
     if (response?.ok) {
-      // select the newly created column
+      // select the newly created widget
       dispatch(setActiveWidgetName(name));
     }
   };
