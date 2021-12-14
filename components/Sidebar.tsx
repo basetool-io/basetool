@@ -20,7 +20,7 @@ const Sidebar = () => {
 
   return (
     <div className="relative py-2 pl-2 w-full">
-      <div className="relative space-y-x w-full h-full flex flex-col overflow-y-auto">
+      <div className="relative space-y-x w-full h-full flex flex-col">
         <div className="my-2 mt-4 px-2 font-bold uppercase text leading-none">
           {dataSourceIsLoading && (
             <>
@@ -41,7 +41,7 @@ const Sidebar = () => {
           )}
         </div>
         <hr className="-mt-px mb-2" />
-        {false && <DashboardSidebarSection />}
+        <DashboardSidebarSection />
         {dataSourceInfo?.supports?.views && <ViewsSidebarSection />}
         {isOwner && <TablesSidebarSection />}
       </div>
