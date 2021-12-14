@@ -1,9 +1,12 @@
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
 import { Widget } from "@prisma/client";
-import { activeWidgetNameSelector } from "@/features/records/state-slice";
+import {
+  activeWidgetNameSelector,
+  setActiveWidgetName,
+} from "@/features/records/state-slice";
 import { isUndefined } from "lodash";
-import { useAppSelector } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
@@ -28,14 +31,24 @@ function WidgetView({
       }
     | undefined;
 }) {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
-  const widgetIsActive = useMemo(
-    () =>
-      activeWidgetName === widget.name &&
-      router.pathname.includes("/edit"),
-    [activeWidgetName, widget.name, router.pathname]
+
+  const isEditPage = useMemo(
+    () => router.pathname.includes("/edit"),
+    [router.pathname]
   );
+  const widgetIsActive = useMemo(
+    () => activeWidgetName === widget.name && isEditPage,
+    [activeWidgetName, widget.name, isEditPage]
+  );
+
+  const selectActiveWidget = () => {
+    if (isEditPage) {
+      dispatch(setActiveWidgetName(widget.name));
+    }
+  };
 
   const options = useMemo(
     () => widget?.options as WidgetOptions,
@@ -66,6 +79,7 @@ function WidgetView({
           "border border-blue-600": widgetIsActive,
         }
       )}
+      onClick={selectActiveWidget}
     >
       <dt className="text-sm font-medium text-gray-500 truncate">
         {widget.name}
