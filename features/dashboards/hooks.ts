@@ -1,11 +1,11 @@
-import { Dashboard, DashboardItem } from "@prisma/client";
+import { Dashboard, Widget } from "@prisma/client";
 import { activeWidgetNameSelector, setActiveWidgetName } from "./../records/state-slice";
 import { dotNotationToObject } from "@/lib/helpers";
 import { isUndefined } from "lodash";
 import { useAppDispatch, useAppSelector, useDataSourceContext } from "@/hooks";
 import {
   useGetDashboardQuery,
-  useUpdateDashboardItemMutation,
+  useUpdateWidgetMutation,
 } from "./api-slice";
 import { useMemo } from "react";
 
@@ -13,18 +13,18 @@ export const useUpdateWidget = () => {
   const dispatch = useAppDispatch();
   const { dashboardId } = useDataSourceContext();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
-  const { dashboardItems } = useDashboardResponse(dashboardId);
+  const { widgets } = useDashboardResponse(dashboardId);
 
   const widget = useMemo(
     () =>
-      dashboardItems.find(
-        (dashboardItem: DashboardItem) =>
-          dashboardItem.name === activeWidgetName
+      widgets.find(
+        (widget: Widget) =>
+          widget.name === activeWidgetName
       ),
-    [dashboardItems, activeWidgetName]
+    [widgets, activeWidgetName]
   );
 
-  const [updateWidgetOnServer] = useUpdateDashboardItemMutation();
+  const [updateWidgetOnServer] = useUpdateWidgetMutation();
 
   const setWidgetOptions = async (payload: Record<string, unknown>) => {
     if(!widget) return;
@@ -32,7 +32,7 @@ export const useUpdateWidget = () => {
     const body = dotNotationToObject(payload);
 
     const response = await updateWidgetOnServer({
-      dashboardItemId: widget.id.toString(),
+      widgetId: widget.id.toString(),
       body,
     }).unwrap();
 
@@ -58,12 +58,12 @@ export const useDashboardResponse = (dashboardId: string) => {
 
   const dashboard:
     | (Dashboard & {
-        dashboardItems: DashboardItem[];
+        widgets: Widget[];
       })
     | undefined = useMemo(() => response?.ok && response.data, [response]);
 
-  const dashboardItems = useMemo(
-    () => (dashboard ? dashboard?.dashboardItems : []),
+  const widgets = useMemo(
+    () => (dashboard ? dashboard?.widgets : []),
     [dashboard]
   );
 
@@ -73,6 +73,6 @@ export const useDashboardResponse = (dashboardId: string) => {
     isLoading,
     isFetching,
     error,
-    dashboardItems,
+    widgets,
   };
 };

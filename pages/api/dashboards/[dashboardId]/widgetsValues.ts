@@ -31,7 +31,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       createdAt: true,
       updatedAt: true,
       dataSourceId: true,
-      dashboardItems: true,
+      widgets: true,
     },
   });
   if (!dashboard) return res.status(404).send("");
@@ -43,24 +43,24 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
   if (!dataSource) return res.status(404).send("");
 
-  const response: { id: number; value?: string; error?: string; }[] = [];
+  const response: { id: number; value?: string; error?: string }[] = [];
 
-  for(const dashboardItem of dashboard.dashboardItems) {
+  for (const widget of dashboard.widgets) {
     try {
       const queryValue = await runQuery(dataSource, "runRawQuery", {
-          query: dashboardItem.query,
-        });
+        query: widget.query,
+      });
 
       response.push({
-        id: dashboardItem.id,
+        id: widget.id,
         value: queryValue.value,
       });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       response.push({
-        id: dashboardItem.id,
+        id: widget.id,
         error: e.message,
-      })
+      });
     }
   }
 

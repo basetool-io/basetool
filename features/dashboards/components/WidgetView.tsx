@@ -1,6 +1,6 @@
-import { DashboardItem } from "@prisma/client";
 import { InformationCircleIcon } from "@heroicons/react/outline";
 import { Tooltip } from "@chakra-ui/react";
+import { Widget } from "@prisma/client";
 import { activeWidgetNameSelector } from "@/features/records/state-slice";
 import { isUndefined } from "lodash";
 import { useAppSelector } from "@/hooks";
@@ -9,17 +9,17 @@ import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import classNames from "classnames";
 
-export type DashboardItemOptions = {
+export type WidgetOptions = {
   prefix: string;
   suffix: string;
 };
 
-function DashboardItemView({
-  dashboardItem,
+function WidgetView({
+  widget,
   isLoading = false,
   valueResponse,
 }: {
-  dashboardItem: DashboardItem;
+  widget: Widget;
   isLoading: boolean;
   valueResponse:
     | {
@@ -32,14 +32,14 @@ function DashboardItemView({
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
   const widgetIsActive = useMemo(
     () =>
-      activeWidgetName === dashboardItem.name &&
+      activeWidgetName === widget.name &&
       router.pathname.includes("/edit"),
-    [activeWidgetName, dashboardItem.name, router.pathname]
+    [activeWidgetName, widget.name, router.pathname]
   );
 
   const options = useMemo(
-    () => dashboardItem?.options as DashboardItemOptions,
-    [dashboardItem.options]
+    () => widget?.options as WidgetOptions,
+    [widget.options]
   );
 
   const prefix = useMemo(() => options.prefix || "", [options]);
@@ -68,7 +68,7 @@ function DashboardItemView({
       )}
     >
       <dt className="text-sm font-medium text-gray-500 truncate">
-        {dashboardItem.name}
+        {widget.name}
       </dt>
       {isLoading && (
         <dd className="mt-1 text-3xl font-semibold text-gray-900">
@@ -104,4 +104,4 @@ function DashboardItemView({
   );
 }
 
-export default DashboardItemView;
+export default WidgetView;

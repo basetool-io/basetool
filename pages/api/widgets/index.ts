@@ -42,7 +42,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!req.body.name || !req.body.dashboardId) return res.status(404).send("");
 
-  const dashboardItem = await prisma.dashboardItem.create({
+  const widget = await prisma.widget.create({
     data: {
       name: req.body.name,
       dashboardId: parseInt(req.body.dashboardId),
@@ -63,8 +63,8 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   });
 
   return res.json(
-    ApiResponse.withData(pick(dashboardItem, ["id"]), {
-      message: "Dashboard item created",
+    ApiResponse.withData(pick(widget, ["id"]), {
+      message: "Widget created",
     })
   );
 }

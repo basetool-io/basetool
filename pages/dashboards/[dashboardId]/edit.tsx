@@ -4,7 +4,7 @@ import { pick } from "lodash";
 import { useDashboardResponse, useUpdateWidget } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import {
-  useRemoveDashboardMutation,
+  useDeleteDashboardMutation,
   useUpdateDashboardMutation,
 } from "@/features/dashboards/api-slice";
 import { useRouter } from "next/router";
@@ -35,7 +35,7 @@ const Edit = () => {
   );
 
   const [removeDashboard, { isLoading: dashboardIsRemoving }] =
-    useRemoveDashboardMutation();
+    useDeleteDashboardMutation();
 
   const handleRemove = async () => {
     if (dashboardIsLoading || dashboardIsRemoving) return;

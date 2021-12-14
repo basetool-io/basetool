@@ -11,8 +11,8 @@ import {
   PopoverTrigger,
   useDisclosure,
 } from "@chakra-ui/react";
-import { DashboardItem } from "@prisma/client";
 import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
+import { Widget } from "@prisma/client";
 import {
   activeWidgetNameSelector,
   setActiveColumnName,
@@ -20,7 +20,7 @@ import {
 } from "@/features/records/state-slice";
 import { snakeCase } from "lodash";
 import { toast } from "react-toastify";
-import { useAddDashboardItemMutation } from "../api-slice";
+import { useAddWidgetMutation } from "../api-slice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
@@ -32,7 +32,7 @@ import classNames from "classnames";
 const WidgetItem = ({
   widget,
 }: {
-  widget: DashboardItem;
+  widget: Widget;
 }) => {
   const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
@@ -91,20 +91,20 @@ const Form = ({
 }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
-  const [addDashboardItem, { isLoading }] = useAddDashboardItemMutation();
+  const [addWidget, { isLoading }] = useAddWidgetMutation();
   const { dashboardId } = useDataSourceContext();
-  const { dashboardItems } = useDashboardResponse(dashboardId);
+  const { widgets } = useDashboardResponse(dashboardId);
 
   const widgetExists = () =>
-  dashboardItems.some((dashboardItem: DashboardItem) => dashboardItem.name === snakeCase(name));
+  widgets.some((widget: Widget) => widget.name === snakeCase(name));
 
-  const createDashboardItem = async () => {
+  const createWidget = async () => {
     if (name.length < 4) return;
 
     // close popover
     onClose();
 
-    const response = await addDashboardItem({
+    const response = await addWidget({
       dashboardId,
       body: {
         dashboardId,
@@ -133,7 +133,7 @@ const Form = ({
         setName("");
         firstFieldRef.current.value = "";
 
-        createDashboardItem();
+        createWidget();
       }}
     >
       <NameInput
@@ -163,7 +163,7 @@ const DashboardEditWidgets = () => {
   const { dashboardId } = useDataSourceContext();
   const firstFieldRef = useRef(null);
 
-  const { isLoading: dashboardIsLoading, dashboardItems } =
+  const { isLoading: dashboardIsLoading, widgets } =
   useDashboardResponse(dashboardId);
 
   useEffect(() => {
@@ -214,9 +214,9 @@ const DashboardEditWidgets = () => {
           </div>
         )}
         {!dashboardIsLoading &&
-          dashboardItems &&
-          dashboardItems.map((dashboardItem: DashboardItem, idx: number) => (
-            <WidgetItem key={idx} widget={dashboardItem}/>
+          widgets &&
+          widgets.map((widget: Widget, idx: number) => (
+            <WidgetItem key={idx} widget={widget}/>
           ))}
       </div>
     </div>

@@ -8,7 +8,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["Dashboard", "DashboardItem"],
+  tagTypes: ["Dashboard", "Widget"],
   endpoints(builder) {
     return {
       addDashboard: builder.mutation<
@@ -24,8 +24,8 @@ export const api = createApi({
         }),
         invalidatesTags: [{ type: "Dashboard", id: "LIST" }],
       }),
-      getDashboards: builder.query<ApiResponse, { dataSourceId?: string; }>({
-        query({dataSourceId}) {
+      getDashboards: builder.query<ApiResponse, { dataSourceId?: string }>({
+        query({ dataSourceId }) {
           const queryParams = URI()
             .query({
               dataSourceId,
@@ -37,7 +37,10 @@ export const api = createApi({
         },
         providesTags: [{ type: "Dashboard", id: "LIST" }],
       }),
-      getDashboard: builder.query<ApiResponse, Partial<{ dashboardId: string }>>({
+      getDashboard: builder.query<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
         query({ dashboardId }) {
           return `/dashboards/${dashboardId}`;
         },
@@ -45,7 +48,10 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
-      removeDashboard: builder.mutation<ApiResponse, Partial<{ dashboardId: string }>>({
+      deleteDashboard: builder.mutation<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
         query: ({ dashboardId }) => ({
           url: `${apiUrl}/dashboards/${dashboardId}`,
           method: "DELETE",
@@ -73,88 +79,49 @@ export const api = createApi({
         ],
       }),
 
-      getDashboardItemsValues: builder.query<ApiResponse, Partial<{ dashboardId: string }>>({
+      getWidgetsValues: builder.query<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
         query({ dashboardId }) {
-          return `/dashboards/${dashboardId}/dashboardItemsValues`;
+          return `/dashboards/${dashboardId}/widgetsValues`;
         },
         providesTags: (result, error, { dashboardId }) => [
           { type: "Dashboard", id: dashboardId },
         ],
       }),
-      updateDashboardItem: builder.mutation<
+      updateWidget: builder.mutation<
         ApiResponse,
         Partial<{
           dashboardId: string;
-          dashboardItemId: string;
+          widgetId: string;
           body: Record<string, unknown>;
         }>
       >({
-        query: ({ dashboardItemId, body }) => ({
-          url: `${apiUrl}/dashboardItems/${dashboardItemId}`,
+        query: ({ widgetId, body }) => ({
+          url: `${apiUrl}/widgets/${widgetId}`,
           method: "PUT",
           body,
         }),
-        invalidatesTags: (result, error, { dashboardId, dashboardItemId }) => [
-          { type: "DashboardItem", id: dashboardItemId },
+        invalidatesTags: (result, error, { dashboardId, widgetId }) => [
+          { type: "Widget", id: widgetId },
           { type: "Dashboard", id: dashboardId },
         ],
-        /**
-         * Optimistic updates.
-         */
-        // onQueryStarted(
-        //   { dashboardId, dashboardItemId, ...patch },
-        //   { dispatch, queryFulfilled }
-        // ) {
-        //   if (!dashboardItemId) return;
-
-        //   // When we start the query we're dispatching an update to the columns response where we simulate how the data will be updated.
-        //   const patchResult = dispatch(
-        //     api.util.updateQueryData("getDashboard", {
-        //       dashboardId
-        //     }, (draft) => {
-        //       //find the item
-        //       //modify with the changes
-        //     })
-        //     // fieldsApiSlice.util.updateQueryData(
-        //     //   "getColumns",
-        //     //   { viewId },
-        //     //   (draft) => {
-        //     //     const index = draft.data.findIndex(
-        //     //       (column: Column) => column.name === columnName
-        //     //     );
-        //     //     const newData = {
-        //     //       ...draft,
-        //     //     };
-        //     //     // re-create the data to be updated
-        //     //     newData.data[index] = merge(draft.data[index], patch.body);
-
-        //     //     // Update the response from `getColumns` with the mock data
-        //     //     Object.assign(draft, newData);
-        //     //   }
-        //     // )
-        //   );
-
-        //   queryFulfilled
-        //     .then(() =>
-        //       dispatch(api.util.invalidateTags(["Dashboard"]))
-        //     )
-        //     .catch(() => patchResult.undo());
-        // },
       }),
-      deleteDashboardItem: builder.mutation<
+      deleteWidget: builder.mutation<
         ApiResponse,
-        Partial<{ dashboardId: string; dashboardItemId: string }>
+        Partial<{ dashboardId: string; widgetId: string }>
       >({
-        query: ({ dashboardItemId }) => ({
-          url: `${apiUrl}/dashboardItems/${dashboardItemId}`,
+        query: ({ widgetId }) => ({
+          url: `${apiUrl}/widgets/${widgetId}`,
           method: "DELETE",
         }),
-        invalidatesTags: (result, error, { dashboardId, dashboardItemId }) => [
-          { type: "DashboardItem", id: dashboardItemId },
+        invalidatesTags: (result, error, { dashboardId, widgetId }) => [
+          { type: "Widget", id: widgetId },
           { type: "Dashboard", id: dashboardId },
         ],
       }),
-      addDashboardItem: builder.mutation<
+      addWidget: builder.mutation<
         ApiResponse,
         Partial<{
           dashboardId: string;
@@ -162,13 +129,13 @@ export const api = createApi({
         }>
       >({
         query: ({ body }) => ({
-          url: `${apiUrl}/dashboardItems`,
+          url: `${apiUrl}/widgets`,
           method: "POST",
           body,
         }),
         invalidatesTags: (result, error, { dashboardId }) => [
+          { type: "Widget", id: "LIST" },
           { type: "Dashboard", id: dashboardId },
-          { type: "DashboardItem", id: "LIST" }
         ],
       }),
     };
@@ -179,11 +146,11 @@ export const {
   useAddDashboardMutation,
   useGetDashboardsQuery,
   useGetDashboardQuery,
-  useRemoveDashboardMutation,
+  useDeleteDashboardMutation,
   useUpdateDashboardMutation,
 
-  useGetDashboardItemsValuesQuery,
-  useDeleteDashboardItemMutation,
-  useAddDashboardItemMutation,
-  useUpdateDashboardItemMutation,
+  useGetWidgetsValuesQuery,
+  useDeleteWidgetMutation,
+  useAddWidgetMutation,
+  useUpdateWidgetMutation,
 } = api;

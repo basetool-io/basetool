@@ -23,21 +23,21 @@ const handler = async (
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
   const user = await getUserFromRequest(req);
 
-  await prisma.dashboardItem.delete({
+  await prisma.widget.delete({
     where: {
-      id: parseInt(req.query.dashboardItemId as string, 10),
+      id: parseInt(req.query.widgetId as string, 10),
     },
   });
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Deleted dashboard item",
+    event: "Deleted widget",
     properties: {
-      id: req.query.dashboardItemId,
+      id: req.query.widgetId,
     },
   });
 
-  return res.json(ApiResponse.withMessage("Dashboard item removed."));
+  return res.json(ApiResponse.withMessage("Widget removed."));
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
@@ -45,22 +45,25 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
-  const dashboard = await prisma.dashboardItem.findFirst({
+  const widget = await prisma.widget.findFirst({
     where: {
-      id: parseInt(req.query.dashboardItemId as string, 10),
+      id: parseInt(req.query.widgetId as string, 10),
     },
     select: {
-      options: true
+      options: true,
     },
   });
 
-  if (!dashboard) return res.status(404).send("");
+  if (!widget) return res.status(404).send("");
 
-  const options = {...(dashboard.options as Record<string, unknown>), ...data.options};
+  const options = {
+    ...(widget.options as Record<string, unknown>),
+    ...data.options,
+  };
 
-  await prisma.dashboardItem.update({
+  await prisma.widget.update({
     where: {
-      id: parseInt(req.query.dashboardItemId as string, 10),
+      id: parseInt(req.query.widgetId as string, 10),
     },
     data: {
       ...data,
@@ -70,9 +73,9 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Updated dashboard item",
+    event: "Updated widget",
     properties: {
-      id: req.query.dashboardItemId,
+      id: req.query.widgetId,
     },
   });
 
@@ -80,7 +83,5 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default withMiddlewares(handler, {
-  middlewares: [
-    [IsSignedIn, {}],
-  ],
+  middlewares: [[IsSignedIn, {}]],
 });

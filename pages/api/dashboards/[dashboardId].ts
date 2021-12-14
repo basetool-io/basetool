@@ -37,7 +37,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       createdAt: true,
       updatedAt: true,
       dataSourceId: true,
-      dashboardItems: true,
+      widgets: true,
     },
   });
 

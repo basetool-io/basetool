@@ -1,8 +1,8 @@
 import { Button, Code } from "@chakra-ui/react";
-import { DashboardItemOptions } from "./DashboardItemView";
 import { TrashIcon } from "@heroicons/react/outline";
+import { WidgetOptions } from "./WidgetView";
 import { useDataSourceContext } from "@/hooks";
-import { useDeleteDashboardItemMutation } from "../api-slice";
+import { useDeleteWidgetMutation } from "../api-slice";
 import { useUpdateWidget } from "../hooks";
 import GenericTextOption from "@/features/dashboards/components/GenericTextOption";
 import React from "react";
@@ -11,7 +11,7 @@ function WidgetEditor() {
   const { widget } = useUpdateWidget();
   const { dashboardId } = useDataSourceContext();
 
-  const [deleteWidget, { isLoading: isDeletingWidget }] = useDeleteDashboardItemMutation();
+  const [deleteWidget, { isLoading: isDeletingWidget }] = useDeleteWidgetMutation();
 
   const removeWidget = async () => {
     if (!widget) return;
@@ -19,7 +19,7 @@ function WidgetEditor() {
     if (confirm("Are you sure you want to remove this widget?")) {
       await deleteWidget({
         dashboardId,
-        dashboardItemId: widget.id.toString(),
+        widgetId: widget.id.toString(),
       });
     }
   };
@@ -61,7 +61,7 @@ function WidgetEditor() {
           label="Prefix"
           placeholder="per"
           size="sm"
-          defaultValue={(widget?.options as DashboardItemOptions)?.prefix || ""}
+          defaultValue={(widget?.options as WidgetOptions)?.prefix || ""}
           optionKey="options.prefix"
         />
         <GenericTextOption
@@ -69,7 +69,7 @@ function WidgetEditor() {
           label="Suffix"
           placeholder="$"
           size="sm"
-          defaultValue={(widget?.options as DashboardItemOptions)?.suffix || ""}
+          defaultValue={(widget?.options as WidgetOptions)?.suffix || ""}
           optionKey="options.suffix"
         />
         <div className="flex justify-end px-2">

@@ -117,7 +117,7 @@ model User {
   views         View[]
   activities    Activity[]
   dashboards    Dashboard[]
-  dashboardItem DashboardItem[]
+  widgets       Widget[]
 }
 
 model VerificationRequest {
@@ -190,25 +190,25 @@ model Activity {
 }
 
 model Dashboard {
-  id             Int             @id @default(autoincrement())
-  name           String          @db.VarChar(255)
-  user           User            @relation(references: [id], fields: [createdBy], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(255)
+  user           User         @relation(references: [id], fields: [createdBy], onDelete: Cascade)
   createdBy      Int
-  organization   Organization    @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
   organizationId Int
-  isPublic       Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  dataSource     DataSource      @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
+  isPublic       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
   dataSourceId   Int
-  dashboardItems DashboardItem[]
+  widgets        Widget[]
 
   @@index([createdBy])
   @@index([organizationId])
   @@index([dataSourceId])
 }
 
-model DashboardItem {
+model Widget {
   id          Int       @id @default(autoincrement())
   name        String    @db.VarChar(255)
   dashboard   Dashboard @relation(references: [id], fields: [dashboardId], onDelete: Cascade)
