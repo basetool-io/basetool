@@ -1,3 +1,4 @@
+import { BasetoolRecord } from "../types"
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { PencilAltIcon, PlusIcon } from "@heroicons/react/outline";
 import { columnsSelector } from "../state-slice";
@@ -20,9 +21,11 @@ import React, { memo, useMemo, useRef } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
 
 const RecordsIndexPage = ({
+  records,
   error,
   isFetching,
 }: {
+  records: BasetoolRecord[];
   error?: string;
   isFetching?: boolean;
 }) => {
@@ -167,7 +170,7 @@ const RecordsIndexPage = ({
                 {!isFetching && (
                   <>
                     <div className="flex-1 flex overflow-x-auto w-full">
-                      <RecordsTable error={error} />
+                      <RecordsTable records={records} error={error} />
                     </div>
                     <PaginationComponent />
                   </>

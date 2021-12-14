@@ -85,7 +85,9 @@ function ViewShow() {
     if (tableName && dataSourceId) debouncedFetch(getRecordsArguments);
   }, [viewId, tableName, dataSourceId, getRecordsArguments]);
 
-  const { meta } = useRecords(recordsResponse?.data, recordsResponse?.meta);
+  const records = useMemo(() => recordsResponse?.ok ? recordsResponse?.data : [], [recordsResponse?.data])
+
+  const { meta } = useRecords([], recordsResponse?.meta);
 
   let skip = true;
   if (viewId) skip = false;
@@ -112,7 +114,7 @@ function ViewShow() {
     return;
   }, [recordsError, columnsError]);
 
-  return <RecordsIndexPage error={error} isFetching={isFetching} />;
+  return <RecordsIndexPage records={records} error={error} isFetching={isFetching} />;
 }
 
 export default ViewShow;

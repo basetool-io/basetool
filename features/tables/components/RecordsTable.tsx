@@ -1,3 +1,4 @@
+import { BasetoolRecord } from "@/features/records/types"
 import { Checkbox } from "@chakra-ui/react";
 import {
   Row,
@@ -59,9 +60,11 @@ const controlsColumn = {
 };
 
 const RecordsTable = ({
+  records: rawRecords,
   error,
   isFetching,
 }: {
+  records: BasetoolRecord[];
   error?: string;
   isFetching?: boolean;
 }) => {
@@ -72,7 +75,7 @@ const RecordsTable = ({
   const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
 
   // Get raw records and columsn from the data store
-  const rawRecords = useAppSelector(recordsSelector);
+  // const rawRecords = useAppSelector(recordsSelector);
   const rawColumns = useAppSelector(columnsSelector);
 
   const hasRecords = useMemo(() => rawRecords.length > 0, [rawRecords]);

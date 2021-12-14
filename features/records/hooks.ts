@@ -285,11 +285,11 @@ export const useRecords = (
     dispatch(setMetaInState(meta as any));
   };
 
-  useEffect(() => {
-    if (initialRecords) {
-      setRecords(initialRecords);
-    }
-  }, [initialRecords]);
+  // useEffect(() => {
+  //   if (initialRecords) {
+  //     setRecords(initialRecords);
+  //   }
+  // }, [initialRecords]);
 
   useEffect(() => {
     if (meta) {
