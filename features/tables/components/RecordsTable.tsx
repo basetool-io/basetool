@@ -213,9 +213,10 @@ const RecordsTable = ({
                               />
                             </div>
                           )}
-                          {isControlsColumn || isRecordSelectorColumn || (
+                          {!isControlsColumn && !isRecordSelectorColumn && (
                             <div
                               className="flex items-center header-content overflow-hidden whitespace-nowrap cursor-pointer py-4 h-4"
+                              title={`Order by ${column.meta.name}`}
                               onClick={() =>
                                 !isRecordSelectorColumn &&
                                 handleOrder(column.meta.name)
