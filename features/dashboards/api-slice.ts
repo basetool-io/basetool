@@ -8,7 +8,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl}`,
   }),
-  tagTypes: ["Dashboard"],
+  tagTypes: ["Dashboard", "Widget"],
   endpoints(builder) {
     return {
       addDashboard: builder.mutation<
@@ -24,8 +24,8 @@ export const api = createApi({
         }),
         invalidatesTags: [{ type: "Dashboard", id: "LIST" }],
       }),
-      getDashboards: builder.query<ApiResponse, { dataSourceId?: string; }>({
-        query({dataSourceId}) {
+      getDashboards: builder.query<ApiResponse, { dataSourceId?: string }>({
+        query({ dataSourceId }) {
           const queryParams = URI()
             .query({
               dataSourceId,
@@ -37,7 +37,10 @@ export const api = createApi({
         },
         providesTags: [{ type: "Dashboard", id: "LIST" }],
       }),
-      getDashboard: builder.query<ApiResponse, Partial<{ dashboardId: string }>>({
+      getDashboard: builder.query<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
         query({ dashboardId }) {
           return `/dashboards/${dashboardId}`;
         },
@@ -45,7 +48,10 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
-      removeDashboard: builder.mutation<ApiResponse, Partial<{ dashboardId: string }>>({
+      deleteDashboard: builder.mutation<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
         query: ({ dashboardId }) => ({
           url: `${apiUrl}/dashboards/${dashboardId}`,
           method: "DELETE",
@@ -72,6 +78,66 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
+
+      getWidgetsValues: builder.query<
+        ApiResponse,
+        Partial<{ dashboardId: string }>
+      >({
+        query({ dashboardId }) {
+          return `/dashboards/${dashboardId}/widgetsValues`;
+        },
+        providesTags: (result, error, { dashboardId }) => [
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
+      updateWidget: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dashboardId: string;
+          widgetId: string;
+          body: Record<string, unknown>;
+        }>
+      >({
+        query: ({ widgetId, body }) => ({
+          url: `${apiUrl}/widgets/${widgetId}`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { dashboardId, widgetId }) => [
+          { type: "Widget", id: widgetId },
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
+      deleteWidget: builder.mutation<
+        ApiResponse,
+        Partial<{ dashboardId: string; widgetId: string }>
+      >({
+        query: ({ widgetId }) => ({
+          url: `${apiUrl}/widgets/${widgetId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: (result, error, { dashboardId, widgetId }) => [
+          { type: "Widget", id: widgetId },
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
+      addWidget: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dashboardId: string;
+          body: unknown;
+        }>
+      >({
+        query: ({ body }) => ({
+          url: `${apiUrl}/widgets`,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: (result, error, { dashboardId }) => [
+          { type: "Widget", id: "LIST" },
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
     };
   },
 });
@@ -80,6 +146,11 @@ export const {
   useAddDashboardMutation,
   useGetDashboardsQuery,
   useGetDashboardQuery,
-  useRemoveDashboardMutation,
-  useUpdateDashboardMutation
+  useDeleteDashboardMutation,
+  useUpdateDashboardMutation,
+
+  useGetWidgetsValuesQuery,
+  useDeleteWidgetMutation,
+  useAddWidgetMutation,
+  useUpdateWidgetMutation,
 } = api;

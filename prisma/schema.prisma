@@ -117,6 +117,7 @@ model User {
   views         View[]
   activities    Activity[]
   dashboards    Dashboard[]
+  widgets       Widget[]
 }
 
 model VerificationRequest {
@@ -200,8 +201,27 @@ model Dashboard {
   updatedAt      DateTime     @updatedAt
   dataSource     DataSource   @relation(references: [id], fields: [dataSourceId], onDelete: Cascade)
   dataSourceId   Int
+  widgets        Widget[]
 
   @@index([createdBy])
   @@index([organizationId])
   @@index([dataSourceId])
+}
+
+model Widget {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  dashboard   Dashboard @relation(references: [id], fields: [dashboardId], onDelete: Cascade)
+  dashboardId Int
+  query       String
+  type        String
+  order       Int
+  options     Json      @default("{}")
+  user        User      @relation(references: [id], fields: [createdBy], onDelete: Cascade)
+  createdBy   Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([createdBy])
+  @@index([dashboardId])
 }

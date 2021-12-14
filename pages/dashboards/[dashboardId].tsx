@@ -4,15 +4,17 @@ import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 
 const DashboardView = () => {
   const { dataSourceId, dashboardId } = useDataSourceContext();
   const { info } = useDataSourceResponse(dataSourceId);
-  const { canEdit } = useACLHelpers({ dataSourceInfo: info});
+  const { canEdit } = useACLHelpers({ dataSourceInfo: info });
 
-  const { dashboard } = useDashboardResponse(dashboardId);
+  const { dashboard, isLoading: dashboardIsLoading } =
+    useDashboardResponse(dashboardId);
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
@@ -30,6 +32,7 @@ const DashboardView = () => {
   return (
     <Layout>
       <PageWrapper
+        isLoading={dashboardIsLoading}
         heading={`Dashboard ${dashboard?.name}`}
         buttons={
           <ButtonGroup size="xs">
@@ -37,9 +40,7 @@ const DashboardView = () => {
           </ButtonGroup>
         }
       >
-        <div className="relative flex flex-col flex-1 w-full h-full">
-          WIDGETS COMING SOON...
-        </div>
+        <DashboardPage />
       </PageWrapper>
     </Layout>
   );

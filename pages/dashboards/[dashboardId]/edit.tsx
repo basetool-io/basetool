@@ -1,19 +1,23 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { pick } from "lodash";
-import { useDashboardResponse } from "@/features/dashboards/hooks";
+import { useDashboardResponse, useUpdateWidget } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import {
-  useRemoveDashboardMutation, useUpdateDashboardMutation,
+  useDeleteDashboardMutation,
+  useUpdateDashboardMutation,
 } from "@/features/dashboards/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
 import DashboardEditDataSourceInfo from "@/features/dashboards/components/DashboardEditDataSourceInfo";
 import DashboardEditName from "@/features/dashboards/components/DashboardEditName";
 import DashboardEditVisibility from "@/features/dashboards/components/DashboardEditVisibility";
+import DashboardEditWidgets from "@/features/dashboards/components/DashboardEditWidgets";
+import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useMemo } from "react";
+import WidgetEditor from "@/features/dashboards/components/WidgetEditor";
 
 const Edit = () => {
   const router = useRouter();
@@ -31,7 +35,7 @@ const Edit = () => {
   );
 
   const [removeDashboard, { isLoading: dashboardIsRemoving }] =
-    useRemoveDashboardMutation();
+    useDeleteDashboardMutation();
 
   const handleRemove = async () => {
     if (dashboardIsLoading || dashboardIsRemoving) return;
@@ -77,6 +81,8 @@ const Edit = () => {
     commitDashboardUpdate("isPublic", publicView);
   };
 
+  const { widget } = useUpdateWidget();
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -111,13 +117,13 @@ const Edit = () => {
                 <DashboardEditName updateName={updateName} />
                 <DashboardEditVisibility updateVisibility={updateVisibility} />
                 <DashboardEditDataSourceInfo />
+                <DashboardEditWidgets />
               </div>
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
-            <div className="flex-1 flex overflow-auto">
-              WIDGETS COMING SOON...
-            </div>
+            {widget && <WidgetEditor />}
+            <DashboardPage />
           </div>
         </div>
       </PageWrapper>

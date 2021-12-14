@@ -434,6 +434,12 @@ abstract class AbstractQueryService implements ISQLQueryService {
     this.setClient();
   }
 
+  public async runRawQuery({ query }: { query: string }): Promise<unknown> {
+    const response = await this.client.raw(query);
+
+    return response.rows[0];
+  }
+
   public getClient(overrides?: ClientOverrides): Knex {
     const credentials = this.getCredentials();
 
