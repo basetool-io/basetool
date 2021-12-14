@@ -6,13 +6,13 @@ import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode } from "react";
 
 type Props = {
-  helpText: string | ReactNode;
   id?: string;
   label: string;
   optionKey: string;
   checkboxLabel: string;
   isChecked?: boolean;
   isDisabled?: boolean;
+  helpText?: string | ReactNode;
   formHelperText?: string;
   children?: ReactNode;
 };
