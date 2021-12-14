@@ -98,7 +98,7 @@ const DashboardsSidebarSection = () => {
       }).unwrap();
 
       if (response?.ok) {
-        router.push(`/dashboards/${response.data.id}`);
+        router.push(`/dashboards/${response.data.id}/edit`);
         onClose();
       }
     };
