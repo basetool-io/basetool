@@ -10,6 +10,10 @@ export type Tables = {
   [tableName: string]: Table;
 };
 
+export type TableResponse = {
+  name: string;
+};
+
 export type OrderDirection = "" | "asc" | "desc";
 
 export type FilterConditions =
