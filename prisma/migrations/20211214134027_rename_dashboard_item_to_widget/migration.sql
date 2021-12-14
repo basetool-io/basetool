@@ -1,17 +1,17 @@
 /*
   Warnings:
 
-  - You are about to drop the `Widget` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `DashboardItem` table. If the table is not empty, all the data it contains will be lost.
 
 */
 -- DropForeignKey
-ALTER TABLE "Widget" DROP CONSTRAINT "Widget_createdBy_fkey";
+ALTER TABLE "DashboardItem" DROP CONSTRAINT "DashboardItem_createdBy_fkey";
 
 -- DropForeignKey
-ALTER TABLE "Widget" DROP CONSTRAINT "Widget_dashboardId_fkey";
+ALTER TABLE "DashboardItem" DROP CONSTRAINT "DashboardItem_dashboardId_fkey";
 
 -- DropTable
-DROP TABLE "Widget";
+DROP TABLE "DashboardItem";
 
 -- CreateTable
 CREATE TABLE "Widget" (
