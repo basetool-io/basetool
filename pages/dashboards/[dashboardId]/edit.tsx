@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
 import { pick } from "lodash";
-import { useDashboardResponse } from "@/features/dashboards/hooks";
+import { useDashboardResponse, useUpdateWidget } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import {
   useRemoveDashboardMutation,
@@ -17,6 +17,7 @@ import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
 import React, { memo, useMemo } from "react";
+import WidgetEditor from "@/features/dashboards/components/WidgetEditor";
 
 const Edit = () => {
   const router = useRouter();
@@ -80,6 +81,8 @@ const Edit = () => {
     commitDashboardUpdate("isPublic", publicView);
   };
 
+  const { widget } = useUpdateWidget();
+
   return (
     <Layout hideSidebar={true}>
       <PageWrapper
@@ -119,6 +122,7 @@ const Edit = () => {
             )}
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
+            {widget && <WidgetEditor />}
             <DashboardPage />
           </div>
         </div>

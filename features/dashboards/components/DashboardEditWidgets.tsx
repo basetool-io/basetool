@@ -11,115 +11,59 @@ import {
   PopoverTrigger,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Column } from "@/features/fields/types";
-import { EyeOffIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
-import { INITIAL_NEW_COLUMN } from "@/features/data-sources";
-import { ItemTypes } from "@/lib/ItemTypes";
-import { MINIMUM_VIEW_NAME_LENGTH } from "@/lib/constants";
+import { DashboardItem } from "@prisma/client";
+import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import {
-  activeColumnNameSelector,
-  columnsSelector,
+  activeWidgetNameSelector,
   setActiveColumnName,
+  setActiveWidgetName,
 } from "@/features/records/state-slice";
-import { iconForField } from "@/features/fields";
-import { isArray, isEqual, snakeCase, sortBy } from "lodash";
+import { snakeCase } from "lodash";
 import { toast } from "react-toastify";
+import { useAddDashboardItemMutation } from "../api-slice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { useColumnsForView } from "@/features/views/hooks";
-import {
-  useCreateColumnMutation,
-  useReorderColumnsMutation,
-} from "@/features/views/api-slice";
+import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
-import { useDrag, useDrop } from "react-dnd";
-import DragIcon from "@/components/DragIcon";
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 import classNames from "classnames";
-import update from "immutability-helper";
 
-const ColumnItem = ({
-  column,
-  moveColumn,
+const WidgetItem = ({
+  widget,
 }: {
-  column: Column;
-  moveColumn: any;
+  widget: DashboardItem;
 }) => {
-  const IconElement = iconForField(column);
   const dispatch = useAppDispatch();
-  const activeColumnName = useAppSelector(activeColumnNameSelector);
+  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
 
-  const toggleColumnSelection = () => {
-    if (activeColumnName === column?.name) {
-      dispatch(setActiveColumnName(""));
+  const toggleWidgetSelection = () => {
+    if (activeWidgetName === widget?.name) {
+      dispatch(setActiveWidgetName(""));
     } else {
-      dispatch(setActiveColumnName(column.name));
+      dispatch(setActiveWidgetName(widget.name));
     }
   };
-
-  const id = column.name;
-  const [{ item, isDragging }, drag, preview] = useDrag(
-    () => ({
-      type: ItemTypes.COLUMN,
-      item: { id },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-        item: monitor.getItem(),
-      }),
-    }),
-    [moveColumn, id]
-  );
-
-  const [{ isOver }, drop] = useDrop(
-    () => ({
-      accept: ItemTypes.COLUMN,
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-      }),
-      canDrop: () => false,
-      hover(item: { id: string }) {
-        const draggedColumnName = item.id;
-        const overColumnName = column.name;
-        if (draggedColumnName !== overColumnName && moveColumn) {
-          moveColumn(draggedColumnName, overColumnName);
-        }
-      },
-    }),
-    [moveColumn, id]
-  );
-
-  const hidden = useMemo(() => column.baseOptions.disconnected, [column]);
 
   return (
     <div
       className={classNames(
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
-          "bg-blue-600 text-white": activeColumnName === column.name,
+          "bg-blue-600 text-white": activeWidgetName === widget.name,
           "hover:bg-gray-100":
-            activeColumnName !== column.name ||
-            (!isDragging && item?.id === column?.name),
-          "!bg-gray-800 opacity-25":
-            isOver || (isDragging && item?.id === column?.name),
+          activeWidgetName !== widget.name,
         }
       )}
-      ref={preview}
     >
       <div className="flex items-center flex-1 hover:cursor-pointer">
-        <span ref={(node: any) => drag(drop(node))} className="h-full ml-1">
-          <DragIcon />{" "}
-        </span>
         <div
           className="flex-1 flex items-center justify-between"
-          onClick={toggleColumnSelection}
+          onClick={toggleWidgetSelection}
         >
           <span className="flex items-center">
-            <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
-            <span className="text-">{column.name}</span>{" "}
-          </span>
-          <span className="flex items-center">
-            {hidden && <EyeOffIcon className="h-4 mr-1 inline" />}
+            <span className="ml-1">{widget.name}</span>{" "}
           </span>
         </div>
       </div>
@@ -132,7 +76,7 @@ const NameInput = forwardRef((props: any, ref: any) => {
     <FormControl>
       <FormLabel htmlFor="name">Name</FormLabel>
       <Input ref={ref} id="name" size="sm" {...props} />
-      <FormHelperText>What should the column be called.</FormHelperText>
+      <FormHelperText>What should the widget be called.</FormHelperText>
     </FormControl>
   );
 });
@@ -148,37 +92,30 @@ const Form = ({
 }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
-  const [createColumn, { isLoading }] = useCreateColumnMutation();
-  const { viewId } = useDataSourceContext();
-  const { columns } = useColumnsForView();
+  const [addDashboardItem, { isLoading }] = useAddDashboardItemMutation();
+  const { dashboardId } = useDataSourceContext();
+  const { dashboardItems } = useDashboardResponse(dashboardId);
 
-  const columnExists = () =>
-    columns.some((column: Column) => column.name === snakeCase(name));
+  const widgetExists = () =>
+  dashboardItems.some((dashboardItem: DashboardItem) => dashboardItem.name === snakeCase(name));
 
-  const createField = async () => {
-    if (name.length < MINIMUM_VIEW_NAME_LENGTH) return;
-
-    const newColumn = {
-      ...INITIAL_NEW_COLUMN,
-      name: snakeCase(name),
-      label: name,
-      baseOptions: {
-        ...INITIAL_NEW_COLUMN.baseOptions,
-        label: name,
-      },
-    };
+  const createDashboardItem = async () => {
+    if (name.length < 4) return;
 
     // close popover
     onClose();
 
-    const response = await createColumn({
-      viewId,
-      body: newColumn,
+    const response = await addDashboardItem({
+      dashboardId,
+      body: {
+        dashboardId,
+        name: snakeCase(name),
+      },
     }).unwrap();
 
     if (response?.ok) {
       // select the newly created column
-      dispatch(setActiveColumnName(name));
+      dispatch(setActiveWidgetName(name));
     }
   };
 
@@ -187,8 +124,8 @@ const Form = ({
       onSubmit={(e) => {
         e.preventDefault();
 
-        if (columnExists()) {
-          toast.error("A column with that name already exists.");
+        if (widgetExists()) {
+          toast.error("A widget with that name already exists.");
 
           return;
         }
@@ -197,7 +134,7 @@ const Form = ({
         setName("");
         firstFieldRef.current.value = "";
 
-        createField();
+        createDashboardItem();
       }}
     >
       <NameInput
@@ -210,80 +147,25 @@ const Form = ({
           size="sm"
           colorScheme="blue"
           width="100%"
-          isDisabled={name.length < MINIMUM_VIEW_NAME_LENGTH}
+          isDisabled={name.length < 4}
           isLoading={isLoading}
           leftIcon={<PlusIcon className="text-white h-4" />}
         >
-          Add virtual column
+          Add widget
         </Button>
       </div>
     </form>
   );
 };
 
-const DashboardEditWidgets = ({
-  columnsAreLoading,
-}: {
-  columnsAreLoading?: boolean;
-}) => {
+const DashboardEditWidgets = () => {
   const dispatch = useAppDispatch();
-  const columns = useAppSelector(columnsSelector);
   const { onOpen, onClose, isOpen } = useDisclosure();
-  const { viewId } = useDataSourceContext();
+  const { dashboardId } = useDataSourceContext();
   const firstFieldRef = useRef(null);
 
-  const [order, setOrder] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (isArray(columns)) {
-      const newOrder = sortBy(columns, [(c) => c?.baseOptions?.orderIndex]).map(
-        ({ name }: Column) => name
-      );
-      setOrder(newOrder);
-    }
-  }, [columns]);
-
-  // Order the columns in an array
-  const orderedColumns = useMemo(
-    () => sortBy(columns, [(column: Column) => order.indexOf(column.name)]),
-    [columns, order]
-  );
-
-  const [{ didDrop }, drop] = useDrop(() => ({
-    accept: ItemTypes.COLUMN,
-    collect: (monitor) => ({
-      didDrop:
-        monitor.getItemType() === ItemTypes.COLUMN ? monitor.didDrop() : false,
-    }),
-  }));
-
-  const [reorderColumns] = useReorderColumnsMutation();
-
-  const moveColumn = (from: string, to: string) => {
-    const fromIndex = order.indexOf(from);
-    const toIndex = order.indexOf(to);
-
-    const newOrder = update(order, {
-      $splice: [
-        [fromIndex, 1],
-        [toIndex, 0, from],
-      ],
-    }).filter(Boolean);
-
-    if (!isEqual(order, newOrder)) {
-      setOrder(newOrder);
-    }
-  };
-
-  // We have to save the order of the columns when the order changes, and the order changes when an element is dropped.
-  useEffect(() => {
-    if (didDrop === true) {
-      reorderColumns({
-        viewId: viewId,
-        body: { order },
-      }).unwrap();
-    }
-  }, [didDrop]);
+  const { isLoading: dashboardIsLoading, dashboardItems } =
+  useDashboardResponse(dashboardId);
 
   useEffect(() => {
     return () => {
@@ -295,7 +177,7 @@ const DashboardEditWidgets = ({
     <div>
       <div className="flex justify-between">
         <div>
-          <TinyLabel>Columns</TinyLabel>{" "}
+          <TinyLabel>Widgets</TinyLabel>{" "}
           <span className="text-xs text-gray-600">(click to edit)</span>
         </div>
         <div className="flex items-center">
@@ -319,8 +201,8 @@ const DashboardEditWidgets = ({
           </Popover>
         </div>
       </div>
-      <div className="mt-2" ref={drop}>
-        {columnsAreLoading && (
+      <div className="mt-2">
+        {dashboardIsLoading && (
           <div className="space-y-1">
             <Shimmer height="15px" width="60px" />
             <Shimmer height="15px" width="160px" />
@@ -332,10 +214,10 @@ const DashboardEditWidgets = ({
             <Shimmer height="15px" width="110px" />
           </div>
         )}
-        {!columnsAreLoading &&
-          orderedColumns &&
-          orderedColumns.map((column: Column, idx: number) => (
-            <ColumnItem key={idx} column={column} moveColumn={moveColumn} />
+        {!dashboardIsLoading &&
+          dashboardItems &&
+          dashboardItems.map((dashboardItem: DashboardItem, idx: number) => (
+            <WidgetItem key={idx} widget={dashboardItem}/>
           ))}
       </div>
     </div>

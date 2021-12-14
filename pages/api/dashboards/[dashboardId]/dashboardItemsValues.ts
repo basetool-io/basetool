@@ -43,20 +43,26 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
   if (!dataSource) return res.status(404).send("");
 
-  const response: { id: number; value: string }[] = [];
+  const response: { id: number; value?: string; error?: string; }[] = [];
 
-  await Promise.all(
-    dashboard.dashboardItems.map(async (dashboardItem) => {
+  for(const dashboardItem of dashboard.dashboardItems) {
+    try {
       const queryValue = await runQuery(dataSource, "runRawQuery", {
-        query: dashboardItem.query,
-      });
+          query: dashboardItem.query,
+        });
 
       response.push({
         id: dashboardItem.id,
         value: queryValue.value,
       });
-    })
-  );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      response.push({
+        id: dashboardItem.id,
+        error: e.message,
+      })
+    }
+  }
 
   res.json(ApiResponse.withData(response));
 }

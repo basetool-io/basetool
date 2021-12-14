@@ -1,6 +1,13 @@
 import { DashboardItem } from "@prisma/client";
+import { InformationCircleIcon } from "@heroicons/react/outline";
+import { Tooltip } from "@chakra-ui/react";
+import { activeWidgetNameSelector } from "@/features/records/state-slice";
+import { isUndefined } from "lodash";
+import { useAppSelector } from "@/hooks";
+import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
+import classNames from "classnames";
 
 export type DashboardItemOptions = {
   prefix: string;
@@ -10,12 +17,26 @@ export type DashboardItemOptions = {
 function DashboardItemView({
   dashboardItem,
   isLoading = false,
-  value = "",
+  valueResponse,
 }: {
   dashboardItem: DashboardItem;
   isLoading: boolean;
-  value?: string;
+  valueResponse:
+    | {
+        value?: string;
+        error?: string;
+      }
+    | undefined;
 }) {
+  const router = useRouter();
+  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const widgetIsActive = useMemo(
+    () =>
+      activeWidgetName === dashboardItem.name &&
+      router.pathname.includes("/edit"),
+    [activeWidgetName, dashboardItem.name, router.pathname]
+  );
+
   const options = useMemo(
     () => dashboardItem?.options as DashboardItemOptions,
     [dashboardItem.options]
@@ -24,10 +45,28 @@ function DashboardItemView({
   const prefix = useMemo(() => options.prefix || "", [options]);
   const suffix = useMemo(() => options.suffix || "", [options]);
 
-  const displayValue = useMemo(() => parseFloat(value), [value]);
+  const valueErrorMessage = useMemo(
+    () => (valueResponse ? valueResponse?.error : undefined),
+    [valueResponse]
+  );
+  const hasValueError = useMemo(
+    () => !isUndefined(valueErrorMessage),
+    [valueErrorMessage]
+  );
+  const displayValue = useMemo(
+    () => parseFloat(valueResponse?.value || ""),
+    [valueResponse]
+  );
 
   return (
-    <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+    <div
+      className={classNames(
+        "px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6",
+        {
+          "border border-blue-600": widgetIsActive,
+        }
+      )}
+    >
       <dt className="text-sm font-medium text-gray-500 truncate">
         {dashboardItem.name}
       </dt>
@@ -37,8 +76,28 @@ function DashboardItemView({
         </dd>
       )}
       {!isLoading && (
-        <dd className="mt-1 text-3xl font-semibold text-gray-900">
-          {prefix} {displayValue} {suffix}
+        <dd className="mt-1 text-3xl text-gray-900 leading-9">
+          {hasValueError && (
+            <div className="relative flex mb-1 text-red-500">
+              <label className="text-lg font-semibold flex uppercase">
+                Error occurred
+              </label>
+              <div>
+                <Tooltip placement="bottom" label={valueErrorMessage}>
+                  <div>
+                    <InformationCircleIcon className="block h-4" />
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
+          )}
+          {!hasValueError && (
+            <>
+              <span className="mr-1">{prefix}</span>
+              <span className="font-semibold">{displayValue}</span>
+              <span className="ml-1 text-base text-gray-700">{suffix}</span>
+            </>
+          )}
         </dd>
       )}
     </div>

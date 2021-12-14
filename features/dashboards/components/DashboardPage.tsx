@@ -21,9 +21,9 @@ function DashboardPage() {
       dashboardItemsValuesResponse?.ok &&
       Object.fromEntries(
         dashboardItemsValuesResponse.data.map(
-          (itemValue: { id: number; value: string }) => [
+          (itemValue: { id: number; value?: string; error?: string }) => [
             itemValue.id,
-            itemValue.value,
+            { value: itemValue.value, error: itemValue.error },
           ]
         )
       ),
@@ -43,7 +43,7 @@ function DashboardPage() {
             <DashboardItemView
               key={idx}
               dashboardItem={dashboardItem}
-              value={
+              valueResponse={
                 dashboardItemsValues
                   ? dashboardItemsValues[dashboardItem.id]
                   : undefined
