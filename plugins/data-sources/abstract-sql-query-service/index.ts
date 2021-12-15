@@ -10,6 +10,7 @@ export const defaultSettings: Omit<
     filters: true,
     columnsRequest: true,
     views: true,
+    dashboards: true,
   },
   runsInProxy: true,
 };

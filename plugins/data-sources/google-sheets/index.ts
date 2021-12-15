@@ -20,6 +20,7 @@ const info: GoogleSheetsDataSourceInfo = {
   supports: {
     ...defaultSettings.supports,
     views: false,
+    dashboards: false,
   }
 };
 
