@@ -28,6 +28,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
   public async runQuery(name: keyof ISQLQueryService, payload?: unknown) {
     // Use the runQueries method and display the first result
+    console.log('this.queryService->', this.queryService)
     return (await this.runQueries([{ name, payload }]))[0];
   }
 
