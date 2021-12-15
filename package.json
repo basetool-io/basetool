@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.6.0",
     "@fontsource/nunito": "^4.5.0",
     "@headlessui/react": "^1.4.1",
-    "@heroicons/react": "^1.0.4",
+    "@heroicons/react": "^1.0.5",
     "@hookform/resolvers": "^2.8.3",
     "@next-auth/prisma-adapter": "^0.5.4",
     "@pm2/io": "^5.0.0",
