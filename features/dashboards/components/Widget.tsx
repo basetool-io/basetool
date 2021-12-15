@@ -1,12 +1,12 @@
 import { IconButton, Tooltip } from "@chakra-ui/react";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
-import { WidgetValueResponse } from "../types";
+import { WidgetOptions, WidgetValueResponse } from "../types";
 import {
   activeWidgetNameSelector,
   setActiveWidgetName,
 } from "@/features/records/state-slice";
-import { isUndefined, isEmpty } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import {
   useGetWidgetsValuesQuery,
@@ -17,57 +17,98 @@ import React, { memo, useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import classNames from "classnames";
 
+const LoadingState = () => (
+  <dd className="mt-1 text-3xl font-semibold text-gray-900">
+    <Shimmer height="36px" className="inline-block" />
+  </dd>
+);
+
+const ErrorState = ({ widgetValue }: { widgetValue: WidgetValueResponse }) => (
+  <div className="relative flex text-red-500 items-center">
+    <label className="text-sm font-semibold flex uppercase text-gray-500">
+      Error
+    </label>
+    <div>
+      <Tooltip placement="bottom" label={widgetValue.error}>
+        <div>
+          <InformationCircleIcon className="block h-4 ml-1" />
+        </div>
+      </Tooltip>
+    </div>
+  </div>
+);
+
+const SuccessState = ({
+  widget,
+  widgetValue,
+}: {
+  widget: Widget;
+  widgetValue: WidgetValueResponse;
+}) => (
+  <>
+    <span className="mr-1">{(widget?.options as WidgetOptions)?.prefix}</span>
+    <span className="font-semibold">{widgetValue.value}</span>
+    <span className="ml-1 text-base text-gray-700">
+      {(widget?.options as WidgetOptions)?.suffix}
+    </span>
+  </>
+);
+
 function Widget({ widget }: { widget: Widget }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
   const dashboardId = widget.dashboardId.toString();
-  console.log("dashboardId->", dashboardId);
 
-  const { data: bulkValues, isFetching: bulkValuesAreFetching } =
+  const { data: bulkValuesResponse, isFetching: bulkValuesAreFetching } =
     useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
   const [
     getWidgetValue,
-    { data: widgetResponse, isFetching: widgetValueIsFetching },
+    { data: widgetValueResponse, isFetching: widgetValueIsFetching },
   ] = useLazyGetWidgetValueQuery();
 
-  const responseData = useMemo(
-    () => (widgetResponse?.ok ? widgetResponse.data : {}),
-    [widgetResponse]
+  const widgetValueFromSingleRefresh = useMemo(
+    () => (widgetValueResponse?.ok ? widgetValueResponse.data : {}),
+    [widgetValueResponse]
   );
 
-  const isFetching = bulkValuesAreFetching || widgetValueIsFetching;
+  const isFetching = useMemo(
+    () => bulkValuesAreFetching || widgetValueIsFetching,
+    [bulkValuesAreFetching, widgetValueIsFetching]
+  );
 
-  const widgetStateFromBulk = useMemo(() => {
-    console.log("bulkValues->", bulkValues);
+  const widgetValueFromBulk = useMemo(
+    () =>
+      bulkValuesResponse?.ok
+        ? bulkValuesResponse.data.find(
+            (bulkValue: WidgetValueResponse) => bulkValue.id === widget.id
+          )
+        : {},
+    [bulkValuesResponse, dashboardId, widget.id]
+  );
 
-    const t = bulkValues?.ok
-      ? bulkValues.data.find(({ id }) => id === widget.id)
-      : {};
-    console.log("t->", t);
-
-    return t;
-  }, [bulkValues, dashboardId, widget.id]);
-
-  const [widgetState, setWidgetState] = useState<WidgetValueResponse>({});
+  const [widgetValue, setWidgetValue] = useState<WidgetValueResponse>({
+    id: widget.id,
+  });
 
   useEffect(() => {
-    if (!isEmpty(widgetStateFromBulk)) setWidgetState(widgetStateFromBulk);
-    console.log("1->", 1, widgetStateFromBulk);
-  }, [widgetStateFromBulk]);
+    if (!isEmpty(widgetValueFromBulk)) {
+      setWidgetValue(widgetValueFromBulk);
+    }
+  }, [widgetValueFromBulk]);
 
   useEffect(() => {
-    if (!isEmpty(responseData)) {
-      console.log(222)
-      setWidgetState(responseData);}
-    console.log("2->", 2, responseData);
-  }, [responseData]);
+    if (!isEmpty(widgetValueFromSingleRefresh)) {
+      setWidgetValue(widgetValueFromSingleRefresh);
+    }
+  }, [widgetValueFromSingleRefresh]);
 
   const isEditPage = useMemo(
     () => router.pathname.includes("/edit"),
     [router.pathname]
   );
+
   const widgetIsActive = useMemo(
     () => activeWidgetName === widget.name && isEditPage,
     [activeWidgetName, widget.name, isEditPage]
@@ -84,8 +125,8 @@ function Widget({ widget }: { widget: Widget }) {
   };
 
   const hasError = useMemo(
-    () => responseData.id && !isUndefined(responseData?.error),
-    [responseData]
+    () => widgetValue.id && !isUndefined(widgetValue?.error),
+    [widgetValue]
   );
 
   const refreshValue = async (e: any) => {
@@ -108,8 +149,7 @@ function Widget({ widget }: { widget: Widget }) {
       )}
       onClick={toggleWidgetSelection}
     >
-      <pre>{JSON.stringify([widgetStateFromBulk, widgetState], null, 2)}</pre>
-      <dt className="flex justify-between w-full text-sm font-medium text-gray-500 truncate">
+      <dt className="flex justify-between w-full text-sm font-medium text-gray-500 truncate mb-1">
         <span>{widget.name}</span>
         <IconButton
           size="xs"
@@ -118,40 +158,15 @@ function Widget({ widget }: { widget: Widget }) {
           icon={<RefreshIcon className="h-3" />}
           onClick={refreshValue}
           isFetching={widgetValueIsFetching}
+          className="no-focus"
         />
       </dt>
-      {isFetching && (
-        // Extract <LoadingState
-        <dd className="mt-1 text-3xl font-semibold text-gray-900">
-          <Shimmer height="36px" width="200px" className="inline-block" />
-        </dd>
-      )}
+      {isFetching && <LoadingState />}
       {!isFetching && (
-        <dd className="mt-1 text-3xl text-gray-900 leading-9">
-          {hasError && (
-            // extract <ErrorState widgetState={widgetState} />
-            <div className="relative flex text-red-500 items-center">
-              <label className="text-sm font-semibold flex uppercase text-gray-500">
-                Error
-              </label>
-              <div>
-                <Tooltip placement="bottom" label={widgetState.error}>
-                  <div>
-                    <InformationCircleIcon className="block h-4 ml-1" />
-                  </div>
-                </Tooltip>
-              </div>
-            </div>
-          )}
+        <dd className="text-3xl text-gray-900 leading-9">
+          {hasError && <ErrorState widgetValue={widgetValue} />}
           {!hasError && (
-            // extract <SuccessState />
-            <>
-              <span className="mr-1">{widget.options.prefix}</span>
-              <span className="font-semibold">{widgetState.value}</span>
-              <span className="ml-1 text-base text-gray-700">
-                {widget.options.suffix}
-              </span>
-            </>
+            <SuccessState widget={widget} widgetValue={widgetValue} />
           )}
         </dd>
       )}

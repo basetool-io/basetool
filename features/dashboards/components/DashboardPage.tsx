@@ -1,11 +1,14 @@
 import { Widget as IWidget } from "@prisma/client";
+import { Link } from "@chakra-ui/react";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useMemo } from "react";
 import Widget from "./Widget";
 
 function DashboardPage() {
+  const router = useRouter();
   const { dashboardId } = useDataSourceContext();
 
   const { isLoading: dashboardIsLoading, widgets } =
@@ -13,15 +16,21 @@ function DashboardPage() {
 
   useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
-  // @todo:
-  // @todo: No widgets found -> "No widgets" + link catre edit page cu label "Add a widget"
-  // effect pe dashboardId sa re-rulesze hook-ul👆 (probabil cu lazy)
+  const isEditPage = useMemo(
+    () => router.pathname.includes("/edit"),
+    [router.pathname]
+  );
 
   return (
     <div className="relative flex flex-col flex-1 w-full h-full p-2">
       {!dashboardIsLoading && widgets.length === 0 && (
-        <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600 h-full">
-          No widgets found
+        <div className="flex flex-1 flex-col justify-center items-center text-lg font-semibold text-gray-600 h-full">
+          No widgets{" "}
+          {!isEditPage && (
+            <Link href={`/dashboards/${dashboardId}/edit`}>
+              <a className="text-blue-600 text-md underline">Add a widget</a>
+            </Link>
+          )}
         </div>
       )}
       {!dashboardIsLoading && widgets.length > 0 && (

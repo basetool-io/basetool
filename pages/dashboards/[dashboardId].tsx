@@ -15,15 +15,18 @@ const DashboardView = () => {
   const { info } = useDataSourceResponse(dataSourceId);
   const { canEdit } = useACLHelpers({ dataSourceInfo: info });
 
-  const { dashboard, isLoading: dashboardIsLoading } =
-    useDashboardResponse(dashboardId);
+  const {
+    dashboard,
+    widgets,
+    isLoading: dashboardIsLoading,
+  } = useDashboardResponse(dashboardId);
 
-  const [getWidgetsValues, { isLoading: widgetsValuesIsLoading }] =
+  const [getWidgetsValues, { isFetching: widgetsValuesAreFetching }] =
     useLazyGetWidgetsValuesQuery();
 
-  // useEffect(() => {
-  //   getWidgetsValues({ dashboardId })
-  // }, [])
+  useEffect(() => {
+    getWidgetsValues({ dashboardId });
+  }, [dashboardId]);
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
@@ -50,9 +53,10 @@ const DashboardView = () => {
               variant="ghost"
               aria-label="Refresh"
               icon={<RefreshIcon className="h-4" />}
-              className="ml-3"
+              className="ml-3 no-focus"
               onClick={() => getWidgetsValues({ dashboardId })}
-              isLoading={widgetsValuesIsLoading}
+              isLoading={widgetsValuesAreFetching}
+              isDisabled={widgets.length === 0}
             />
           </>
         }
