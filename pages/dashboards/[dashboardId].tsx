@@ -4,6 +4,7 @@ import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import { useEffect } from "react";
 import { useLazyGetWidgetsValuesQuery } from "@/features/dashboards/api-slice";
 import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
@@ -17,8 +18,12 @@ const DashboardView = () => {
   const { dashboard, isLoading: dashboardIsLoading } =
     useDashboardResponse(dashboardId);
 
-  const [getWidgetsValues, { data: widgetsValuesResponse, isLoading: widgetsValuesIsLoading }] =
+  const [getWidgetsValues, { isLoading: widgetsValuesIsLoading }] =
     useLazyGetWidgetsValuesQuery();
+
+  // useEffect(() => {
+  //   getWidgetsValues({ dashboardId })
+  // }, [])
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
@@ -33,11 +38,6 @@ const DashboardView = () => {
     </Link>
   );
 
-  const refreshValues = () => {
-    getWidgetsValues({ dashboardId })
-    console.log('widgetsValuesResponse->', widgetsValuesResponse)
-  }
-
   return (
     <Layout>
       <PageWrapper
@@ -51,7 +51,7 @@ const DashboardView = () => {
               aria-label="Refresh"
               icon={<RefreshIcon className="h-4" />}
               className="ml-3"
-              onClick={refreshValues}
+              onClick={() => getWidgetsValues({ dashboardId })}
               isLoading={widgetsValuesIsLoading}
             />
           </>

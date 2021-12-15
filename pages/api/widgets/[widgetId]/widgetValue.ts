@@ -11,14 +11,14 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   switch (req.method) {
-    case "POST":
-      return handlePOST(req, res);
+    case "GET":
+      return handleGET(req, res);
     default:
       return res.status(404).send("");
   }
 };
 
-async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
+async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const widget = await prisma.widget.findFirst({
     where: {
       id: parseInt(req.query.widgetId as string, 10),

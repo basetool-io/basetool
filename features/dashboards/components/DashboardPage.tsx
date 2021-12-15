@@ -1,10 +1,9 @@
-import { Widget } from "@prisma/client";
-import { WidgetValueResponse } from '@/features/dashboards/types';
+import { Widget as IWidget } from "@prisma/client";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
-import React, { useMemo } from "react";
-import WidgetView from "./WidgetView";
+import React from "react";
+import Widget from "./Widget";
 
 function DashboardPage() {
   const { dashboardId } = useDataSourceContext();
@@ -12,23 +11,11 @@ function DashboardPage() {
   const { isLoading: dashboardIsLoading, widgets } =
     useDashboardResponse(dashboardId);
 
-  const { data: widgetsValuesResponse, isLoading: widgetsValuesIsLoading } =
-    useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
+  useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
-  const widgetsValues: any = useMemo(() => {
-    if (widgetsValuesResponse?.ok) {
-      return Object.fromEntries(
-        widgetsValuesResponse.data.map(
-          (itemValue: WidgetValueResponse) => [
-            itemValue.id,
-            { value: itemValue.value, error: itemValue.error },
-          ]
-        )
-      );
-    } else {
-      return {};
-    }
-  }, [widgetsValuesResponse]);
+  // @todo:
+  // @todo: No widgets found -> "No widgets" + link catre edit page cu label "Add a widget"
+  // effect pe dashboardId sa re-rulesze hook-ul👆 (probabil cu lazy)
 
   return (
     <div className="relative flex flex-col flex-1 w-full h-full p-2">
@@ -39,13 +26,8 @@ function DashboardPage() {
       )}
       {!dashboardIsLoading && widgets.length > 0 && (
         <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {widgets.map((widget: Widget, idx: number) => (
-            <WidgetView
-              key={idx}
-              widget={widget}
-              valueResponse={widgetsValues[widget.id]}
-              isLoading={widgetsValuesIsLoading}
-            />
+          {widgets.map((widget: IWidget, idx: number) => (
+            <Widget key={idx} widget={widget} />
           ))}
         </dl>
       )}

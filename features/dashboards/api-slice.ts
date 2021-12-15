@@ -90,18 +90,16 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
-      getWidgetValue: builder.mutation<
-        ApiResponse,
-        Partial<{ widgetId: string }>
-      >({
-        query: ({ widgetId }) => ({
-          url: `${apiUrl}/widgets/${widgetId}/widgetValue`,
-          method: "POST",
-        }),
-        invalidatesTags: (result, error, { widgetId }) => [
-          { type: "Widget", id: widgetId },
-        ],
-      }),
+      getWidgetValue: builder.query<ApiResponse, Partial<{ widgetId: string }>>(
+        {
+          query({ widgetId }) {
+            return `${apiUrl}/widgets/${widgetId}/widgetValue`;
+          },
+          providesTags: (result, error, { widgetId }) => [
+            { type: "Widget", id: widgetId },
+          ],
+        }
+      ),
       updateWidget: builder.mutation<
         ApiResponse,
         Partial<{
@@ -163,7 +161,8 @@ export const {
 
   useGetWidgetsValuesQuery,
   useLazyGetWidgetsValuesQuery,
-  useGetWidgetValueMutation,
+  useGetWidgetValueQuery,
+  useLazyGetWidgetValueQuery,
   useDeleteWidgetMutation,
   useAddWidgetMutation,
   useUpdateWidgetMutation,
