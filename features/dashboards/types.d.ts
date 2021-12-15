@@ -3,3 +3,8 @@ export type WidgetValueResponse = {
   value?: string;
   error?: string;
 };
+
+export type WidgetOptions = {
+  prefix: string;
+  suffix: string;
+};

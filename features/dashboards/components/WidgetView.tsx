@@ -1,6 +1,7 @@
 import { IconButton, Tooltip } from "@chakra-ui/react";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
+import { WidgetOptions } from "../types";
 import {
   activeWidgetNameSelector,
   setActiveWidgetName,
@@ -12,11 +13,6 @@ import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import classNames from "classnames";
-
-export type WidgetOptions = {
-  prefix: string;
-  suffix: string;
-};
 
 function WidgetView({
   widget,

@@ -1,6 +1,6 @@
 import { Button, Code } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
-import { WidgetOptions } from "./WidgetView";
+import { WidgetOptions } from "../types";
 import { useDataSourceContext } from "@/hooks";
 import { useDeleteWidgetMutation } from "../api-slice";
 import { useUpdateWidget } from "../hooks";
