@@ -5,6 +5,7 @@ import { useDataSourceResponse } from "../hooks";
 import { useRemoveDataSourceMutation } from "@/features/data-sources/api-slice";
 import { useRouter } from "next/router";
 import BackButton from "@/features/records/components/BackButton";
+import DataSourceEditHomepage from "./DataSourceEditHomepage";
 import DataSourceEditName from "@/features/data-sources/components/DataSourceEditName";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
@@ -70,6 +71,7 @@ const DataSourcesEditLayout = ({
         <div className="relative flex-1 max-w-full w-full flex justify-center">
           <div className="w-72">
             <DataSourceEditName />
+            <DataSourceEditHomepage/>
             <Button
               className="mt-10"
               isFullWidth={true}

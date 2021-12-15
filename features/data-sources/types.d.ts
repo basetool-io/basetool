@@ -19,3 +19,10 @@ export type TableMetaData = {
   createdAtColumn?: string;
   updatedAtColumn?: string;
 };
+
+export type DataSourceOptions = {
+  connectsWithSSH: boolean;
+  connectsWithSSHKey: boolean;
+  homepageType?: string;
+  homepageId?: string;
+}

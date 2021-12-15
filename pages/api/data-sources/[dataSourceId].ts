@@ -54,6 +54,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
+  const data = req.body;
 
   const dataSource = await getDataSourceFromRequest(req);
 
@@ -61,12 +62,18 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   const user = await getUserFromRequest(req);
 
+  const options = {
+    ...(dataSource.options as Record<string, unknown>),
+    ...data.options,
+  };
+
   await prisma.dataSource.update({
     where: {
       id: parseInt(req.query.dataSourceId as string, 10),
     },
     data: {
-      name: req.body.name,
+      ...data,
+      options,
     },
   });
 
