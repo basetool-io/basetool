@@ -46,10 +46,10 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   const response: { id: number; value?: string; error?: string }[] = [];
 
   for (const widget of dashboard.widgets) {
-    const queryValue = await runQuery(dataSource, "runRawQuery", {
-      query: widget.query,
-    });
     try {
+      const queryValue = await runQuery(dataSource, "runRawQuery", {
+        query: widget.query,
+      });
 
       response.push({
         id: widget.id,

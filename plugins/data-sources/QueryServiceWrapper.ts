@@ -28,7 +28,6 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
 
   public async runQuery(name: keyof ISQLQueryService, payload?: unknown) {
     // Use the runQueries method and display the first result
-    console.log('this.queryService->', this.queryService)
     return (await this.runQueries([{ name, payload }]))[0];
   }
 
@@ -36,8 +35,6 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
     queries: { name: keyof ISQLQueryService; payload?: unknown }[]
   ) {
     let response;
-
-    console.log('this.queryService->', this.queryService)
 
     // Create a payload with the requests each as a an anonymous function that we can run at a later time.
     const actions = queries.map(
