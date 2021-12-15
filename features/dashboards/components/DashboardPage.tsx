@@ -1,4 +1,5 @@
 import { Widget } from "@prisma/client";
+import { WidgetValueResponse } from '@/features/dashboards/types';
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
@@ -18,7 +19,7 @@ function DashboardPage() {
     if (widgetsValuesResponse?.ok) {
       return Object.fromEntries(
         widgetsValuesResponse.data.map(
-          (itemValue: { id: number; value?: string; error?: string }) => [
+          (itemValue: WidgetValueResponse) => [
             itemValue.id,
             { value: itemValue.value, error: itemValue.error },
           ]

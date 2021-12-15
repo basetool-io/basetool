@@ -9,6 +9,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
   useDisclosure,
 } from "@chakra-ui/react";
 import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
@@ -168,12 +169,20 @@ const DashboardEditWidgets = () => {
   }, []);
 
   const ContentForPopover = () => (
-    <PopoverContent>
-      <PopoverArrow />
-      <PopoverBody>
-        <Form firstFieldRef={firstFieldRef} onClose={onClose} />
-      </PopoverBody>
-    </PopoverContent>
+    <Portal>
+      <PopoverContent
+        rootProps={{
+          style: {
+            zIndex: 40,
+          },
+        }}
+      >
+        <PopoverArrow />
+        <PopoverBody>
+          <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+        </PopoverBody>
+      </PopoverContent>
+    </Portal>
   );
 
   return (
