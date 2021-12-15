@@ -36,6 +36,8 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   ) {
     let response;
 
+    console.log('this.queryService->', this.queryService)
+
     // Create a payload with the requests each as a an anonymous function that we can run at a later time.
     const actions = queries.map(
       (query) => () => this.queryService[query.name](query.payload)
