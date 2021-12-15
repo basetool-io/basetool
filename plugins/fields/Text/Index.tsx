@@ -15,19 +15,21 @@ const Index = ({ field }: { field: Field }) => {
       </IndexFieldWrapper>
     );
 
-  if (field.column.fieldOptions.displayAs === "link")
+  if (field.column.fieldOptions.displayAs === "link") {
+    const fullLink = `${field.column.fieldOptions.linkPrefix}${field.value}`;
+    const hasLinkText = isEmpty(field.column.fieldOptions.linkText);
+
     return (
       <IndexFieldWrapper field={field}>
-        <Link href={field.value as string}>
+        <Link href={fullLink as string}>
           <a
             className="text-blue-600"
             target={
               (field.column.fieldOptions.openNewTab as boolean) ? "_blank" : ""
             }
           >
-            {isEmpty(field.column.fieldOptions.linkText) && field.value}
-            {isEmpty(field.column.fieldOptions.linkText) ||
-              field.column.fieldOptions.linkText}
+            {hasLinkText && field.value}
+            {hasLinkText || field.column.fieldOptions.linkText}
 
             {field.column.fieldOptions.openNewTab === true && (
               <ExternalLinkIcon className="h-3 w-3 ml-1 inline-block" />
@@ -36,6 +38,7 @@ const Index = ({ field }: { field: Field }) => {
         </Link>
       </IndexFieldWrapper>
     );
+  }
 
   if (field.column.fieldOptions.displayAs === "image")
     return (
