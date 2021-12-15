@@ -20,6 +20,7 @@ import {
   PlusIcon,
 } from "@heroicons/react/outline";
 import { Dashboard } from "@prisma/client";
+import { Portal } from "@chakra-ui/react";
 import { first } from "lodash";
 import {
   useAddDashboardMutation,
@@ -131,6 +132,23 @@ const DashboardsSidebarSection = () => {
     );
   };
 
+  const ContentForPopover = () => (
+    <Portal>
+      <PopoverContent
+        rootProps={{
+          style: {
+            zIndex: 40,
+          },
+        }}
+      >
+        <PopoverArrow />
+        <PopoverBody>
+          <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+        </PopoverBody>
+      </PopoverContent>
+    </Portal>
+  );
+
   return (
     <>
       {dashboardsError && (
@@ -169,12 +187,7 @@ const DashboardsSidebarSection = () => {
                     </Tooltip>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent z-index="3">
-                  <PopoverArrow />
-                  <PopoverBody>
-                    <Form firstFieldRef={firstFieldRef} onClose={onClose} />
-                  </PopoverBody>
-                </PopoverContent>
+                <ContentForPopover />
               </Popover>
             </div>
           )}
@@ -202,12 +215,7 @@ const DashboardsSidebarSection = () => {
                   Create dashboard
                 </div>
               </PopoverTrigger>
-              <PopoverContent z-index="3">
-                <PopoverArrow />
-                <PopoverBody>
-                  <Form firstFieldRef={firstFieldRef} onClose={onClose} />
-                </PopoverBody>
-              </PopoverContent>
+              <ContentForPopover />
             </Popover>
           )}
 
