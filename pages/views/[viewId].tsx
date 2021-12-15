@@ -11,7 +11,7 @@ import {
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
+import { useLazyGetRecordsQuery , useGetRecordsQuery} from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import { useView } from "@/features/views/hooks";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -49,7 +49,14 @@ function ViewShow() {
     useOrderRecords();
 
   const getRecordsArguments = useMemo(() => {
-    console.log("getRecordsArguments->", getRecordsArguments);
+    console.log("getRecordsArguments->", {
+      viewId,
+      filters: encodedFilters,
+      limit: limit.toString(),
+      offset: offset.toString(),
+      orderBy: orderBy,
+      orderDirection: orderDirection,
+    });
     return {
       viewId,
       filters: encodedFilters,
@@ -60,26 +67,34 @@ function ViewShow() {
     };
   }, [viewId, encodedFilters, limit, offset, orderBy, orderDirection]);
 
-  const [
-    fetchRecords,
+  // const [
+  //   fetchRecords,
+  //   {
+  //     data: recordsResponse,
+  //     error: recordsError,
+  //     isFetching: recordsAreFetching,
+  //   },
+  // ] = useLazyGetRecordsQuery();
+  const
+    // fetchRecords,
     {
       data: recordsResponse,
       error: recordsError,
       isFetching: recordsAreFetching,
-    },
-  ] = useLazyGetRecordsQuery();
+    }
+   = useGetRecordsQuery(getRecordsArguments, {skip: !initialized || !viewId || !dataSourceId});
 
   /**
    * Because there's one extra render between the moment the tableName and the state reset changes,
    * we're debouncing fetching the records so we don't try to fetch the records with the old filters
    */
-  const debouncedFetch = useCallback(debounce(fetchRecords, 50), []);
+  // const debouncedFetch = useCallback(debounce(fetchRecords, 50), []);
 
-  useEffect(() => {
-    console.log("shouldFetch->", tableName, dataSourceId, initialized);
-    if (tableName && dataSourceId && initialized)
-      fetchRecords(getRecordsArguments);
-  }, [viewId, tableName, dataSourceId, getRecordsArguments, initialized]);
+  // useEffect(() => {
+  //   console.log("shouldFetch->", tableName, dataSourceId, initialized);
+  //   if (tableName && dataSourceId && initialized)
+  //     fetchRecords(getRecordsArguments);
+  // }, [viewId, tableName, dataSourceId, getRecordsArguments, initialized]);
 
   const records = useMemo(
     () => (recordsResponse?.ok ? recordsResponse?.data : []),
