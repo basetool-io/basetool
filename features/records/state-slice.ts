@@ -44,6 +44,7 @@ const recordsStateSlice = createSlice({
   initialState,
   reducers: {
     resetState() {
+      console.log('resetState->', resetState)
       return initialState;
     },
 

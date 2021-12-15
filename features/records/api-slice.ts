@@ -57,22 +57,7 @@ export const recordsApiSlice = createApi({
 
           return `/records?${queryParams}`;
         },
-        providesTags: (response) => {
-          // is result available?
-          if (response && response?.data) {
-            // successful query
-            return [
-              ...response?.data?.map(
-                ({ id }: { id: string | number }) =>
-                  ({ type: "Record", id } as const)
-              ),
-              { type: "Record", id: "LIST" },
-            ];
-          }
-
-          // an error occurred, but we still want to refetch this query when `{ type: 'Posts', id: 'LIST' }` is invalidated
-          return [{ type: "Record", id: "LIST" }];
-        },
+        providesTags: [{ type: "Record", id: "LIST" }],
       }),
       getRecord: builder.query<
         ApiResponse,

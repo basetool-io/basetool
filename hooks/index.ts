@@ -24,8 +24,8 @@ import { useMedia } from "react-use";
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { useViewResponse } from "@/features/views/hooks";
 import ApiService from "@/features/api/ApiService";
+import { useView } from "@/features/views/hooks"
 
 export const useApi = () => new ApiService();
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -124,7 +124,7 @@ export const useDataSourceContext = () => {
   const tableName = useAppSelector(tableNameSelector);
 
   const viewId = router.query.viewId as string;
-  const { view } = useViewResponse(viewId);
+  const { view } = useView({viewId});
 
   useEffect(() => {
     if (view?.dataSourceId)

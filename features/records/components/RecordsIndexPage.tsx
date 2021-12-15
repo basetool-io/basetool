@@ -7,7 +7,7 @@ import { useACLHelpers } from "@/features/authorization/hooks";
 import { useAppSelector, useDataSourceContext } from "@/hooks";
 import { useBoolean, useClickAway } from "react-use";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
-import { useViewResponse } from "@/features/views/hooks";
+import { useView, useViewResponse } from "@/features/views/hooks";
 import BulkDeleteButton from "@/features/tables/components/BulkDeleteButton";
 import CursorPagination from "@/features/tables/components/CursorPagination";
 import FiltersButton from "@/features/tables/components/FiltersButton";
@@ -31,7 +31,7 @@ const RecordsIndexPage = ({
 }) => {
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
-  const { view } = useViewResponse(viewId);
+  const { view } = useView({viewId});
   const { info } = useDataSourceResponse(dataSourceId);
 
   const filtersButton = useRef(null);
@@ -162,19 +162,19 @@ const RecordsIndexPage = ({
           <div className="relative flex-1 flex h-full max-w-full w-full z-40">
             {dataSourceId && (
               <div className="flex-1 flex flex-col justify-between w-full">
-                {isFetching && (
+                {/* {isFetching && (
                   <div className="flex-1 flex">
                     <LoadingOverlay label="Fetching records" transparent />
                   </div>
-                )}
-                {!isFetching && (
+                )} */}
+                {/* {!isFetching && ( */}
                   <>
                     <div className="flex-1 flex overflow-x-auto w-full">
-                      <RecordsTable records={records} error={error} />
+                      <RecordsTable isFetching={isFetching} records={records} error={error} />
                     </div>
                     <PaginationComponent />
                   </>
-                )}
+                {/* )} */}
               </div>
             )}
           </div>

@@ -14,7 +14,6 @@ import {
 import {
   columnWidthsSelector,
   columnsSelector,
-  recordsSelector,
 } from "@/features/records/state-slice";
 import {
   getConnectedColumns,
@@ -34,6 +33,7 @@ import Cell from "./Cell";
 import CheckboxColumnCell from "./CheckboxColumnCell";
 import ErrorMessage from "@/components/ErrorMessage";
 import ItemControlsCell from "./ItemControlsCell";
+import LoadingOverlay from "@/components/LoadingOverlay";
 import MobileRow from "./MobileRow";
 import React, { memo, useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
@@ -133,10 +133,10 @@ const RecordsTable = ({
     useResizeColumns
   );
 
-  const updateColumnWidths = useResizableColumns({ dataSourceId, tableName });
-  useEffect(() => {
-    updateColumnWidths({ state, columnWidths });
-  }, [state?.columnResizing, columnWidths]);
+  // const updateColumnWidths = useResizableColumns({ dataSourceId, tableName });
+  // useEffect(() => {
+  //   updateColumnWidths({ state, columnWidths });
+  // }, [state?.columnResizing, columnWidths]);
 
   const {
     allColumnsChecked,
@@ -163,12 +163,16 @@ const RecordsTable = ({
   return (
     <div className="relative flex flex-col justify-between h-full w-full">
       {error && <ErrorMessage error={error} />}
+
+      {isFetching && (<div className="flex-1 flex">
+        <LoadingOverlay label="Fetching records" transparent />
+      </div>)}
       {!hasRecords && !error && (
         <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600 h-full">
           No records found
         </div>
       )}
-      {hasRecords && !error && (
+      {!isFetching && hasRecords && !error && (
         <div className="flex">
           <div
             className={

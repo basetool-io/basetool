@@ -76,7 +76,7 @@ export const useFilters = () => {
 
   const setAppliedFilters = (filters: Array<IFilter | IFilterGroup>) => {
     dispatch(setAppliedFiltersInState(filters));
-    setPage(1);
+    // setPage(1);
   };
 
   const resetFilters = () => {

@@ -8,7 +8,7 @@ import Authenticated from "./Authenticated";
 import DataSourcesSidebar from "./DataSourcesSidebar";
 import HeadSection from "./HeadSection";
 import PageWrapper from "./PageWrapper";
-import React, { ReactNode, useEffect, useMemo } from "react";
+import React, { ReactNode, memo, useEffect, useMemo } from "react";
 import SettingsSidebar from "./OrganizationSidebar";
 import Sidebar from "./Sidebar";
 import classNames from "classnames";
@@ -109,4 +109,4 @@ function Layout({
   );
 }
 
-export default Layout;
+export default memo(Layout);

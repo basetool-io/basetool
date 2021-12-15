@@ -5,7 +5,7 @@ import { getColumnOptions } from "@/features/fields";
 import { useAppSelector } from "@/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useGetColumnsQuery } from "../fields/api-slice";
-import { useGetViewQuery } from "./api-slice";
+import { useGetViewQuery, useGetViewsQuery } from "./api-slice";
 import { useMemo } from "react";
 import { useUpdateColumnMutation } from "@/features/views/api-slice";
 
@@ -77,4 +77,32 @@ export const useViewResponse = (viewId: string) => {
     isFetching,
     error,
   };
+};
+
+export const useViewsResponse = () => {
+  const { data: response, isLoading, isFetching, error } = useGetViewsQuery();
+
+  const views: View[] = useMemo(
+    () => (response?.ok ? response.data : []),
+    [response]
+  );
+
+  return {
+    views,
+    response,
+    isLoading,
+    isFetching,
+    error,
+  };
+};
+
+export const useView = ({ viewId }: { viewId: string }) => {
+  const { views, isLoading, isFetching, error } = useViewsResponse();
+
+  const view = useMemo(
+    () => views.find(({ id }) => id.toString() === viewId),
+    [views]
+  );
+
+  return { view, isLoading, isFetching, error };
 };

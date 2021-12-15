@@ -49,4 +49,4 @@ const IndexFieldWrapper = ({
   );
 };
 
-export default memo(IndexFieldWrapper);
+export default (IndexFieldWrapper);
