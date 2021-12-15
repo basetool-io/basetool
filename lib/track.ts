@@ -1,5 +1,5 @@
 import { inProduction } from "./environment";
-import { segmentPublicKey } from "./services";
+import { segmentWriteKey } from "./services";
 import Analytics from "analytics-node";
 import isUndefined from "lodash/isUndefined";
 
@@ -19,7 +19,7 @@ export const serverSegment = () => {
   let segment: any;
 
   if (inProduction) {
-    segment = new Analytics(segmentPublicKey as string);
+    segment = new Analytics(segmentWriteKey as string);
   } else {
     segment = {
       track: () => undefined,

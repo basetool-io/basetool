@@ -14,19 +14,20 @@ function DashboardPage() {
   const { data: widgetsValuesResponse, isLoading: widgetsValuesIsLoading } =
     useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
-  const widgetsValues: any = useMemo(
-    () =>
-      widgetsValuesResponse?.ok &&
-      Object.fromEntries(
+  const widgetsValues: any = useMemo(() => {
+    if (widgetsValuesResponse?.ok) {
+      return Object.fromEntries(
         widgetsValuesResponse.data.map(
           (itemValue: { id: number; value?: string; error?: string }) => [
             itemValue.id,
             { value: itemValue.value, error: itemValue.error },
           ]
         )
-      ),
-    [widgetsValuesResponse]
-  );
+      );
+    } else {
+      return {};
+    }
+  }, [widgetsValuesResponse]);
 
   return (
     <div className="relative flex flex-col flex-1 w-full h-full p-2">
@@ -41,9 +42,7 @@ function DashboardPage() {
             <WidgetView
               key={idx}
               widget={widget}
-              valueResponse={
-                widgetsValues ? widgetsValues[widget.id] : undefined
-              }
+              valueResponse={widgetsValues[widget.id]}
               isLoading={widgetsValuesIsLoading}
             />
           ))}

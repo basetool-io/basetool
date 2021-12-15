@@ -44,9 +44,13 @@ function WidgetView({
     [activeWidgetName, widget.name, isEditPage]
   );
 
-  const selectActiveWidget = () => {
+  const toggleWidgetSelection = () => {
     if (isEditPage) {
-      dispatch(setActiveWidgetName(widget.name));
+      if (activeWidgetName === widget?.name) {
+        dispatch(setActiveWidgetName(""));
+      } else {
+        dispatch(setActiveWidgetName(widget.name));
+      }
     }
   };
 
@@ -79,7 +83,7 @@ function WidgetView({
           "border border-blue-600": widgetIsActive,
         }
       )}
-      onClick={selectActiveWidget}
+      onClick={toggleWidgetSelection}
     >
       <dt className="text-sm font-medium text-gray-500 truncate">
         {widget.name}

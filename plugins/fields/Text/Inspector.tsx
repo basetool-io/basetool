@@ -27,12 +27,21 @@ function Inspector({ column, setColumnOptions }: InspectorProps) {
   );
 
   const [linkText, setLinkText] = useState<string>();
+  const [linkPrefix, setLinkPrefix] = useState<string>();
 
   const updateLinkText = (event: any) => {
     setLinkText(event.currentTarget.value);
     if (column)
       debouncedSetColumnOptions(column.name, {
         "fieldOptions.linkText": event.currentTarget.value,
+      });
+  };
+
+  const updateLinkPrefix = (event: any) => {
+    setLinkPrefix(event.currentTarget.value);
+    if (column)
+      debouncedSetColumnOptions(column.name, {
+        "fieldOptions.linkPrefix": event.currentTarget.value,
       });
   };
 
@@ -70,7 +79,6 @@ function Inspector({ column, setColumnOptions }: InspectorProps) {
         {column.fieldOptions.displayAs === "link" && (
           <div>
             <FormControl id="openNewTab" className="mt-2">
-              <FormLabel>Open new tab</FormLabel>
               <Checkbox
                 isChecked={column.fieldOptions.openNewTab === true}
                 onChange={() =>
@@ -79,11 +87,11 @@ function Inspector({ column, setColumnOptions }: InspectorProps) {
                   })
                 }
               >
-                Open new Tab
+                <span className="text-sm font-semibold text-neutral-600 flex">Open new Tab</span>
               </Checkbox>
             </FormControl>
             <FormControl id="linkText" className="mt-2">
-              <FormLabel>Link Text</FormLabel>
+              <label className="text-sm font-semibold text-neutral-600 flex">Link text</label>
               <Input
                 type="text"
                 name="linkText"
@@ -91,6 +99,19 @@ function Inspector({ column, setColumnOptions }: InspectorProps) {
                 required={false}
                 value={linkText}
                 onChange={updateLinkText}
+                size="sm"
+              />
+            </FormControl>
+            <FormControl id="linkPrefix" className="mt-2">
+              <label className="text-sm font-semibold text-neutral-600 flex">Link prefix</label>
+              <Input
+                type="text"
+                name="linkPrefix"
+                placeholder="Link text"
+                required={false}
+                value={linkPrefix}
+                onChange={updateLinkPrefix}
+                size="sm"
               />
             </FormControl>
           </div>
