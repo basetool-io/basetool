@@ -1,9 +1,9 @@
 import { DataSource, Widget } from "@prisma/client";
-import { WidgetValueResponse } from '@/features/dashboards/types';
+import { WidgetValue } from '@/features/dashboards/types';
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 
 export const getValueForWidget = async (widget: Pick<Widget, "id" | "query">, dataSource: DataSource) => {
-  let response: WidgetValueResponse;
+  let response: WidgetValue;
 
   try {
     const queryValue = await runQuery(dataSource, "runRawQuery", {

@@ -1,4 +1,4 @@
-export type WidgetValueResponse = {
+export type WidgetValue = {
   id: number;
   value?: string;
   error?: string;

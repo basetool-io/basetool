@@ -84,7 +84,7 @@ export const api = createApi({
         Partial<{ dashboardId: string }>
       >({
         query({ dashboardId }) {
-          return `/dashboards/${dashboardId}/widgetsValues`;
+          return `/dashboards/${dashboardId}/widgets/values`;
         },
         providesTags: (result, error, { dashboardId }) => [
           { type: "Dashboard", id: dashboardId },
@@ -93,7 +93,7 @@ export const api = createApi({
       getWidgetValue: builder.query<ApiResponse, Partial<{ widgetId: string }>>(
         {
           query({ widgetId }) {
-            return `${apiUrl}/widgets/${widgetId}/widgetValue`;
+            return `${apiUrl}/widgets/${widgetId}/value`;
           },
           providesTags: (result, error, { widgetId }) => [
             { type: "Widget", id: widgetId },

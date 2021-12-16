@@ -211,7 +211,9 @@ const DashboardsSidebarSection = () => {
               onClose={onClose}
             >
               <PopoverTrigger>
-                <div><DashedCreateBox title="Create dashboard" /></div>
+                <div>
+                  <DashedCreateBox>Create dashboard</DashedCreateBox>
+                </div>
               </PopoverTrigger>
               <ContentForPopover />
             </Popover>

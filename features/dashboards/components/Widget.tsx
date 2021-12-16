@@ -1,29 +1,24 @@
 import { IconButton, Tooltip } from "@chakra-ui/react";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
-import { WidgetOptions, WidgetValueResponse } from "../types";
+import { WidgetOptions, WidgetValue } from "../types";
 import {
   activeWidgetNameSelector,
-  setActiveWidgetName,
 } from "@/features/records/state-slice";
-import { isEmpty, isUndefined } from "lodash";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import {
-  useGetWidgetsValuesQuery,
-  useLazyGetWidgetValueQuery,
-} from "../api-slice";
-import { useRouter } from "next/router";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import { isUndefined } from "lodash";
+import { useAppSelector } from "@/hooks";
+import { useWidgetValue } from "../hooks";
+import React, { memo, useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import classNames from "classnames";
 
 const LoadingState = () => (
-  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-    <Shimmer height="36px" className="inline-block" />
+  <dd className="text-3xl font-semibold text-gray-900">
+    <Shimmer height="100%" className="inline-block" />
   </dd>
 );
 
-const ErrorState = ({ widgetValue }: { widgetValue: WidgetValueResponse }) => (
+const ErrorState = ({ widgetValue }: { widgetValue: WidgetValue }) => (
   <div className="relative flex text-red-500 items-center">
     <label className="text-sm font-semibold flex uppercase text-gray-500">
       Error
@@ -43,11 +38,11 @@ const SuccessState = ({
   widgetValue,
 }: {
   widget: Widget;
-  widgetValue: WidgetValueResponse;
+  widgetValue: WidgetValue;
 }) => (
   <>
     <span className="mr-1">{(widget?.options as WidgetOptions)?.prefix}</span>
-    <span className="font-semibold">{widgetValue.value}</span>
+    <span className="font-semibold">{parseFloat(widgetValue?.value || "").toFixed(2)}</span>
     <span className="ml-1 text-base text-gray-700">
       {(widget?.options as WidgetOptions)?.suffix}
     </span>
@@ -55,83 +50,21 @@ const SuccessState = ({
 );
 
 function Widget({ widget }: { widget: Widget }) {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
-  const dashboardId = widget.dashboardId.toString();
 
-  const { data: bulkValuesResponse, isFetching: bulkValuesAreFetching } =
-    useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
-
-  const [
-    getWidgetValue,
-    { data: widgetValueResponse, isFetching: widgetValueIsFetching },
-  ] = useLazyGetWidgetValueQuery();
-
-  const widgetValueFromSingleRefresh = useMemo(
-    () => (widgetValueResponse?.ok ? widgetValueResponse.data : {}),
-    [widgetValueResponse]
-  );
-
-  const isFetching = useMemo(
-    () => bulkValuesAreFetching || widgetValueIsFetching,
-    [bulkValuesAreFetching, widgetValueIsFetching]
-  );
-
-  const widgetValueFromBulk = useMemo(
-    () =>
-      bulkValuesResponse?.ok
-        ? bulkValuesResponse.data.find(
-            (bulkValue: WidgetValueResponse) => bulkValue.id === widget.id
-          )
-        : {},
-    [bulkValuesResponse, dashboardId, widget.id]
-  );
-
-  const [widgetValue, setWidgetValue] = useState<WidgetValueResponse>({
-    id: widget.id,
-  });
-
-  useEffect(() => {
-    if (!isEmpty(widgetValueFromBulk)) {
-      setWidgetValue(widgetValueFromBulk);
-    }
-  }, [widgetValueFromBulk]);
-
-  useEffect(() => {
-    if (!isEmpty(widgetValueFromSingleRefresh)) {
-      setWidgetValue(widgetValueFromSingleRefresh);
-    }
-  }, [widgetValueFromSingleRefresh]);
-
-  const isEditPage = useMemo(
-    () => router.pathname.includes("/edit"),
-    [router.pathname]
-  );
+  const { getWidgetValue, widgetValue, isFetching, widgetValueIsFetching } = useWidgetValue(widget);
 
   const widgetIsActive = useMemo(
-    () => activeWidgetName === widget.name && isEditPage,
-    [activeWidgetName, widget.name, isEditPage]
+    () => activeWidgetName === widget.name,
+    [activeWidgetName, widget.name]
   );
-
-  const toggleWidgetSelection = () => {
-    if (isEditPage) {
-      if (activeWidgetName === widget?.name) {
-        dispatch(setActiveWidgetName(""));
-      } else {
-        dispatch(setActiveWidgetName(widget.name));
-      }
-    }
-  };
 
   const hasError = useMemo(
     () => widgetValue.id && !isUndefined(widgetValue?.error),
     [widgetValue]
   );
 
-  const refreshValue = async (e: any) => {
-    e.stopPropagation();
-
+  const refreshValue = async () => {
     if (!widget) return;
 
     await getWidgetValue({
@@ -142,12 +75,11 @@ function Widget({ widget }: { widget: Widget }) {
   return (
     <div
       className={classNames(
-        "flex flex-col justify-between px-3 py-4 bg-white shadow rounded-lg overflow-hidden sm:p-6",
+        "flex flex-col justify-between px-3 py-4 bg-white shadow rounded-lg overflow-hidden sm:p-6 border border-transparent",
         {
-          "border border-blue-600": widgetIsActive,
+          "border-blue-600": widgetIsActive,
         }
       )}
-      onClick={toggleWidgetSelection}
     >
       <dt className="flex justify-between w-full text-sm font-medium text-gray-500 truncate mb-1">
         <span>{widget.name}</span>
@@ -157,7 +89,7 @@ function Widget({ widget }: { widget: Widget }) {
           aria-label="Refresh"
           icon={<RefreshIcon className="h-3" />}
           onClick={refreshValue}
-          isFetching={widgetValueIsFetching}
+          isLoading={widgetValueIsFetching}
           className="no-focus"
         />
       </dt>

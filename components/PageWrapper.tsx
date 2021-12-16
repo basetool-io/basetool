@@ -99,6 +99,7 @@ function PageWrapper({
   footer,
   footerElements,
   error,
+  bodyClassName,
 }: {
   heading?: string | ReactElement;
   crumbs?: Array<string | undefined>;
@@ -111,6 +112,7 @@ function PageWrapper({
   footer?: ReactElement;
   footerElements?: FooterElements;
   error?: FetchBaseQueryError | SerializedError | undefined;
+  bodyClassName?: string;
 }) {
   const [sidebarsVisible, setSidebarVisible] = useSidebarsVisible();
 
@@ -166,8 +168,8 @@ function PageWrapper({
           )}
           <div
             className={classNames("relative flex-1 flex flex-col", {
-              "px-4 py-4": !flush,
-            })}
+              "px-4 py-4 ": !flush,
+            }, bodyClassName)}
           >
             {isLoading && <LoadingOverlay inPageWrapper />}
             {!error && children}

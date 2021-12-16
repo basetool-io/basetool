@@ -1,4 +1,4 @@
-import { WidgetValueResponse } from "@/features/dashboards/types";
+import { WidgetValue } from "@/features/dashboards/types";
 import { getValueForWidget } from "@/features/dashboards/server-helpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -51,7 +51,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 
   if (!dataSource) return res.status(404).send("");
 
-  const response: WidgetValueResponse = await getValueForWidget(widget, dataSource);
+  const response: WidgetValue = await getValueForWidget(widget, dataSource);
 
   res.json(ApiResponse.withData(response));
 }

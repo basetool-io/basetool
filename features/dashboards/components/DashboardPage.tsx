@@ -1,14 +1,14 @@
 import { Widget as IWidget } from "@prisma/client";
 import { Link } from "@chakra-ui/react";
+import { setActiveWidgetName } from "@/features/records/state-slice";
+import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
-import { useDataSourceContext } from "@/hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
-import { useRouter } from "next/router";
-import React, { useMemo } from "react";
+import React, { useEffect } from "react";
 import Widget from "./Widget";
 
-function DashboardPage() {
-  const router = useRouter();
+function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
+  const dispatch = useAppDispatch();
   const { dashboardId } = useDataSourceContext();
 
   const { isLoading: dashboardIsLoading, widgets } =
@@ -16,19 +16,20 @@ function DashboardPage() {
 
   useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
-  const isEditPage = useMemo(
-    () => router.pathname.includes("/edit"),
-    [router.pathname]
-  );
+  useEffect(() => {
+    if (!isEditPage) dispatch(setActiveWidgetName(""));
+  }, [isEditPage]);
 
   return (
-    <div className="relative flex flex-col flex-1 w-full h-full p-2">
+    <div className="relative flex flex-col flex-1 w-full h-full p-2 bg-neutral-100">
       {!dashboardIsLoading && widgets.length === 0 && (
         <div className="flex flex-1 flex-col justify-center items-center text-lg font-semibold text-gray-600 h-full">
           No widgets{" "}
           {!isEditPage && (
             <Link href={`/dashboards/${dashboardId}/edit`}>
-              <a className="text-blue-600 text-md underline">Add a widget</a>
+              <a className="text-blue-600 text-sm underline mr-1">
+                Add a widget
+              </a>
             </Link>
           )}
         </div>

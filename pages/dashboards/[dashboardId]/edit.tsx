@@ -123,7 +123,7 @@ const Edit = () => {
           </div>
           <div className="relative flex-1 flex h-full max-w-3/4 w-3/4">
             {widget && <WidgetEditor />}
-            <DashboardPage />
+            <DashboardPage isEditPage={true} />
           </div>
         </div>
       </PageWrapper>

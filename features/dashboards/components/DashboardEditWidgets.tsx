@@ -12,6 +12,7 @@ import {
   Portal,
   useDisclosure,
 } from "@chakra-ui/react";
+import { MINIMUM_WIDGET_NAME_LENGTH } from "@/lib/constants";
 import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import {
@@ -95,7 +96,7 @@ const Form = ({
     widgets.some((widget: Widget) => widget.name === snakeCase(name));
 
   const createWidget = async () => {
-    if (name.length < 4) return;
+    if (name.length < MINIMUM_WIDGET_NAME_LENGTH) return;
 
     // close popover
     onClose();
@@ -142,7 +143,7 @@ const Form = ({
           size="sm"
           colorScheme="blue"
           width="100%"
-          isDisabled={name.length < 4}
+          isDisabled={name.length < MINIMUM_WIDGET_NAME_LENGTH}
           isLoading={isLoading}
           leftIcon={<PlusIcon className="text-white h-4" />}
         >
@@ -221,7 +222,7 @@ const DashboardEditWidgets = () => {
         >
           <PopoverTrigger>
             <div>
-              <DashedCreateBox title="Create widget" />
+              <DashedCreateBox>Create widget</DashedCreateBox>
             </div>
           </PopoverTrigger>
           <ContentForPopover />

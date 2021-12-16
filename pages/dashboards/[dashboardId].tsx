@@ -49,7 +49,7 @@ const DashboardView = () => {
           <>
             {dashboard?.name}
             <IconButton
-              size="sm"
+              size="xs"
               variant="ghost"
               aria-label="Refresh"
               icon={<RefreshIcon className="h-4" />}
@@ -65,6 +65,7 @@ const DashboardView = () => {
             {canEdit && dashboardId && <EditDashboardButton />}
           </ButtonGroup>
         }
+        bodyClassName="bg-neutral-100"
       >
         <DashboardPage />
       </PageWrapper>

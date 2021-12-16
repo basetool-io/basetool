@@ -93,7 +93,7 @@ const ViewsSidebarSection = () => {
           {/* If no views are present, show a nice box with the create message */}
           {!viewsLoading && filteredViews.length === 0 && (
             <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
-              <div><DashedCreateBox title="Create view" /></div>
+              <div><DashedCreateBox>Create view</DashedCreateBox></div>
             </Link>
           )}
           {/* display only views created by logged in user or public views and having same datasource */}

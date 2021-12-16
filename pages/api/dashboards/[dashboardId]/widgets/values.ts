@@ -1,4 +1,4 @@
-import { WidgetValueResponse } from '@/features/dashboards/types';
+import { WidgetValue } from '@/features/dashboards/types';
 import { getValueForWidget } from '@/features/dashboards/server-helpers';
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
@@ -44,7 +44,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
   if (!dataSource) return res.status(404).send("");
 
-  const response: WidgetValueResponse[] = [];
+  const response: WidgetValue[] = [];
 
   for (const widget of dashboard.widgets) {
     response.push(await getValueForWidget(widget, dataSource));

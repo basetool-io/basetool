@@ -45,7 +45,7 @@ function WidgetEditor() {
           className="font-mono"
           formHelperText={
             <>
-              You should format the result using{" "}
+              You should return the result using{" "}
               <Code>
                 AS VALUE
               </Code>
