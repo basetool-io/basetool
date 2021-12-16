@@ -35,7 +35,7 @@ function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
         </div>
       )}
       {!dashboardIsLoading && widgets.length > 0 && (
-        <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {widgets.map((widget: IWidget, idx: number) => (
             <Widget key={idx} widget={widget} />
           ))}
