@@ -5,7 +5,6 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/outline";
 import { DataSource } from "@prisma/client";
-import { DataSourceOptions } from "@/features/data-sources/types";
 import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
@@ -146,14 +145,6 @@ const DataSourcesSidebar = () => {
                     name = name.split("").join(" ");
                   }
 
-                  let homepageLink = `/data-sources/${dataSource.id}`;
-
-                  const homepageType = (dataSource?.options as DataSourceOptions)?.homepageType;
-                  const homepageId = (dataSource?.options as DataSourceOptions)?.homepageId;
-                  if(homepageType && homepageId) {
-                    homepageLink = `/${homepageType}s/${homepageId}`;
-                  }
-
                   return (
                     <DataSourceItem
                       key={dataSource.id}
@@ -168,7 +159,7 @@ const DataSourcesSidebar = () => {
                           color="transparent"
                         />
                       }
-                      link={homepageLink}
+                      link={`/data-sources/${dataSource.id}`}
                       label={dataSource.name}
                       onMouseOver={() => {
                         prefetchTables({

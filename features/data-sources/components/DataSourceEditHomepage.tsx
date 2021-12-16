@@ -1,7 +1,6 @@
 import { Dashboard, View } from "@prisma/client";
 import { DataSourceOptions } from "../types";
 import { Select } from "@chakra-ui/react";
-import { isEmpty } from "lodash";
 import { useDataSourceContext, useProfile } from "@/hooks";
 import { useDataSourceResponse } from "../hooks";
 import { useGetDashboardsQuery } from "@/features/dashboards/api-slice";
@@ -46,11 +45,8 @@ function DataSourceEditHomepage() {
   const [updateDataSource] = useUpdateDataSourceMutation();
 
   const changeHomepage = async (name: string) => {
-    if (!isEmpty(name)) {
-      const values = name.split("-");
       const options = {
-        homepageType: values[0],
-        homepageId: values[1],
+        homepage: name,
       };
 
       await updateDataSource({
@@ -59,14 +55,11 @@ function DataSourceEditHomepage() {
           options,
         },
       }).unwrap();
-    }
   };
 
   const defaultValue = useMemo(
     () =>
-      `${(dataSource?.options as DataSourceOptions)?.homepageType}-${
-        (dataSource?.options as DataSourceOptions)?.homepageId
-      }`,
+      `${(dataSource?.options as DataSourceOptions)?.homepage}` || "",
     [dataSource]
   );
 
@@ -94,18 +87,26 @@ function DataSourceEditHomepage() {
         defaultValue={defaultValue}
         onChange={(e) => changeHomepage(e.currentTarget.value)}
         isLoading={isLoading}
-        placeholder="Select homepage"
       >
+        <option value="">
+          Select homepage
+        </option>
+        <option disabled>
+          Dashboards
+        </option>
         {dashboards &&
           dashboards.map((dashboard: Dashboard, idx: number) => (
-            <option key={idx} value={`dashboard-${dashboard.id}`}>
-              dashboard: {dashboard.name} ({dashboard.id})
+            <option key={idx} value={`dashboard:${dashboard.id}`}>
+              {dashboard.name}
             </option>
           ))}
+        <option disabled>
+          Views
+        </option>
         {filteredViews &&
           filteredViews.map((view: View, idx: number) => (
-            <option key={idx} value={`view-${view.id}`}>
-              view: {view.name} ({view.id})
+            <option key={idx} value={`view:${view.id}`}>
+              {view.name}
             </option>
           ))}
       </Select>

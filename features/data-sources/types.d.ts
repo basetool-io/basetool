@@ -23,6 +23,5 @@ export type TableMetaData = {
 export type DataSourceOptions = {
   connectsWithSSH: boolean;
   connectsWithSSHKey: boolean;
-  homepageType?: string;
-  homepageId?: string;
+  homepage?: string;
 }
