@@ -1,4 +1,10 @@
-import { DataSource, Organization, User, View } from "@prisma/client";
+import {
+  Dashboard,
+  DataSource,
+  Organization,
+  User,
+  View,
+} from "@prisma/client";
 import { NextApiRequest } from "next";
 import { getSession } from "next-auth/client";
 import prisma from "@/prisma";
@@ -76,4 +82,37 @@ export const getViewFromRequest = async (
     },
     ...options,
   });
+};
+
+export const hasAccessToDashboard = async (
+  dashboard: Dashboard,
+  req: NextApiRequest
+) => {
+  const user = (await getUserFromRequest(req, {
+    select: {
+      id: true,
+      organizations: {
+        select: {
+          organizationId: true,
+        },
+      },
+    },
+  })) as User & {
+    organizations: {
+      organizationId: number;
+    }[];
+  };
+
+  const organizationIds = user.organizations.map(
+    ({ organizationId }) => organizationId
+  );
+
+  if (
+    dashboard?.organizationId &&
+    organizationIds.includes(dashboard?.organizationId)
+  ) {
+    return true;
+  }
+
+  return false;
 };

@@ -1,4 +1,4 @@
-import { getUserFromRequest } from "@/features/api";
+import { getUserFromRequest, hasAccessToDashboard } from "@/features/api";
 import { schema } from "@/features/dashboards/schema";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
@@ -40,6 +40,9 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       widgets: true,
     },
   });
+
+  if(dashboard && !hasAccessToDashboard(dashboard, req))
+    return res.status(404).send("");
 
   res.json(ApiResponse.withData(dashboard));
 }
@@ -96,7 +99,5 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default withMiddlewares(handler, {
-  middlewares: [
-    [IsSignedIn, {}],
-  ],
+  middlewares: [[IsSignedIn, {}]],
 });
