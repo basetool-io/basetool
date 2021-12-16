@@ -55,8 +55,10 @@ function Inspector({ column, setColumnOptions }: InspectorProps) {
           value={(column.fieldOptions.displayAs as DisplayAsOptions) || "text"}
           size="sm"
         >
+          <option disabled>dashboads</option>
           <option value="text">Regular text</option>
           <option value="link">Link</option>
+          <option disabled>Views</option>
           <option value="image">Image</option>
           <option value="email">Email</option>
         </Select>

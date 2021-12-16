@@ -1,4 +1,4 @@
-import { Column } from "../fields/types"
+import { Column } from "../fields/types";
 import { IFilter, IFilterGroup, OrderDirection } from "@/features/tables/types";
 import { TableState } from "react-table";
 import {
@@ -16,7 +16,7 @@ import {
   orderDirectionSelector,
   pageSelector,
   perPageSelector,
-  recordsSelector,
+  recordIdsSelector,
   removeAppliedFilter,
   removeFilter,
   resetRecordsSelection as resetRecordsSelectionInState,
@@ -31,7 +31,7 @@ import {
   setOrderDirection as setOrderDirectionInState,
   setPage as setPageInState,
   setPerPage as setPerPageInState,
-  setRecords as setRecordsInState,
+  setRecordIds as setRecordIdsInState,
   setRecordsSelected as setRecordsSelectedInState,
   toggleRecordSelection as toggleRecordSelectionInState,
   updateFilter,
@@ -76,7 +76,6 @@ export const useFilters = () => {
 
   const setAppliedFilters = (filters: Array<IFilter | IFilterGroup>) => {
     dispatch(setAppliedFiltersInState(filters));
-    // setPage(1);
   };
 
   const resetFilters = () => {
@@ -270,37 +269,22 @@ export const useColumns = ({
   };
 };
 
-export const useRecords = (
-  initialRecords?: [],
-  meta?: Record<string, unknown>
-) => {
+export const useRecords = () => {
   const dispatch = useAppDispatch();
-  const records = useAppSelector(recordsSelector);
+  const recordIds = useAppSelector(recordIdsSelector);
 
-  const setRecords = (records: []) => {
-    dispatch(setRecordsInState(records));
+  const setRecordIds = (records: []) => {
+    dispatch(setRecordIdsInState(records));
   };
 
   const setMeta = (meta: Record<string, unknown>) => {
     dispatch(setMetaInState(meta as any));
   };
 
-  // useEffect(() => {
-  //   if (initialRecords) {
-  //     setRecords(initialRecords);
-  //   }
-  // }, [initialRecords]);
-
-  useEffect(() => {
-    if (meta) {
-      setMeta(meta);
-    }
-  }, [meta]);
-
   return {
-    records,
-    meta,
-    setRecords,
+    recordIds,
+    setMeta,
+    setRecordIds,
   };
 };
 

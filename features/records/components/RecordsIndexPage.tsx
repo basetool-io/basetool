@@ -1,5 +1,6 @@
-import { BasetoolRecord } from "../types"
+import { BasetoolRecord } from "../types";
 import { Button, ButtonGroup } from "@chakra-ui/react";
+import { Column } from "@/features/fields/types";
 import { PencilAltIcon, PlusIcon } from "@heroicons/react/outline";
 import { columnsSelector } from "../state-slice";
 import { humanize } from "@/lib/humanize";
@@ -16,21 +17,30 @@ import Layout from "@/components/Layout";
 import Link from "next/link";
 import OffsetPagination from "@/features/tables/components/OffsetPagination";
 import PageWrapper from "@/components/PageWrapper";
-import React, { memo, useMemo, useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import RecordsTable from "@/features/tables/components/RecordsTable";
+
+const PaginationComponent = ({ type }: { type?: "offset" | "cursor" }) => {
+  if (type === "offset") return <OffsetPagination />;
+  if (type === "cursor") return <CursorPagination />;
+
+  return null;
+};
 
 const RecordsIndexPage = ({
   records,
+  columns,
   error,
   isFetching,
 }: {
   records: BasetoolRecord[];
+  columns: Column[];
   error?: string;
   isFetching?: boolean;
 }) => {
   const { viewId, tableName, dataSourceId, newRecordPath } =
     useDataSourceContext();
-  const { view } = useView({viewId});
+  const { view } = useView({ viewId });
   const { info } = useDataSourceResponse(dataSourceId);
 
   const filtersButton = useRef(null);
@@ -65,16 +75,6 @@ const RecordsIndexPage = ({
   }, [view, tableName]);
 
   const [filtersPanelVisible, toggleFiltersPanelVisible] = useBoolean(false);
-
-  const PaginationComponent = useMemo(() => {
-    switch (info?.pagination) {
-      default:
-      case "offset":
-        return OffsetPagination;
-      case "cursor":
-        return CursorPagination;
-    }
-  }, [info?.pagination]);
 
   const { canBulkDelete, canCreate, canCreateView, canEditView } =
     useACLHelpers({ dataSourceInfo: info, viewId });
@@ -167,12 +167,17 @@ const RecordsIndexPage = ({
                   </div>
                 )} */}
                 {/* {!isFetching && ( */}
-                  <>
-                    <div className="flex-1 flex overflow-x-auto w-full">
-                      <RecordsTable isFetching={isFetching} records={records} error={error} />
-                    </div>
-                    <PaginationComponent />
-                  </>
+                <>
+                  <div className="flex-1 flex overflow-x-auto w-full">
+                    <RecordsTable
+                      isFetching={isFetching}
+                      records={records}
+                      columns={columns}
+                      error={error}
+                    />
+                  </div>
+                  <PaginationComponent type={info.pagination} />
+                </>
                 {/* )} */}
               </div>
             )}
@@ -183,4 +188,4 @@ const RecordsIndexPage = ({
   );
 };
 
-export default memo(RecordsIndexPage);
+export default RecordsIndexPage;

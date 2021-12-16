@@ -101,7 +101,7 @@ export const useView = ({ viewId }: { viewId: string }) => {
 
   const view = useMemo(
     () => views.find(({ id }) => id.toString() === viewId),
-    [views]
+    [views, viewId]
   );
 
   return { view, isLoading, isFetching, error };

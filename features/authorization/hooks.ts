@@ -20,47 +20,55 @@ export const useACLHelpers = ({
 }) => {
   const ac = useAccessControl();
   const { isLoading: profileIsLoading } = useProfile();
-  const isOwner = useMemo(() => ac.hasRole(OWNER_ROLE), [ac]);
+  // const isOwner = useMemo(() => ac.hasRole(OWNER_ROLE), [ac]);
 
-  const canView = useMemo(() => {
-    if (profileIsLoading) return true;
+  // const canView = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return ac.readAny("record").granted;
-  }, [ac]);
-  const canEdit = useMemo(() => {
-    if (profileIsLoading) return true;
+  //   return ac.readAny("record").granted;
+  // }, [ac]);
+  // const canEdit = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return ac.updateAny("record").granted && !dataSourceInfo?.readOnly;
-  }, [ac, dataSourceInfo]);
-  const canDelete = useMemo(() => {
-    if (profileIsLoading) return true;
+  //   return ac.updateAny("record").granted && !dataSourceInfo?.readOnly;
+  // }, [ac, dataSourceInfo]);
+  // const canDelete = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return ac.deleteAny("record").granted && !dataSourceInfo?.readOnly;
-  }, [ac, dataSourceInfo]);
-  const canBulkDelete = useMemo(() => {
-    if (profileIsLoading) return true;
+  //   return ac.deleteAny("record").granted && !dataSourceInfo?.readOnly;
+  // }, [ac, dataSourceInfo]);
+  // const canBulkDelete = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return ac.deleteAny("record").granted && !dataSourceInfo?.readOnly;
-  }, [ac, dataSourceInfo]);
+  //   return ac.deleteAny("record").granted && !dataSourceInfo?.readOnly;
+  // }, [ac, dataSourceInfo]);
 
-  const canCreate = useMemo(() => {
-    if (profileIsLoading) return true;
+  // const canCreate = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return ac.createAny("record").granted && !dataSourceInfo?.readOnly;
-  }, [ac, dataSourceInfo]);
+  //   return ac.createAny("record").granted && !dataSourceInfo?.readOnly;
+  // }, [ac, dataSourceInfo]);
 
-  const canCreateView = useMemo(() => {
-    if (profileIsLoading) return true;
+  // const canCreateView = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return !viewId && ac.hasRole(OWNER_ROLE) && !dataSourceInfo?.readOnly;
-  }, [viewId, ac, dataSourceInfo]);
+  //   return !viewId && ac.hasRole(OWNER_ROLE) && !dataSourceInfo?.readOnly;
+  // }, [viewId, ac, dataSourceInfo]);
 
-  const canEditView = useMemo(() => {
-    if (profileIsLoading) return true;
+  // const canEditView = useMemo(() => {
+  //   if (profileIsLoading) return true;
 
-    return viewId && ac.hasRole(OWNER_ROLE);
-  }, [viewId, ac]);
+  //   return viewId && ac.hasRole(OWNER_ROLE);
+  // }, [viewId, ac]);
 
+  const canView = true
+  const canEdit = true
+  const canDelete = true
+  const canBulkDelete = true
+  const canCreate = true
+  const canCreateView = true
+  const canEditView = true
+  const isOwner = true
   return {
     canView,
     canEdit,

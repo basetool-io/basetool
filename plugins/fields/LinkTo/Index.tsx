@@ -12,7 +12,7 @@ type Association = {
 
 const TooltipLabel = memo(({ records }: { records: Association[] }) => (
   <ol className="list-decimal list-inside">
-    {records.length > 0 && records.map((record) => <li>{record.label}</li>)}
+    {records.length > 0 && records.map((record, idx: number) => <li key={idx}>{record.label}</li>)}
     {records.length === 0 && <>No associations</>}
   </ol>
 ));

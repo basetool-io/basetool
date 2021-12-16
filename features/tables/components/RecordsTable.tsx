@@ -13,7 +13,6 @@ import {
 } from "@heroicons/react/outline";
 import {
   columnWidthsSelector,
-  columnsSelector,
 } from "@/features/records/state-slice";
 import {
   getConnectedColumns,
@@ -23,10 +22,9 @@ import {
 } from "@/features/fields";
 import { parseColumns } from "..";
 import { sortBy } from "lodash";
-import { useAppSelector, useDataSourceContext, useResponsive } from "@/hooks";
+import { useAppSelector, useResponsive } from "@/hooks";
 import {
   useOrderRecords,
-  useResizableColumns,
   useSelectRecords,
 } from "@/features/records/hooks";
 import Cell from "./Cell";
@@ -35,9 +33,10 @@ import ErrorMessage from "@/components/ErrorMessage";
 import ItemControlsCell from "./ItemControlsCell";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MobileRow from "./MobileRow";
-import React, { memo, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import RecordRow from "./RecordRow";
 import classNames from "classnames";
+import { Column } from "@/features/fields/types"
 
 const checkboxColumn = {
   Header: "selector_column",
@@ -61,22 +60,23 @@ const controlsColumn = {
 
 const RecordsTable = ({
   records: rawRecords,
+  columns: rawColumns,
   error,
   isFetching,
 }: {
   records: BasetoolRecord[];
+  columns: Column[];
   error?: string;
   isFetching?: boolean;
 }) => {
   const { isMd } = useResponsive();
-  const { dataSourceId, tableName } = useDataSourceContext();
+  // const { dataSourceId, tableName } = useDataSourceContext();
 
   // Display desktop or mobile record row
   const RowComponent = useMemo(() => (isMd ? RecordRow : MobileRow), [isMd]);
 
   // Get raw records and columsn from the data store
-  // const rawRecords = useAppSelector(recordsSelector);
-  const rawColumns = useAppSelector(columnsSelector);
+  // const rawColumns = useAppSelector(columnsSelector);
 
   const hasRecords = useMemo(() => rawRecords.length > 0, [rawRecords]);
 
@@ -270,14 +270,14 @@ const RecordsTable = ({
             {rows.map((row: Row<any>, index) => {
               prepareRow(row);
 
-              const component = <RowComponent row={row} />;
+              // const component = <RowComponent row={row} />;
 
               return (
                 <div key={index}>
-                  {isMd || component}
+                  {isMd || <RowComponent row={row} />}
                   {isMd && (
                     <div {...getTableBodyProps()} className="bg-white">
-                      {component}
+                      <RowComponent row={row} />
                     </div>
                   )}
                 </div>
@@ -290,4 +290,4 @@ const RecordsTable = ({
   );
 };
 
-export default memo(RecordsTable);
+export default (RecordsTable);

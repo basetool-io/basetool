@@ -6,7 +6,7 @@ import { encodeObject } from "@/lib/encoding";
 import { first, isEmpty, last } from "lodash";
 
 interface AppState {
-  records: [];
+  recordIds: [];
   meta: Record<string, string | number | boolean | null>;
   columns: Column[];
   activeColumnName: Column["name"];
@@ -23,7 +23,7 @@ interface AppState {
 }
 
 const initialState: AppState = {
-  records: [],
+  recordIds: [],
   meta: {},
   columns: [],
   activeColumnName: "",
@@ -44,7 +44,6 @@ const recordsStateSlice = createSlice({
   initialState,
   reducers: {
     resetState() {
-      console.log('resetState->', resetState)
       return initialState;
     },
 
@@ -104,8 +103,8 @@ const recordsStateSlice = createSlice({
     /**
      * Records
      */
-    setRecords(state, action: PayloadAction<[]>) {
-      state.records = action.payload;
+    setRecordIds(state, action: PayloadAction<[]>) {
+      state.recordIds = action.payload;
     },
 
     /**
@@ -178,7 +177,7 @@ export const {
   setColumns,
   setActiveColumnName,
 
-  setRecords,
+  setRecordIds,
 
   setMeta,
 
@@ -226,17 +225,20 @@ export const orderDirectionSelector = ({
 /**
  * Records
  */
-export const recordsSelector = ({ recordsState }: { recordsState: AppState }) =>
-  recordsState.records;
+export const recordIdsSelector = ({
+  recordsState,
+}: {
+  recordsState: AppState;
+}) => recordsState.recordIds;
 export const firstRecordIdSelector = createSelector(
-  [recordsSelector],
-  (records): string | undefined =>
-    records.length > 0 ? (first(records) as any)?.id : undefined
+  [recordIdsSelector],
+  (ids): string | undefined =>
+    ids.length > 0 ? (first(ids) as any)?.id : undefined
 );
 export const lastRecordIdSelector = createSelector(
-  [recordsSelector],
-  (records): string | undefined =>
-    records.length > 0 ? (last(records) as any)?.id : undefined
+  [recordIdsSelector],
+  (ids): string | undefined =>
+    ids.length > 0 ? (last(ids) as any)?.id : undefined
 );
 
 /**
@@ -249,9 +251,9 @@ export const selectedRecordsSelector = ({
 }) => recordsState.selectedRecords;
 
 export const allColumnsCheckedSelector = createSelector(
-  [recordsSelector, selectedRecordsSelector],
-  (records, selectedRecords): boolean =>
-    records.length === selectedRecords.length && records.length > 0
+  [recordIdsSelector, selectedRecordsSelector],
+  (recordIds, selectedRecords): boolean =>
+    recordIds.length === selectedRecords.length && recordIds.length > 0
 );
 
 /**

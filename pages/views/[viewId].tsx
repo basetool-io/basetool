@@ -1,27 +1,31 @@
 import { OrderDirection } from "@/features/tables/types";
 import { OrderParams } from "@/features/views/types";
-import { debounce, first } from "lodash";
+import { convertToBaseFilters } from "@/features/records/convertToBaseFilters";
+import { encodeObject } from "@/lib/encoding";
 import { extractMessageFromRTKError } from "@/lib/helpers";
+import { first, isArray } from "lodash";
 import {
   useColumns,
   useFilters,
   useOrderRecords,
   usePagination,
+  useRecords,
 } from "@/features/records/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetColumnsQuery } from "@/features/fields/api-slice";
-import { useLazyGetRecordsQuery , useGetRecordsQuery} from "@/features/records/api-slice";
+import { useLazyGetRecordsQuery } from "@/features/records/api-slice";
 import { useRouter } from "next/router";
 import { useView } from "@/features/views/hooks";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import RecordsIndexPage from "@/features/records/components/RecordsIndexPage";
 
 function ViewShow() {
   const router = useRouter();
   const { viewId, tableName, dataSourceId } = useDataSourceContext();
   const { view } = useView({ viewId });
-  const { response: dataSourceResponse } = useDataSourceResponse(dataSourceId);
+  const { response: dataSourceResponse, info: dataSourceInfo } =
+    useDataSourceResponse(dataSourceId);
 
   useEffect(() => {
     // if (view && isArray(view.filters)) {
@@ -41,48 +45,41 @@ function ViewShow() {
     // }
   }, [viewId]);
 
-  const [initialized, setInitialized] = useState(false);
+  // const [initialized, setInitialized] = useState(false);
 
-  const { encodedFilters, setFilters, setAppliedFilters } = useFilters();
-  const { limit, offset } = usePagination();
-  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
-    useOrderRecords();
+  // const { encodedFilters, setFilters, setAppliedFilters } = useFilters();
+  // const { limit, offset } = usePagination();
+  // const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+  //   useOrderRecords();
 
-  const getRecordsArguments = useMemo(() => {
-    console.log("getRecordsArguments->", {
-      viewId,
-      filters: encodedFilters,
-      limit: limit.toString(),
-      offset: offset.toString(),
-      orderBy: orderBy,
-      orderDirection: orderDirection,
-    });
-    return {
-      viewId,
-      filters: encodedFilters,
-      limit: limit.toString(),
-      offset: offset.toString(),
-      orderBy: orderBy,
-      orderDirection: orderDirection,
-    };
-  }, [viewId, encodedFilters, limit, offset, orderBy, orderDirection]);
+  // const getRecordsArguments = useMemo(
+  //   () => ({
+  //     viewId,
+  //     filters: encodedFilters,
+  //     limit: limit.toString(),
+  //     offset: offset.toString(),
+  //     orderBy: orderBy,
+  //     orderDirection: orderDirection,
+  //   }),
+  //   [viewId, encodedFilters, limit, offset, orderBy, orderDirection]
+  // );
 
-  // const [
-  //   fetchRecords,
-  //   {
-  //     data: recordsResponse,
-  //     error: recordsError,
-  //     isFetching: recordsAreFetching,
-  //   },
-  // ] = useLazyGetRecordsQuery();
-  const
-    // fetchRecords,
+  const [
+    fetchRecords,
     {
       data: recordsResponse,
       error: recordsError,
       isFetching: recordsAreFetching,
-    }
-   = useGetRecordsQuery(getRecordsArguments, {skip: !initialized || !viewId || !dataSourceId});
+    },
+  ] = useLazyGetRecordsQuery();
+  // console.log("getRecordsArguments->", getRecordsArguments);
+  // const {
+  //   data: recordsResponse,
+  //   error: recordsError,
+  //   isFetching: recordsAreFetching,
+  // } = useGetRecordsQuery(getRecordsArguments, {
+  //   skip: !initialized || !viewId || !dataSourceId,
+  // });
 
   /**
    * Because there's one extra render between the moment the tableName and the state reset changes,
@@ -96,16 +93,29 @@ function ViewShow() {
   //     fetchRecords(getRecordsArguments);
   // }, [viewId, tableName, dataSourceId, getRecordsArguments, initialized]);
 
-  const records = useMemo(
-    () => (recordsResponse?.ok ? recordsResponse?.data : []),
-    [recordsResponse?.data]
-  );
+  const [records, setRecords] = useState([]);
 
-  // const { meta } = useRecords([], recordsResponse?.meta);
+  useEffect(() => {
+    if (recordsResponse?.ok) {
+      setRecords(recordsResponse?.data);
+      setRecordIds(recordsResponse?.data.map(({ id }: { id: string }) => id));
+    } else {
+      setRecords([]);
+      setRecordIds([]);
+    }
+  }, [recordsResponse?.data]);
+
+  const { setRecordIds, setMeta } = useRecords();
+
+  useEffect(() => {
+    if (recordsResponse?.meta) {
+      setMeta(recordsResponse?.meta);
+    }
+  }, [recordsResponse?.meta]);
 
   let skip = true;
   if (viewId) skip = false;
-  // if ((meta as any)?.dataSourceInfo?.supports?.columnsRequest) skip = false;
+  if (dataSourceInfo?.supports?.columnsRequest) skip = false;
 
   const {
     data: columnsResponse,
@@ -119,6 +129,11 @@ function ViewShow() {
     columnsResponse,
   });
 
+  const columns = useMemo(
+    () => (columnsResponse?.ok ? columnsResponse.data : []),
+    [columnsResponse]
+  );
+
   const isFetching = recordsAreFetching || columnsAreFetching;
 
   const error: string | undefined = useMemo(() => {
@@ -129,31 +144,70 @@ function ViewShow() {
   }, [recordsError, columnsError]);
 
   useEffect(() => {
-    // Do the initial initialization
+    // Initialize
 
-    // setPagination
-    const orderBy =
-      (router.query.orderBy as string) ||
-      first(view?.defaultOrder as OrderParams[])?.columnName ||
-      "";
-    const orderDirection =
-      (router.query.orderDirection as OrderDirection) ||
-      first(view?.defaultOrder as OrderParams[])?.direction ||
-      "";
+    console.log(1);
+    if (view) {
+      if (view && isArray(view.filters)) {
+        console.log(2);
+        const filters = convertToBaseFilters(view.filters as []);
+        // setFilters(filters);
+        // setAppliedFilters(filters);
+      }
 
-    setOrderBy(orderBy);
-    setOrderDirection(orderDirection);
-    setInitialized(true);
+      // setPagination
+      const orderBy =
+        (router.query.orderBy as string) ||
+        first(view?.defaultOrder as OrderParams[])?.columnName ||
+        "";
+      const orderDirection =
+        (router.query.orderDirection as OrderDirection) ||
+        first(view?.defaultOrder as OrderParams[])?.direction ||
+        "";
+
+      // setOrderBy(orderBy);
+      // setOrderDirection(orderDirection);
+
+      console.log(
+        3,
+        // convertToBaseFilters(filters as []),
+        // convertToBaseFilters(getRecordsArguments.filters as []),
+        // getRecordsArguments,
+        view.filters
+      );
+      // setInitialized(true);
+
+      const args = {
+        viewId,
+        filters: encodeObject(view.filters as []),
+        limit: "24",
+        offset: "0",
+        orderBy: orderBy,
+        orderDirection: orderDirection,
+      };
+
+      fetchRecords(args);
+      // setTimeout(() => {
+      // }, 1);
+    }
     console.log("setInitialized->");
 
     // effect
     // return () => {
     //   cleanup
     // }
-  }, []);
+  }, [view]);
 
   return (
-    <RecordsIndexPage records={records} error={error} isFetching={isFetching} />
+    <>
+      {/* <pre>{JSON.stringify(view, null, 2)}</pre> */}
+      <RecordsIndexPage
+        records={records}
+        columns={columns}
+        error={error}
+        isFetching={isFetching}
+      />
+    </>
   );
 }
 
