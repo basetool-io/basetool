@@ -1,12 +1,10 @@
-import {
-  OrganizationUser,
-  User,
-} from "@prisma/client";
+import { OrganizationUser, User } from "@prisma/client";
 import { getUserFromRequest } from "@/features/api";
 import { parseInt, pick } from "lodash";
 import { serverSegment } from "@/lib/track";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
+import HasAccessToDashboard from "@/features/api/middlewares/HasAccessToDashboard";
 import IsSignedIn from "../../../features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -72,5 +70,6 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 export default withMiddlewares(handler, {
   middlewares: [
     [IsSignedIn, {}],
+    [HasAccessToDashboard, {}],
   ],
 });

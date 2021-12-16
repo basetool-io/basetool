@@ -28,6 +28,7 @@ import {
 } from "@/features/dashboards/api-slice";
 import { useDataSourceContext, useProfile } from "@/hooks";
 import { useRouter } from "next/router";
+import DashedCreateBox from "@/components/DashedCreateBox";
 import React, { forwardRef, useMemo, useRef, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import SidebarItem from "@/components/SidebarItem";
@@ -210,9 +211,8 @@ const DashboardsSidebarSection = () => {
               onClose={onClose}
             >
               <PopoverTrigger>
-                <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
-                  <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
-                  Create dashboard
+                <div>
+                  <DashedCreateBox>Create dashboard</DashedCreateBox>
                 </div>
               </PopoverTrigger>
               <ContentForPopover />

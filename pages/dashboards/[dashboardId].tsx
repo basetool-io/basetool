@@ -1,9 +1,11 @@
-import { Button, ButtonGroup, Link } from "@chakra-ui/react";
-import { PencilAltIcon } from "@heroicons/react/outline";
+import { Button, ButtonGroup, IconButton, Link } from "@chakra-ui/react";
+import { PencilAltIcon, RefreshIcon } from "@heroicons/react/outline";
 import { useACLHelpers } from "@/features/authorization/hooks";
 import { useDashboardResponse } from "@/features/dashboards/hooks";
 import { useDataSourceContext } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
+import { useEffect } from "react";
+import { useLazyGetWidgetsValuesQuery } from "@/features/dashboards/api-slice";
 import DashboardPage from "@/features/dashboards/components/DashboardPage";
 import Layout from "@/components/Layout";
 import PageWrapper from "@/components/PageWrapper";
@@ -13,8 +15,18 @@ const DashboardView = () => {
   const { info } = useDataSourceResponse(dataSourceId);
   const { canEdit } = useACLHelpers({ dataSourceInfo: info });
 
-  const { dashboard, isLoading: dashboardIsLoading } =
-    useDashboardResponse(dashboardId);
+  const {
+    dashboard,
+    widgets,
+    isLoading: dashboardIsLoading,
+  } = useDashboardResponse(dashboardId);
+
+  const [getWidgetsValues, { isFetching: widgetsValuesAreFetching }] =
+    useLazyGetWidgetsValuesQuery();
+
+  useEffect(() => {
+    if (dashboardId) getWidgetsValues({ dashboardId });
+  }, [dashboardId]);
 
   const EditDashboardButton = () => (
     <Link href={`/dashboards/${dashboardId}/edit`} passHref>
@@ -33,12 +45,27 @@ const DashboardView = () => {
     <Layout>
       <PageWrapper
         isLoading={dashboardIsLoading}
-        heading={`Dashboard ${dashboard?.name}`}
+        heading={
+          <>
+            {dashboard?.name}
+            <IconButton
+              size="xs"
+              variant="ghost"
+              aria-label="Refresh"
+              icon={<RefreshIcon className="h-4" />}
+              className="ml-3 no-focus"
+              onClick={() => getWidgetsValues({ dashboardId })}
+              isLoading={widgetsValuesAreFetching}
+              isDisabled={widgets.length === 0}
+            />
+          </>
+        }
         buttons={
           <ButtonGroup size="xs">
             {canEdit && dashboardId && <EditDashboardButton />}
           </ButtonGroup>
         }
+        bodyClassName="bg-neutral-100"
       >
         <DashboardPage />
       </PageWrapper>

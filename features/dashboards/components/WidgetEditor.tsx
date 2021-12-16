@@ -1,6 +1,6 @@
 import { Button, Code } from "@chakra-ui/react";
 import { TrashIcon } from "@heroicons/react/outline";
-import { WidgetOptions } from "./WidgetView";
+import { WidgetOptions } from "../types";
 import { useDataSourceContext } from "@/hooks";
 import { useDeleteWidgetMutation } from "../api-slice";
 import { useUpdateWidget } from "../hooks";
@@ -45,7 +45,7 @@ function WidgetEditor() {
           className="font-mono"
           formHelperText={
             <>
-              You should format the result using{" "}
+              You should return the result using{" "}
               <Code>
                 AS VALUE
               </Code>

@@ -84,12 +84,22 @@ export const api = createApi({
         Partial<{ dashboardId: string }>
       >({
         query({ dashboardId }) {
-          return `/dashboards/${dashboardId}/widgetsValues`;
+          return `/dashboards/${dashboardId}/widgets/values`;
         },
         providesTags: (result, error, { dashboardId }) => [
           { type: "Dashboard", id: dashboardId },
         ],
       }),
+      getWidgetValue: builder.query<ApiResponse, Partial<{ widgetId: string }>>(
+        {
+          query({ widgetId }) {
+            return `${apiUrl}/widgets/${widgetId}/value`;
+          },
+          providesTags: (result, error, { widgetId }) => [
+            { type: "Widget", id: widgetId },
+          ],
+        }
+      ),
       updateWidget: builder.mutation<
         ApiResponse,
         Partial<{
@@ -150,6 +160,9 @@ export const {
   useUpdateDashboardMutation,
 
   useGetWidgetsValuesQuery,
+  useLazyGetWidgetsValuesQuery,
+  useGetWidgetValueQuery,
+  useLazyGetWidgetValueQuery,
   useDeleteWidgetMutation,
   useAddWidgetMutation,
   useUpdateWidgetMutation,

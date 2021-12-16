@@ -41,7 +41,7 @@ const Sidebar = () => {
           )}
         </div>
         <hr className="-mt-px mb-2" />
-        <DashboardSidebarSection />
+        {dataSourceInfo?.supports?.dashboards && <DashboardSidebarSection />}
         {dataSourceInfo?.supports?.views && <ViewsSidebarSection />}
         {isOwner && <TablesSidebarSection />}
       </div>

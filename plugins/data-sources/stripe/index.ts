@@ -10,6 +10,7 @@ const info: DataSourceInfo = {
     filters: false,
     columnsRequest: false,
     views: false,
+    dashboards: false,
   },
   runsInProxy: false,
 };

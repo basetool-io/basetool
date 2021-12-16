@@ -1,50 +1,43 @@
-import { Widget } from "@prisma/client";
+import { Widget as IWidget } from "@prisma/client";
+import { Link } from "@chakra-ui/react";
+import { setActiveWidgetName } from "@/features/records/state-slice";
+import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
-import { useDataSourceContext } from "@/hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
-import React, { useMemo } from "react";
-import WidgetView from "./WidgetView";
+import React, { useEffect } from "react";
+import Widget from "./Widget";
 
-function DashboardPage() {
+function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
+  const dispatch = useAppDispatch();
   const { dashboardId } = useDataSourceContext();
 
   const { isLoading: dashboardIsLoading, widgets } =
     useDashboardResponse(dashboardId);
 
-  const { data: widgetsValuesResponse, isLoading: widgetsValuesIsLoading } =
-    useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
+  useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
-  const widgetsValues: any = useMemo(() => {
-    if (widgetsValuesResponse?.ok) {
-      return Object.fromEntries(
-        widgetsValuesResponse.data.map(
-          (itemValue: { id: number; value?: string; error?: string }) => [
-            itemValue.id,
-            { value: itemValue.value, error: itemValue.error },
-          ]
-        )
-      );
-    } else {
-      return {};
-    }
-  }, [widgetsValuesResponse]);
+  useEffect(() => {
+    if (!isEditPage) dispatch(setActiveWidgetName(""));
+  }, [isEditPage]);
 
   return (
-    <div className="relative flex flex-col flex-1 w-full h-full p-2">
+    <div className="relative flex flex-col flex-1 w-full h-full p-2 bg-neutral-100">
       {!dashboardIsLoading && widgets.length === 0 && (
-        <div className="flex flex-1 justify-center items-center text-lg font-semibold text-gray-600 h-full">
-          No widgets found
+        <div className="flex flex-1 flex-col justify-center items-center text-lg font-semibold text-gray-600 h-full">
+          No widgets{" "}
+          {!isEditPage && (
+            <Link href={`/dashboards/${dashboardId}/edit`}>
+              <a className="text-blue-600 text-sm underline mr-1">
+                Add a widget
+              </a>
+            </Link>
+          )}
         </div>
       )}
       {!dashboardIsLoading && widgets.length > 0 && (
-        <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {widgets.map((widget: Widget, idx: number) => (
-            <WidgetView
-              key={idx}
-              widget={widget}
-              valueResponse={widgetsValues[widget.id]}
-              isLoading={widgetsValuesIsLoading}
-            />
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {widgets.map((widget: IWidget, idx: number) => (
+            <Widget key={idx} widget={widget} />
           ))}
         </dl>
       )}

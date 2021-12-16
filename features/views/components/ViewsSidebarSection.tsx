@@ -2,13 +2,13 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   PlusCircleIcon,
-  PlusIcon,
 } from "@heroicons/react/outline";
 import { Collapse, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { View } from "@prisma/client";
 import { first } from "lodash";
 import { useDataSourceContext, useProfile } from "@/hooks";
 import { useGetViewsQuery } from "@/features/views/api-slice";
+import DashedCreateBox from "@/components/DashedCreateBox";
 import Link from "next/link";
 import React, { useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
@@ -93,10 +93,7 @@ const ViewsSidebarSection = () => {
           {/* If no views are present, show a nice box with the create message */}
           {!viewsLoading && filteredViews.length === 0 && (
             <Link href={`/views/new?dataSourceId=${dataSourceId}`} passHref>
-              <div className="flex justify-center items-center border-2 rounded-md border-dashed border-gray-500 py-6 text-gray-600 cursor-pointer mb-2">
-                <PlusIcon className="h-4 mr-1 flex flex-shrink-0" />
-                Create view
-              </div>
+              <div><DashedCreateBox>Create view</DashedCreateBox></div>
             </Link>
           )}
           {/* display only views created by logged in user or public views and having same datasource */}

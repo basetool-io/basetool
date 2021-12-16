@@ -9,13 +9,14 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
   useDisclosure,
 } from "@chakra-ui/react";
+import { MINIMUM_WIDGET_NAME_LENGTH } from "@/lib/constants";
 import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import {
   activeWidgetNameSelector,
-  setActiveColumnName,
   setActiveWidgetName,
 } from "@/features/records/state-slice";
 import { snakeCase } from "lodash";
@@ -24,16 +25,13 @@ import { useAddWidgetMutation } from "../api-slice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
+import DashedCreateBox from "@/components/DashedCreateBox";
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 import classNames from "classnames";
 
-const WidgetItem = ({
-  widget,
-}: {
-  widget: Widget;
-}) => {
+const WidgetItem = ({ widget }: { widget: Widget }) => {
   const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
 
@@ -51,8 +49,7 @@ const WidgetItem = ({
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
           "bg-blue-600 text-white": activeWidgetName === widget.name,
-          "hover:bg-gray-100":
-          activeWidgetName !== widget.name,
+          "hover:bg-gray-100": activeWidgetName !== widget.name,
         }
       )}
     >
@@ -96,10 +93,10 @@ const Form = ({
   const { widgets } = useDashboardResponse(dashboardId);
 
   const widgetExists = () =>
-  widgets.some((widget: Widget) => widget.name === snakeCase(name));
+    widgets.some((widget: Widget) => widget.name === snakeCase(name));
 
   const createWidget = async () => {
-    if (name.length < 4) return;
+    if (name.length < MINIMUM_WIDGET_NAME_LENGTH) return;
 
     // close popover
     onClose();
@@ -146,7 +143,7 @@ const Form = ({
           size="sm"
           colorScheme="blue"
           width="100%"
-          isDisabled={name.length < 4}
+          isDisabled={name.length < MINIMUM_WIDGET_NAME_LENGTH}
           isLoading={isLoading}
           leftIcon={<PlusIcon className="text-white h-4" />}
         >
@@ -164,42 +161,73 @@ const DashboardEditWidgets = () => {
   const firstFieldRef = useRef(null);
 
   const { isLoading: dashboardIsLoading, widgets } =
-  useDashboardResponse(dashboardId);
+    useDashboardResponse(dashboardId);
 
   useEffect(() => {
     return () => {
-      dispatch(setActiveColumnName(""));
-    }
-  }, [])
+      dispatch(setActiveWidgetName(""));
+    };
+  }, []);
+
+  const ContentForPopover = () => (
+    <Portal>
+      <PopoverContent
+        rootProps={{
+          style: {
+            zIndex: 40,
+          },
+        }}
+      >
+        <PopoverArrow />
+        <PopoverBody>
+          <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+        </PopoverBody>
+      </PopoverContent>
+    </Portal>
+  );
 
   return (
     <div>
       <div className="flex justify-between">
         <div>
           <TinyLabel>Widgets</TinyLabel>{" "}
-          <span className="text-xs text-gray-600">(click to edit)</span>
+          {widgets.length > 0 && (
+            <span className="text-xs text-gray-600">(click to edit)</span>
+          )}
         </div>
-        <div className="flex items-center">
-          <Popover
-            isOpen={isOpen}
-            initialFocusRef={firstFieldRef}
-            onOpen={onOpen}
-            onClose={onClose}
-          >
-            <PopoverTrigger>
-              <div className="flex justify-center items-center h-full mx-1 text-xs cursor-pointer">
-                <PlusCircleIcon className="h-4 inline mr-px" /> Add
-              </div>
-            </PopoverTrigger>
-            <PopoverContent>
-              <PopoverArrow />
-              <PopoverBody>
-                <Form firstFieldRef={firstFieldRef} onClose={onClose} />
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
-        </div>
+        {widgets.length > 0 && (
+          <div className="flex items-center">
+            <Popover
+              isOpen={isOpen}
+              initialFocusRef={firstFieldRef}
+              onOpen={onOpen}
+              onClose={onClose}
+            >
+              <PopoverTrigger>
+                <div className="flex justify-center items-center h-full mx-1 text-xs cursor-pointer">
+                  <PlusCircleIcon className="h-4 inline mr-px" /> Add
+                </div>
+              </PopoverTrigger>
+              <ContentForPopover />
+            </Popover>
+          </div>
+        )}
       </div>
+      {widgets.length === 0 && (
+        <Popover
+          isOpen={isOpen}
+          initialFocusRef={firstFieldRef}
+          onOpen={onOpen}
+          onClose={onClose}
+        >
+          <PopoverTrigger>
+            <div>
+              <DashedCreateBox>Create widget</DashedCreateBox>
+            </div>
+          </PopoverTrigger>
+          <ContentForPopover />
+        </Popover>
+      )}
       <div className="mt-2">
         {dashboardIsLoading && (
           <div className="space-y-1">
@@ -216,7 +244,7 @@ const DashboardEditWidgets = () => {
         {!dashboardIsLoading &&
           widgets &&
           widgets.map((widget: Widget, idx: number) => (
-            <WidgetItem key={idx} widget={widget}/>
+            <WidgetItem key={idx} widget={widget} />
           ))}
       </div>
     </div>

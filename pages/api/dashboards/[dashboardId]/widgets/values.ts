@@ -1,6 +1,8 @@
-import { runQuery } from "@/plugins/data-sources/serverHelpers";
+import { WidgetValue } from "@/features/dashboards/types";
+import { getValueForWidget } from "@/features/dashboards/server-helpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
+import HasAccessToDashboard from "@/features/api/middlewares/HasAccessToDashboard";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -43,30 +45,18 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
   });
   if (!dataSource) return res.status(404).send("");
 
-  const response: { id: number; value?: string; error?: string }[] = [];
+  const response: WidgetValue[] = [];
 
   for (const widget of dashboard.widgets) {
-    try {
-      const queryValue = await runQuery(dataSource, "runRawQuery", {
-        query: widget.query,
-      });
-
-      response.push({
-        id: widget.id,
-        value: queryValue.value,
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      response.push({
-        id: widget.id,
-        error: e.message,
-      });
-    }
+    response.push(await getValueForWidget(widget, dataSource));
   }
 
   res.json(ApiResponse.withData(response));
 }
 
 export default withMiddlewares(handler, {
-  middlewares: [[IsSignedIn, {}]],
+  middlewares: [
+    [IsSignedIn, {}],
+    [HasAccessToDashboard, {}],
+  ],
 });

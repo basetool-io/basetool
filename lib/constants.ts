@@ -37,3 +37,8 @@ export const POOLER_MAX_DB_CONNECTIONS = 3;
 * Cookies
 */
 export const COOKIES_FROM_TOOL_NEW = "basetool:from-tool.new"
+
+/**
+ * Widgets
+ */
+export const MINIMUM_WIDGET_NAME_LENGTH = 3

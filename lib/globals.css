@@ -263,6 +263,12 @@ svg.tea #steamR {
   display: none !important;
 }
 
+/* Hiding focus states from chakra buttons. */
+.no-focus:focus {
+  outline: 0 !important;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0) !important;
+}
+
 progress {
   @apply h-2 bg-white border border-gray-400 rounded shadow-inner;
 }
@@ -313,7 +319,7 @@ progress[value]::-moz-progress-bar {
 }
 
 .bg-squares {
-  background: url('/img/bg.svg');
+  background: url("/img/bg.svg");
 }
 
 @tailwind utilities;

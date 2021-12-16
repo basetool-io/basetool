@@ -11,6 +11,7 @@ export type DataSourceInfo = {
     filters: boolean;
     columnsRequest: boolean;
     views: boolean;
+    dashboards: boolean;
   };
   runsInProxy: boolean;
 };
