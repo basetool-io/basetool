@@ -1,6 +1,6 @@
 import { DataSourceOptions } from "@/features/data-sources/types";
 import { View } from "@prisma/client";
-import { isNull } from "lodash";
+import { isEmpty, isNull } from "lodash";
 import { useDataSourceContext, useProfile } from "@/hooks";
 import { useDataSourceResponse } from "@/features/data-sources/hooks";
 import { useGetTablesQuery } from "@/features/tables/api-slice";
@@ -49,22 +49,25 @@ function DataSourcesShow() {
   );
 
   const homepageLink = useMemo(() => {
+    if(!dataSource) return "";
+
     let homepageLink = "";
-    console.log("dataSource->", dataSource);
 
     const homepage = (dataSource?.options as DataSourceOptions)?.homepage;
     if (homepage) {
       const parts = homepage.split(":");
       homepageLink = `/${parts[0]}s/${parts[1]}`;
+    } else {
+      homepageLink = `/data-sources/${dataSource.id}`;
     }
-
-    console.log("homepageLink->", homepageLink);
 
     return homepageLink;
   }, [dataSource]);
 
   useEffect(() => {
-    // if(!isEmpty(homepageLink)) router.push(homepageLink);
+    if(!isEmpty(homepageLink) && router.asPath !== homepageLink) {
+      router.push(homepageLink);
+    }
   }, [homepageLink]);
 
   return (
