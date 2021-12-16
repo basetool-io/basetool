@@ -1,7 +1,8 @@
-import { WidgetValue } from '@/features/dashboards/types';
-import { getValueForWidget } from '@/features/dashboards/server-helpers';
+import { WidgetValue } from "@/features/dashboards/types";
+import { getValueForWidget } from "@/features/dashboards/server-helpers";
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
+import HasAccessToDashboard from "@/features/api/middlewares/HasAccessToDashboard";
 import IsSignedIn from "@/features/api/middlewares/IsSignedIn";
 import prisma from "@/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -54,5 +55,8 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default withMiddlewares(handler, {
-  middlewares: [[IsSignedIn, {}]],
+  middlewares: [
+    [IsSignedIn, {}],
+    [HasAccessToDashboard, {}],
+  ],
 });

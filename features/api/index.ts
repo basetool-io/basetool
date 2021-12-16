@@ -4,6 +4,7 @@ import {
   Organization,
   User,
   View,
+  Widget,
 } from "@prisma/client";
 import { NextApiRequest } from "next";
 import { getSession } from "next-auth/client";
@@ -84,35 +85,39 @@ export const getViewFromRequest = async (
   });
 };
 
-export const hasAccessToDashboard = async (
-  dashboard: Dashboard,
-  req: NextApiRequest
-) => {
-  const user = (await getUserFromRequest(req, {
-    select: {
-      id: true,
-      organizations: {
-        select: {
-          organizationId: true,
-        },
-      },
+export const getDashboardFromRequest = async (
+  req: NextApiRequest,
+  options: Record<string, unknown> = {}
+): Promise<Dashboard | null> => {
+  const widget =
+    req.query.widgetId || req.body.widgetId
+      ? await getWidgetFromRequest(req, {
+          select: {
+            dashboardId: true,
+          },
+        })
+      : undefined;
+
+  return await prisma.dashboard.findUnique({
+    where: {
+      id: parseInt(
+        (req.query.dashboardId ||
+          req.body.dashboardId ||
+          widget?.dashboardId) as string
+      ),
     },
-  })) as User & {
-    organizations: {
-      organizationId: number;
-    }[];
-  };
+    ...options,
+  });
+};
 
-  const organizationIds = user.organizations.map(
-    ({ organizationId }) => organizationId
-  );
-
-  if (
-    dashboard?.organizationId &&
-    organizationIds.includes(dashboard?.organizationId)
-  ) {
-    return true;
-  }
-
-  return false;
+export const getWidgetFromRequest = async (
+  req: NextApiRequest,
+  options: Record<string, unknown> = {}
+): Promise<Widget | null> => {
+  return await prisma.widget.findUnique({
+    where: {
+      id: parseInt((req.query.widgetId || req.body.widgetId) as string),
+    },
+    ...options,
+  });
 };
