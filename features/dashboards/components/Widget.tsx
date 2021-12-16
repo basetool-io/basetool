@@ -2,15 +2,14 @@ import { IconButton, Tooltip } from "@chakra-ui/react";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import { WidgetOptions, WidgetValue } from "../types";
-import {
-  activeWidgetNameSelector,
-} from "@/features/records/state-slice";
+import { activeWidgetNameSelector } from "@/features/records/state-slice";
 import { isUndefined } from "lodash";
 import { useAppSelector } from "@/hooks";
 import { useWidgetValue } from "../hooks";
 import React, { memo, useMemo } from "react";
 import Shimmer from "@/components/Shimmer";
 import classNames from "classnames";
+import numeral from "numeral";
 
 const LoadingState = () => (
   <dd className="text-3xl font-semibold text-gray-900">
@@ -18,7 +17,7 @@ const LoadingState = () => (
   </dd>
 );
 
-const ErrorState = ({ widgetValue }: { widgetValue: WidgetValue }) => (
+const ErrorState = memo(({ widgetValue }: { widgetValue: WidgetValue }) => (
   <div className="relative flex text-red-500 items-center">
     <label className="text-sm font-semibold flex uppercase text-gray-500">
       Error
@@ -31,28 +30,33 @@ const ErrorState = ({ widgetValue }: { widgetValue: WidgetValue }) => (
       </Tooltip>
     </div>
   </div>
-);
+));
+ErrorState.displayName = "ErrorState";
 
-const SuccessState = ({
-  widget,
-  widgetValue,
-}: {
-  widget: Widget;
-  widgetValue: WidgetValue;
-}) => (
-  <>
-    <span className="mr-1">{(widget?.options as WidgetOptions)?.prefix}</span>
-    <span className="font-semibold">{parseFloat(widgetValue?.value || "").toFixed(2)}</span>
-    <span className="ml-1 text-base text-gray-700">
-      {(widget?.options as WidgetOptions)?.suffix}
-    </span>
-  </>
+const SuccessState = memo(
+  ({ widget, widgetValue }: { widget: Widget; widgetValue: WidgetValue }) => {
+    const value = numeral(widgetValue.value).format("0[.]00a");
+
+    return (
+      <>
+        <span className="mr-1">
+          {(widget?.options as WidgetOptions)?.prefix}
+        </span>
+        <span className="font-semibold">{value}</span>
+        <span className="ml-1 text-base text-gray-700">
+          {(widget?.options as WidgetOptions)?.suffix}
+        </span>
+      </>
+    );
+  }
 );
+SuccessState.displayName = "SuccessState";
 
 function Widget({ widget }: { widget: Widget }) {
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
 
-  const { getWidgetValue, widgetValue, isFetching, widgetValueIsFetching } = useWidgetValue(widget);
+  const { getWidgetValue, widgetValue, isFetching, widgetValueIsFetching } =
+    useWidgetValue(widget);
 
   const widgetIsActive = useMemo(
     () => activeWidgetName === widget.name,
