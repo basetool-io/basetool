@@ -89,22 +89,21 @@ export const getDashboardFromRequest = async (
   req: NextApiRequest,
   options: Record<string, unknown> = {}
 ): Promise<Dashboard | null> => {
-  const widget =
-    req.query.widgetId || req.body.widgetId
-      ? await getWidgetFromRequest(req, {
-          select: {
-            dashboardId: true,
-          },
-        })
-      : undefined;
+  let dashboardId = req.query.dashboardId || req.body.dashboardId;
+
+  if (req.query.widgetId || req.body.widgetId) {
+    const widget = await getWidgetFromRequest(req, {
+      select: {
+        dashboardId: true,
+      },
+    });
+
+    if (widget?.dashboardId) dashboardId = widget?.dashboardId;
+  }
 
   return await prisma.dashboard.findUnique({
     where: {
-      id: parseInt(
-        (req.query.dashboardId ||
-          req.body.dashboardId ||
-          widget?.dashboardId) as string
-      ),
+      id: parseInt(dashboardId),
     },
     ...options,
   });

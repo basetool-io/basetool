@@ -25,7 +25,7 @@ const DashboardView = () => {
     useLazyGetWidgetsValuesQuery();
 
   useEffect(() => {
-    getWidgetsValues({ dashboardId });
+    if (dashboardId) getWidgetsValues({ dashboardId });
   }, [dashboardId]);
 
   const EditDashboardButton = () => (
