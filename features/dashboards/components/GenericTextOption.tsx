@@ -1,5 +1,5 @@
 import { FormHelperText, Input } from "@chakra-ui/react";
-import { debounce, isString, snakeCase } from "lodash";
+import { debounce, isString } from "lodash";
 import { useSegment } from "@/hooks";
 import { useUpdateWidget } from "../hooks";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
@@ -30,7 +30,6 @@ const GenericTextOption = ({
   size = "sm",
   optionKey,
 }: Props) => {
-  id ||= snakeCase(label.toLowerCase());
   const track = useSegment();
 
   const { widget, setWidgetOptions } = useUpdateWidget();
@@ -45,11 +44,10 @@ const GenericTextOption = ({
     setValue(event.currentTarget.value);
     if (widget) {
       track("Updated widget.", {
-        id,
-        type: "text",
+        id: widget.id,
       });
 
-      debouncedSetWidgetOptions({
+      debouncedSetWidgetOptions(widget.id, {
         [optionKey]: event.currentTarget.value,
       });
     }

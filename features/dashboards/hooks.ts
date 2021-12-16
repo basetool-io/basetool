@@ -29,13 +29,13 @@ export const useUpdateWidget = () => {
 
   const [updateWidgetOnServer] = useUpdateWidgetMutation();
 
-  const setWidgetOptions = async (payload: Record<string, unknown>) => {
-    if(!widget) return;
+  const setWidgetOptions = async (id: number, payload: Record<string, unknown>) => {
+    if(!id) return;
 
     const body = dotNotationToObject(payload);
 
     const response = await updateWidgetOnServer({
-      widgetId: widget.id.toString(),
+      widgetId: id.toString(),
       body,
     }).unwrap();
 
