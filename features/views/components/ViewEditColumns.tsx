@@ -116,7 +116,7 @@ const ColumnItem = ({
         >
           <span className="flex items-center">
             <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
-            <span className="text-">{column.name}</span>{" "}
+            <span className="text-">{column.label}</span>{" "}
           </span>
           <span className="flex items-center">
             {hidden && <EyeOffIcon className="h-4 mr-1 inline" />}

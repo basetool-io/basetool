@@ -1,9 +1,9 @@
 import { FormHelperText } from "@chakra-ui/react";
-import { debounce, isString } from "lodash";
+import { debounce, isString, snakeCase } from "lodash";
 import { javascript } from "@codemirror/lang-javascript";
 import { sql } from "@codemirror/lang-sql";
 import { useSegment } from "@/hooks";
-import { useUpdateWidget } from "../hooks";
+import { useUpdateColumn } from "../hooks";
 import CodeMirror from "@uiw/react-codemirror";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
@@ -19,7 +19,7 @@ type Props = {
   lang?: "javascript" | "sql";
 };
 
-const GenericCodeOption = ({
+const GenericTextOption = ({
   helpText,
   id,
   label,
@@ -29,24 +29,26 @@ const GenericCodeOption = ({
   optionKey,
   lang = "javascript",
 }: Props) => {
+  id ||= snakeCase(label.toLowerCase());
   const track = useSegment();
 
-  const { widget, setWidgetOptions } = useUpdateWidget();
+  const { column, columnOptions, setColumnOptions } = useUpdateColumn();
   const [value, setValue] = useState<string>();
 
-  const debouncedSetWidgetOptions = useCallback(
-    debounce(setWidgetOptions, 1000),
+  const debouncedSetColumnOptions = useCallback(
+    debounce(setColumnOptions, 1000),
     []
   );
 
   const handleOnChange = (value: string) => {
     setValue(value);
-    if (widget) {
-      track("Updated widget.", {
-        id: widget.id,
+    if (column) {
+      track("Updated column option.", {
+        id,
+        type: "text",
       });
 
-      debouncedSetWidgetOptions(widget.id, {
+      debouncedSetColumnOptions(column.name, {
         [optionKey]: value,
       });
     }
@@ -56,7 +58,7 @@ const GenericCodeOption = ({
     if (isString(defaultValue)) setValue(defaultValue);
   }, [defaultValue]);
 
-  if (!widget) return null;
+  if (!column) return null;
 
   const extensions = [];
 
@@ -83,4 +85,4 @@ const GenericCodeOption = ({
   );
 };
 
-export default GenericCodeOption;
+export default GenericTextOption;
