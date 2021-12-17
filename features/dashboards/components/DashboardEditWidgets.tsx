@@ -27,8 +27,8 @@ import {
 } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import {
-  activeWidgetNameSelector,
-  setActiveWidgetName,
+  activeWidgetIdSelector,
+  setActiveWidgetId,
 } from "@/features/records/state-slice";
 import { iconForWidget } from "..";
 import { isArray, isEqual, snakeCase, sortBy } from "lodash";
@@ -54,14 +54,14 @@ const WidgetItem = ({
   moveWidget: any;
 }) => {
   const dispatch = useAppDispatch();
-  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const activeWidgetId = useAppSelector(activeWidgetIdSelector);
   const IconElement = iconForWidget(widget);
 
   const toggleWidgetSelection = () => {
-    if (activeWidgetName === widget?.name) {
-      dispatch(setActiveWidgetName(""));
+    if (activeWidgetId === widget?.id) {
+      dispatch(setActiveWidgetId(null));
     } else {
-      dispatch(setActiveWidgetName(widget.name));
+      dispatch(setActiveWidgetId(widget.id));
     }
   };
 
@@ -101,9 +101,9 @@ const WidgetItem = ({
       className={classNames(
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
-          "bg-blue-600 text-white": activeWidgetName === widget.name,
+          "bg-blue-600 text-white": activeWidgetId === widget.id,
           "hover:bg-gray-100":
-            activeWidgetName !== widget.name ||
+            activeWidgetId !== widget.id ||
             (!isDragging && item?.id === widget?.name),
           "!bg-gray-800 opacity-25":
             isOver || (isDragging && item?.id === widget?.name),
@@ -176,7 +176,7 @@ const Form = ({
 
     if (response?.ok) {
       // select the newly created widget
-      dispatch(setActiveWidgetName(name));
+      dispatch(setActiveWidgetId(response.data.id));
     }
   };
 
@@ -282,7 +282,7 @@ const DashboardEditWidgets = () => {
 
   useEffect(() => {
     return () => {
-      dispatch(setActiveWidgetName(""));
+      dispatch(setActiveWidgetId(null));
     };
   }, []);
 

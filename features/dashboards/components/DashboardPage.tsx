@@ -1,6 +1,6 @@
 import { Widget as IWidget } from "@prisma/client";
 import { Link } from "@chakra-ui/react";
-import { setActiveWidgetName } from "@/features/records/state-slice";
+import { setActiveWidgetId } from "@/features/records/state-slice";
 import { sortBy } from "lodash";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
@@ -19,7 +19,7 @@ function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
   useGetWidgetsValuesQuery({ dashboardId }, { skip: !dashboardId });
 
   useEffect(() => {
-    if (!isEditPage) dispatch(setActiveWidgetName(""));
+    if (!isEditPage) dispatch(setActiveWidgetId(null));
   }, [isEditPage]);
 
   const orderedWidgets = useMemo(

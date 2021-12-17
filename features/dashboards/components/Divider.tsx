@@ -1,16 +1,16 @@
 import { Widget } from "@prisma/client";
-import { activeWidgetNameSelector } from "@/features/records/state-slice";
+import { activeWidgetIdSelector } from "@/features/records/state-slice";
 import { useAppSelector } from "@/hooks";
 import React, { memo, useMemo } from "react";
 import classNames from "classnames";
 
 
 function Divider({ widget }: { widget: Widget }) {
-  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const activeWidgetId = useAppSelector(activeWidgetIdSelector);
 
   const widgetIsActive = useMemo(
-    () => activeWidgetName === widget.name,
-    [activeWidgetName, widget.name]
+    () => activeWidgetId === widget.id,
+    [activeWidgetId, widget.id]
   );
 
   return (
