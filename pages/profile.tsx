@@ -22,6 +22,7 @@ function Profile() {
               <PageWrapper.Section>
                 <>
                   <PageWrapper.Heading>General</PageWrapper.Heading>
+                  <hr className="mb-4" />
                   {isLoading && "Loading"}
                   {!isLoading && (
                     <>

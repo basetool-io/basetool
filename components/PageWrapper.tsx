@@ -12,7 +12,7 @@ import React, { ReactElement, ReactNode } from "react";
 import classNames from "classnames";
 
 const Heading = ({ children }: { children: string | ReactNode }) => (
-  <div className="uppercase font-semibold mb-2 pb-1">{children}</div>
+  <div className="uppercase font-semibold">{children}</div>
 );
 
 const Section = ({ children }: { children: ReactNode }) => (
@@ -167,9 +167,13 @@ function PageWrapper({
             </div>
           )}
           <div
-            className={classNames("relative flex-1 flex flex-col", {
-              "px-4 py-4 ": !flush,
-            }, bodyClassName)}
+            className={classNames(
+              "relative flex-1 flex flex-col",
+              {
+                "px-4 py-4 ": !flush,
+              },
+              bodyClassName
+            )}
           >
             {isLoading && <LoadingOverlay inPageWrapper />}
             {!error && children}
