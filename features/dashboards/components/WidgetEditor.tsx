@@ -4,6 +4,7 @@ import { WidgetOptions } from "../types";
 import { useDataSourceContext } from "@/hooks";
 import { useDeleteWidgetMutation } from "../api-slice";
 import { useUpdateWidget } from "../hooks";
+import GenericCodeOption from "./GenericCodeOption";
 import GenericTextOption from "@/features/dashboards/components/GenericTextOption";
 import React from "react";
 
@@ -11,7 +12,8 @@ function WidgetEditor() {
   const { widget } = useUpdateWidget();
   const { dashboardId } = useDataSourceContext();
 
-  const [deleteWidget, { isLoading: isDeletingWidget }] = useDeleteWidgetMutation();
+  const [deleteWidget, { isLoading: isDeletingWidget }] =
+    useDeleteWidgetMutation();
 
   const removeWidget = async () => {
     if (!widget) return;
@@ -38,21 +40,15 @@ function WidgetEditor() {
           defaultValue={widget?.name}
           optionKey="name"
         />
-        <GenericTextOption
+        <GenericCodeOption
           helpText="The query that has to be run to get the data"
           label="Query"
           placeholder="SELECT ..."
-          className="font-mono"
           formHelperText={
             <>
-              You should return the result using{" "}
-              <Code>
-                AS VALUE
-              </Code>
-              .
+              You should return the result using <Code>AS VALUE</Code>.
             </>
           }
-          size="sm"
           defaultValue={widget?.query}
           optionKey="query"
         />

@@ -60,6 +60,11 @@ const DataSourcesBlock = () => {
     [dataSourcesAreLoading, profileIsLoading]
   );
 
+  const isLoading = useMemo(
+    () => dataSourcesAreLoading || profileIsLoading,
+    [dataSourcesAreLoading, profileIsLoading]
+  );
+
   return (
     <PageWrapper.Section>
       <div className="space-y-6">

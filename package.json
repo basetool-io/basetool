@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^1.7.2",
+    "@codemirror/lang-javascript": "^0.19.3",
+    "@codemirror/lang-sql": "^0.19.4",
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
     "@fontsource/nunito": "^4.5.0",
@@ -29,6 +31,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "@segment/snippet": "^4.15.3",
     "@sentry/nextjs": "^6.15.0",
+    "@uiw/react-codemirror": "^4.2.4",
     "accesscontrol": "^2.2.1",
     "analytics-node": "^5.1.2",
     "autoprefixer": "^10.4.0",
