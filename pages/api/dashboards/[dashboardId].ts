@@ -42,6 +42,13 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
+  if (dashboard?.widgets) {
+    const orderedWidgets = dashboard?.widgets.sort(
+      (w1, w2) => w1.order - w2.order
+    );
+    dashboard.widgets = orderedWidgets;
+  }
+
   res.json(ApiResponse.withData(dashboard));
 }
 
