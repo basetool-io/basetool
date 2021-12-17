@@ -90,6 +90,7 @@ const ColumnItem = ({
   );
 
   const hidden = useMemo(() => column.baseOptions.disconnected, [column]);
+  const label = useMemo(() => column.baseOptions.label || column.label || column.name, [column])
 
   return (
     <div
@@ -116,7 +117,7 @@ const ColumnItem = ({
         >
           <span className="flex items-center">
             <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
-            <span className="text-">{column.name}</span>{" "}
+            <span className="text-">{label}</span>{" "}
           </span>
           <span className="flex items-center">
             {hidden && <EyeOffIcon className="h-4 mr-1 inline" />}

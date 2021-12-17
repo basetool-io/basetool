@@ -1,7 +1,10 @@
-import { FormHelperText, Input } from "@chakra-ui/react";
+import { FormHelperText } from "@chakra-ui/react";
 import { debounce, isString } from "lodash";
+import { javascript } from "@codemirror/lang-javascript";
+import { sql } from "@codemirror/lang-sql";
 import { useSegment } from "@/hooks";
 import { useUpdateWidget } from "../hooks";
+import CodeMirror from "@uiw/react-codemirror";
 import OptionWrapper from "@/features/views/components/OptionWrapper";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 
@@ -11,24 +14,20 @@ type Props = {
   label: string;
   placeholder?: string;
   formHelperText?: string | ReactNode;
-  children?: ReactNode;
   defaultValue?: string;
-  className?: string;
-  size?: "sm" | "md";
   optionKey: string;
+  lang?: "javascript" | "sql";
 };
 
-const GenericTextOption = ({
+const GenericCodeOption = ({
   helpText,
   id,
   label,
   placeholder,
   formHelperText,
-  children,
   defaultValue,
-  className,
-  size = "sm",
   optionKey,
+  lang = "javascript",
 }: Props) => {
   const track = useSegment();
 
@@ -40,15 +39,15 @@ const GenericTextOption = ({
     []
   );
 
-  const handleOnChange = (event: any) => {
-    setValue(event.currentTarget.value);
+  const handleOnChange = (value: string) => {
+    setValue(value);
     if (widget) {
       track("Updated widget.", {
         id: widget.id,
       });
 
       debouncedSetWidgetOptions(widget.id, {
-        [optionKey]: event.currentTarget.value,
+        [optionKey]: value,
       });
     }
   };
@@ -59,21 +58,29 @@ const GenericTextOption = ({
 
   if (!widget) return null;
 
+  const extensions = [];
+
+  switch (lang) {
+    default:
+    case "javascript":
+      extensions.push(javascript());
+      break;
+    case "sql":
+      extensions.push(sql());
+      break;
+  }
+
   return (
     <OptionWrapper helpText={helpText} id={id} label={label}>
-      <Input
-        type="text"
-        className={className}
-        name={id}
-        size={size}
-        placeholder={placeholder}
-        required={false}
+      <CodeMirror
         value={value}
+        extensions={extensions}
         onChange={handleOnChange}
+        placeholder={placeholder}
       />
       {formHelperText && <FormHelperText>{formHelperText}</FormHelperText>}
     </OptionWrapper>
   );
 };
 
-export default GenericTextOption;
+export default GenericCodeOption;

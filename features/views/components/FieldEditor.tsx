@@ -5,6 +5,7 @@ import { useDeleteColumnMutation } from "@/features/views/api-slice";
 import { useUpdateColumn } from "../hooks";
 import FieldTypeOption from "@/features/views/components/FieldTypeOption";
 import GenericBooleanOption from "@/features/views/components/GenericBooleanOption";
+import GenericCodeOption from "./GenericCodeOption"
 import GenericTextOption from "@/features/views/components/GenericTextOption";
 import NullableOption from "@/features/views/components/NullableOption";
 import React, { useMemo } from "react";
@@ -89,13 +90,12 @@ function FieldEditor() {
         <FieldTypeOption />
 
         {isComputed && !isLinkToField && (
-          <GenericTextOption
+          <GenericCodeOption
             label="Computed value"
             helpText="Value that has to be computed. You have to refresh the page after changing this value."
             optionKey="baseOptions.computedSource"
-            placeholder="Label value"
+            placeholder="{{record.first_name}} {{record.last_name}}"
             defaultValue={column?.baseOptions?.computedSource}
-            className="font-mono"
             formHelperText={
               <>
                 You can use <Code size="sm">record</Code> in your query.
@@ -137,7 +137,7 @@ function FieldEditor() {
             </>
           }
         />
-        <GenericTextOption
+        <GenericCodeOption
           helpText={
             <>
               You may use any html and hex color. <br /> We provide very good
@@ -150,7 +150,6 @@ function FieldEditor() {
           label="Background color"
           optionKey="baseOptions.backgroundColor"
           placeholder="{{ value.toLowerCase().includes('ok') ? 'green' : 'yellow'}}"
-          className="font-mono w-full"
           defaultValue={column?.baseOptions?.backgroundColor}
           formHelperText={
             <>
