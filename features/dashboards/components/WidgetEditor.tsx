@@ -44,7 +44,6 @@ function WidgetEditor() {
           helpText="The query that has to be run to get the data"
           label="Query"
           placeholder="SELECT ..."
-          className="font-mono"
           formHelperText={
             <>
               You should return the result using <Code>AS VALUE</Code>.
