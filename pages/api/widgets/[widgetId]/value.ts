@@ -28,6 +28,7 @@ async function handleGET(req: NextApiRequest, res: NextApiResponse) {
       id: true,
       dashboardId: true,
       query: true,
+      type: true,
     },
   });
 

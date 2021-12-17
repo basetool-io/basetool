@@ -19,7 +19,7 @@ interface AppState {
   filtersPanelVisible: boolean;
   selectedRecords: number[];
   columnWidths: Record<string, number>;
-  activeWidgetName: string;
+  activeWidgetId: number | null;
 }
 
 const initialState: AppState = {
@@ -36,7 +36,7 @@ const initialState: AppState = {
   filtersPanelVisible: false,
   selectedRecords: [],
   columnWidths: {},
-  activeWidgetName: "",
+  activeWidgetId: null,
 };
 
 const recordsStateSlice = createSlice({
@@ -157,8 +157,8 @@ const recordsStateSlice = createSlice({
     /**
      * Columns
      */
-    setActiveWidgetName(state, action: PayloadAction<string>) {
-      state.activeWidgetName = action.payload;
+    setActiveWidgetId(state, action: PayloadAction<number | null>) {
+      state.activeWidgetId = action.payload;
     },
   },
 });
@@ -189,7 +189,7 @@ export const {
 
   setColumnWidths,
 
-  setActiveWidgetName,
+  setActiveWidgetId,
 } = recordsStateSlice.actions;
 
 export default recordsStateSlice.reducer;
@@ -295,8 +295,8 @@ export const limitOffsetSelector = createSelector(
 /**
  * Widgets
  */
-export const activeWidgetNameSelector = ({
+export const activeWidgetIdSelector = ({
   recordsState,
 }: {
   recordsState: AppState;
-}) => recordsState.activeWidgetName;
+}) => recordsState.activeWidgetId;

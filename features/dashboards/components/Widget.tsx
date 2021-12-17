@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from "@chakra-ui/react";
 import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import { WidgetOptions, WidgetValue } from "../types";
-import { activeWidgetNameSelector } from "@/features/records/state-slice";
+import { activeWidgetIdSelector } from "@/features/records/state-slice";
 import { isUndefined } from "lodash";
 import { useAppSelector } from "@/hooks";
 import { useWidgetValue } from "../hooks";
@@ -53,14 +53,14 @@ const SuccessState = memo(
 SuccessState.displayName = "SuccessState";
 
 function Widget({ widget }: { widget: Widget }) {
-  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const activeWidgetId = useAppSelector(activeWidgetIdSelector);
 
   const { getWidgetValue, widgetValue, isFetching, widgetValueIsFetching } =
     useWidgetValue(widget);
 
   const widgetIsActive = useMemo(
-    () => activeWidgetName === widget.name,
-    [activeWidgetName, widget.name]
+    () => activeWidgetId === widget.id,
+    [activeWidgetId, widget.id]
   );
 
   const hasError = useMemo(

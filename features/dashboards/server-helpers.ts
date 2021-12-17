@@ -1,14 +1,23 @@
 import { DataSource, Widget } from "@prisma/client";
-import { WidgetValue } from '@/features/dashboards/types';
+import { WidgetValue } from "@/features/dashboards/types";
 import { runQuery } from "@/plugins/data-sources/serverHelpers";
 
-export const getValueForWidget = async (widget: Pick<Widget, "id" | "query">, dataSource: DataSource) => {
+export const getValueForWidget = async (
+  widget: Pick<Widget, "id" | "query" | "type">,
+  dataSource: DataSource
+) => {
   let response: WidgetValue;
 
   try {
-    const queryValue = await runQuery(dataSource, "runRawQuery", {
-      query: widget.query,
-    });
+    let queryValue = {
+      value: "",
+    };
+
+    if (widget.type === "metric") {
+      queryValue = await runQuery(dataSource, "runRawQuery", {
+        query: widget.query,
+      });
+    }
 
     response = {
       id: widget.id,
@@ -23,4 +32,4 @@ export const getValueForWidget = async (widget: Pick<Widget, "id" | "query">, da
   }
 
   return response;
-}
+};

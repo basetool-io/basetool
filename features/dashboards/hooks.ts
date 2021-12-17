@@ -1,9 +1,9 @@
 import { Dashboard, Widget } from "@prisma/client";
 import { WidgetValue } from "./types";
-import { activeWidgetNameSelector, setActiveWidgetName } from "./../records/state-slice";
+import { activeWidgetIdSelector } from "./../records/state-slice";
 import { dotNotationToObject } from "@/lib/helpers";
-import { isEmpty, isUndefined } from "lodash";
-import { useAppDispatch, useAppSelector, useDataSourceContext } from "@/hooks";
+import { isEmpty } from "lodash";
+import { useAppSelector, useDataSourceContext } from "@/hooks";
 import { useEffect, useMemo, useState } from "react";
 import {
   useGetDashboardQuery,
@@ -13,18 +13,17 @@ import {
 } from "./api-slice";
 
 export const useUpdateWidget = () => {
-  const dispatch = useAppDispatch();
   const { dashboardId } = useDataSourceContext();
-  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const activeWidgetId = useAppSelector(activeWidgetIdSelector);
   const { widgets } = useDashboardResponse(dashboardId);
 
   const widget = useMemo(
     () =>
       widgets.find(
         (widget: Widget) =>
-          widget.name === activeWidgetName
+          widget.id === activeWidgetId
       ),
-    [widgets, activeWidgetName]
+    [widgets, activeWidgetId]
   );
 
   const [updateWidgetOnServer] = useUpdateWidgetMutation();
@@ -34,15 +33,10 @@ export const useUpdateWidget = () => {
 
     const body = dotNotationToObject(payload);
 
-    const response = await updateWidgetOnServer({
+    await updateWidgetOnServer({
       widgetId: id.toString(),
       body,
     }).unwrap();
-
-    if (response?.ok && !isUndefined(body?.name)) {
-      // select the renamed widget
-      dispatch(setActiveWidgetName(body.name as string));
-    }
   };
 
   return {

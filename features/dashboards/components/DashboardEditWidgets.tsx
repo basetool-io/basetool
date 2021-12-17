@@ -10,16 +10,27 @@ import {
   PopoverContent,
   PopoverTrigger,
   Portal,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useDisclosure,
 } from "@chakra-ui/react";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_WIDGET_NAME_LENGTH } from "@/lib/constants";
-import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
+import {
+  MinusIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  VariableIcon,
+} from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import {
-  activeWidgetNameSelector,
-  setActiveWidgetName,
+  activeWidgetIdSelector,
+  setActiveWidgetId,
 } from "@/features/records/state-slice";
+import { iconForWidget } from "..";
 import { isArray, isEqual, snakeCase, sortBy } from "lodash";
 import { toast } from "react-toastify";
 import { useAddWidgetMutation, useReorderWidgetsMutation } from "../api-slice";
@@ -43,13 +54,14 @@ const WidgetItem = ({
   moveWidget: any;
 }) => {
   const dispatch = useAppDispatch();
-  const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const activeWidgetId = useAppSelector(activeWidgetIdSelector);
+  const IconElement = iconForWidget(widget);
 
   const toggleWidgetSelection = () => {
-    if (activeWidgetName === widget?.name) {
-      dispatch(setActiveWidgetName(""));
+    if (activeWidgetId === widget?.id) {
+      dispatch(setActiveWidgetId(null));
     } else {
-      dispatch(setActiveWidgetName(widget.name));
+      dispatch(setActiveWidgetId(widget.id));
     }
   };
 
@@ -89,9 +101,9 @@ const WidgetItem = ({
       className={classNames(
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
-          "bg-blue-600 text-white": activeWidgetName === widget.name,
+          "bg-blue-600 text-white": activeWidgetId === widget.id,
           "hover:bg-gray-100":
-            activeWidgetName !== widget.name ||
+            activeWidgetId !== widget.id ||
             (!isDragging && item?.id === widget?.name),
           "!bg-gray-800 opacity-25":
             isOver || (isDragging && item?.id === widget?.name),
@@ -108,6 +120,7 @@ const WidgetItem = ({
           onClick={toggleWidgetSelection}
         >
           <span className="flex items-center">
+            <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
             <span>{widget.name}</span>{" "}
           </span>
         </div>
@@ -131,9 +144,11 @@ NameInput.displayName = "NameInput";
 const Form = ({
   firstFieldRef,
   onClose,
+  type,
 }: {
   firstFieldRef: any;
   onClose: () => void;
+  type: string;
 }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
@@ -154,13 +169,14 @@ const Form = ({
       dashboardId,
       body: {
         dashboardId,
-        name: name,
+        name,
+        type,
       },
     }).unwrap();
 
     if (response?.ok) {
       // select the newly created widget
-      dispatch(setActiveWidgetName(name));
+      dispatch(setActiveWidgetId(response.data.id));
     }
   };
 
@@ -196,7 +212,7 @@ const Form = ({
           isLoading={isLoading}
           leftIcon={<PlusIcon className="text-white h-4" />}
         >
-          Add widget
+          Add {type}
         </Button>
       </div>
     </form>
@@ -207,7 +223,8 @@ const DashboardEditWidgets = () => {
   const dispatch = useAppDispatch();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { dashboardId } = useDataSourceContext();
-  const firstFieldRef = useRef(null);
+  const firstFieldRefMetric = useRef(null);
+  const firstFieldRefDivider = useRef(null);
 
   const { isLoading: dashboardIsLoading, widgets } =
     useDashboardResponse(dashboardId);
@@ -266,7 +283,7 @@ const DashboardEditWidgets = () => {
 
   useEffect(() => {
     return () => {
-      dispatch(setActiveWidgetName(""));
+      dispatch(setActiveWidgetId(null));
     };
   }, []);
 
@@ -281,7 +298,34 @@ const DashboardEditWidgets = () => {
       >
         <PopoverArrow />
         <PopoverBody>
-          <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+          <Tabs isFitted>
+            <TabList size="sm">
+              <Tab>
+                Metric{" "}
+                <VariableIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
+              </Tab>
+              <Tab>
+                Divider{" "}
+                <MinusIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Form
+                  firstFieldRef={firstFieldRefMetric}
+                  onClose={onClose}
+                  type="metric"
+                />
+              </TabPanel>
+              <TabPanel>
+                <Form
+                  firstFieldRef={firstFieldRefDivider}
+                  onClose={onClose}
+                  type="divider"
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </PopoverBody>
       </PopoverContent>
     </Portal>
@@ -300,7 +344,7 @@ const DashboardEditWidgets = () => {
           <div className="flex items-center">
             <Popover
               isOpen={isOpen}
-              initialFocusRef={firstFieldRef}
+              initialFocusRef={firstFieldRefMetric}
               onOpen={onOpen}
               onClose={onClose}
             >
@@ -317,7 +361,7 @@ const DashboardEditWidgets = () => {
       {widgets.length === 0 && (
         <Popover
           isOpen={isOpen}
-          initialFocusRef={firstFieldRef}
+          initialFocusRef={firstFieldRefMetric}
           onOpen={onOpen}
           onClose={onClose}
         >
