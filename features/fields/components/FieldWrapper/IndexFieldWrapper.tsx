@@ -25,6 +25,7 @@ const IndexFieldWrapper = ({
         input: field.column.baseOptions.backgroundColor,
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log('There was an error computing the background color: ', error.message)
     }
 

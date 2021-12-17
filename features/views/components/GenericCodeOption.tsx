@@ -32,7 +32,7 @@ const GenericTextOption = ({
   id ||= snakeCase(label.toLowerCase());
   const track = useSegment();
 
-  const { column, columnOptions, setColumnOptions } = useUpdateColumn();
+  const { column, setColumnOptions } = useUpdateColumn();
   const [value, setValue] = useState<string>();
 
   const debouncedSetColumnOptions = useCallback(
