@@ -223,7 +223,8 @@ const DashboardEditWidgets = () => {
   const dispatch = useAppDispatch();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { dashboardId } = useDataSourceContext();
-  const firstFieldRef = useRef(null);
+  const firstFieldRefMetric = useRef(null);
+  const firstFieldRefDivider = useRef(null);
 
   const { isLoading: dashboardIsLoading, widgets } =
     useDashboardResponse(dashboardId);
@@ -311,14 +312,14 @@ const DashboardEditWidgets = () => {
             <TabPanels>
               <TabPanel>
                 <Form
-                  firstFieldRef={firstFieldRef}
+                  firstFieldRef={firstFieldRefMetric}
                   onClose={onClose}
                   type="metric"
                 />
               </TabPanel>
               <TabPanel>
                 <Form
-                  firstFieldRef={firstFieldRef}
+                  firstFieldRef={firstFieldRefDivider}
                   onClose={onClose}
                   type="divider"
                 />
@@ -343,7 +344,7 @@ const DashboardEditWidgets = () => {
           <div className="flex items-center">
             <Popover
               isOpen={isOpen}
-              initialFocusRef={firstFieldRef}
+              initialFocusRef={firstFieldRefMetric}
               onOpen={onOpen}
               onClose={onClose}
             >
@@ -360,7 +361,7 @@ const DashboardEditWidgets = () => {
       {widgets.length === 0 && (
         <Popover
           isOpen={isOpen}
-          initialFocusRef={firstFieldRef}
+          initialFocusRef={firstFieldRefMetric}
           onOpen={onOpen}
           onClose={onClose}
         >
