@@ -49,7 +49,6 @@ function WidgetEditor() {
               You should return the result using <Code>AS VALUE</Code>.
             </>
           }
-          size="sm"
           defaultValue={widget?.query}
           optionKey="query"
         />
