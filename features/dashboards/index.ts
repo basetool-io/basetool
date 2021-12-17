@@ -7,7 +7,7 @@ export const iconForWidget = (widget: Widget): ElementType => {
     default:
     case "metric":
       return VariableIcon;
-    case "separator":
+    case "divider":
       return MinusIcon;
   }
 };

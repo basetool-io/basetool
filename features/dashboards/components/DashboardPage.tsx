@@ -5,6 +5,7 @@ import { sortBy } from "lodash";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
+import Divider from "./Divider";
 import React, { useEffect, useMemo } from "react";
 import Widget from "./Widget";
 
@@ -42,9 +43,13 @@ function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
       )}
       {!dashboardIsLoading && orderedWidgets.length > 0 && (
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {orderedWidgets.map((widget: IWidget, idx: number) => (
-            <Widget key={idx} widget={widget} />
-          ))}
+          {orderedWidgets.map((widget: IWidget, idx: number) => {
+            if(widget.type === "metric") {
+              return <Widget key={idx} widget={widget} />
+            } else if (widget.type === "divider") {
+              return <Divider key={idx} widget={widget} />
+            }
+          })}
         </dl>
       )}
     </div>

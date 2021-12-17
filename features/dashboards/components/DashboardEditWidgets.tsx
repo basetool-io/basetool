@@ -304,7 +304,7 @@ const DashboardEditWidgets = () => {
                 <VariableIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
               </Tab>
               <Tab>
-                Separator{" "}
+                Divider{" "}
                 <MinusIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
               </Tab>
             </TabList>
@@ -320,7 +320,7 @@ const DashboardEditWidgets = () => {
                 <Form
                   firstFieldRef={firstFieldRef}
                   onClose={onClose}
-                  type="separator"
+                  type="divider"
                 />
               </TabPanel>
             </TabPanels>

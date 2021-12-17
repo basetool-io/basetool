@@ -65,7 +65,7 @@ const DashboardView = () => {
             {canEdit && dashboardId && <EditDashboardButton />}
           </ButtonGroup>
         }
-        bodyClassName="bg-neutral-100"
+        flush={true}
       >
         <DashboardPage />
       </PageWrapper>
