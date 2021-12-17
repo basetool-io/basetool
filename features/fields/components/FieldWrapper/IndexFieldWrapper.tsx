@@ -18,10 +18,16 @@ const IndexFieldWrapper = ({
 
   // Apply the background color if set
   if (field.column.baseOptions.backgroundColor) {
-    const color = evaluateBinding({
-      context: { record: field.record, value: field.value },
-      input: field.column.baseOptions.backgroundColor,
-    });
+    let color
+    try {
+      color = evaluateBinding({
+        context: { record: field.record, value: field.value },
+        input: field.column.baseOptions.backgroundColor,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('There was an error computing the background color: ', error.message)
+    }
 
     if (color) {
       if (bgColors.includes(color)) {
