@@ -12,6 +12,7 @@ import {
   Portal,
   useDisclosure,
 } from "@chakra-ui/react";
+import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_WIDGET_NAME_LENGTH } from "@/lib/constants";
 import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
@@ -19,19 +20,28 @@ import {
   activeWidgetNameSelector,
   setActiveWidgetName,
 } from "@/features/records/state-slice";
-import { snakeCase } from "lodash";
+import { isArray, isEqual, snakeCase, sortBy } from "lodash";
 import { toast } from "react-toastify";
-import { useAddWidgetMutation } from "../api-slice";
+import { useAddWidgetMutation, useReorderWidgetsMutation } from "../api-slice";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useDataSourceContext } from "@/hooks";
+import { useDrag, useDrop } from "react-dnd";
 import DashedCreateBox from "@/components/DashedCreateBox";
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import DragIcon from "@/components/DragIcon";
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import Shimmer from "@/components/Shimmer";
 import TinyLabel from "@/components/TinyLabel";
 import classNames from "classnames";
+import update from "immutability-helper";
 
-const WidgetItem = ({ widget }: { widget: Widget }) => {
+const WidgetItem = ({
+  widget,
+  moveWidget,
+}: {
+  widget: Widget;
+  moveWidget: any;
+}) => {
   const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
 
@@ -43,23 +53,62 @@ const WidgetItem = ({ widget }: { widget: Widget }) => {
     }
   };
 
+  const id = widget.name;
+  const [{ item, isDragging }, drag, preview] = useDrag(
+    () => ({
+      type: ItemTypes.WIDGET,
+      item: { id },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+        item: monitor.getItem(),
+      }),
+    }),
+    [moveWidget, id]
+  );
+
+  const [{ isOver }, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.WIDGET,
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+      }),
+      canDrop: () => false,
+      hover(item: { id: string }) {
+        const draggedWidgetName = item.id;
+        const overWidgetName = widget.name;
+        if (draggedWidgetName !== overWidgetName && moveWidget) {
+          moveWidget(draggedWidgetName, overWidgetName);
+        }
+      },
+    }),
+    [moveWidget, id]
+  );
+
   return (
     <div
       className={classNames(
         "relative flex items-center justify-between cursor-pointer group rounded",
         {
           "bg-blue-600 text-white": activeWidgetName === widget.name,
-          "hover:bg-gray-100": activeWidgetName !== widget.name,
+          "hover:bg-gray-100":
+            activeWidgetName !== widget.name ||
+            (!isDragging && item?.id === widget?.name),
+          "!bg-gray-800 opacity-25":
+            isOver || (isDragging && item?.id === widget?.name),
         }
       )}
+      ref={preview}
     >
       <div className="flex items-center flex-1 hover:cursor-pointer">
+        <span ref={(node: any) => drag(drop(node))} className="h-full ml-1">
+          <DragIcon />{" "}
+        </span>
         <div
           className="flex-1 flex items-center justify-between"
           onClick={toggleWidgetSelection}
         >
           <span className="flex items-center">
-            <span className="ml-1">{widget.name}</span>{" "}
+            <span>{widget.name}</span>{" "}
           </span>
         </div>
       </div>
@@ -163,6 +212,58 @@ const DashboardEditWidgets = () => {
   const { isLoading: dashboardIsLoading, widgets } =
     useDashboardResponse(dashboardId);
 
+  const [order, setOrder] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isArray(widgets)) {
+      const newOrder = sortBy(widgets, [(w) => w?.order]).map(
+        ({ name }: Widget) => name
+      );
+      setOrder(newOrder);
+    }
+  }, [widgets]);
+
+  const orderedWidgets = useMemo(
+    () => sortBy(widgets, [(widget: Widget) => order.indexOf(widget.name)]),
+    [widgets, order]
+  );
+
+  const [{ didDrop }, drop] = useDrop(() => ({
+    accept: ItemTypes.WIDGET,
+    collect: (monitor) => ({
+      didDrop:
+        monitor.getItemType() === ItemTypes.WIDGET ? monitor.didDrop() : false,
+    }),
+  }));
+
+  const [reorderWidgets] = useReorderWidgetsMutation();
+
+  const moveWidget = (from: string, to: string) => {
+    const fromIndex = order.indexOf(from);
+    const toIndex = order.indexOf(to);
+
+    const newOrder = update(order, {
+      $splice: [
+        [fromIndex, 1],
+        [toIndex, 0, from],
+      ],
+    }).filter(Boolean);
+
+    if (!isEqual(order, newOrder)) {
+      setOrder(newOrder);
+    }
+  };
+
+  // We have to save the order of the widgets when the order changes, and the order changes when an element is dropped.
+  useEffect(() => {
+    if (didDrop === true) {
+      reorderWidgets({
+        dashboardId,
+        body: { order },
+      }).unwrap();
+    }
+  }, [didDrop]);
+
   useEffect(() => {
     return () => {
       dispatch(setActiveWidgetName(""));
@@ -228,7 +329,7 @@ const DashboardEditWidgets = () => {
           <ContentForPopover />
         </Popover>
       )}
-      <div className="mt-2">
+      <div className="mt-2" ref={drop}>
         {dashboardIsLoading && (
           <div className="space-y-1">
             <Shimmer height="15px" width="60px" />
@@ -242,9 +343,9 @@ const DashboardEditWidgets = () => {
           </div>
         )}
         {!dashboardIsLoading &&
-          widgets &&
-          widgets.map((widget: Widget, idx: number) => (
-            <WidgetItem key={idx} widget={widget} />
+          orderedWidgets &&
+          orderedWidgets.map((widget: Widget, idx: number) => (
+            <WidgetItem key={idx} widget={widget} moveWidget={moveWidget} />
           ))}
       </div>
     </div>

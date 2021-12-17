@@ -1,10 +1,11 @@
 import { Widget as IWidget } from "@prisma/client";
 import { Link } from "@chakra-ui/react";
 import { setActiveWidgetName } from "@/features/records/state-slice";
+import { sortBy } from "lodash";
 import { useAppDispatch, useDataSourceContext } from "@/hooks";
 import { useDashboardResponse } from "../hooks";
 import { useGetWidgetsValuesQuery } from "../api-slice";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import Widget from "./Widget";
 
 function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
@@ -20,6 +21,11 @@ function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
     if (!isEditPage) dispatch(setActiveWidgetName(""));
   }, [isEditPage]);
 
+  const orderedWidgets = useMemo(
+    () => sortBy(widgets, [(widget: IWidget) => widget.order]),
+    [widgets]
+  );
+
   return (
     <div className="relative flex flex-col flex-1 w-full h-full p-2 bg-neutral-100">
       {!dashboardIsLoading && widgets.length === 0 && (
@@ -34,9 +40,9 @@ function DashboardPage({ isEditPage = false }: { isEditPage?: boolean }) {
           )}
         </div>
       )}
-      {!dashboardIsLoading && widgets.length > 0 && (
+      {!dashboardIsLoading && orderedWidgets.length > 0 && (
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {widgets.map((widget: IWidget, idx: number) => (
+          {orderedWidgets.map((widget: IWidget, idx: number) => (
             <Widget key={idx} widget={widget} />
           ))}
         </dl>

@@ -148,6 +148,22 @@ export const api = createApi({
           { type: "Dashboard", id: dashboardId },
         ],
       }),
+      reorderWidgets: builder.mutation<
+        ApiResponse,
+        Partial<{
+          dashboardId: string;
+          body: { order: string[] };
+        }>
+      >({
+        query: ({ dashboardId, body }) => ({
+          url: `${apiUrl}/dashboards/${dashboardId}/widgets/order`,
+          method: "PUT",
+          body,
+        }),
+        invalidatesTags: (result, error, { dashboardId }) => [
+          { type: "Dashboard", id: dashboardId },
+        ],
+      }),
     };
   },
 });
@@ -166,4 +182,5 @@ export const {
   useDeleteWidgetMutation,
   useAddWidgetMutation,
   useUpdateWidgetMutation,
+  useReorderWidgetsMutation,
 } = api;

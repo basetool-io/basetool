@@ -46,7 +46,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
       dashboardId: parseInt(req.body.dashboardId),
       query: "",
       type: "metric",
-      order: 1,
+      order: 999,
       options: {},
       createdBy: user.id,
     },

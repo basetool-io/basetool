@@ -595,7 +595,6 @@ abstract class AbstractQueryService implements ISQLQueryService {
       }
     }
 
-    // console.log('rawColumns->', rawColumns)
     const query = this.client.table(tableName);
     if (filters) {
       addFiltersToQuery(query, filters);
