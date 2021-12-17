@@ -29,6 +29,7 @@ const OrganizationsBlock = () => {
   return (
     <PageWrapper.Section>
       <PageWrapper.Heading>Your Organizations</PageWrapper.Heading>
+      <hr className="mb-4" />
       {!isLoading &&
         organizations &&
         organizations.length === 0 &&
