@@ -38,14 +38,14 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   if (!user || !organizationId) return res.status(404).send("");
 
-  if (!req.body.name || !req.body.dashboardId) return res.status(404).send("");
+  if (!req.body.name || !req.body.type || !req.body.dashboardId) return res.status(404).send("");
 
   const widget = await prisma.widget.create({
     data: {
       name: req.body.name,
       dashboardId: parseInt(req.body.dashboardId),
       query: "",
-      type: "metric",
+      type: req.body.type,
       order: 999,
       options: {},
       createdBy: user.id,

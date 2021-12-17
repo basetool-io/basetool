@@ -6,12 +6,14 @@ import { useDeleteWidgetMutation } from "../api-slice";
 import { useUpdateWidget } from "../hooks";
 import GenericTextOption from "@/features/dashboards/components/GenericTextOption";
 import React from "react";
+import TinyLabel from "@/components/TinyLabel";
 
 function WidgetEditor() {
   const { widget } = useUpdateWidget();
   const { dashboardId } = useDataSourceContext();
 
-  const [deleteWidget, { isLoading: isDeletingWidget }] = useDeleteWidgetMutation();
+  const [deleteWidget, { isLoading: isDeletingWidget }] =
+    useDeleteWidgetMutation();
 
   const removeWidget = async () => {
     if (!widget) return;
@@ -29,6 +31,7 @@ function WidgetEditor() {
   return (
     <>
       <div className="block space-y-6 py-4 w-1/3 border-r">
+        <TinyLabel className="px-4">{widget?.type}</TinyLabel>
         <GenericTextOption
           helpText="The name of the widget"
           label="Name"
@@ -38,40 +41,40 @@ function WidgetEditor() {
           defaultValue={widget?.name}
           optionKey="name"
         />
-        <GenericTextOption
-          helpText="The query that has to be run to get the data"
-          label="Query"
-          placeholder="SELECT ..."
-          className="font-mono"
-          formHelperText={
-            <>
-              You should return the result using{" "}
-              <Code>
-                AS VALUE
-              </Code>
-              .
-            </>
-          }
-          size="sm"
-          defaultValue={widget?.query}
-          optionKey="query"
-        />
-        <GenericTextOption
-          helpText="The text that will be displayed in the left of the value"
-          label="Prefix"
-          placeholder="per"
-          size="sm"
-          defaultValue={(widget?.options as WidgetOptions)?.prefix || ""}
-          optionKey="options.prefix"
-        />
-        <GenericTextOption
-          helpText="The text that will be displayed in the right of the value"
-          label="Suffix"
-          placeholder="$"
-          size="sm"
-          defaultValue={(widget?.options as WidgetOptions)?.suffix || ""}
-          optionKey="options.suffix"
-        />
+        {widget?.type === "metric" && (
+          <>
+            <GenericTextOption
+              helpText="The query that has to be run to get the data"
+              label="Query"
+              placeholder="SELECT ..."
+              className="font-mono"
+              formHelperText={
+                <>
+                  You should return the result using <Code>AS VALUE</Code>.
+                </>
+              }
+              size="sm"
+              defaultValue={widget?.query}
+              optionKey="query"
+            />
+            <GenericTextOption
+              helpText="The text that will be displayed in the left of the value"
+              label="Prefix"
+              placeholder="per"
+              size="sm"
+              defaultValue={(widget?.options as WidgetOptions)?.prefix || ""}
+              optionKey="options.prefix"
+            />
+            <GenericTextOption
+              helpText="The text that will be displayed in the right of the value"
+              label="Suffix"
+              placeholder="$"
+              size="sm"
+              defaultValue={(widget?.options as WidgetOptions)?.suffix || ""}
+              optionKey="options.suffix"
+            />
+          </>
+        )}
         <div className="flex justify-end px-2">
           <Button
             isLoading={isDeletingWidget}

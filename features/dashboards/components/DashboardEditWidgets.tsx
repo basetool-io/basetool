@@ -10,16 +10,27 @@ import {
   PopoverContent,
   PopoverTrigger,
   Portal,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useDisclosure,
 } from "@chakra-ui/react";
 import { ItemTypes } from "@/lib/ItemTypes";
 import { MINIMUM_WIDGET_NAME_LENGTH } from "@/lib/constants";
-import { PlusCircleIcon, PlusIcon } from "@heroicons/react/outline";
+import {
+  MinusIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  VariableIcon,
+} from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import {
   activeWidgetNameSelector,
   setActiveWidgetName,
 } from "@/features/records/state-slice";
+import { iconForWidget } from "..";
 import { isArray, isEqual, snakeCase, sortBy } from "lodash";
 import { toast } from "react-toastify";
 import { useAddWidgetMutation, useReorderWidgetsMutation } from "../api-slice";
@@ -44,6 +55,7 @@ const WidgetItem = ({
 }) => {
   const dispatch = useAppDispatch();
   const activeWidgetName = useAppSelector(activeWidgetNameSelector);
+  const IconElement = iconForWidget(widget);
 
   const toggleWidgetSelection = () => {
     if (activeWidgetName === widget?.name) {
@@ -108,6 +120,7 @@ const WidgetItem = ({
           onClick={toggleWidgetSelection}
         >
           <span className="flex items-center">
+            <IconElement className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />{" "}
             <span>{widget.name}</span>{" "}
           </span>
         </div>
@@ -131,9 +144,11 @@ NameInput.displayName = "NameInput";
 const Form = ({
   firstFieldRef,
   onClose,
+  type,
 }: {
   firstFieldRef: any;
   onClose: () => void;
+  type: string;
 }) => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
@@ -154,7 +169,8 @@ const Form = ({
       dashboardId,
       body: {
         dashboardId,
-        name: name,
+        name,
+        type,
       },
     }).unwrap();
 
@@ -196,7 +212,7 @@ const Form = ({
           isLoading={isLoading}
           leftIcon={<PlusIcon className="text-white h-4" />}
         >
-          Add widget
+          Add {type}
         </Button>
       </div>
     </form>
@@ -281,7 +297,34 @@ const DashboardEditWidgets = () => {
       >
         <PopoverArrow />
         <PopoverBody>
-          <Form firstFieldRef={firstFieldRef} onClose={onClose} />
+          <Tabs isFitted>
+            <TabList size="sm">
+              <Tab>
+                Metric{" "}
+                <VariableIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
+              </Tab>
+              <Tab>
+                Separator{" "}
+                <MinusIcon className="h-4 self-start mt-1 ml-1 mr-2 lg:self-center lg:mt-0 inline-block flex-shrink-0" />
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Form
+                  firstFieldRef={firstFieldRef}
+                  onClose={onClose}
+                  type="metric"
+                />
+              </TabPanel>
+              <TabPanel>
+                <Form
+                  firstFieldRef={firstFieldRef}
+                  onClose={onClose}
+                  type="separator"
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </PopoverBody>
       </PopoverContent>
     </Portal>
