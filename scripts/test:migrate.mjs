@@ -1,5 +1,3 @@
 #!/usr/bin/env zx
 
-const dotenvBin = await $`yarn bin dotenv`
-
-await $`${dotenvBin} -e .env.test -- yarn prisma migrate dev`
+await $`npx dotenv -e .env.test -- yarn prisma migrate dev`
