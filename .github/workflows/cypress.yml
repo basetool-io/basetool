@@ -33,7 +33,7 @@ jobs:
     - name: Copy env variables
       run: cp .env.test.sample .env.test
     - name: Migrate
-      run: npx dotenv -e .env.test -- yarn prisma migrate dev
+      run: yarn dotenv -e .env.test -- yarn prisma migrate dev
     - name: Install deps
       run: yarn install
     - uses: cypress-io/github-action@v2
