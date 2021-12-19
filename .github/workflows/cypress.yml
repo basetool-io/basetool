@@ -40,4 +40,5 @@ jobs:
       env:
         NODE_ENV: test
         PORT: 4099
-      start: next dev -p 4099
+      with:
+        start: next dev -p 4099
