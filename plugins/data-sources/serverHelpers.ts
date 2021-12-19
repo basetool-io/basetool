@@ -2,6 +2,7 @@ import { DataSource } from "@prisma/client";
 import { IQueryServiceWrapper } from "./types";
 import { SQLError } from "@/lib/errors";
 import { baseUrl } from "@/features/api/urls";
+import { inTest } from "@/lib/environment"
 import QueryServiceWrapper from "./QueryServiceWrapper";
 import axios from "axios";
 import getDataSourceInfo from "./getDataSourceInfo";
@@ -44,9 +45,16 @@ export const runQueries = async (
   // We want to better control if the queries should run in a proxy
   // We're checking to see if the redis DB has any options set 1 or 0.
   // If nothing is set in redis, we're going to fallback to an environment variable.
-  const runInProxyOverride = (await options.exists("runInProxy"))
-    ? (await options.get("runInProxy")) === "1"
-    : process.env.USE_PROXY === "1";
+  let runInProxyOverride = false;
+
+  // When testing we should not run in proxy
+  if (inTest) {
+    runInProxyOverride = false;
+  } else if (await options.exists("runInProxy")) {
+    runInProxyOverride = (await options.get("runInProxy")) === "1";
+  } else {
+    runInProxyOverride = process.env.USE_PROXY === "1";
+  }
 
   if (runInProxyOverride) {
     logger.debug(

@@ -26,15 +26,6 @@ jobs:
         image: postgres:11.5
         ports: ["5432:5432"]
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        # Docker Hub image
-        image: redis
-        # Set health checks to wait until redis has started
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +35,6 @@ jobs:
       run: |
         cp .env.test.sample .env.test
         echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env.test
-        echo "REDIS_URL=redis:6379" >> .env.test
         createdb avodemo_development
         psql avodemo_development < prisma/sample-seed.sql
     - name: Get yarn cache directory path
