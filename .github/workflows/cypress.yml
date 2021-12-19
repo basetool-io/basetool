@@ -28,12 +28,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install zx & dotenv
-      run: yarn add zx dotenv
     - name: Copy env variables
       run: cp .env.test.sample .env.test
     - name: Migrate
       run: npx zx ./scripts/test:migrate.mjs
     - name: Install deps
       run: yarn install
+    - name: Install zx & dotenv
+      run: yarn add zx dotenv
     - uses: cypress-io/github-action@v2
