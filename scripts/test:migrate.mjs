@@ -3,5 +3,5 @@
 const dotenvBin = await $`yarn bin dotenv`
 console.log('dotenvBin->', dotenvBin)
 
-await $`${dotenvBin} -e .env.test -- yarn prisma migrate dev`
+await $`npx dotenv -e .env.test -- yarn prisma migrate dev`
 
