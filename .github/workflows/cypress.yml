@@ -28,6 +28,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
+    - name: Install zx
+      run: npm install -g zx
+    - name: Copy env variables
+      run: cp .env.test.sample .env.test
+    - name: Migrate
+      run: npx zx ./scripts/test:migrate.mjs
     - name: Install deps
       run: yarn install
