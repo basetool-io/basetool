@@ -3,7 +3,7 @@ import { SQLError } from "@/lib/errors";
 import { captureException, configureScope, flush } from "@sentry/nextjs";
 import { errorResponse } from "@/lib/messages";
 import { getUserFromRequest } from ".";
-import { inDevelopment } from "@/lib/environment";
+import { inDevelopment, inTest } from "@/lib/environment";
 import { isNumber } from "lodash";
 import ApiResponse from "./ApiResponse";
 import VerifyKeepAlive from "./middlewares/VerifyKeepAlive";
@@ -74,7 +74,7 @@ export const withMiddlewares =
       await flush(2000);
 
       // throw the error in the console in development
-      if (inDevelopment) {
+      if (inDevelopment || inTest) {
         console.error(error);
       }
 

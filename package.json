@@ -9,7 +9,6 @@
     "lint": "yarn tsc && next lint --quiet",
     "try": "yarn build && yarn start",
     "test:migrate": "zx ./scripts/test:migrate.mjs",
-    "test:start-server": "NODE_ENV=test next dev -p 4099",
     "start-cypress": "zx ./scripts/start-cypress.mjs",
     "docker-start": "zx ./scripts/docker-start.mjs && yarn start",
     "vercel-build": "prisma migrate deploy && next build",

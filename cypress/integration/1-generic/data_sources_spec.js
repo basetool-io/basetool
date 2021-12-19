@@ -43,7 +43,7 @@ describe("Data Sources", () => {
     cy.visit("/");
 
     cy.contains("Avo Demo").click()
-    cy.contains("Select a table to get started.")
+    cy.contains("This data source has")
     cy.contains(/^users$/).click()
     cy.contains("Browse records")
     cy.contains("Filters")

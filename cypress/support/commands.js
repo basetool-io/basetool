@@ -1,3 +1,33 @@
+const login = (options) => {
+  // Get the user
+  cy.fixture("user.json").then((defaultUser) => {
+    const user = options?.user || defaultUser;
+    const { email, password } = user;
+
+    cy.request({
+      url: "/api/auth/csrf",
+      method: "GET",
+    }).then((response) => {
+      cy.log("Got CSRF Token");
+      const { csrfToken } = response.body;
+
+      cy.request({
+        url: "/api/auth/callback/credentials",
+        method: "POST",
+        form: true,
+        body: {
+          redirect: false,
+          email,
+          password,
+          csrfToken,
+          json: true,
+          callbackUrl: "http://localhost:4099/auth/login",
+        },
+      }).then(() => cy.log("Signed in"));
+    });
+  });
+};
+
 Cypress.Commands.add("login", (options) => {
   // Tell cypress to not clear the nextjs auth cookie after each test
   Cypress.Cookies.defaults({
@@ -7,30 +37,17 @@ Cypress.Commands.add("login", (options) => {
   // Get the auth cookie
   cy.getCookie(Cypress.env("COOKIE_NAME")).then((cookie) => {
     // If there's no cookie set, we must log in
-    if (!cookie || !cookie.value) {
-      // Get the user
-      cy.fixture("user.json").then((defaultUser) => {
-        const user = options?.user || defaultUser;
-        const { email, password } = user;
-
-        cy.visit("/auth/login");
-
-        // Set up interceptor for login set up
-        cy.intercept("POST", "/api/auth/callback/credentials?").as(
-          "authenticate"
-        );
-
-        // Fill in form
-        cy.get("[name=email]").should("be.visible").type(email);
-        cy.get("[name=password]").should("be.visible").type(password);
-        cy.get('button[type="submit"]').should("be.visible").click();
-
-        // wait for the login response
-        cy.wait("@authenticate");
-        cy.get("@authenticate").then((xhr) => {
-          expect(xhr.response.statusCode).to.eq(200);
-        });
+    if (cookie && cookie.value) {
+      cy.request({
+        url: "/api/auth/session",
+        method: "GET",
+      }).then((response) => {
+        if (!response.body.user.email) {
+          login(options);
+        }
       });
+    } else {
+      login(options);
     }
   });
 });

@@ -6,7 +6,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (process.env.ENV !== "test") return res.status(404).send("");
+  if (process.env.NEXT_PUBLIC_APP_ENV !== "test") return res.status(404).send("");
 
   switch (req.method) {
     case "POST":
