@@ -13,6 +13,8 @@ jobs:
   Test:
     env:
       ENV: test
+      NODE_ENV: test
+      NEXT_PUBLIC_APP_ENV: test
       PGHOST: localhost
       PGUSER: postgres
       PGPORT: 5432
@@ -57,6 +59,8 @@ jobs:
       run: yarn install
     - name: Migrate
       run: yarn dotenv -e .env.test -- yarn prisma migrate dev
+    - name: Build
+      run: yarn build
     - uses: cypress-io/github-action@v2
       env:
         NODE_ENV: test
