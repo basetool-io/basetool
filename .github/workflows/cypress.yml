@@ -35,7 +35,8 @@ jobs:
       run: |
         cp .env.test.sample .env.test
         echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env.test
-        echo "DATABASE_URL=DATABASE_URL=postgresql://postgres@127.0.0.1/basetool" >> .env.test
+        echo "DATABASE_URL=postgresql://postgres@127.0.0.1/basetool" >> .env.test
+        echo "DATABASE_TEST_CREDENTIALS=postgresql://postgres@127.0.0.1/avodemo_development" >> .env.test
         createdb avodemo_development
         psql avodemo_development < prisma/sample-seed.sql
     - name: Get yarn cache directory path
