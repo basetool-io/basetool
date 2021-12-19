@@ -37,3 +37,7 @@ jobs:
     - name: Install deps
       run: yarn install
     - uses: cypress-io/github-action@v2
+      env:
+        NODE_ENV: test
+        PORT: 4099
+      start: next dev -p 4099
