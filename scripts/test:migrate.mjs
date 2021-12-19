@@ -1,3 +1,3 @@
 #!/usr/bin/env zx
 
-await $`yarn dotenv -e .env.test -- yarn prisma migrate dev`
+await $`npx dotenv -e .env.test -- yarn prisma migrate dev`
