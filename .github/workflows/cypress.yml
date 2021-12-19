@@ -29,7 +29,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install zx & dotenv
-      run: yarn global add zx
+      run: npm i -g add zx dotenv
     - name: Copy env variables
       run: cp .env.test.sample .env.test
     - name: Migrate
