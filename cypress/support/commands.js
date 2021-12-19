@@ -3,28 +3,7 @@ const login = (options) => {
   cy.fixture("user.json").then((defaultUser) => {
     const user = options?.user || defaultUser;
     const { email, password } = user;
-
-    cy.request({
-      url: "/api/auth/csrf",
-      method: "GET",
-    }).then((response) => {
-      cy.log("Got CSRF Token");
-      const { csrfToken } = response.body;
-
-      cy.request({
-        url: "/api/auth/callback/credentials",
-        method: "POST",
-        form: true,
-        body: {
-          redirect: false,
-          email,
-          password,
-          csrfToken,
-          json: true,
-          callbackUrl: "http://localhost:4099/auth/login",
-        },
-      }).then(() => cy.log("Signed in"));
-    });
+    cy.wrap(signIn('credentials', { redirect: false, email, password }))
   });
 };
 
