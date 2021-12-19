@@ -17,13 +17,11 @@ describe("Add data sources", () => {
     // Set up interceptor for login set up
     cy.intercept("POST", "/api/data-source?").as("create");
 
-    const credUrl = "postgresql://adrian@127.0.0.1/avodemo_development";
-
     cy.get("[name=name]").type("Demo DB");
 
     // Open "Paste as URL" modal
     cy.contains("Paste from URL").click();
-    cy.get("[name='credentialsAsURL']").type(credUrl);
+    cy.get("[name='credentialsAsURL']").type(Cypress.env('DATABASE_TEST_CREDENTIALS'));
     cy.contains("Apply").click();
 
     // "Paste as URL modal" closed

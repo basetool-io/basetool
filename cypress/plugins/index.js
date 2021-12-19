@@ -12,6 +12,11 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config({
+  path: './.env.test'
+})
+
 /**
  * @type {Cypress.PluginConfig}
  */
@@ -19,4 +24,9 @@
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+  // copy any needed variables from process.env to config.env
+  config.env.DATABASE_TEST_CREDENTIALS = process.env.DATABASE_TEST_CREDENTIALS
+
+  // do not forget to return the changed config object!
+  return config
 }
