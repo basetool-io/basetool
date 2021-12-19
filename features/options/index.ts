@@ -40,6 +40,8 @@ class Options {
   }
 }
 
-const options = new Options({ url: process.env.REDIS_URL as string });
+const url = process.env.REDIS_URL || "localhost:6379";
+
+const options = new Options({ url });
 
 export default options;
