@@ -60,7 +60,7 @@ jobs:
     - name: Migrate
       run: yarn dotenv -e .env.test -- yarn prisma migrate dev
     - name: Build
-      run: yarn build
+      run: npx dotenv -e .env.test -- yarn build
     - uses: cypress-io/github-action@v2
       env:
         NODE_ENV: test
