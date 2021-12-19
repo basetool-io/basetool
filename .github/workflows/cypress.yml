@@ -66,7 +66,7 @@ jobs:
         NODE_ENV: test
         PORT: 4099
       with:
-        start: yarn dev -p 4099
+        start: yarn start -p 4099
     # after the test run completes
     # store videos and any screenshots
     # NOTE: screenshots will be generated only if E2E test failed
