@@ -31,7 +31,9 @@ jobs:
     - name: Install zx & dotenv
       run: npm i -g add zx dotenv
     - name: Copy env variables
-      run: cp .env.test.sample .env.test
+      run: |
+        cp .env.test.sample .env.test
+        echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env.test
     - name: Get yarn cache directory path
       id: production-yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
