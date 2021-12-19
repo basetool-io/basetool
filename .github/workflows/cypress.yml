@@ -46,7 +46,7 @@ jobs:
         echo "SECRET=123e48188c5e81703cf62bbb15d129a4329f5ec3c8fc2eda1493bb20448e8006" >> .env.test
         echo "REDIS_URL=redis:6379" >> .env.test
         createdb avodemo_development
-        psql avodemo_test < prisma/sample-seed.sql
+        psql avodemo_development < prisma/sample-seed.sql
     - name: Get yarn cache directory path
       id: production-yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
