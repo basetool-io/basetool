@@ -29,8 +29,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install zx & dotenv
-      run: npm i -g add zx dotenv
+    # - name: Install zx & dotenv
+    #   run: npm i -g add zx dotenv
     - name: Copy env variables
       run: |
         cp .env.test.sample .env.test
