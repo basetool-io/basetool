@@ -1,4 +1,4 @@
-describe("Data Sources", () => {
+describe("Add data sources", () => {
   before(() => {
     Cypress.Cookies.defaults({
       preserve: Cypress.env("COOKIE_NAME"),
@@ -9,7 +9,10 @@ describe("Data Sources", () => {
   });
 
   it("adds a new datasource", () => {
-    cy.visit("/data-sources/postgresql/new");
+    cy.visit("/data-sources/new");
+
+    cy.get("[name='postgresql']").click();
+    cy.contains("Next").click();
 
     // Set up interceptor for login set up
     cy.intercept("POST", "/api/data-source?").as("create");
@@ -17,14 +20,20 @@ describe("Data Sources", () => {
     const credUrl = "postgresql://adrian@127.0.0.1/avodemo_development";
 
     cy.get("[name=name]").type("Demo DB");
-    cy.get("[name='credentials.url']").type(credUrl);
+
+    // Open "Paste as URL" modal
+    cy.contains("Paste from URL").click();
+    cy.get("[name='credentialsAsURL']").type(credUrl);
+    cy.contains("Apply").click();
+
+    // "Paste as URL modal" closed
+    cy.get("[name='credentialsAsURL']").should("not.exist");
+
+    // Disable SSL
     cy.get("#credentials_useSsl-label").click();
-    cy.get('button[type="submit"]')
-      .should("be.visible")
-      .click()
-      .then((el) => {
-        cy.get(el[0]).click()
-      });
+
+    // Create data source
+    cy.get('button[type="submit"]').should("be.visible").click();
 
     cy.wait("@create");
     cy.get("@create").then((xhr) => {
@@ -35,17 +44,18 @@ describe("Data Sources", () => {
       );
     });
 
-    cy.contains('Data source created 🚀')
+    cy.contains("Data source created 🚀");
+
+    cy.contains("Create dashboard")
   });
 
-  it.only("can see a datasource", () => {
-    cy.seedDataSource()
+  it("can see a datasource", () => {
     cy.visit("/");
 
-    cy.contains("Avo Demo").click()
-    cy.contains("This data source has")
-    cy.contains(/^users$/).click()
-    cy.contains("Browse records")
-    cy.contains("Filters")
+    cy.contains("Avo Demo").click();
+    cy.contains("This data source has");
+    cy.contains(/^users$/).click();
+    cy.contains("Users");
+    cy.contains("Create view from this table");
   });
 });

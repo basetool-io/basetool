@@ -37,13 +37,17 @@ const DataSourcesListing = ({
                 dataSourceId: dataSource.id.toString(),
               })
             }
+            className="group"
           >
-            <div className="relative flex flex-col justify-between h-full group">
+            <div className="relative flex flex-col justify-between h-full">
               <div className="text-lg font-bold text-gray-800 mb-2">
                 {dataSource.name}
               </div>
+              <div className="text-sm font-base text-gray-800 mb-2">
+                {dataSource.type}
+              </div>
               <div className="absolute top-0 left-auto right-0">
-                <div className="relative min-w-[2rem] h-8 filter grayscale group-hover:grayscale-0">
+                <div className="relative min-w-[2rem] h-8 filter grayscale opacity-75 group-hover:grayscale-0 group-hover:opacity-100">
                   <Image
                     src={`/img/logos/${dataSource.type}.png`}
                     layout="fill"

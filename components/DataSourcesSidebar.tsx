@@ -9,7 +9,7 @@ import { OWNER_ROLE } from "@/features/roles";
 import { Tooltip } from "@chakra-ui/react";
 import { isUndefined } from "lodash";
 import { useDataSourceContext, useProfile, useSidebarsVisible } from "@/hooks";
-import { useGetDataSourcesQuery } from "@/features/data-sources/api-slice";
+import { useDataSourcesResponse } from "@/features/data-sources/hooks";
 import { usePrefetch } from "@/features/tables/api-slice";
 import { useRouter } from "next/router";
 import Avatar from "react-avatar";
@@ -84,12 +84,10 @@ const DataSourcesSidebar = () => {
   const [sidebarsVisible] = useSidebarsVisible();
   const compact = true;
   const { user, role, isLoading: sessionIsLoading } = useProfile();
-  const { data: dataSourcesResponse, isLoading } = useGetDataSourcesQuery(
-    undefined,
-    {
+  const { dataSources, isLoading: dataSourcesAreLoading } =
+    useDataSourcesResponse({
       skip: !user.email,
-    }
-  );
+    });
   const prefetchTables = usePrefetch("getTables");
   const { dataSourceId } = useDataSourceContext();
 
@@ -127,7 +125,7 @@ const DataSourcesSidebar = () => {
             <div className="space-y-2">
               <HomeButton />
 
-              {isLoading && (
+              {dataSourcesAreLoading && (
                 <DataSourceItem
                   active={false}
                   compact={compact}
@@ -136,9 +134,8 @@ const DataSourcesSidebar = () => {
                   label={""}
                 />
               )}
-              {!isLoading &&
-                dataSourcesResponse?.ok &&
-                dataSourcesResponse.data.map((dataSource: DataSource) => {
+              {!dataSourcesAreLoading &&
+                dataSources.map((dataSource: DataSource) => {
                   const active = parseInt(dataSourceId) === dataSource.id;
                   let name = dataSource.name.replace(/[^a-zA-Z ]/g, "");
                   if (name == name.toUpperCase()) {

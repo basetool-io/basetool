@@ -1,5 +1,5 @@
 import { DataSource } from "@prisma/client";
-import { useGetDataSourceQuery } from "./api-slice";
+import { useGetDataSourceQuery, useGetDataSourcesQuery } from "./api-slice";
 import { useMemo } from "react";
 
 export const useDataSourceResponse = (dataSourceId: string) => {
@@ -32,5 +32,29 @@ export const useDataSourceResponse = (dataSourceId: string) => {
     refetch,
     error,
     info,
+  };
+};
+
+export const useDataSourcesResponse = (options = { skip: false }) => {
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+    refetch,
+    error,
+  } = useGetDataSourcesQuery(undefined, { skip: options.skip });
+
+  const dataSources: DataSource[] = useMemo(
+    () => (response?.ok ? response.data : []),
+    [response]
+  );
+
+  return {
+    dataSources,
+    response,
+    isLoading,
+    isFetching,
+    refetch,
+    error,
   };
 };

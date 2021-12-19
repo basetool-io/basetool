@@ -29,14 +29,19 @@ const Block = ({
   href,
   children,
   onMouseOver,
+  className,
 }: {
   href?: string;
   children: ReactNode;
   onMouseOver?: () => void;
+  className?: string;
 }) => {
   const content = (
     <div
-      className="rounded-md border bg-neutral-50 hover:bg-neutral-100 hover:border-neutral-300 p-4 h-full"
+      className={classNames(
+        "rounded-md border bg-neutral-50 hover:bg-neutral-100 hover:border-neutral-300 p-4 h-full",
+        className
+      )}
       onMouseOver={onMouseOver}
     >
       {children}

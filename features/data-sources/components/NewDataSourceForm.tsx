@@ -291,7 +291,7 @@ const NewDataSourceForm = ({
                 size="sm"
                 width="300px"
                 type="submit"
-                disabled={isLoading}
+                disabled={isChecking || isLoading}
                 onClick={(e) => {
                   return handleSubmit(onSubmit)(e);
                 }}
@@ -324,6 +324,7 @@ const NewDataSourceForm = ({
               <ModalBody>
                 <Input
                   type="text"
+                  name="credentialsAsURL"
                   placeholder="postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]"
                   value={credentialsUrl}
                   onChange={(e) => setCredentialsUrl(e.target.value)}

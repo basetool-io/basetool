@@ -65,17 +65,3 @@ Cypress.Commands.add("seed", (options = {}) => {
     }).then(() => cy.log("Seeded database"));
   });
 });
-
-Cypress.Commands.add("seedDataSource", (options = {}) => {
-  cy.fixture("user.json").then((defaultUser) => {
-    const user = options?.user || defaultUser;
-
-    cy.request({
-      url: "/api/test/seed",
-      method: "POST",
-      body: {
-        user,
-      },
-    }).then(() => cy.log("Seeded database"));
-  });
-});

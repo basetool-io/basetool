@@ -74,6 +74,7 @@ const DataSourceTileCreate = ({
             )}
             <div className="mb-4">
               <input
+                name={id}
                 type="radio"
                 className="w-5 h-5"
                 checked={!comingSoon && id === dataSourceId}
