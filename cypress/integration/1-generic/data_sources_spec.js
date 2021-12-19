@@ -12,7 +12,7 @@ describe("Add data sources", () => {
     cy.visit("/data-sources/new");
 
     cy.get("[name='postgresql']").click();
-    cy.contains("Next").click();
+    cy.contains("Create").should("exist");
 
     // Set up interceptor for login set up
     cy.intercept("POST", "/api/data-source?").as("create");
