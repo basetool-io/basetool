@@ -1,3 +1,5 @@
+import { signIn } from "next-auth/client";
+
 const login = (options) => {
   // Get the user
   cy.fixture("user.json").then((defaultUser) => {
