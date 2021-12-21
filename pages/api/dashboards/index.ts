@@ -61,6 +61,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     event: "Added a dashboard",
     properties: {
       name: req.body.name,
+      email: user?.email,
     },
   });
 
