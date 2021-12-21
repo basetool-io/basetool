@@ -28,7 +28,7 @@
     "@next-auth/prisma-adapter": "^0.5.4",
     "@pm2/io": "^5.0.0",
     "@prisma/client": "^3.6.0",
-    "@reduxjs/toolkit": "^1.6.1",
+    "@reduxjs/toolkit": "^1.6.2",
     "@segment/snippet": "^4.15.3",
     "@sentry/nextjs": "^6.16.1",
     "@uiw/react-codemirror": "^4.2.4",
