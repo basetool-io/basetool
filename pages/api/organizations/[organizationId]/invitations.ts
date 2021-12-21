@@ -110,6 +110,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
     serverSegment().track({
       userId: newUser ? newUser.id : "",
+      email: newUser ? newUser?.email : "",
       event: "Accepted invitation",
     });
   } catch (error: any) {
@@ -230,6 +231,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: owner ? owner.id : "",
+    email: owner ? owner?.email : "",
     event: "Invited user to organization",
   });
 

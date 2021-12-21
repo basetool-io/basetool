@@ -73,6 +73,7 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Created Google Sheets data source",
   });
 

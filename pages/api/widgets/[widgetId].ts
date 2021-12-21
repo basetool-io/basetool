@@ -32,6 +32,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Deleted widget",
     properties: {
       id: req.query.widgetId,
@@ -74,6 +75,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Updated widget",
     properties: {
       id: req.query.widgetId,

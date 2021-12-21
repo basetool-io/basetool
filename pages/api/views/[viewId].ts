@@ -69,6 +69,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Updated view",
     properties: {
       id: req.query.viewId,
@@ -89,6 +90,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Deleted view",
     properties: {
       id: req.query.viewId,

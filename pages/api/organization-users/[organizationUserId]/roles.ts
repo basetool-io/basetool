@@ -47,6 +47,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Updated role",
     properties: {
       organizationUserId: req.query.organizationUserId,

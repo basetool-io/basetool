@@ -31,6 +31,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const user = (await getUserFromRequest(req, {
     select: {
       id: true,
+      email: true,
       organizations: {
         include: {
           organization: true,
@@ -56,8 +57,10 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  serverSegment({ userId: user.id, email: user.email }).track({
-    event: "Created a dashboard2",
+  serverSegment().track({
+    userId: user ? user?.id : "",
+    email: user ? user?.email : "",
+    event: "Added a dashboard",
     properties: {
       name: req.body.name,
     },

@@ -38,6 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     serverSegment().track({
       userId: user ? user.id : "",
+      email: user ? user?.email : "",
       event: "Requested Google Sheets auth url",
     });
 
