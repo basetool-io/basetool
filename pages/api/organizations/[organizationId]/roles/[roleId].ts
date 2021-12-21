@@ -44,6 +44,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Updated organization role",
     properties: {
       roleId: req.query.roleId,
@@ -68,6 +69,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Deleted organization role",
     properties: {
       roleId: req.query.roleId,

@@ -51,6 +51,7 @@ const handler = async (
   try {
     serverSegment().track({
       userId: user ? user?.id : "",
+      email: user ? user?.email : "",
       event: "User registered",
       properties: {},
     });

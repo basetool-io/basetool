@@ -46,6 +46,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user?.id : "",
+    email: user ? user?.email : "",
     event: "Removed computed field",
   });
 
@@ -117,6 +118,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user?.id : "",
+    email: user ? user?.email : "",
     event: "Updated computed field",
   });
 

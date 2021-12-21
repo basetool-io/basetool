@@ -56,6 +56,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Deleted dashboard",
     properties: {
       id: req.query.dashboardId,
@@ -87,6 +88,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Updated dashboard",
     properties: {
       id: req.query.dashboardId,

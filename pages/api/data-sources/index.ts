@@ -90,6 +90,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
   const user = (await getUserFromRequest(req, {
     select: {
       id: true,
+      email: true,
       organizations: {
         include: {
           organization: {
@@ -204,6 +205,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Added data source",
     properties: {
       id: type,

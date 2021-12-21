@@ -38,6 +38,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Created record",
     properties: {
       id: dataSource.type,

@@ -34,6 +34,7 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
+    email: user ? user?.email : "",
     event: "Bulk Delete",
     properties: {
       id: dataSource.type,

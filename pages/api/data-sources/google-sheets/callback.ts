@@ -71,6 +71,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (err) {
       serverSegment().track({
         userId: user ? user.id : "",
+        email: user ? user?.email : "",
         event: "Error getting Google tokens",
       });
 
@@ -97,6 +98,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (dataSource && dataSource.id) {
       serverSegment().track({
         userId: user ? user.id : "",
+        email: user ? user?.email : "",
         event: "Connected Google account",
       });
 
@@ -104,6 +106,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     } else {
       serverSegment().track({
         userId: user ? user.id : "",
+        email: user ? user?.email : "",
         event: "Error finding Google Sheets data source",
         properties: {
           id: dataSource.type,

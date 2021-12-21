@@ -1,4 +1,3 @@
-import { inProduction } from "./environment";
 import { segmentWriteKey } from "./services";
 import Analytics from "analytics-node";
 import isUndefined from "lodash/isUndefined";
@@ -15,15 +14,11 @@ export const segment = () => {
   };
 };
 
-export const serverSegment = (identification?: {
-  userId?: number;
-  email?: string;
-}) => {
+export const serverSegment = () => {
   let segment: any;
 
-  if (inProduction) {
+  if (true) {
     segment = new Analytics(segmentWriteKey as string);
-    if (identification) segment.identify({ traits: identification });
   } else {
     segment = {
       track: () => undefined,
@@ -31,10 +26,18 @@ export const serverSegment = (identification?: {
   }
 
   return {
-    track: (...args: any) => {
+    track: (args: any) => {
       try {
-        segment.track({ userId: identification?.userId, ...(args as any) });
-      } catch (error) {}
+        if (args?.userId && args?.email) {
+          segment.identify({
+            userId: args.userId,
+            traits: { email: args.email },
+          });
+        }
+        segment.track(args);
+      } catch (error) {
+        console.log(error);
+      }
     },
   };
 };

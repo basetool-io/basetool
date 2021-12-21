@@ -43,6 +43,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user?.id : "",
+    email: user ? user?.email : "",
     event: "Added computed field",
   });
 

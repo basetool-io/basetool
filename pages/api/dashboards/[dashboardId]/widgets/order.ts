@@ -69,6 +69,7 @@ async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
 
     serverSegment().track({
       userId: user ? user.id : "",
+      email: user ? user?.email : "",
       event: "Re-odered widgets in a dashboard",
       properties: {
         dashboardId: req.query.dashboardId as string,
