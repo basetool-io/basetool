@@ -15,11 +15,15 @@ export const segment = () => {
   };
 };
 
-export const serverSegment = () => {
+export const serverSegment = (identification?: {
+  userId?: number;
+  email?: string;
+}) => {
   let segment: any;
 
   if (inProduction) {
     segment = new Analytics(segmentWriteKey as string);
+    if (identification) segment.identify({ traits: identification });
   } else {
     segment = {
       track: () => undefined,
@@ -29,7 +33,7 @@ export const serverSegment = () => {
   return {
     track: (...args: any) => {
       try {
-        segment.track(...(args as any));
+        segment.track({ userId: identification?.userId, ...(args as any) });
       } catch (error) {}
     },
   };
