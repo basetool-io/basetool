@@ -186,7 +186,7 @@ function Register() {
                     id="lastName"
                     isInvalid={!isEmpty(errors?.lastName)}
                   >
-                    <FormLabel>First name</FormLabel>
+                    <FormLabel>Last name</FormLabel>
                     <Input
                       type="text"
                       placeholder="Lasso"

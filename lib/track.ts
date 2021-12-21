@@ -1,3 +1,4 @@
+import { inProduction } from "./environment";
 import { segmentWriteKey } from "./services";
 import Analytics from "analytics-node";
 import isUndefined from "lodash/isUndefined";
@@ -17,7 +18,7 @@ export const segment = () => {
 export const serverSegment = () => {
   let segment: any;
 
-  if (true) {
+  if (inProduction) {
     segment = new Analytics(segmentWriteKey as string);
   } else {
     segment = {
@@ -35,9 +36,7 @@ export const serverSegment = () => {
           });
         }
         segment.track(args);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     },
   };
 };
