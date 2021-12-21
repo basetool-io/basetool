@@ -58,7 +58,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
 
   serverSegment().track({
     userId: user ? user.id : "",
-    event: "Added a dashboard",
+    event: "Created a dashboard",
     properties: {
       name: req.body.name,
       email: user?.email,
