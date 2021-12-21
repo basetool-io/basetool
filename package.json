@@ -50,7 +50,7 @@
     "framer-motion": "^4",
     "get-port": "^6.0.0",
     "google-auth-library": "^7.9.1",
-    "google-spreadsheet": "^3.1.15",
+    "google-spreadsheet": "^3.2.0",
     "googleapis": "^85.0.0",
     "handlebars": "^4.7.7",
     "html-react-parser": "^1.4.0",
