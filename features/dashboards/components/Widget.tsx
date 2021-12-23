@@ -3,7 +3,7 @@ import { InformationCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { Widget } from "@prisma/client";
 import { WidgetOptions, WidgetValue } from "../types";
 import { activeWidgetIdSelector } from "@/features/records/state-slice";
-import { isUndefined } from "lodash";
+import { isNumber, isUndefined } from "lodash";
 import { useAppSelector } from "@/hooks";
 import { useWidgetValue } from "../hooks";
 import React, { memo, useMemo } from "react";
@@ -35,7 +35,7 @@ ErrorState.displayName = "ErrorState";
 
 const SuccessState = memo(
   ({ widget, widgetValue }: { widget: Widget; widgetValue: WidgetValue }) => {
-    const value = numeral(widgetValue.value).format("0[.]00a");
+    const value = isNumber(widgetValue.value) ? numeral(widgetValue.value).format("0[.]00a") : widgetValue.value;
 
     return (
       <>
