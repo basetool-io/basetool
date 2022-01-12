@@ -1,17 +1,13 @@
-import { REDIS_CACHE_DB } from "@/lib/constants"
+import { REDIS_CACHE_DB } from "@/lib/constants";
+import { ValueType } from "ioredis";
+import { getRedisClient } from "@/lib/redis";
 import { isUndefined } from "lodash";
-import Redis, { ValueType } from "ioredis";
 
 class CacheDriver {
   public redis;
 
-  constructor({ url }: { url: string }) {
-    const options = {
-      keyPrefix: `basetool_${process.env.NEXT_PUBLIC_APP_ENV}:`,
-      lazyConnect: true,
-      db: REDIS_CACHE_DB,
-    };
-    this.redis = new Redis(url, options);
+  constructor() {
+    this.redis = getRedisClient(REDIS_CACHE_DB);
   }
 
   public async get(key: string): Promise<string | null> {
@@ -65,9 +61,14 @@ class CacheDriver {
 
     // Store the result
     if (!isUndefined(options.expiresIn)) {
-      await this.set({ key, value: JSON.stringify(result), time: options.expiresIn, expiryMode: 'EX' });
-    } else{
-      await this.set({ key, value: JSON.stringify(result)});
+      await this.set({
+        key,
+        value: JSON.stringify(result),
+        time: options.expiresIn,
+        expiryMode: "EX",
+      });
+    } else {
+      await this.set({ key, value: JSON.stringify(result) });
     }
 
     // Return the result
@@ -75,6 +76,6 @@ class CacheDriver {
   }
 }
 
-const cache = new CacheDriver({ url: process.env.REDIS_URL as string });
+const cache = new CacheDriver();
 
 export default cache;

@@ -46,6 +46,7 @@ function New() {
               {availableDataSources.map(
                 ({ id, label, beta, comingSoon, readOnly }) => (
                   <DataSourceTileCreate
+                    key={id}
                     id={id}
                     label={label}
                     beta={beta}

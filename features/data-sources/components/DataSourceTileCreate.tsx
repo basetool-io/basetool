@@ -78,6 +78,7 @@ const DataSourceTileCreate = ({
                 className="w-5 h-5"
                 checked={!comingSoon && id === dataSourceId}
                 disabled={comingSoon}
+                onChange={() => ''}
               />
             </div>
             <div className="relative h-12 mb-4">

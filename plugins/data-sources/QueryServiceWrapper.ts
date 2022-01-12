@@ -86,7 +86,7 @@ export default class QueryServiceWrapper implements IQueryServiceWrapper {
   }
 
   public async disconnect() {
-    return await this.queryService.disconnect()
+    return await this.queryService.disconnect();
   }
 }
 
@@ -163,20 +163,7 @@ export const runInSSHTunnel = async ({
  * Fetches and caches the key from S3
  */
 const getSSHKey = async (Key: string) => {
-  // Cache the key for 15 minutes so we avoid the S3 transport time.
-  const stringifiedKey = await cache.fetch<string>({
-    key: `ssh_key:${Key}`,
-    options: {
-      expiresIn: 900, // 15 minutes
-    },
-    callback: async () => {
-      const key = await fetchKeyFromS3(Key);
-
-      return encrypt(key?.toString() as string);
-    },
-  });
-
-  return decrypt(stringifiedKey);
+  return await fetchKeyFromS3(Key);
 };
 
 /**

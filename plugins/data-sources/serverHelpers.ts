@@ -44,7 +44,7 @@ export const runQueries = async (
   // We want to better control if the queries should run in a proxy
   // We're checking to see if the redis DB has any options set 1 or 0.
   // If nothing is set in redis, we're going to fallback to an environment variable.
-  const runInProxyOverride = (await options.exists("runInProxy"))
+  const runInProxyOverride = (await options.get("runInProxy"))
     ? (await options.get("runInProxy")) === "1"
     : process.env.USE_PROXY === "1";
 
