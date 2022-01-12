@@ -40,6 +40,7 @@ const useUserAnalytics = () => {
 const FullStoryScripts = () => {
   const fullstoryEnabled = process.env.NEXT_PUBLIC_ENABLE_FULLSTORY === "1" && process.env.NEXT_PUBLIC_FULLSTORY_ORG;
   const [session] = useSession();
+  console.log('process.env.NEXT_PUBLIC_ENABLE_FULLSTORY->', process.env.NEXT_PUBLIC_ENABLE_FULLSTORY, process.env.NEXT_PUBLIC_FULLSTORY_ORG, fullstoryEnabled)
 
   useEffect(() => {
     if (window && window.FS && session && session.user) {
