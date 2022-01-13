@@ -4,14 +4,21 @@ import React, { memo } from "react";
 import ShowFieldWrapper from "@/features/fields/components/FieldWrapper/ShowFieldWrapper";
 
 const Show = ({ field }: { field: Field<RecordAssociationValue> }) => {
-  const { value, dataSourceId, foreignTable, foreignId } = field.value;
+  let value, dataSourceId, foreignTable, foreignId;
+
+  if (field.value) {
+    value = field.value.value
+    dataSourceId = field.value.dataSourceId
+    foreignTable = field.value.foreignTable
+    foreignId = field.value.foreignId
+  }
 
   return (
     <ShowFieldWrapper field={field}>
       {value}
-      <GoToRecordLink
+      {foreignId && <GoToRecordLink
         href={`/data-sources/${dataSourceId}/tables/${foreignTable}/${foreignId}`}
-      />
+      />}
     </ShowFieldWrapper>
   );
 };
