@@ -2,7 +2,6 @@
 import {
   googleAnalytics4Code,
   googleAnalyticsUACode,
-  segmentPublicKey,
 } from "@/lib/services";
 import { inProduction } from "@/lib/environment";
 import { isString } from "lodash";

@@ -1,5 +1,5 @@
 import { inProduction } from "@/lib/environment";
-import { intercomAppId, segmentPublicKey } from "@/lib/services";
+import { segmentPublicKey } from "@/lib/services";
 import { segment } from "@/lib/track";
 // import { useIntercom } from "react-use-intercom";
 import { useProfile, useSidebarsVisible } from "@/hooks";

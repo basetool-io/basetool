@@ -1,9 +1,9 @@
-import { inProduction } from "@/lib/environment";
-import { intercomAppId } from "@/lib/services"
+// import { inProduction } from "@/lib/environment";
+// import { intercomAppId } from "@/lib/services"
 // import { useIntercom } from "react-use-intercom";
 // import { useSession } from "next-auth/client";
 import HeadSection from "./HeadSection";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import classNames from "classnames";
 
 function Layout({ children }: { children: ReactNode }) {
