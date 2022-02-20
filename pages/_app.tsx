@@ -7,7 +7,7 @@ import * as gtag from "@/lib/gtag";
 import { ChakraProvider, Tooltip } from "@chakra-ui/react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { IntercomProvider } from "react-use-intercom";
+// import { IntercomProvider } from "react-use-intercom";
 import { Provider as NextAuthProvider } from "next-auth/client";
 import { Provider as ReduxProvider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
@@ -101,9 +101,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             <ShowErrorMessages>
               {/* Conditionally enable Intercom */}
               {isString(intercomAppId) && (
-                <IntercomProvider appId={intercomAppId}>
+                // <IntercomProvider appId={intercomAppId}>
                   <Component {...pageProps} />
-                </IntercomProvider>
+                // </IntercomProvider>
               )}
 
               {!isString(intercomAppId) && <Component {...pageProps} />}

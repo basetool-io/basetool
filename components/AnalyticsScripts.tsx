@@ -1,4 +1,4 @@
-import * as segmentSnippet from "@segment/snippet";
+// import * as segmentSnippet from "@segment/snippet";
 import {
   googleAnalytics4Code,
   googleAnalyticsUACode,
@@ -10,20 +10,20 @@ import { useSession } from "next-auth/client";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 
-function renderSegmentSnippet() {
-  const opts = {
-    apiKey: segmentPublicKey,
-    // note: the page option only covers SSR tracking.
-    // Page.js is used to track other events using `window.analytics.page()`
-    page: true,
-  };
+// function renderSegmentSnippet() {
+//   const opts = {
+//     apiKey: segmentPublicKey,
+//     // note: the page option only covers SSR tracking.
+//     // Page.js is used to track other events using `window.analytics.page()`
+//     page: true,
+//   };
 
-  if (inProduction) {
-    return segmentSnippet.min(opts);
-  }
+//   if (inProduction) {
+//     return segmentSnippet.min(opts);
+//   }
 
-  return segmentSnippet.max(opts);
-}
+//   return segmentSnippet.max(opts);
+// }
 
 const useUserAnalytics = () => {
   const [UA, setUA] = useState<string | undefined>();
@@ -118,7 +118,7 @@ const ProductionScripts = () => {
 
   return (
     <>
-      <Script dangerouslySetInnerHTML={{ __html: renderSegmentSnippet() }} />
+      {/* <Script dangerouslySetInnerHTML={{ __html: renderSegmentSnippet() }} /> */}
       <GoogleAnalyticsScripts />
       <FullStoryScripts />
     </>

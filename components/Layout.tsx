@@ -1,7 +1,7 @@
 import { inProduction } from "@/lib/environment";
 import { intercomAppId, segmentPublicKey } from "@/lib/services";
 import { segment } from "@/lib/track";
-import { useIntercom } from "react-use-intercom";
+// import { useIntercom } from "react-use-intercom";
 import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
 import Authenticated from "./Authenticated";
@@ -36,25 +36,25 @@ function Layout({
     () => false && router.pathname.includes("/settings"),
     [router.pathname]
   );
-  const { boot, update } = useIntercom();
+  // const { boot, update } = useIntercom();
 
-  useEffect(() => {
-    // Boot up the Intercom widget
-    if (inProduction && intercomAppId) boot();
-  }, []);
+  // useEffect(() => {
+  //   // Boot up the Intercom widget
+  //   if (inProduction && intercomAppId) boot();
+  // }, []);
 
   useEffect(() => {
     // Update Intercom with the user's info
     if (inProduction && !profileIsLoading && session) {
-      if (intercomAppId) {
-        // Update Intercom identification
-        update({
-          name: session?.user?.name,
-          email: session?.user?.email,
-          createdAt: session?.user?.createdAt?.toString(),
-          userHash: session?.user?.intercomUserHash,
-        });
-      }
+      // if (intercomAppId) {
+      //   // Update Intercom identification
+      //   update({
+      //     name: session?.user?.name,
+      //     email: session?.user?.email,
+      //     createdAt: session?.user?.createdAt?.toString(),
+      //     userHash: session?.user?.intercomUserHash,
+      //   });
+      // }
 
       if (segmentPublicKey) {
         // Update Segment identification

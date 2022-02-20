@@ -1,31 +1,31 @@
 import { inProduction } from "@/lib/environment";
 import { intercomAppId } from "@/lib/services"
-import { useIntercom } from "react-use-intercom";
-import { useSession } from "next-auth/client";
+// import { useIntercom } from "react-use-intercom";
+// import { useSession } from "next-auth/client";
 import HeadSection from "./HeadSection";
 import React, { ReactNode, useEffect } from "react";
 import classNames from "classnames";
 
 function Layout({ children }: { children: ReactNode }) {
-  const [session, sessionIsLoading] = useSession();
-  const { boot, update } = useIntercom();
+  // const [session, sessionIsLoading] = useSession();
+  // const { boot, update } = useIntercom();
 
-  useEffect(() => {
-    // Boot up the Intercom widget
-    if (inProduction && intercomAppId) boot();
-  }, []);
+  // useEffect(() => {
+  //   // Boot up the Intercom widget
+  //   if (inProduction && intercomAppId) boot();
+  // }, []);
 
-  useEffect(() => {
-    // Update Intercom with the user's info
-    if (inProduction && !sessionIsLoading && session && intercomAppId) {
-      update({
-        name: session?.user?.name,
-        email: session?.user?.email,
-        createdAt: session?.user?.createdAt?.toString(),
-        userHash: session?.user?.intercomUserHash,
-      });
-    }
-  }, [sessionIsLoading, session]);
+  // useEffect(() => {
+  //   // Update Intercom with the user's info
+  //   if (inProduction && !sessionIsLoading && session && intercomAppId) {
+  //     update({
+  //       name: session?.user?.name,
+  //       email: session?.user?.email,
+  //       createdAt: session?.user?.createdAt?.toString(),
+  //       userHash: session?.user?.intercomUserHash,
+  //     });
+  //   }
+  // }, [sessionIsLoading, session]);
 
   return (
     <>
