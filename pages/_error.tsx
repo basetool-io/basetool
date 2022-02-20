@@ -1,8 +1,8 @@
-import { inProduction } from "@/lib/environment";
+// import { inProduction } from "@/lib/environment";
 // import { useIntercom } from "react-use-intercom";
 import { useSession } from "next-auth/client";
 import { useWindowSize } from "react-use";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import classNames from "classnames";
 
 function Error({ statusCode }: any) {
