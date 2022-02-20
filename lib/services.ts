@@ -8,3 +8,5 @@ export const intercomAccessToken = process.env.INTERCOM_ACCESS_TOKEN;
 
 export const segmentPublicKey = process.env.NEXT_PUBLIC_SEGMENT_PUBLIC_KEY;
 export const segmentWriteKey = process.env.SEGMENT_WRITE_KEY;
+
+export const slackGrowthChannelWebhook = process.env.SLACK_GROWTH_CHANNEL_WEBHOOK;

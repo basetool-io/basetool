@@ -2,8 +2,10 @@
 // import { Client } from "intercom-client";
 import { createUser, hashPassword } from "@/features/auth";
 // import { intercomAccessToken } from "@/lib/services";
+import { isString } from "lodash"
 import { schema } from "@/features/auth/signupSchema";
 import { serverSegment } from "@/lib/track";
+import { slackGrowthChannelWebhook } from "@/lib/services"
 import { withMiddlewares } from "@/features/api/middleware";
 import ApiResponse from "@/features/api/ApiResponse";
 import email from "@/lib/email";
@@ -71,6 +73,30 @@ const handler = async (
     //     signed_up_at: Date.now() / 1000,
     //   } as any);
     // }
+
+    let identifier = payload.email
+
+    if (payload.firstName || payload.lastName) {
+      identifier += ` ${payload.firstName} ${payload.lastName}`
+    }
+
+    if (payload.organization) {
+      identifier += ` - ${payload.organization}`
+    }
+
+    if (payload.lastKnownTimezone) {
+      identifier += ` (${payload.lastKnownTimezone})`
+    }
+
+    if (isString(slackGrowthChannelWebhook)) {
+      await fetch(slackGrowthChannelWebhook, {
+        method: 'POST',
+        body: JSON.stringify({
+          text: `${identifier} signed up as a new user on basetool.io`,
+        }),
+        headers: { "Content-Type": "application/json" },
+      })
+    }
 
     await email.send({
       to: ["adrian@basetool.io", "david@basetool.io"],
