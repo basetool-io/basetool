@@ -1,6 +1,6 @@
 import { inProduction } from "@/lib/environment";
 import { segmentPublicKey } from "@/lib/services";
-import { segment } from "@/lib/track";
+// import { segment } from "@/lib/track";
 // import { useIntercom } from "react-use-intercom";
 import { useProfile, useSidebarsVisible } from "@/hooks";
 import { useRouter } from "next/router";
