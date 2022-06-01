@@ -90,7 +90,7 @@
     "react-toastify": "^8.1.0",
     "react-use": "^17.3.1",
     "react-use-intercom": "^1.4.0",
-    "sharp": "^0.29.3",
+    "sharp": "^0.30.5",
     "slugify": "^1.6.3",
     "stripe": "^8.191.0",
     "tailwindcss": "^3.0.2",
