@@ -72,6 +72,16 @@ function Layout({
     <Authenticated>
       <>
         <HeadSection />
+        {process.env.NEXT_PUBLIC_SHOW_SUNSETTING_MESSAGE === "1" && (
+          <a
+            href="https://basetool.io/#sunset"
+            target="_blank"
+            className="block w-full bg-blue-100 text-blue-900 py-2 text-center"
+            rel="noreferrer"
+          >
+            We're sunsetting Basetool. Click to find out more.
+          </a>
+        )}
         <div className="antialiased flex w-screen h-screen">
           <DataSourcesSidebar />
           <div
