@@ -110,122 +110,141 @@ function Register() {
               alt="Basetool Logo"
             />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Sign up for an account
-          </h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <input type="hidden" {...register("csrfToken")} />
+          {process.env.NEXT_PUBLIC_SHOW_SUNSETTING_MESSAGE == "1" && (
+            <a
+              href="https://basetool.io/#sunset"
+              target="_blank"
+              className="block w-full bg-blue-100 text-blue-900 py-2 text-center"
+              rel="noreferrer"
+            >
+              We're sunsetting Basetool. Click to find out more.
+            </a>
+          )}
+          {process.env.NEXT_PUBLIC_SHOW_SUNSETTING_MESSAGE !== "1" && (
+            <>
+              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+                Sign up for an account
+              </h2>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <input type="hidden" {...register("csrfToken")} />
 
-            <FormControl id="email" isInvalid={!isEmpty(errors?.email)}>
-              <FormLabel>
-                Work email address <sup className="text-red-600">*</sup>
-              </FormLabel>
-              <Input
-                type="email"
-                placeholder="ted@lasso.com"
-                required={true}
-                {...register("email")}
-                autoFocus
-              />
-              <FormHelperText>We'll never share your email</FormHelperText>
-              <FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl id="password" isInvalid={!isEmpty(errors?.password)}>
-              <FormLabel>
-                Password <sup className="text-red-600">*</sup>
-              </FormLabel>
-              <Input
-                type="password"
-                placeholder="your strong password"
-                required={true}
-                {...register("password")}
-              />
-              <FormHelperText>Something strong.</FormHelperText>
-              <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
-            </FormControl>
-
-            <div className="flex flex-col space-y-4">
-              <div className="w-full">
-                <FormControl
-                  id="organization"
-                  isInvalid={!isEmpty(errors?.organization)}
-                >
+                <FormControl id="email" isInvalid={!isEmpty(errors?.email)}>
                   <FormLabel>
-                    Organization name <sup className="text-red-600">*</sup>
+                    Work email address <sup className="text-red-600">*</sup>
                   </FormLabel>
                   <Input
-                    type="text"
-                    placeholder="Apple Inc"
-                    {...register("organization")}
+                    type="email"
+                    placeholder="ted@lasso.com"
+                    required={true}
+                    {...register("email")}
+                    autoFocus
                   />
+                  <FormHelperText>We'll never share your email</FormHelperText>
+                  <FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
+                </FormControl>
+
+                <FormControl
+                  id="password"
+                  isInvalid={!isEmpty(errors?.password)}
+                >
+                  <FormLabel>
+                    Password <sup className="text-red-600">*</sup>
+                  </FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="your strong password"
+                    required={true}
+                    {...register("password")}
+                  />
+                  <FormHelperText>Something strong.</FormHelperText>
                   <FormErrorMessage>
-                    {errors?.organization?.message}
+                    {errors?.password?.message}
                   </FormErrorMessage>
                 </FormControl>
-              </div>
-              <div className="flex space-x-4">
-                <div className="w-1/2">
-                  <FormControl
-                    id="firstName"
-                    isInvalid={!isEmpty(errors?.firstName)}
-                  >
-                    <FormLabel>First name</FormLabel>
-                    <Input
-                      type="text"
-                      placeholder="Ted"
-                      {...register("firstName")}
-                    />
-                    <FormErrorMessage>
-                      {errors?.firstName?.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                </div>
-                <div className="w-1/2">
-                  <FormControl
-                    id="lastName"
-                    isInvalid={!isEmpty(errors?.lastName)}
-                  >
-                    <FormLabel>Last name</FormLabel>
-                    <Input
-                      type="text"
-                      placeholder="Lasso"
-                      {...register("lastName")}
-                    />
-                    <FormErrorMessage>
-                      {errors?.lastName?.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                </div>
-              </div>
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center"></div>
-              <div className="text-sm">
-                Already have an account?{" "}
-                <Link href="/auth/login">
-                  <a className="font-medium text-indigo-600 hover:text-indigo-500">
-                    Log in
-                  </a>
-                </Link>
-              </div>
-            </div>
+                <div className="flex flex-col space-y-4">
+                  <div className="w-full">
+                    <FormControl
+                      id="organization"
+                      isInvalid={!isEmpty(errors?.organization)}
+                    >
+                      <FormLabel>
+                        Organization name <sup className="text-red-600">*</sup>
+                      </FormLabel>
+                      <Input
+                        type="text"
+                        placeholder="Apple Inc"
+                        {...register("organization")}
+                      />
+                      <FormErrorMessage>
+                        {errors?.organization?.message}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </div>
+                  <div className="flex space-x-4">
+                    <div className="w-1/2">
+                      <FormControl
+                        id="firstName"
+                        isInvalid={!isEmpty(errors?.firstName)}
+                      >
+                        <FormLabel>First name</FormLabel>
+                        <Input
+                          type="text"
+                          placeholder="Ted"
+                          {...register("firstName")}
+                        />
+                        <FormErrorMessage>
+                          {errors?.firstName?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                    <div className="w-1/2">
+                      <FormControl
+                        id="lastName"
+                        isInvalid={!isEmpty(errors?.lastName)}
+                      >
+                        <FormLabel>Last name</FormLabel>
+                        <Input
+                          type="text"
+                          placeholder="Lasso"
+                          {...register("lastName")}
+                        />
+                        <FormErrorMessage>
+                          {errors?.lastName?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                    </div>
+                  </div>
+                </div>
 
-            <div>
-              <Button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                colorScheme="blue"
-                width="100%"
-                disabled={isLoading}
-                isLoading={isLoading}
-                onClick={handleSubmit(onSubmit)}
-              >
-                Register
-              </Button>
-            </div>
-          </form>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center"></div>
+                  <div className="text-sm">
+                    Already have an account?{" "}
+                    <Link href="/auth/login">
+                      <a className="font-medium text-indigo-600 hover:text-indigo-500">
+                        Log in
+                      </a>
+                    </Link>
+                  </div>
+                </div>
+
+                <div>
+                  <Button
+                    type="submit"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    colorScheme="blue"
+                    width="100%"
+                    disabled={isLoading}
+                    isLoading={isLoading}
+                    onClick={handleSubmit(onSubmit)}
+                  >
+                    Register
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
         </div>
       </AuthLayout>
     </>
